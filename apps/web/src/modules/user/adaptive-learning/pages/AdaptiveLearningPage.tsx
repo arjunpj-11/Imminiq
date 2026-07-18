@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import PageHero from '../../../../components/layout/PageHero';
 import { MicButton } from '../../../../components/input/VoiceInputButton';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import { useVoiceInput } from '../../../../hooks/useVoiceInput';
@@ -129,33 +130,29 @@ export default function AdaptiveLearningPage() {
   return (
     <AppShellBoundary>
       <main className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full flex-col gap-6 pb-24 max-[640px]:w-[calc(100%-20px)]">
-        <header className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
-              <span className="h-1.25 w-1.25 rounded-full bg-(--success) dark:bg-(--success)" />
-              Adaptive Learning
-            </div>
-            <h1 className="font-ui text-[clamp(26px,3.5vw,38px)] font-extrabold leading-[1.15] tracking-[-0.8px] text-(--text-primary) dark:text-(--text-primary)">
+        <PageHero
+          eyebrow="Adaptive learning"
+          title={
+            <>
               Your learning{' '}
-              <span className="text-(--brand-500) dark:text-(--brand-500)">navigator</span>
-            </h1>
-            <p className="mt-2 max-w-125 text-[13px] italic leading-[1.55] text-(--text-secondary) opacity-80 dark:text-(--text-secondary)">
-              Ask what to study next, which tracker to continue, or which mock test will expose your
-              current weak areas.
-            </p>
-          </div>
-          <div className="min-w-47.5 rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-5 py-4 text-right shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) max-[560px]:w-full">
-            <div className="font-mono text-[7.5px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-55">
+              <span className="text-(--brand-500)">navigator</span>
+            </>
+          }
+          description="Ask what to study next, discover the best tracker to continue, or choose the assessment most likely to expose your current knowledge gaps."
+          aside={
+            <div>
+            <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-(--text-muted)">
               Adaptive level
             </div>
-            <div className="mt-1 font-ui text-[24px] font-extrabold leading-none capitalize text-(--brand-500)">
+            <div className="mt-3 font-ui text-[28px] font-extrabold leading-none capitalize text-(--brand-500)">
               {data?.profile.level ?? 'Loading'}
             </div>
-            <div className="mt-1.5 text-[11px] text-(--text-secondary)">
+            <div className="mt-2 text-[12px] text-(--text-secondary)">
               {data?.profile.masteryScore ?? 0}% mastery
             </div>
           </div>
-        </header>
+          }
+        />
 
         {dashboard.isError ? (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">

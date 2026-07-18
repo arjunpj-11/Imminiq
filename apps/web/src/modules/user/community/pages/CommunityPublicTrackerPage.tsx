@@ -258,17 +258,17 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
                 <div className="mt-6 flex flex-wrap items-center gap-2.5">
                   <button
                     type="button"
-                    disabled={toggleLike.isPending}
+                    aria-busy={toggleLike.isPending}
                     onClick={handleLike}
                     className={cn(
-                      'inline-flex items-center gap-2 rounded-md border-[1.5px] px-4 py-2.5 text-[13px] font-bold transition disabled:cursor-not-allowed disabled:opacity-60',
+                      'inline-flex items-center gap-2 rounded-md border-[1.5px] px-4 py-2.5 text-[13px] font-bold transition',
                       tracker.likedByMe
                         ? 'border-[rgba(184,76,43,0.28)] bg-[rgba(184,76,43,0.10)] text-(--brand-500) dark:border-[rgba(232,129,106,0.25)] dark:text-(--brand-500)'
                         : 'border-(--border-subtle) bg-white/60 text-(--text-secondary) hover:border-[rgba(184,76,43,0.25)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-white/4 dark:text-(--text-secondary) dark:hover:text-(--brand-500)'
                     )}
                   >
                     <HeartIcon filled={tracker.likedByMe} />
-                    {toggleLike.isPending ? 'Saving...' : tracker.likedByMe ? 'Liked' : 'Like'}
+                    {tracker.likedByMe ? 'Liked' : 'Like'}
                   </button>
 
                   {currentUserId !== tracker.ownerId && isCloned && clanQuery.data?.role === 'outsider' && (

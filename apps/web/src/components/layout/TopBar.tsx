@@ -9,6 +9,7 @@ import ImminiqLogo from '../ui/ImminiqLogo';
 import ImminiqWordmark from '../ui/ImminiqWordmark';
 import ConfirmDialog from '../overlays/ConfirmDialog';
 import { ROUTES } from '../../routes/config/route-paths';
+import UserAvatar from '../data-display/UserAvatar';
 
 interface ITopBarProps {
   onMenuClick?: () => void;
@@ -106,6 +107,7 @@ const CountBadge = ({ count }: { count: number }) => {
 };
 
 export default function TopBar({
+  onMenuClick,
   streakDays = 0,
   userName = 'Imminiq User',
   userInitials = 'IM',
@@ -190,6 +192,28 @@ export default function TopBar({
     <>
       <header className="sticky top-0 z-20 flex h-(--topbar-height) items-center gap-4 border-b border-(--border-subtle) bg-[color-mix(in_srgb,var(--surface-canvas)_90%,transparent)] px-6 backdrop-blur-xl max-[640px]:gap-2.5 max-[640px]:px-3.5">
         <div className="flex min-w-0 items-center gap-3">
+          {!isGuest && onMenuClick && (
+            <button
+              type="button"
+              onClick={onMenuClick}
+              className={cn(iconClass, 'lg:hidden')}
+              aria-label="Open main navigation"
+              aria-controls="app-navigation"
+            >
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                aria-hidden="true"
+              >
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              </svg>
+            </button>
+          )}
           <Link
             to={isGuest ? ROUTES.home : ROUTES.dashboard}
             aria-label={isGuest ? 'Go to Imminiq home' : 'Go to dashboard'}
@@ -201,7 +225,7 @@ export default function TopBar({
           {!isGuest && (
             <>
               <span className="hidden h-5 w-px bg-(--border-subtle) sm:block" aria-hidden="true" />
-              <span className="truncate text-[13px] font-[660] text-(--text-primary) max-[430px]:max-w-28">
+              <span className="truncate text-[13px] font-[660] text-(--text-primary) max-[640px]:hidden">
                 {pageLabel}
               </span>
             </>
@@ -331,17 +355,18 @@ export default function TopBar({
                   aria-haspopup="menu"
                   aria-expanded={profileOpen}
                   className={cn(
-                    'flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border-2 bg-linear-to-br from-(--brand-500) to-[#e9a08e] text-[11px] font-bold text-white transition focus-visible:outline-none',
+                    'flex h-9 w-9 items-center justify-center rounded-full border-2 text-[11px] font-bold transition focus-visible:outline-none',
                     profileOpen
                       ? 'border-(--brand-500) shadow-(--shadow-focus)'
                       : 'border-(--surface-elevated) hover:shadow-(--shadow-focus)'
                   )}
                 >
-                  {userAvatarUrl ? (
-                    <img src={userAvatarUrl} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    userInitials
-                  )}
+                  <UserAvatar
+                    name={userName}
+                    src={userAvatarUrl}
+                    initials={userInitials}
+                    sizeClassName="h-full w-full text-[11px]"
+                  />
                 </button>
 
                 {profileOpen && (

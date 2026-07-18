@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 
 import type { ICommunityTrackerReview } from '../../types/community.types';
 import { cn } from '../../utils/community-ui';
+import UserAvatar from '../../../../../components/data-display/UserAvatar';
 
 export const BackIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -282,17 +283,18 @@ export const Avatar = ({ initials, avatarUrl, size = 'md', accent = false }: IAv
   }[size];
 
   return (
-    <div
-      className={cn(
-        'flex shrink-0 items-center justify-center overflow-hidden rounded-xl font-mono font-bold',
-        sizeClass,
+    <UserAvatar
+      name={initials}
+      src={avatarUrl}
+      initials={initials}
+      sizeClassName={sizeClass}
+      fallbackClassName={cn(
+        'bg-none font-mono font-bold',
         accent
-          ? 'bg-(--brand-500) text-white dark:bg-(--brand-500) dark:text-[#141412]'
+          ? 'bg-(--brand-500) text-white dark:text-[#141412]'
           : 'bg-[#1a1714] text-white dark:bg-[#f2f0eb] dark:text-[#141412]'
       )}
-    >
-      {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : initials}
-    </div>
+    />
   );
 };
 

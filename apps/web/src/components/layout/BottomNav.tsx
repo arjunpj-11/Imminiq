@@ -42,17 +42,6 @@ const tabs = [
     ),
   },
   {
-    key: 'adaptive',
-    label: 'Adaptive',
-    to: ROUTES.learningAgent,
-    icon: (
-      <>
-        <path d="M12 2l1.4 5.1L18 9l-4.6 1.9L12 16l-1.4-5.1L6 9l4.6-1.9L12 2Z" />
-        <path d="M5 15l.8 2.2L8 18l-2.2.8L5 21l-.8-2.2L2 18l2.2-.8L5 15Z" />
-      </>
-    ),
-  },
-  {
     key: 'ranks',
     label: 'Ranks',
     to: ROUTES.leaderboard,
@@ -84,7 +73,7 @@ export default function BottomNav({ activeTab: _activeTab }: IBottomNavProps) {
   const temporaryItem = getTemporaryUserNavItem(location.pathname, location.search, location.hash);
   const visibleTabs = temporaryItem
     ? [
-        ...tabs,
+        ...tabs.slice(0, 4),
         {
           key: 'current',
           label: temporaryItem.label,
@@ -102,7 +91,7 @@ export default function BottomNav({ activeTab: _activeTab }: IBottomNavProps) {
   return (
     <nav
       aria-label="Primary mobile navigation"
-      className="fixed bottom-0 left-0 right-0 z-40 w-full border-t border-(--border-subtle) bg-[color-mix(in_srgb,var(--surface-elevated)_94%,transparent)] pb-[env(safe-area-inset-bottom,0px)] backdrop-blur-xl lg:hidden"
+      className="fixed bottom-0 left-0 right-0 z-40 w-full border-t border-(--border-subtle) bg-[color-mix(in_srgb,var(--surface-elevated)_94%,transparent)] pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-10px_32px_rgba(26,23,20,0.08)] backdrop-blur-xl lg:hidden"
     >
       <div
         className="grid h-16 w-full items-stretch"
@@ -118,7 +107,7 @@ export default function BottomNav({ activeTab: _activeTab }: IBottomNavProps) {
             onFocus={() => prefetchRoute(tab.to)}
             className={({ isActive }) =>
               cn(
-                'relative flex min-w-0 flex-col items-center justify-center gap-1 overflow-hidden px-1 font-mono text-[9px] font-semibold no-underline transition-colors',
+                'relative flex min-w-0 flex-col items-center justify-center gap-1 overflow-hidden px-1 font-mono text-[10px] font-semibold no-underline transition-colors',
                 isActive ? 'text-(--brand-500)' : 'text-(--text-muted) hover:text-(--text-primary)'
               )
             }

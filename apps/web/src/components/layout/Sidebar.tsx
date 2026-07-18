@@ -205,6 +205,8 @@ export default function Sidebar({
       />
 
       <aside
+        id="app-navigation"
+        aria-label="Main navigation"
         className={cn(
           'fixed bottom-0 left-0 top-0 z-30 flex w-56 flex-col border-r border-(--border-subtle) bg-(--surface-card) font-ui tracking-normal shadow-[0_16px_56px_rgba(0,0,0,0.15)] transition-transform duration-300 ease-in-out dark:border-(--border-subtle) dark:bg-(--surface-card) min-[901px]:shadow-none',
           mobileOpen ? 'max-[900px]:translate-x-0' : 'max-[900px]:-translate-x-full',

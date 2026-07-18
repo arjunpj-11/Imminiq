@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../../routes/config/route-paths";
 
 import { AppShellBoundary } from "../../../../components/layout/AppShell";
+import PageHero from "../../../../components/layout/PageHero";
 import { useTrackers, useUnpublishTracker } from "../hooks/useTrackers";
 import type { ITracker } from "../types/tracker.types";
 
@@ -666,30 +667,34 @@ export default function MyPublishedTrackersPage() {
       />
 
       <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
-        {/* ── Page header ── */}
-        <section className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-3 py-1 font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--success) dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-(--success)">
-              <span className="h-1.5 w-1.5 rounded-full bg-(--success) dark:bg-(--success)" />
-              Published trackers
-            </div>
-            <h1 className="font-ui text-[clamp(26px,3.5vw,38px)] font-extrabold leading-[1.15] tracking-[-0.8px] text-(--text-primary) dark:text-(--text-primary)">
-              Public roadmaps <span className="text-(--success) dark:text-(--success)">you manage</span>
-            </h1>
-            <p className="mt-2 max-w-lg text-[13px] italic leading-[1.55] text-(--text-secondary) opacity-80 dark:text-(--text-secondary)">
+        <PageHero
+          eyebrow="Published library"
+          title={<>Public roadmaps <span className="text-(--success)">you manage</span></>}
+          description={
+            <>
               {publishedTrackers.length > 0
                 ? `${publishedTrackers.length} tracker${publishedTrackers.length === 1 ? "" : "s"} shared with the community. Review the public page, copy its link, or manage visibility.`
                 : "Share your learning roadmaps with the community and help others grow."}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => navigate(ROUTES.trackers)}
-            className="rounded-md border-[1.5px] border-(--border-subtle) px-4 py-2.5 text-[13px] font-bold text-(--text-secondary) transition hover:-translate-y-px hover:border-(--brand-500) hover:text-(--brand-500) max-[560px]:w-full"
-          >
-            Back to trackers
-          </button>
-        </section>
+            </>
+          }
+          compact
+          actions={
+            <button
+              type="button"
+              onClick={() => navigate(ROUTES.trackers)}
+              className="inline-flex min-h-10 items-center rounded-lg border border-(--border-subtle) bg-(--surface-elevated) px-4 text-[13px] font-bold text-(--text-secondary) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:text-(--brand-500)"
+            >
+              Back to trackers
+            </button>
+          }
+          aside={
+            <div>
+              <div className="font-mono text-[10px] font-semibold uppercase tracking-wider text-(--text-muted)">Community footprint</div>
+              <div className="mt-3 font-ui text-[34px] font-extrabold leading-none text-(--success)">{publishedTrackers.length}</div>
+              <div className="mt-2 text-[12px] text-(--text-secondary)">Public roadmap{publishedTrackers.length === 1 ? '' : 's'} available to learners.</div>
+            </div>
+          }
+        />
 
         {/* ── Summary strip (only when trackers exist) ── */}
         <SummaryStrip count={publishedTrackers.length} />

@@ -22,5 +22,6 @@ export const useNotifications = (page = 1, enabled = true) =>
       ).data.data,
     placeholderData: keepPreviousData,
     refetchInterval: NOTIFICATION_REFETCH_INTERVAL_MS,
+    refetchIntervalInBackground: false,
     enabled,
   });

@@ -1,10 +1,10 @@
 const words = [
   'AI ROADMAPS',
   'SCRIBE AI',
-  'PRACTICE ARENA',
-  'STREAK MEMORY',
-  'EARLY ACCESS',
-  'BUILD MASTERY',
+  'LEARNING GUILDS',
+  'LIVE BATTLES',
+  'ADAPTIVE MOCK TESTS',
+  'MASTERY ANALYTICS',
 ];
 
 export default function LandingTicker() {

@@ -35,8 +35,11 @@ export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean
     <section
       id="hero"
       ref={trailRef}
-      className="relative z-1 flex min-h-screen items-center justify-center overflow-hidden bg-[#f5ede4] px-4 py-24 text-[#1a1714] dark:bg-[#050505] dark:text-[#f2f0eb]"
+      className="relative z-1 flex min-h-[100svh] items-center justify-center overflow-hidden bg-[#f5ede4] px-4 py-24 text-[#1a1714] dark:bg-[#050505] dark:text-[#f2f0eb] max-[767px]:pb-28 max-[767px]:pt-20"
     >
+      <h1 className="sr-only">
+        Imminiq — adaptive roadmaps, Scribe AI, learning guilds, live battles, and mastery tests
+      </h1>
       <div className="pointer-events-none absolute inset-0 opacity-[0.045] landing-grid-mask">
         <div
           className="h-full w-full"
@@ -54,7 +57,7 @@ export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean
       <div className="relative z-10 mx-auto flex w-full max-w-295 flex-col items-center justify-center gap-7 md:gap-10">
         {/* Row 1 — IMMINIQ */}
         <div className="flex w-full flex-col items-center gap-4 md:ml-[-16%] md:flex-row md:justify-center">
-          <h1 className="font-['Playfair_Display',serif] text-[clamp(64px,12vw,164px)] font-black leading-[0.78] tracking-[-0.09em] text-[#1a1714] dark:text-[#f7f2ec]">
+          <div aria-hidden="true" className="font-['Playfair_Display',serif] text-[clamp(64px,12vw,164px)] font-black leading-[0.78] tracking-[-0.09em] text-[#1a1714] dark:text-[#f7f2ec]">
             <ScrambleWord
               text="IMMINIQ"
               delay={skipIntro ? 0 : 320}
@@ -62,18 +65,41 @@ export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean
               accentFromIndex={5}
               onDone={skipIntro ? undefined : onDone0}
             />
-          </h1>
+          </div>
           <p
-            className="max-w-68 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-[#b84c2b] underline decoration-[#b84c2b]/45 dark:text-[#e8816a] dark:decoration-[#e8816a]/45 underline-offset-4 md:translate-y-5 md:text-left md:text-[12px] transition-all duration-500"
+            className="hidden max-w-68 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-[#b84c2b] underline decoration-[#b84c2b]/45 dark:text-[#e8816a] dark:decoration-[#e8816a]/45 underline-offset-4 md:block md:translate-y-5 md:text-left md:text-[12px] transition-all duration-500"
             style={{ opacity: showSub ? 1 : 0, transform: showSub ? 'none' : 'translateY(8px)' }}
           >
-            AI roadmaps for serious learners
+            Adaptive learning built around your goals
           </p>
         </div>
 
+        <div className="mx-auto max-w-sm text-center md:hidden">
+          <p className="font-['DM_Mono',monospace] text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
+            Adaptive learning, built around you
+          </p>
+          <p className="mt-4 text-[18px] font-semibold leading-[1.45] text-[#3f3732] dark:text-[#d8d6cf]">
+            Build a personal roadmap, learn with Scribe AI, join focused guilds, and prove mastery.
+          </p>
+          <div className="mt-7 flex items-center justify-center gap-3">
+            <Link
+              to={ROUTES.register}
+              className="min-h-12 rounded-full bg-[#b84c2b] px-6 py-3 text-[13px] font-extrabold text-[#fdf8f5] shadow-[0_18px_44px_rgba(184,76,43,0.22)] dark:bg-[#e8816a] dark:text-[#141412]"
+            >
+              Start free
+            </Link>
+            <Link
+              to={ROUTES.login}
+              className="min-h-12 rounded-full border border-[#d8c7bc] bg-[#fdf8f5]/70 px-6 py-3 text-[13px] font-bold dark:border-white/14 dark:bg-white/6"
+            >
+              Sign in
+            </Link>
+          </div>
+        </div>
+
         {/* Row 2 — LEARN */}
-        <div className="w-full text-center">
-          <h1 className="font-['Playfair_Display',serif] text-[clamp(64px,12vw,164px)] font-black leading-[0.78] tracking-[-0.09em] text-[#1a1714] dark:text-[#f7f2ec]">
+        <div className="hidden w-full text-center md:block">
+          <div aria-hidden="true" className="font-['Playfair_Display',serif] text-[clamp(64px,12vw,164px)] font-black leading-[0.78] tracking-[-0.09em] text-[#1a1714] dark:text-[#f7f2ec]">
             {wordStep >= 1 && (
               <ScrambleWord
                 text="LEARN"
@@ -82,18 +108,18 @@ export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean
                 onDone={skipIntro ? undefined : onDone1}
               />
             )}
-          </h1>
+          </div>
         </div>
 
         {/* Row 3 — BATTLE */}
-        <div className="flex w-full flex-col-reverse items-center gap-4 md:ml-[14%] md:flex-row md:justify-center">
+        <div className="hidden w-full flex-col-reverse items-center gap-4 md:ml-[14%] md:flex md:flex-row md:justify-center">
           <p
             className="max-w-76 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-[#6b5f58] underline decoration-[#1a1714]/20 dark:text-[#9b9a92] dark:decoration-white/20 underline-offset-4 md:-translate-y-2 md:text-right md:text-[12px] transition-all duration-500"
             style={{ opacity: showSub ? 1 : 0, transform: showSub ? 'none' : 'translateY(8px)' }}
           >
-            Practice with Scribe AI and battle loops
+            Grow with Scribe AI, guilds, tests, and live practice
           </p>
-          <h1 className="font-['Playfair_Display',serif] text-[clamp(64px,12vw,164px)] font-black leading-[0.78] tracking-[-0.09em] text-[#1a1714] dark:text-[#f7f2ec]">
+          <div aria-hidden="true" className="font-['Playfair_Display',serif] text-[clamp(64px,12vw,164px)] font-black leading-[0.78] tracking-[-0.09em] text-[#1a1714] dark:text-[#f7f2ec]">
             {wordStep >= 2 && (
               <ScrambleWord
                 text="BATTLE"
@@ -102,19 +128,19 @@ export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean
                 onDone={skipIntro ? undefined : onDone2}
               />
             )}
-          </h1>
+          </div>
         </div>
 
         {/* CTA Buttons */}
         <div
-          className="mt-5 flex flex-wrap items-center justify-center gap-3 transition-all duration-700"
+          className="mt-5 hidden flex-wrap items-center justify-center gap-3 transition-all duration-700 md:flex"
           style={{ opacity: showBtns ? 1 : 0, transform: showBtns ? 'none' : 'translateY(16px)' }}
         >
           <Link
             to={ROUTES.register}
             className="rounded-full bg-[#b84c2b] px-6 py-3 text-[13px] font-extrabold text-[#fdf8f5] shadow-[0_20px_50px_rgba(184,76,43,0.18)] transition hover:-translate-y-1 hover:bg-[#963d22] dark:bg-[#e8816a] dark:text-[#141412] dark:shadow-[0_20px_50px_rgba(232,129,106,0.24)] dark:hover:bg-[#f09a84]"
           >
-            Join early access
+            Start learning free
           </Link>
           <Link
             to={ROUTES.login}

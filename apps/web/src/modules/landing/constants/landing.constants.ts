@@ -9,25 +9,25 @@ export const heroTrailCards = [
   {
     eyebrow: 'Roadmap',
     title: 'AI path generated',
-    body: 'Topic order, milestones, recall loops.',
+    body: 'A goal-aware path shaped around your level and pace.',
     tone: 'rust',
   },
   {
     eyebrow: 'Scribe AI',
     title: 'Explain like a mentor',
-    body: 'Ask doubts while learning each lesson.',
+    body: 'Ask, explain, verify, and practice inside every lesson.',
     tone: 'blue',
   },
   {
-    eyebrow: 'Arena',
-    title: 'Battle-ready practice',
-    body: 'Turn learning into competitive reps.',
+    eyebrow: 'Guilds',
+    title: 'Learn with your people',
+    body: 'Clone roadmaps, contribute topics, chat, and compete live.',
     tone: 'green',
   },
   {
-    eyebrow: 'Recall',
-    title: 'Never lose progress',
-    body: 'Streaks, heatmaps, revision signals.',
+    eyebrow: 'Assessment',
+    title: 'Know what you truly understand',
+    body: 'Mock tests, analysis, revision, and mastery signals.',
     tone: 'amber',
   },
 ];
@@ -35,64 +35,64 @@ export const heroTrailCards = [
 export const featureCards = [
   {
     number: '01',
-    title: 'Roadmap Engine',
+    title: 'Adaptive Roadmaps',
     description:
-      'Imminiq turns a learning goal into a structured path with topics, lessons, practice, and progress checkpoints.',
-    items: ['Goal-first planning', 'Topic sequencing', 'Progress evaluation'],
+      'Turn any learning goal into a structured path that adapts to your level, preferences, progress, and changing priorities.',
+    items: ['Personalized planning', 'AI topic sequencing', 'Gap evaluation'],
     tone: 'rust',
   },
   {
     number: '02',
-    title: 'Scribe AI Tutor',
+    title: 'Scribe AI Copilot',
     description:
-      'Learn inside each lesson with a tutor that explains, checks answers, gives hints, and helps you improve without leaving the flow.',
-    items: ['Lesson chat', 'Answer verification', 'Code hints'],
+      'Stay inside the lesson while Scribe explains difficult ideas, checks answers, responds to voice input, and guides your next step.',
+    items: ['Lesson conversation', 'Answer verification', 'Voice and code support'],
     tone: 'blue',
   },
   {
     number: '03',
-    title: 'Practice Arena',
+    title: 'Guilds & Live Battles',
     description:
-      'Move from passive reading to active pressure. Battles, challenges, and coding practice make the learning loop sharper.',
-    items: ['PvP battles', 'Compiler practice', 'Challenge loops'],
+      'Build shared roadmaps with your guild, contribute through personal clones, review changes, and challenge members in live node races.',
+    items: ['Shared guild roadmaps', 'Merge requests', 'Real-time 1v1 battles'],
     tone: 'green',
   },
   {
     number: '04',
-    title: 'Recall System',
+    title: 'Tests & Mastery',
     description:
-      'Build consistency with streaks, heatmaps, checkpoints, and revision signals that keep long-term mastery visible.',
-    items: ['Streak tracking', 'Heatmaps', 'Mastery signals'],
+      'Convert knowledge into evidence with adaptive mock tests, detailed analysis, quick revision, streaks, and activity heatmaps.',
+    items: ['Adaptive mock tests', 'Quick revision', 'Progress intelligence'],
     tone: 'amber',
   },
 ];
 
 export const horizontalFlowCards = [
   {
-    eyebrow: '01 · Tell Imminiq',
-    title: 'Start with your goal',
-    body: 'Pick what you want to learn, your current level, and the direction you want to grow.',
+    eyebrow: '01 · Define',
+    title: 'Describe your outcome',
+    body: 'Tell Imminiq what you want to master, your current level, and how you prefer to learn.',
   },
   {
     eyebrow: '02 · Generate',
     title: 'Get a learning path',
-    body: 'The roadmap is shaped around skill depth, pace, lesson flow, and practical checkpoints.',
+    body: 'Receive a personalized roadmap with lessons, practice, milestones, and measurable progress.',
   },
   {
-    eyebrow: '03 · Practice',
-    title: 'Learn with active reps',
-    body: 'Use lessons, Scribe AI, compiler tasks, answer checks, and battle-style practice.',
+    eyebrow: '03 · Collaborate',
+    title: 'Learn alone or together',
+    body: 'Use Scribe AI, code practice, guild contributions, shared chat, and live challenges.',
   },
   {
-    eyebrow: '04 · Improve',
-    title: 'Refine with feedback',
-    body: 'Track gaps, review progress, revisit weak areas, and keep the streak alive.',
+    eyebrow: '04 · Prove',
+    title: 'Measure real mastery',
+    body: 'Take mock tests, inspect weak areas, revise quickly, and keep long-term progress visible.',
   },
 ];
 
 export const audienceCards = [
-  'Developers preparing for interviews',
-  'Students building long-term mastery',
-  'Self-learners who need structure',
-  'Competitive learners who like pressure',
+  'Developers preparing for interviews and production work',
+  'Students building durable, exam-ready understanding',
+  'Self-learners who need structure and accountability',
+  'Learning guilds that build and compete together',
 ];

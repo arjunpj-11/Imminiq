@@ -4,7 +4,7 @@ export default function ArenaPreview() {
   return (
     <section
       id="arena"
-      className="bg-[#f5ede4] px-4 py-24 text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb] sm:px-8 lg:px-10"
+      className="render-lazy-section bg-[#f5ede4] px-4 py-24 text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb] sm:px-8 lg:px-10"
     >
       <div className="mx-auto grid max-w-340 gap-6 lg:grid-cols-[0.85fr_1.15fr]">
         <div className="flex flex-col justify-between rounded-[34px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-7 shadow-[0_22px_70px_rgba(26,23,20,0.10)] dark:border-white/9 dark:bg-[#1e1c19]">
@@ -13,7 +13,7 @@ export default function ArenaPreview() {
               Built for
             </p>
             <h2 className="mt-4 font-['Playfair_Display',serif] text-[clamp(42px,7vw,90px)] font-black leading-[0.9] tracking-[-0.08em]">
-              Learners who want pressure.
+              Serious learners. Stronger together.
             </h2>
           </div>
           <div className="mt-10 space-y-3">
@@ -37,19 +37,19 @@ export default function ArenaPreview() {
               <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.18em] text-[#e8816a]">
                 Arena Preview
               </p>
-              <h3 className="mt-1 text-xl font-bold">No fake live stats. Just the product loop.</h3>
+              <h3 className="mt-1 text-xl font-bold">A connected workspace for measurable growth.</h3>
             </div>
             <span className="rounded-full border border-[#e8816a]/30 bg-[#e8816a]/10 px-3 py-1 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#e8816a]">
-              Early Access
+              Built for mastery
             </span>
           </div>
 
           <div className="relative z-1 mt-6 grid gap-4 md:grid-cols-2">
             {[
-              ['Roadmap queue', 'Generated paths wait for practice and refinement.'],
-              ['Scribe feedback', 'Answers, hints, and lessons stay inside the learning flow.'],
-              ['Battle loop', 'Competitive sessions turn recall into action.'],
-              ['Progress memory', 'Heatmaps and checkpoints show where to return.'],
+              ['Adaptive roadmap', 'Your learning path evolves with goals, progress, and evaluation.'],
+              ['Scribe guidance', 'Answers, hints, voice, and code support stay inside each lesson.'],
+              ['Guild workspace', 'Collaborate through clones, contributions, chat, and live battles.'],
+              ['Mastery signals', 'Tests, revision, streaks, and heatmaps show exactly where to return.'],
             ].map(([title, body], index) => (
               <article
                 key={title}

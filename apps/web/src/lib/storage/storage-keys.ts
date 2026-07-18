@@ -7,6 +7,7 @@ export const STORAGE_KEYS = {
   trackerCreationDraft: 'imminiq_tracker_creation_draft',
   lastOnlinePath: 'last_online_path_before_offline',
   dashboardInsightDismissed: 'imminiq_dashboard_insight_dismissed',
+  landingIntroPlayed: 'imminiq_landing_intro_played',
   pendingEmailChangeTimer: 'imminiq_pending_email_change_timer',
   blockedAppealIdentifier: 'blocked_appeal_identifier',
   blockedAppealToken: 'blocked_appeal_token',

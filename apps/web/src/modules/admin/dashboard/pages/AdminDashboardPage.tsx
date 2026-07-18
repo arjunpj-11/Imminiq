@@ -135,10 +135,10 @@ export default function AdminDashboardPage() {
               ]
         }
       />
-      <section className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="mt-7 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <Link
           to={ADMIN_ROUTES.mockTestReports}
-          className="admin-interactive-card rounded-xl border border-[#e26767]/30 bg-[#e26767]/10 p-5 transition hover:-translate-y-0.5"
+          className="admin-interactive-card rounded-xl border border-[#e26767]/30 bg-[#e26767]/10 p-4 transition hover:-translate-y-0.5 sm:p-5"
         >
           <div className="flex items-center gap-2 font-semibold text-[#e26767]">
             <ShieldAlert size={18} /> Question reports
@@ -152,7 +152,7 @@ export default function AdminDashboardPage() {
         </Link>
         <Link
           to={ADMIN_ROUTES.supportTickets}
-          className="admin-interactive-card rounded-xl border border-[#f0a842]/30 bg-[#f0a842]/10 p-5 transition hover:-translate-y-0.5"
+          className="admin-interactive-card rounded-xl border border-[#f0a842]/30 bg-[#f0a842]/10 p-4 transition hover:-translate-y-0.5 sm:p-5"
         >
           <div className="flex items-center gap-2 font-semibold text-[#f0a842]">
             <TicketCheck size={18} /> Urgent support
@@ -166,7 +166,7 @@ export default function AdminDashboardPage() {
         </Link>
         <Link
           to={`${ADMIN_ROUTES.mockTests}?status=suspended`}
-          className="admin-interactive-card rounded-xl border border-[#6aa9ff]/30 bg-[#6aa9ff]/10 p-5 transition hover:-translate-y-0.5"
+          className="admin-interactive-card rounded-xl border border-[#6aa9ff]/30 bg-[#6aa9ff]/10 p-4 transition hover:-translate-y-0.5 sm:p-5"
         >
           <div className="flex items-center gap-2 font-semibold text-[#6aa9ff]">
             <ShieldAlert size={18} /> Suspended tests
@@ -180,7 +180,7 @@ export default function AdminDashboardPage() {
         </Link>
         <Link
           to={ADMIN_ROUTES.trackerReports}
-          className="admin-interactive-card rounded-xl border border-[#e26767]/30 bg-[#e26767]/10 p-5 transition hover:-translate-y-0.5"
+          className="admin-interactive-card rounded-xl border border-[#e26767]/30 bg-[#e26767]/10 p-4 transition hover:-translate-y-0.5 sm:p-5"
         >
           <div className="flex items-center gap-2 font-semibold text-[#e26767]">
             <Flag size={18} /> Tracker reports
@@ -194,7 +194,7 @@ export default function AdminDashboardPage() {
         </Link>
         <Link
           to={`${ADMIN_ROUTES.trackers}?status=suspended`}
-          className="admin-interactive-card rounded-xl border border-[#f0a842]/30 bg-[#f0a842]/10 p-5 transition hover:-translate-y-0.5"
+          className="admin-interactive-card rounded-xl border border-[#f0a842]/30 bg-[#f0a842]/10 p-4 transition hover:-translate-y-0.5 sm:p-5"
         >
           <div className="flex items-center gap-2 font-semibold text-[#f0a842]">
             <ShieldAlert size={18} /> Suspended trackers

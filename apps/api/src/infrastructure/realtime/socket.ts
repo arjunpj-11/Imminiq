@@ -18,6 +18,7 @@ type SocketAccessToken = {
 let io: Server;
 
 const guildRoom = (trackerId: string) => `tracker-clan:${trackerId}`;
+const userRoom = (userId: string) => `user:${userId}`;
 
 const getGuildRole = async (trackerId: string, userId: string) => {
   if (!Types.ObjectId.isValid(trackerId) || !Types.ObjectId.isValid(userId)) return null;
@@ -73,6 +74,8 @@ export const initSocket = (httpServer: HttpServer) => {
   io.on('connection', (socket) => {
     const userId = String(socket.data.user?.userId ?? '');
     let lastMessageAt = 0;
+
+    if (userId) void socket.join(userRoom(userId));
 
     socket.on(
       'tracker-clan:join',
@@ -158,6 +161,11 @@ export const getIO = () => {
 export const emitTrackerClanChallenge = (event: TrackerClanChallengeEvent) => {
   if (!io) return;
   io.to(guildRoom(event.trackerId)).emit('tracker-clan:challenge', event);
+};
+
+export const emitNotificationCreated = (userId: string, type: string) => {
+  if (!io || !userId) return;
+  io.to(userRoom(userId)).emit('notification:created', { type });
 };
 
 export const closeSocket = async () => {

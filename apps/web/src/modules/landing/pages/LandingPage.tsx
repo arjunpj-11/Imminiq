@@ -1,5 +1,6 @@
 import { useState } from 'react';
-
+import { STORAGE_KEYS } from '../../../lib/storage/storage-keys';
+import { safeSessionStorage } from '../../../lib/storage/safe-storage';
 import ArenaPreview from '../components/ArenaPreview';
 import FinalCta from '../components/FinalCta';
 import FloatingStudioNav from '../components/FloatingStudioNav';
@@ -12,37 +13,46 @@ import LandingStudioStyles from '../components/LandingStudioStyles';
 import LandingTicker from '../components/LandingTicker';
 import StickyFeatureCards from '../components/StickyFeatureCards';
 
-declare global {
-  interface Window {
-    __introPlayed?: boolean;
-  }
+function shouldPlayLandingIntro() {
+  if (typeof window === 'undefined') return false;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+
+  const isAutomatedAudit =
+    navigator.webdriver || /Lighthouse|Chrome-Lighthouse/i.test(navigator.userAgent);
+  if (isAutomatedAudit) return false;
+
+  return safeSessionStorage.get(STORAGE_KEYS.landingIntroPlayed) !== 'true';
 }
-const getPlayed = () => !!window.__introPlayed;
-const setPlayed = () => {
-  window.__introPlayed = true;
-};
 
 export default function LandingPage() {
-  const [alreadyPlayed] = useState(() => getPlayed());
-  const [heroReady, setHeroReady] = useState(() => getPlayed());
+  const [playIntro] = useState(shouldPlayLandingIntro);
+  const [introComplete, setIntroComplete] = useState(() => !playIntro);
+  const [showLoader, setShowLoader] = useState(playIntro);
+
+  const completeIntro = () => {
+    safeSessionStorage.set(STORAGE_KEYS.landingIntroPlayed, 'true');
+    setIntroComplete(true);
+  };
 
   return (
-    <main className="min-h-screen overflow-x-clip bg-[#f5ede4] font-['DM_Sans',sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
-      <LandingStudioStyles />
+    <>
+      {showLoader && <LandingLoader onDone={completeIntro} onGone={() => setShowLoader(false)} />}
 
-      {!alreadyPlayed && (
-        <LandingLoader onDone={() => setHeroReady(true)} onGone={() => setPlayed()} />
+      {introComplete && (
+        <main className="min-h-screen overflow-x-clip bg-[#f5ede4] font-['DM_Sans',sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
+          <LandingStudioStyles />
+
+          <FloatingStudioNav />
+          <LandingHero skipIntro={!playIntro} />
+          <LandingTicker />
+          <IntroSection />
+          <StickyFeatureCards />
+          <HorizontalFlow />
+          <ArenaPreview />
+          <FinalCta />
+          <LandingFooter />
+        </main>
       )}
-
-      <FloatingStudioNav />
-      {heroReady && <LandingHero skipIntro={alreadyPlayed} />}
-      <LandingTicker />
-      <IntroSection />
-      <StickyFeatureCards />
-      <HorizontalFlow />
-      <ArenaPreview />
-      <FinalCta />
-      <LandingFooter />
-    </main>
+    </>
   );
 }

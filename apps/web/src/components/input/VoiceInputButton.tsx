@@ -72,47 +72,29 @@ export function MicButton({ isListening, isSupported, onToggle, size = 'md' }: I
       aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
       aria-pressed={isListening}
       className={cn(
-        'relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border transition',
-        size === 'sm' ? 'h-9 w-9' : 'h-10 w-10',
+        'relative flex aspect-square shrink-0 items-center justify-center overflow-hidden rounded-full border shadow-(--shadow-1) transition-[color,background-color,border-color,box-shadow,transform] hover:-translate-y-px focus-visible:outline-none',
+        size === 'sm' ? 'h-10 w-10' : 'h-11 w-11',
         isListening
-          ? 'border-red-400 bg-red-500/10 text-red-500 shadow-[0_0_0_4px_rgba(239,68,68,0.10)] dark:border-red-400/60 dark:text-red-400'
-          : 'border-(--border-subtle) text-(--text-secondary) hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)'
+          ? 'border-(--danger) bg-[color-mix(in_srgb,var(--danger)_12%,var(--surface-elevated))] text-(--danger) shadow-[0_0_0_4px_color-mix(in_srgb,var(--danger)_12%,transparent)]'
+          : 'border-(--border-subtle) bg-(--surface-elevated) text-(--text-secondary) hover:border-(--brand-500) hover:bg-[color-mix(in_srgb,var(--brand-500)_8%,var(--surface-elevated))] hover:text-(--brand-500)'
       )}
     >
       {isListening && (
         <>
-          <span
-            aria-hidden="true"
-            className="absolute inset-0 animate-ping rounded-full bg-red-500/10"
-          />
+          <span aria-hidden="true" className="absolute inset-1 animate-ping rounded-full bg-[color-mix(in_srgb,var(--danger)_10%,transparent)]" />
 
           <span
             aria-hidden="true"
-            className="absolute bottom-1.5 left-1/2 flex h-4 -translate-x-1/2 items-end gap-0.5"
+            className="absolute bottom-1.5 left-1/2 flex h-2.5 -translate-x-1/2 items-end gap-0.5"
           >
-            <span className="h-1.5 w-0.75 animate-[voiceWave_0.55s_ease-in-out_infinite] rounded-full bg-current opacity-70" />
-            <span className="h-3 w-0.75 animate-[voiceWave_0.7s_ease-in-out_infinite] rounded-full bg-current opacity-90" />
-            <span className="h-2 w-0.75 animate-[voiceWave_0.6s_ease-in-out_infinite] rounded-full bg-current opacity-80" />
-            <span className="h-3.5 w-0.75 animate-[voiceWave_0.8s_ease-in-out_infinite] rounded-full bg-current opacity-90" />
+            <span className="voice-wave h-1.5 w-0.75 rounded-full bg-current opacity-70" />
+            <span className="voice-wave h-2.5 w-0.75 rounded-full bg-current opacity-90 [animation-delay:-.18s]" />
+            <span className="voice-wave h-2 w-0.75 rounded-full bg-current opacity-80 [animation-delay:-.32s]" />
           </span>
-
-          <style>
-            {`
-              @keyframes voiceWave {
-                0%, 100% {
-                  transform: scaleY(0.45);
-                }
-
-                50% {
-                  transform: scaleY(1.35);
-                }
-              }
-            `}
-          </style>
         </>
       )}
 
-      <span className={cn('relative z-10', isListening && 'mb-3')}>
+      <span className={cn('relative z-10 transition-transform', isListening && '-translate-y-1.5')}>
         {isListening ? (
           <StopIcon className="h-4 w-4" />
         ) : (

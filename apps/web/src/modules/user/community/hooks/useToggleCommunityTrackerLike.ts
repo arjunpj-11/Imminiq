@@ -16,7 +16,8 @@ export const useToggleCommunityTrackerLike = () => {
   return useMutation<
     IApiResponse<IToggleCommunityTrackerLikeData>,
     Error,
-    IToggleCommunityTrackerLikePayload
+    IToggleCommunityTrackerLikePayload,
+    { previous?: ICommunityPublicTrackerDetail }
   >({
     mutationFn: async ({ trackerId }) => {
       const response = await api.post<IApiResponse<IToggleCommunityTrackerLikeData>>(
@@ -24,6 +25,30 @@ export const useToggleCommunityTrackerLike = () => {
       );
 
       return response.data;
+    },
+
+    onMutate: async (variables) => {
+      const queryKey = communityKeys.tracker(variables.trackerId);
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<ICommunityPublicTrackerDetail>(queryKey);
+
+      queryClient.setQueryData<ICommunityPublicTrackerDetail>(queryKey, (current) =>
+        current
+          ? {
+              ...current,
+              likedByMe: !current.likedByMe,
+              likes: Math.max(0, current.likes + (current.likedByMe ? -1 : 1)),
+            }
+          : current
+      );
+
+      return { previous };
+    },
+
+    onError: (_error, variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(communityKeys.tracker(variables.trackerId), context.previous);
+      }
     },
 
     onSuccess: (response, variables) => {
@@ -47,6 +72,11 @@ export const useToggleCommunityTrackerLike = () => {
           };
         }
       );
+    },
+
+    onSettled: (_data, _error, variables) => {
+      void queryClient.invalidateQueries({ queryKey: communityKeys.tracker(variables.trackerId) });
+      void queryClient.invalidateQueries({ queryKey: communityKeys.browseRoot() });
     },
   });
 };

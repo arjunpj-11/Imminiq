@@ -2,39 +2,38 @@ import { horizontalFlowCards } from '../constants/landing.constants';
 import { useHorizontalScroll } from '../hooks/useHorizontalScroll';
 
 export default function HorizontalFlow() {
-  const { sectionRef, trackRef, offset } = useHorizontalScroll();
+  const { sectionRef, trackRef } = useHorizontalScroll();
 
   return (
     <section
       id="flow"
       ref={sectionRef}
-      className="relative h-[320vh] bg-[#f5ede4] text-[#1a1714] dark:bg-[#050505] dark:text-[#f2f0eb]"
+      className="relative bg-[#f5ede4] text-[#1a1714] dark:bg-[#050505] dark:text-[#f2f0eb] md:h-[220vh]"
     >
-      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden px-4 py-18 sm:px-8 lg:px-10">
+      <div className="flex flex-col justify-center overflow-hidden px-4 py-18 sm:px-8 md:sticky md:top-0 md:h-screen lg:px-10">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
           <div>
             <p className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
               Horizontal flow
             </p>
             <h2 className="mt-3 max-w-180 font-['Playfair_Display',serif] text-[clamp(38px,7vw,86px)] font-extrabold leading-[0.95] tracking-[-0.07em]">
-              Scroll down. The product moves sideways.
+              One goal. A complete learning loop.
             </h2>
           </div>
           <p className="max-w-86 text-[13px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
-            This recreates the vertical-to-horizontal scroll feeling from your reference without
-            needing Next.js.
+            Move from intention to a personalized path, collaborative practice, and measurable
+            mastery without leaving your learning context.
           </p>
         </div>
 
         <div
           ref={trackRef}
-          className="flex w-max gap-4 will-change-transform"
-          style={{ transform: `translate3d(-${offset}px, 0, 0)` }}
+          className="grid w-full gap-4 md:flex md:w-max md:will-change-transform"
         >
           {horizontalFlowCards.map((card, index) => (
             <article
               key={card.title}
-              className="flex h-[54vh] w-[min(78vw,720px)] shrink-0 flex-col justify-between rounded-[34px] border border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-[0_28px_90px_rgba(26,23,20,0.12)] dark:border-white/10 dark:bg-white/5.5 dark:shadow-[0_28px_90px_rgba(0,0,0,0.30)] backdrop-blur md:p-8"
+              className="flex min-h-82 w-full shrink-0 flex-col justify-between rounded-[28px] border border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-[0_18px_54px_rgba(26,23,20,0.10)] dark:border-white/10 dark:bg-white/5.5 dark:shadow-[0_18px_54px_rgba(0,0,0,0.26)] backdrop-blur md:h-[54vh] md:w-[min(78vw,720px)] md:rounded-[34px] md:p-8 md:shadow-[0_28px_90px_rgba(26,23,20,0.12)]"
             >
               <div className="flex items-center justify-between gap-4">
                 <span className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">

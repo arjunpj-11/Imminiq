@@ -24,16 +24,16 @@ export default function StickyFeatureCards() {
             </h2>
           </div>
           <p className="max-w-94 text-[14px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
-            Sticky cards stack vertically like your reference design, but the content is fully
-            Imminiq-focused and launch-safe.
+            A connected system for planning, understanding, collaborating, practising, and proving
+            what you know.
           </p>
         </div>
 
-        <div className="relative min-h-screen">
+        <div className="relative">
           {featureCards.map((card, index) => (
             <article
               key={card.title}
-              className="sticky top-0 mb-5 flex min-h-screen flex-col justify-between overflow-hidden rounded-[34px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_28px_90px_rgba(26,23,20,0.12)] dark:border-white/9 dark:bg-[#1e1c19] md:flex-row md:p-8"
+              className="relative mb-5 flex min-h-0 flex-col justify-between overflow-hidden rounded-[28px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 pb-7 shadow-[0_20px_60px_rgba(26,23,20,0.10)] dark:border-white/9 dark:bg-[#1e1c19] md:sticky md:top-0 md:min-h-[72vh] md:flex-row md:rounded-[34px] md:p-8 md:shadow-[0_28px_90px_rgba(26,23,20,0.12)]"
               style={{ zIndex: index + 1 }}
             >
               <div className="flex flex-[0.38] justify-between gap-4">
@@ -50,7 +50,7 @@ export default function StickyFeatureCards() {
                   {card.description}
                 </p>
 
-                <div className="landing-float h-48 w-full overflow-hidden rounded-3xl border border-[#e0d0c5] bg-[#141412] p-5 dark:border-white/10">
+                <div className="landing-float h-32 w-full overflow-hidden rounded-3xl border border-[#e0d0c5] bg-[#141412] p-5 dark:border-white/10 md:h-48">
                   <div className="grid h-full grid-cols-5 gap-2 opacity-80">
                     {Array.from({ length: 20 }).map((_, itemIndex) => (
                       <span

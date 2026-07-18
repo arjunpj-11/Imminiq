@@ -19,6 +19,7 @@ import {
   fetchAllAdminItems,
 } from "../../../../components/admin";
 import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
+import UserAvatar from "../../../../components/data-display/UserAvatar";
 import { getUserFacingError } from "../../../../lib/user-facing-error";
 import { toast } from "../../../../lib/toast";
 import { useAdminUsers } from "../hooks/useAdminUsers";
@@ -333,21 +334,12 @@ export default function AdminUsersPage() {
                       </td>
                       <td>
                         <div className="flex items-center gap-3">
-                          {user.avatarUrl ? (
-                            <img
-                              src={user.avatarUrl}
-                              alt=""
-                              className="h-10 w-10 rounded-full border border-white/10 object-cover"
-                            />
-                          ) : (
-                            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/10 bg-[#2a2723] font-editorial text-[#e8816a]">
-                              {user.fullName
-                                .split(" ")
-                                .map((part) => part[0])
-                                .slice(0, 2)
-                                .join("")}
-                            </div>
-                          )}
+                          <UserAvatar
+                            name={user.fullName}
+                            src={user.avatarUrl}
+                            className="border border-white/10"
+                            fallbackClassName="bg-[#2a2723] font-editorial text-[#e8816a]"
+                          />
                           <div className="min-w-0">
                             <div className="max-w-52 truncate font-semibold">
                               {user.fullName}

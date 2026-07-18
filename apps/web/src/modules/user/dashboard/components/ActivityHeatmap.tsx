@@ -176,7 +176,11 @@ export default function ActivityHeatmap({
         <ActivityHeatmapSkeleton />
       ) : (
         <>
-          <div className={cn('overflow-x-auto pb-2', themedScrollbar)}>
+          <div
+            className={cn('overflow-x-auto pb-2', themedScrollbar)}
+            role="img"
+            aria-label={`Learning activity heatmap for the last ${months} months: ${activeDays} active days and ${totalActivities} total activities.`}
+          >
             <div className="grid min-w-max grid-cols-[34px_auto] grid-rows-[18px_auto] gap-x-2 gap-y-2">
               <div className="relative col-start-2 row-start-1 h-4.5">
                 {monthLabels.map((item) => (
@@ -213,6 +217,7 @@ export default function ActivityHeatmap({
                       return (
                         <div
                           key={cell.date.toISOString()}
+                          aria-hidden="true"
                           title={`${cell.date.toLocaleDateString(undefined, {
                             month: 'short',
                             day: 'numeric',

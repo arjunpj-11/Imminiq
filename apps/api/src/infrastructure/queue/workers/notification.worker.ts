@@ -7,6 +7,7 @@ import { Subscription } from '../../database/models/subscription.model';
 import { UserSettings } from '../../database/models/user-settings.model';
 import { User } from '../../database/models/user.model';
 import type { AdminBroadcastInput } from '../../../modules/admin/broadcast';
+import { emitNotificationCreated } from '../../realtime/socket';
 
 type AdminBroadcastJob = {
   kind: 'admin_broadcast';
@@ -79,6 +80,9 @@ export const notificationWorker = new Worker<AdminBroadcastJob>(
               upsert: true,
             },
           })), { ordered: false });
+          for (const userId of recipients) {
+            emitNotificationCreated(String(userId), 'admin_broadcast');
+          }
           recipientCount += recipients.length;
         }
         batch = [];

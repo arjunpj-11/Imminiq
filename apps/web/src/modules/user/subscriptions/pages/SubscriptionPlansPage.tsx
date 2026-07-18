@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Check, Crown, ShieldCheck, Sparkles } from 'lucide-react';
 import { toast } from '../../../../lib/toast';
 import { useAuthStore } from '../../../../store/useAuthStore';
+import PageHero from '../../../../components/layout/PageHero';
 import {
   useCreateSubscriptionOrder,
   useCurrentSubscription,
@@ -110,22 +111,17 @@ export default function SubscriptionPlansPage() {
 
   return (
     <main className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
-      <section className="overflow-hidden rounded-3xl border border-(--border-subtle) bg-(--surface-card) p-7 shadow-sm sm:p-10">
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-[rgba(184,76,43,0.12)] text-(--brand-500)">
-            <Crown size={28} />
-          </div>
-          <h1 className="font-editorial text-4xl font-bold sm:text-5xl">
-            Choose your Imminiq plan
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-(--text-secondary)">
-            Increase your AI capacity, unlock advanced evaluations, and choose monthly or annual
-            billing through Razorpay test checkout.
-          </p>
-          <div className="mx-auto mt-7 inline-flex rounded-xl border border-(--border-subtle) bg-(--surface-muted) p-1">
+      <section>
+        <PageHero
+          eyebrow="Plans & billing"
+          title={<>Invest in deeper <span className="text-(--brand-500)">learning momentum.</span></>}
+          description="Increase your AI capacity, unlock advanced evaluations, and choose the billing rhythm that fits your goals."
+          actions={
+          <div className="inline-flex rounded-xl border border-(--border-subtle) bg-(--surface-muted) p-1">
             {(['monthly', 'annual'] as const).map((cycle) => (
               <button
                 key={cycle}
+                type="button"
                 onClick={() => setBillingCycle(cycle)}
                 className={`rounded-lg px-5 py-2 text-sm font-bold capitalize ${billingCycle === cycle ? 'bg-(--brand-500) text-white' : 'text-(--text-secondary)'}`}
               >
@@ -134,7 +130,17 @@ export default function SubscriptionPlansPage() {
               </button>
             ))}
           </div>
-        </div>
+          }
+          aside={
+            <div className="flex items-center gap-4">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[rgba(184,76,43,0.12)] text-(--brand-500)"><Crown size={26} /></span>
+              <div>
+                <div className="font-mono text-[10px] font-semibold uppercase tracking-wider text-(--text-muted)">Flexible access</div>
+                <div className="mt-1 text-[13px] font-bold text-(--text-primary)">Upgrade, renew, or compare anytime.</div>
+              </div>
+            </div>
+          }
+        />
 
         {current.data && (
           <div className="mx-auto mt-8 flex max-w-3xl flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(82,197,140,0.25)] bg-[rgba(82,197,140,0.08)] p-4">

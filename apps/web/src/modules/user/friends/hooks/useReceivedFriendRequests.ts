@@ -12,7 +12,7 @@ import type {
 } from '../types/friends.types';
 import { friendsQueryKeys } from './friends.query-keys';
 
-export const useReceivedFriendRequests = (input: IFriendRequestsQueryInput) =>
+export const useReceivedFriendRequests = (input: IFriendRequestsQueryInput, enabled = true) =>
   useInfiniteQuery<
     IFriendRequestListPage & { pendingReceivedCount: number },
     AxiosError<IFriendsApiErrorResponse>
@@ -41,4 +41,5 @@ export const useReceivedFriendRequests = (input: IFriendRequestsQueryInput) =>
       lastPage.pagination.hasMore ? lastPage.pagination.page + 1 : undefined,
     staleTime: FRIENDS_STALE_TIME_MS,
     retry: 1,
+    enabled,
   });

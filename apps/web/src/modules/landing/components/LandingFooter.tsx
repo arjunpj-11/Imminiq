@@ -17,12 +17,12 @@ export default function LandingFooter() {
     return () => observer.disconnect();
   }, []);
 
-  const text = 'Imminiq · AI learning system · Early access';
+  const text = 'Imminiq · Adaptive learning · Built for mastery';
 
   return (
     <footer
       ref={footerRef}
-      className="bg-[#f5ede4] px-5 pb-24 pt-8 text-center font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.18em] text-[#6b5f58] dark:bg-[#050505] dark:text-white/36"
+      className="bg-[#f5ede4] px-5 pb-24 pt-8 text-center font-['DM_Mono',monospace] text-[11px] uppercase tracking-[0.16em] text-[#6b5f58] dark:bg-[#050505] dark:text-white/55"
     >
       <div>
         {text.split('').map((char, i) => (

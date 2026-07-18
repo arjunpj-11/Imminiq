@@ -1,73 +1,25 @@
 import type {
   ITrackerClanRepository,
+  ITrackerClanNotificationNotifier,
   TrackerClanOverview,
-  TrackerClanMessage,
-  TrackerCloneSyncResult,
 } from '../../domain';
+import type { ITrackerClanUseCaseContract } from '../tracker-clan.contract';
 import { TrackerApplicationError } from '../tracker-application.error';
+import { TrackerClanNotificationService } from '../services/tracker-clan-notification.service';
 
-export interface ITrackerClanUseCase {
+export interface ITrackerClanUseCase extends ITrackerClanUseCaseContract {
   getOverview(input: { trackerId: string; userId: string }): Promise<TrackerClanOverview>;
-  requestJoin(input: { trackerId: string; userId: string }): Promise<TrackerClanOverview>;
-  reviewJoin(input: {
-    trackerId: string;
-    userId: string;
-    requestId: string;
-    action: 'approve' | 'reject';
-  }): Promise<TrackerClanOverview>;
-  updateMemberRole(input: {
-    trackerId: string;
-    userId: string;
-    memberId: string;
-    role: 'co_owner' | 'member';
-  }): Promise<TrackerClanOverview>;
-  removeMember(input: {
-    trackerId: string;
-    userId: string;
-    memberId: string;
-  }): Promise<TrackerClanOverview>;
-  leaveClan(input: { trackerId: string; userId: string }): Promise<TrackerClanOverview>;
-  transferOwnership(input: {
-    trackerId: string;
-    userId: string;
-    newOwnerId: string;
-  }): Promise<TrackerClanOverview>;
-  respondToRoleInvitation(input: {
-    trackerId: string;
-    userId: string;
-    invitationId: string;
-    action: 'accept' | 'decline';
-  }): Promise<TrackerClanOverview>;
-  syncPersonalClone(input: {
-    trackerId: string;
-    userId: string;
-  }): Promise<TrackerCloneSyncResult>;
-  updateTopic(input: {
-    trackerId: string;
-    userId: string;
-    topicId: string;
-    title: string;
-    description: string;
-  }): Promise<void>;
-  deleteTopic(input: {
-    trackerId: string;
-    userId: string;
-    topicId: string;
-  }): Promise<void>;
-  deleteSubtopic(input: {
-    trackerId: string;
-    userId: string;
-    subtopicId: string;
-  }): Promise<void>;
-  listMessages(input: {
-    trackerId: string;
-    userId: string;
-    limit?: number;
-  }): Promise<TrackerClanMessage[]>;
 }
 
 export class TrackerClanUseCase implements ITrackerClanUseCase {
-  constructor(private readonly clans: ITrackerClanRepository) {}
+  private readonly notificationService: TrackerClanNotificationService;
+
+  constructor(
+    private readonly clans: ITrackerClanRepository,
+    notifications?: ITrackerClanNotificationNotifier
+  ) {
+    this.notificationService = new TrackerClanNotificationService(notifications);
+  }
 
   async getOverview(input: { trackerId: string; userId: string }) {
     return this.requireOverview(await this.clans.getOverview(input));
@@ -86,7 +38,12 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
     requestId: string;
     action: 'approve' | 'reject';
   }) {
-    return this.requireOverview(
+    const beforeReview = await this.clans.getOverview({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    });
+    const request = beforeReview?.joinRequests.find((item) => item.id === input.requestId);
+    const overview = this.requireOverview(
       await this.clans.reviewJoin({
         trackerId: input.trackerId,
         reviewerId: input.userId,
@@ -95,6 +52,13 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
       }),
       'Only the owner or a co-owner can review join requests'
     );
+    await this.notificationService.notifyJoinReview({
+      trackerId: input.trackerId,
+      request,
+      action: input.action,
+      overview,
+    });
+    return overview;
   }
 
   async updateMemberRole(input: {
@@ -103,7 +67,7 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
     memberId: string;
     role: 'co_owner' | 'member';
   }) {
-    return this.requireOverview(
+    const overview = this.requireOverview(
       await this.clans.updateMemberRole({
         trackerId: input.trackerId,
         ownerId: input.userId,
@@ -112,6 +76,14 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
       }),
       'Only the owner can promote or demote clan members'
     );
+    if (input.role === 'co_owner')
+      await this.notificationService.notifyRoleInvitation({
+        trackerId: input.trackerId,
+        userId: input.memberId,
+        role: input.role,
+        overview,
+      });
+    return overview;
   }
 
   async removeMember(input: { trackerId: string; userId: string; memberId: string }) {
@@ -139,7 +111,7 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
   }
 
   async transferOwnership(input: { trackerId: string; userId: string; newOwnerId: string }) {
-    return this.requireOverview(
+    const overview = this.requireOverview(
       await this.clans.transferOwnership({
         trackerId: input.trackerId,
         ownerId: input.userId,
@@ -147,6 +119,13 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
       }),
       'An ownership invitation can only be sent by the owner to an existing clan member'
     );
+    await this.notificationService.notifyRoleInvitation({
+      trackerId: input.trackerId,
+      userId: input.newOwnerId,
+      role: 'owner',
+      overview,
+    });
+    return overview;
   }
 
   async respondToRoleInvitation(input: {
@@ -155,10 +134,25 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
     invitationId: string;
     action: 'accept' | 'decline';
   }) {
-    return this.requireOverview(
+    const beforeResponse = await this.clans.getOverview({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    });
+    const invitation = beforeResponse?.roleInvitations.find(
+      (item) => item.id === input.invitationId && item.status === 'pending'
+    );
+    const overview = this.requireOverview(
       await this.clans.respondToRoleInvitation(input),
       'This role invitation is invalid or no longer pending'
     );
+    await this.notificationService.notifyRoleResponse({
+      trackerId: input.trackerId,
+      userId: input.userId,
+      invitation,
+      action: input.action,
+      overview,
+    });
+    return overview;
   }
 
   async syncPersonalClone(input: { trackerId: string; userId: string }) {

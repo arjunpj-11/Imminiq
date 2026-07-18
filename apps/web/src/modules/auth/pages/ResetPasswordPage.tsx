@@ -140,7 +140,7 @@ export default function ResetPasswordPage() {
     <AuthLayout
       badge="Password Recovery"
       title="Create new password"
-      subtitle="Choose a strong password for your Imminiq account."
+      subtitle="Choose a strong password for your imminiq account."
     >
       <ApiErrorBanner message={errors.api} />
 

@@ -1,7 +1,7 @@
 import type { ICommunityTracker } from '../../types/community.types';
 import { cn } from '../../utils/community-ui';
 import { formatCompactNumber } from '../../utils/community-formatters';
-import { CheckIcon, CopyIcon, DotsIcon, StarIcon, VerifiedIcon } from '../icons/CommunityIcons';
+import { CheckIcon, CopyIcon, StarIcon, VerifiedIcon } from '../icons/CommunityIcons';
 
 interface ICommunityTrackerCardProps {
   tracker: ICommunityTracker;
@@ -22,61 +22,49 @@ export default function CommunityTrackerCard({
 
   return (
     <article
-      role="button"
-      tabIndex={0}
-      onClick={handleOpen}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter') {
-          handleOpen();
-        }
-      }}
       className={cn(
-        'flex cursor-pointer flex-col rounded-lg border-[1.5px] bg-(--surface-card) transition duration-200 dark:bg-(--surface-card)',
+        'group relative flex overflow-hidden flex-col rounded-xl border-[1.5px] bg-(--surface-card) transition duration-200 dark:bg-(--surface-card)',
         'border-(--border-subtle) dark:border-(--border-subtle)',
-        'hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(26,23,20,0.10)] focus:outline-none focus:ring-3 focus:ring-[rgba(184,76,43,0.16)] dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] dark:focus:ring-[rgba(232,129,106,0.18)]',
-        tracker.verified
-          ? 'border-l-[3px] border-l-[rgba(45,106,71,0.5)] dark:border-l-[rgba(92,201,138,0.35)]'
-          : 'border-l-[3px] border-l-[rgba(184,76,43,0.25)] dark:border-l-[rgba(232,129,106,0.18)]'
+        'hover:-translate-y-1 hover:border-[rgba(184,76,43,0.28)] hover:shadow-[0_12px_36px_rgba(26,23,20,0.11)] dark:hover:shadow-[0_12px_36px_rgba(0,0,0,0.32)]'
       )}
     >
+      <span aria-hidden="true" className={cn('absolute inset-x-0 top-0 h-1', tracker.verified ? 'bg-(--success)' : 'bg-(--brand-500)')} />
       <div className="flex flex-1 flex-col p-5">
         <div className="mb-3 flex items-center justify-between">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="inline-flex items-center rounded-full border border-(--border-subtle) bg-[rgba(26,23,20,0.04)] px-2.25 py-0.75 font-mono text-[8px] uppercase tracking-widest text-[#9b9a92] dark:border-(--border-subtle) dark:bg-white/4">
-              Tracker
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[rgba(184,76,43,0.09)] font-ui text-[13px] font-extrabold text-(--brand-500)">
+              {tracker.topic.slice(0, 1).toUpperCase()}
+            </span>
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-widest text-(--text-muted)">
+              {tracker.topic}
             </span>
 
             {tracker.verified ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.08)] px-2.25 py-0.75 font-mono text-[8px] uppercase tracking-widest text-(--success) dark:text-(--success)">
+              <span className="inline-flex items-center gap-1 rounded-full border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.08)] px-2.25 py-0.75 font-mono text-[10px] font-semibold uppercase tracking-widest text-(--success) dark:text-(--success)">
                 <VerifiedIcon />
                 Verified
               </span>
             ) : (
-              <span className="inline-flex items-center rounded-full border border-(--border-subtle) bg-[rgba(26,23,20,0.04)] px-2.25 py-0.75 font-mono text-[8px] uppercase tracking-widest text-[#9b9a92] dark:border-(--border-subtle) dark:bg-white/4">
+              <span className="inline-flex items-center rounded-full border border-(--border-subtle) bg-[rgba(26,23,20,0.04)] px-2.25 py-0.75 font-mono text-[10px] font-semibold uppercase tracking-widest text-(--text-muted) dark:border-(--border-subtle) dark:bg-white/4">
                 Community
               </span>
             )}
           </div>
-
-          <span
-            aria-hidden="true"
-            className="flex h-6 w-6 items-center justify-center rounded-full text-[#9b9a92]"
-          >
-            <DotsIcon />
-          </span>
         </div>
 
-        <h3 className="mb-1.5 font-ui text-[15px] font-extrabold leading-tight text-(--text-primary) transition group-hover:text-(--brand-500) dark:text-(--text-primary)">
-          {tracker.title}
+        <h3 className="mb-2 font-ui text-[18px] font-extrabold leading-tight text-(--text-primary) dark:text-(--text-primary)">
+          <button type="button" onClick={handleOpen} className="text-left transition hover:text-(--brand-500) focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-(--brand-500)">
+            {tracker.title}
+          </button>
         </h3>
 
-        <p className="mb-auto text-[12px] leading-[1.55] text-(--text-secondary) dark:text-(--text-secondary)">
+        <p className="mb-auto line-clamp-3 text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
           {tracker.description}
         </p>
 
         <div className="mt-4 grid grid-cols-3 divide-x divide-[#e8ddd6] overflow-hidden rounded-md border border-[#e8ddd6] dark:divide-white/8 dark:border-white/8">
           <div className="flex flex-col items-center px-2 py-2.5">
-            <span className="mb-0.5 font-mono text-[8px] uppercase tracking-widest text-[#9b9a92]">
+            <span className="mb-0.5 font-mono text-[10px] uppercase tracking-widest text-(--text-muted)">
               Rating
             </span>
             <span className="flex items-center gap-1 font-ui text-[13px] font-extrabold text-[#c49a2c]">
@@ -86,7 +74,7 @@ export default function CommunityTrackerCard({
           </div>
 
           <div className="flex flex-col items-center px-2 py-2.5">
-            <span className="mb-0.5 font-mono text-[8px] uppercase tracking-widest text-[#9b9a92]">
+            <span className="mb-0.5 font-mono text-[10px] uppercase tracking-widest text-(--text-muted)">
               Topic
             </span>
             <span className="max-w-full truncate font-ui text-[13px] font-extrabold text-(--text-primary) dark:text-(--text-primary)">
@@ -95,7 +83,7 @@ export default function CommunityTrackerCard({
           </div>
 
           <div className="flex flex-col items-center px-2 py-2.5">
-            <span className="mb-0.5 font-mono text-[8px] uppercase tracking-widest text-[#9b9a92]">
+            <span className="mb-0.5 font-mono text-[10px] uppercase tracking-widest text-(--text-muted)">
               Clones
             </span>
             <span className="flex items-center gap-1 font-ui text-[13px] font-extrabold text-(--text-primary) dark:text-(--text-primary)">
@@ -105,9 +93,12 @@ export default function CommunityTrackerCard({
           </div>
         </div>
 
-        <div className="mt-3.5 flex items-center justify-end gap-3">
+        <div className="mt-4 flex items-center justify-between gap-3 border-t border-(--border-subtle) pt-3.5">
+          <button type="button" onClick={handleOpen} className="min-h-10 rounded-md px-1 text-[12px] font-bold text-(--text-secondary) transition hover:text-(--brand-500) focus-visible:outline-2 focus-visible:outline-(--brand-500)">
+            View roadmap <span aria-hidden="true">→</span>
+          </button>
           {tracker.inDashboard ? (
-            <span className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.07)] px-3.5 py-1.5 text-[12px] font-bold text-(--success) dark:text-(--success)">
+            <span className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.07)] px-3.5 py-1.5 text-[12px] font-bold text-(--success) dark:text-(--success)">
               <CheckIcon />
               In dashboard
             </span>
@@ -115,11 +106,10 @@ export default function CommunityTrackerCard({
             <button
               type="button"
               disabled={cloning}
-              onClick={(event) => {
-                event.stopPropagation();
+              onClick={() => {
                 onClone(tracker._id);
               }}
-              className="inline-flex items-center gap-1.5 rounded-lg border-[1.5px] border-[rgba(184,76,43,0.22)] bg-transparent px-3.5 py-1.5 text-[12px] font-bold text-(--brand-500) transition hover:border-[rgba(184,76,43,0.35)] hover:bg-[rgba(184,76,43,0.07)] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[rgba(232,129,106,0.25)] dark:text-(--brand-500)"
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border-[1.5px] border-[rgba(184,76,43,0.22)] bg-transparent px-3.5 py-1.5 text-[12px] font-bold text-(--brand-500) transition hover:border-[rgba(184,76,43,0.35)] hover:bg-[rgba(184,76,43,0.07)] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[rgba(232,129,106,0.25)] dark:text-(--brand-500)"
             >
               {cloning ? 'Cloning…' : 'Clone tracker'}
             </button>

@@ -1,4 +1,5 @@
 import { cn } from '../../../../../lib/cn';
+import UserAvatar from '../../../../../components/data-display/UserAvatar';
 import type { ITrackerClanChallenge } from '../../types/tracker.types';
 
 type Props = {
@@ -62,7 +63,11 @@ export default function ClanChallengeCard({
   return (
     <div className={cn('flex gap-3', mine && 'flex-row-reverse')}>
       <button type="button" onClick={() => onProfile?.(challenge.challenger.username)} className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-[#171512] text-[10px] font-bold text-white">
-        {challenge.challenger.avatarUrl ? <img src={challenge.challenger.avatarUrl} alt="" className="h-full w-full object-cover" /> : challenge.challenger.name.slice(0, 2).toUpperCase()}
+        <UserAvatar
+          name={challenge.challenger.name}
+          src={challenge.challenger.avatarUrl}
+          sizeClassName="h-9 w-9 text-[10px]"
+        />
       </button>
       <article className={cn('max-w-[82%] rounded-xl border border-[#d6ad47]/35 bg-[linear-gradient(135deg,rgba(244,201,93,.12),rgba(184,76,43,.06))] p-4', mine ? 'rounded-tr-sm' : 'rounded-tl-sm')}>
       <button type="button" onClick={() => onProfile?.(challenge.challenger.username)} className="mb-2 block text-[10px] font-bold text-(--text-secondary) hover:text-(--brand-500)">{challenge.challenger.name}</button>

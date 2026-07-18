@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import UserAvatar from '../../../../components/data-display/UserAvatar';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import { cn } from '../../../../lib/cn';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
@@ -162,7 +163,6 @@ export default function TrackerClanPage() {
       socket.off('connect_error', onConnectError);
       socket.off('tracker-clan:message', onMessage);
       socket.off('tracker-clan:challenge', onChallenge);
-      socket.disconnect();
     };
   }, [accessToken, currentUserId, isMember, navigate, refetchChallenges, trackerId]);
 
@@ -414,8 +414,8 @@ export default function TrackerClanPage() {
                 const message = item.message;
                 const mine = message.user.userId === currentUserId;
                 return <div key={message.id} className={cn('flex gap-3', mine && 'flex-row-reverse')}>
-                  <button type="button" onClick={() => navigate(ROUTES.publicProfileFor(message.user.username))} className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-[#171512] text-[10px] font-bold text-white">
-                    {message.user.avatarUrl ? <img src={message.user.avatarUrl} alt="" className="h-full w-full object-cover" /> : message.user.name.slice(0, 2).toUpperCase()}
+                  <button type="button" onClick={() => navigate(ROUTES.publicProfileFor(message.user.username))} className="shrink-0 rounded-full transition hover:ring-2 hover:ring-(--brand-500)/30">
+                    <UserAvatar name={message.user.name} src={message.user.avatarUrl} sizeClassName="h-9 w-9 text-[10px]" />
                   </button>
                   <div className={cn('max-w-[78%]', mine && 'text-right')}><button type="button" onClick={() => navigate(ROUTES.publicProfileFor(message.user.username))} className="mb-1 text-[10px] font-bold text-(--text-secondary) hover:text-(--brand-500)">{message.user.name}</button><div className={cn('rounded-xl px-4 py-3 text-left text-sm leading-relaxed', mine ? 'rounded-tr-sm bg-(--brand-500) text-white dark:text-[#171512]' : 'rounded-tl-sm border border-(--border-subtle) bg-(--surface-card) dark:border-white/10')}>{message.text}</div><time className="mt-1 block font-mono text-[8px] text-(--text-secondary)/60">{new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</time></div>
                 </div>;
@@ -432,7 +432,7 @@ export default function TrackerClanPage() {
         {tab === 'members' && (
           <section className="grid gap-3 sm:grid-cols-2">
             {clan.members.map((member) => <article key={member.userId} className="flex items-center justify-between gap-3 rounded-xl border border-(--border-subtle) bg-(--surface-card) p-4 dark:border-white/15">
-              <button type="button" onClick={() => navigate(ROUTES.publicProfileFor(member.username))} className="flex min-w-0 items-center gap-3 text-left"><span className="grid h-11 w-11 place-items-center overflow-hidden rounded-full bg-[#171512] text-xs font-bold text-white">{member.avatarUrl ? <img src={member.avatarUrl} alt="" className="h-full w-full object-cover" /> : member.name.slice(0, 2).toUpperCase()}</span><span className="min-w-0"><strong className="block truncate text-sm">{member.name}</strong><span className="text-[11px] text-(--text-secondary)">@{member.username} · {member.role.replace('_', ' ')}</span>{pendingInvitationByMember.get(member.userId) && <span className="mt-1 block font-mono text-[8px] uppercase tracking-wider text-[#8a6509] dark:text-[#f4c95d]">{pendingInvitationByMember.get(member.userId)?.role === 'owner' ? 'Ownership' : 'Co-owner'} invite pending</span>}</span></button>
+              <button type="button" onClick={() => navigate(ROUTES.publicProfileFor(member.username))} className="flex min-w-0 items-center gap-3 text-left"><UserAvatar name={member.name} src={member.avatarUrl} sizeClassName="h-11 w-11 text-xs" /><span className="min-w-0"><strong className="block truncate text-sm">{member.name}</strong><span className="text-[11px] text-(--text-secondary)">@{member.username} · {member.role.replace('_', ' ')}</span>{pendingInvitationByMember.get(member.userId) && <span className="mt-1 block font-mono text-[8px] uppercase tracking-wider text-[#8a6509] dark:text-[#f4c95d]">{pendingInvitationByMember.get(member.userId)?.role === 'owner' ? 'Ownership' : 'Co-owner'} invite pending</span>}</span></button>
               {member.userId !== currentUserId && <div className="relative"><button type="button" disabled={busy} aria-label={`Actions for ${member.name}`} onClick={(event) => { event.stopPropagation(); setMemberMenuId((current) => current === member.userId ? null : member.userId); }} className="grid h-9 w-9 place-items-center rounded-md text-(--text-secondary) transition hover:bg-black/5 hover:text-(--text-primary) disabled:opacity-50 dark:hover:bg-white/8"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>{memberMenuId === member.userId && <div onClick={(event) => event.stopPropagation()} className="absolute right-0 top-10 z-30 w-52 overflow-hidden rounded-lg border border-(--border-subtle) bg-(--surface-card) py-1 shadow-xl dark:border-white/15"><button type="button" onClick={() => { setMemberMenuId(null); setChallengeOpponent(member); }} className="block w-full px-4 py-3 text-left text-[12px] font-semibold text-[#9a7210] hover:bg-[#f4c95d]/10 dark:text-[#f4c95d]">⚔ Challenge to 1v1</button>{member.role !== 'owner' && clan.role === 'owner' && <><button type="button" onClick={() => { setMemberMenuId(null); setMemberAction({ type: member.role === 'co_owner' ? 'demote' : 'promote', member }); }} className="block w-full px-4 py-3 text-left text-[12px] font-semibold hover:bg-black/5 dark:hover:bg-white/8">{member.role === 'co_owner' ? 'Demote to member' : 'Promote to co-owner'}</button><button type="button" onClick={() => { setMemberMenuId(null); setMemberAction({ type: 'transfer', member }); }} className="block w-full px-4 py-3 text-left text-[12px] font-semibold hover:bg-black/5 dark:hover:bg-white/8">Transfer ownership</button></>}{member.role !== 'owner' && (clan.role === 'owner' || (clan.role === 'co_owner' && member.role === 'member')) && <button type="button" onClick={() => { setMemberMenuId(null); setMemberAction({ type: 'remove', member }); }} className="block w-full px-4 py-3 text-left text-[12px] font-semibold text-red-500 hover:bg-red-500/8">Remove from clan</button>}</div>}</div>}
             </article>)}
           </section>

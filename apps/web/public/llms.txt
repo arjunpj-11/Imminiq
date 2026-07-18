@@ -1,0 +1,16 @@
+# Imminiq
+
+Imminiq is an adaptive learning platform for personalized roadmaps, AI-guided lessons,
+collaborative learning guilds, live practice, mock tests, revision, and mastery analytics.
+
+## Public pages
+
+- [Product overview](/): Core product capabilities and links to create an account or sign in.
+- [Privacy policy](/privacy): How Imminiq handles personal information.
+- [Terms of service](/terms): Rules and conditions for using Imminiq.
+
+## Access
+
+The dashboard, community library, learner profiles, and administration console require an
+authenticated account. Automated clients should respect the access controls and the site's
+robots.txt directives.

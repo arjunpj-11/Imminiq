@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
+import { emitNotificationCreated } from '../../realtime/socket';
 
 export interface INotificationDocument extends Document {
   userId: mongoose.Types.ObjectId;
@@ -75,6 +76,31 @@ notificationSchema.index(
     },
   }
 );
+
+notificationSchema.index(
+  { userId: 1, type: 1, 'metadata.eventId': 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      'metadata.eventId': { $type: 'string' },
+    },
+  }
+);
+
+notificationSchema.post('save', (notification) => {
+  if (!notification.isRead) {
+    emitNotificationCreated(String(notification.userId), notification.type);
+  }
+});
+
+notificationSchema.post('insertMany', (result: unknown) => {
+  const notifications = Array.isArray(result) ? (result as INotificationDocument[]) : [];
+  for (const notification of notifications) {
+    if (!notification.isRead) {
+      emitNotificationCreated(String(notification.userId), notification.type);
+    }
+  }
+});
 
 export const Notification: mongoose.Model<INotificationDocument> =
   (mongoose.models.Notification as mongoose.Model<INotificationDocument> | undefined) ??

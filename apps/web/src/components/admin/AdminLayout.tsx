@@ -36,62 +36,78 @@ const links = [
   {
     to: ADMIN_ROUTES.dashboard,
     label: "Dashboard",
+    section: "Overview",
     icon: Gauge,
     end: true,
     moderator: true,
   },
-  { to: ADMIN_ROUTES.users, label: "Users", icon: Users, moderator: false },
+  {
+    to: ADMIN_ROUTES.users,
+    label: "Users",
+    section: "People",
+    icon: Users,
+    moderator: false,
+  },
   {
     to: ADMIN_ROUTES.trackers,
     label: "Trackers",
+    section: "Content",
     icon: BookOpenCheck,
     moderator: true,
   },
   {
     to: ADMIN_ROUTES.mockTests,
     label: "Mock Tests",
+    section: "Content",
     icon: ClipboardCheck,
     moderator: true,
   },
   {
     to: ADMIN_ROUTES.activity,
     label: "Activity",
+    section: "Insights",
     icon: BarChart3,
     moderator: false,
   },
   {
     to: ADMIN_ROUTES.broadcast,
     label: "Broadcast",
+    section: "Engagement",
     icon: Megaphone,
     moderator: false,
   },
   {
     to: ADMIN_ROUTES.subscriptions,
     label: "Premium / Subscriptions",
+    section: "Business",
     icon: ShieldCheck,
     moderator: false,
   },
   {
     to: ADMIN_ROUTES.auditLogs,
     label: "Audit Logs",
+    section: "Operations",
     icon: Activity,
     moderator: false,
   },
   {
     to: ADMIN_ROUTES.systemHealth,
     label: "System Health",
+    section: "Operations",
     icon: HeartPulse,
     moderator: false,
   },
   {
     to: ADMIN_ROUTES.aiTokenSpend,
     label: "AI Token Spend",
+    section: "Operations",
     icon: Cpu,
     moderator: false,
   },
   {
     to: ADMIN_ROUTES.supportTickets,
     label: "Support Tickets",
+    section: "Support",
     icon: TicketCheck,
     moderator: true,
   },
@@ -200,6 +216,22 @@ export default function AdminLayout() {
         ? "bg-[rgba(232,129,106,0.15)] text-[#e8816a]"
         : "text-[#aaa59d] hover:bg-[#24211e] hover:text-[#f2f0eb]"
     }`;
+  const visibleLinks = links.filter(
+    (item) => user?.role !== "moderator" || item.moderator,
+  );
+  const currentPageLabel =
+    temporaryItem?.label ||
+    visibleLinks
+      .slice()
+      .sort((a, b) => b.to.length - a.to.length)
+      .find(
+        (item) =>
+          location.pathname === item.to ||
+          location.pathname.startsWith(`${item.to}/`),
+      )?.label ||
+    (location.pathname.startsWith(ADMIN_ROUTES.settings)
+      ? "Settings"
+      : "Admin console");
 
   return (
     <div className="admin-theme min-h-screen bg-[#141412] text-[#f2f0eb]">
@@ -269,27 +301,34 @@ export default function AdminLayout() {
           )}
         </div>
 
-        <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-5 pt-5">
-          {links
-            .filter((item) => user?.role !== "moderator" || item.moderator)
-            .map(({ to, label, icon: Icon, end }) => (
+        <div className="relative min-h-0 flex-1">
+        <nav className="h-full space-y-1 overflow-y-auto px-3 pb-9 pt-5">
+          {visibleLinks.map(({ to, label, section, icon: Icon, end }, index) => (
+            <div key={label}>
+              {showSidebarLabels && section !== visibleLinks[index - 1]?.section && (
+                <div
+                  className={`px-5 pb-1 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#817c75] ${index === 0 ? "pt-0" : "pt-4"}`}
+                >
+                  {section}
+                </div>
+              )}
               <NavLink
-                key={label}
-                to={to}
-                end={end}
-                title={!showSidebarLabels ? label : undefined}
-                onDoubleClick={refreshCurrentRoute}
-                className={linkClassName}
-              >
-                <Icon
-                  className="shrink-0"
-                  size={20}
-                  strokeWidth={1.8}
-                  aria-hidden="true"
-                />
-                {showSidebarLabels && <span className="truncate">{label}</span>}
-              </NavLink>
-            ))}
+                  to={to}
+                  end={end}
+                  title={!showSidebarLabels ? label : undefined}
+                  onDoubleClick={refreshCurrentRoute}
+                  className={linkClassName}
+                >
+                  <Icon
+                    className="shrink-0"
+                    size={20}
+                    strokeWidth={1.8}
+                    aria-hidden="true"
+                  />
+                  {showSidebarLabels && <span className="truncate">{label}</span>}
+                </NavLink>
+            </div>
+          ))}
 
           {temporaryItem && (
             <NavLink
@@ -314,6 +353,11 @@ export default function AdminLayout() {
             </NavLink>
           )}
         </nav>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#18100e] to-transparent"
+        />
+        </div>
 
         <div className="shrink-0 border-t border-[rgba(255,255,255,0.09)] p-3">
           {user?.role !== "moderator" && (
@@ -374,6 +418,9 @@ export default function AdminLayout() {
               </span>
               <span className="truncate">Admin console</span>
             </div>
+            <span className="min-w-0 truncate text-sm font-semibold sm:hidden">
+              {currentPageLabel}
+            </span>
           </div>
 
           <div className="ml-auto flex min-w-0 items-center gap-3 sm:gap-4">

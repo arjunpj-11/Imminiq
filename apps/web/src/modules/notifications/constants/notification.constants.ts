@@ -1,4 +1,6 @@
-export const NOTIFICATION_REFETCH_INTERVAL_MS = 15_000;
+// Realtime events are the primary update path. This interval is only a recovery
+// mechanism for suspended tabs and short network interruptions.
+export const NOTIFICATION_REFETCH_INTERVAL_MS = 60_000;
 export const NOTIFICATION_PAGE_LIMIT = 20;
 
 export const NOTIFICATION_API_PATHS = {

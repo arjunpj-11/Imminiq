@@ -49,7 +49,7 @@ export default function StatCard({
   return (
     <div
       className={cn(
-        'relative flex min-w-0 flex-col overflow-hidden p-4.5',
+        'relative flex min-w-0 flex-col overflow-hidden p-3.5 sm:p-4.5',
         variant === 'flat' && 'surface-flat',
         variant === 'elevated' && 'surface-elevated',
         variant === 'spotlight' && 'surface-spotlight',
@@ -66,7 +66,7 @@ export default function StatCard({
       </div>
 
       {value !== undefined && (
-        <div className={cn('type-metric-xl mt-3 text-(--text-primary)', valueClassName)}>
+        <div className={cn('type-metric-xl mt-2 sm:mt-3 text-(--text-primary)', valueClassName)}>
           {value}
         </div>
       )}

@@ -12,7 +12,6 @@ import CloneTrackerConfirmDialog from '../components/shared/CloneTrackerConfirmD
 import CommunityPagination from '../components/shared/CommunityPagination';
 import StatCard from '../../../../components/data-display/StatCard';
 import CommunityTrackerCard from '../components/browse/CommunityTrackerCard';
-import VerifyEarnBanner from '../components/verification/VerifyEarnBanner';
 import { BookOpenIcon } from '../components/icons/CommunityIcons';
 import { COMMUNITY_PAGE_LIMIT, COMMUNITY_STAT_ACCENTS } from '../constants/community.constants';
 import { useCloneCommunityTracker } from '../hooks/useCloneCommunityTracker';
@@ -116,32 +115,82 @@ export default function CommunityBrowsePage() {
           />
         ) : (
           <>
-            <section className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
-                  <span className="h-1.5 w-1.5 rounded-full bg-(--success) dark:bg-(--success)" />
-                  Community
-                </div>
-                <h1 className="font-ui text-[clamp(26px,3.5vw,38px)] font-extrabold leading-[1.15] tracking-[-0.8px] text-(--text-primary) dark:text-(--text-primary)">
-                  Exchange your{' '}
-                  <span className="text-(--brand-500) dark:text-(--brand-500)">knowledge</span>
-                </h1>
-                <p className="mt-2 max-w-125 text-[13px] italic leading-[1.55] text-(--text-secondary) opacity-80 dark:text-(--text-secondary)">
-                  Join the collective effort to curate the finest academic paths.
-                </p>
-              </div>
+            <section className="relative overflow-hidden rounded-3xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) sm:p-7 lg:p-9">
+              <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.18)_0%,transparent_68%)] dark:bg-[radial-gradient(circle,rgba(232,129,106,0.18)_0%,transparent_68%)]" />
+              <div className="relative grid items-center gap-7 lg:grid-cols-[1.35fr_0.65fr]">
+                <div>
+                  <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-(--brand-500) dark:border-[rgba(232,129,106,0.24)] dark:bg-[rgba(232,129,106,0.10)]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-(--success) shadow-[0_0_10px_var(--success)]" />
+                    Community library
+                  </div>
+                  <h1 className="max-w-180 font-ui text-[clamp(30px,4.5vw,52px)] font-extrabold leading-[1.04] tracking-[-1.5px] text-(--text-primary)">
+                    Learn from paths shaped by{' '}
+                    <span className="text-(--brand-500)">real learners.</span>
+                  </h1>
+                  <p className="mt-4 max-w-155 text-[14px] leading-6 text-(--text-secondary) sm:text-[15px]">
+                    Discover proven roadmaps, clone what works, and help the community verify the
+                    clearest learning paths.
+                  </p>
 
-              <button
-                type="button"
-                onClick={() => navigate(ROUTES.publishedTrackers)}
-                className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.07)] px-5 py-2.5 text-[13px] font-bold text-(--brand-500) transition hover:-translate-y-px hover:border-[rgba(184,76,43,0.35)] hover:bg-[rgba(184,76,43,0.12)] dark:border-[rgba(232,129,106,0.25)] dark:bg-[rgba(232,129,106,0.08)] dark:text-(--brand-500) max-[560px]:w-full max-[560px]:justify-center"
-              >
-                <BookOpenIcon />
-                My publications
-                <span className="ml-0.5 inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-(--brand-500) px-1 font-mono text-[9px] font-bold text-white dark:bg-(--brand-500) dark:text-(--text-primary)">
-                  {browse.data.stats[0]?.value ?? '0'}
-                </span>
-              </button>
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={() => navigate(ROUTES.verifyAndEarn)}
+                      className="inline-flex min-h-11 items-center justify-center rounded-lg bg-(--brand-500) px-5 text-[13px] font-bold text-(--brand-contrast) shadow-[0_8px_22px_rgba(184,76,43,0.18)] transition hover:-translate-y-0.5 hover:bg-(--brand-600)"
+                    >
+                      Review &amp; earn {browse.data.verifyBanner.rewardCoins} coins
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => navigate(ROUTES.publishedTrackers)}
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-(--border-subtle) bg-(--surface-elevated) px-5 text-[13px] font-bold text-(--text-primary) transition hover:-translate-y-0.5 hover:border-[rgba(184,76,43,0.32)] hover:text-(--brand-500)"
+                    >
+                      <BookOpenIcon />
+                      My publications
+                    </button>
+                  </div>
+
+                  {browse.data.topics.length > 0 && (
+                    <div className="mt-6 flex flex-wrap items-center gap-2">
+                      <span className="mr-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-(--text-muted)">
+                        Popular
+                      </span>
+                      {browse.data.topics.slice(0, 5).map((topic) => (
+                        <button
+                          key={topic}
+                          type="button"
+                          onClick={() => setSelectedTopics([topic])}
+                          className="rounded-full border border-(--border-subtle) bg-(--surface-canvas) px-3 py-1.5 text-[11px] font-semibold text-(--text-secondary) transition hover:border-[rgba(184,76,43,0.3)] hover:text-(--brand-500)"
+                        >
+                          {topic}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <aside className="rounded-2xl border border-[rgba(184,76,43,0.18)] bg-[color-mix(in_srgb,var(--surface-elevated)_86%,var(--brand-500)_4%)] p-5 shadow-(--shadow-1)" aria-label="Live community activity">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="font-ui text-[17px] font-extrabold text-(--text-primary)">Live community</div>
+                    <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-(--success)">
+                      <span className="h-1.5 w-1.5 rounded-full bg-(--success)" /> Active
+                    </span>
+                  </div>
+                  <div className="mt-5 grid grid-cols-2 gap-3">
+                    <div className="rounded-xl border border-(--border-subtle) bg-(--surface-card) p-3.5">
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-(--text-muted)">Awaiting review</div>
+                      <div className="mt-2 font-ui text-2xl font-extrabold text-(--brand-500)">{browse.data.verifyBanner.queueCount}</div>
+                    </div>
+                    <div className="rounded-xl border border-(--border-subtle) bg-(--surface-card) p-3.5">
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-(--text-muted)">Weekly reviewers</div>
+                      <div className="mt-2 font-ui text-2xl font-extrabold text-(--success)">{browse.data.verifyBanner.activeReviewersThisWeek}</div>
+                    </div>
+                  </div>
+                  <p className="mt-4 text-[12px] leading-5 text-(--text-secondary)">
+                    Every review strengthens recommendations for the next learner.
+                  </p>
+                </aside>
+              </div>
             </section>
 
             {cloneTracker.isError && (
@@ -163,10 +212,15 @@ export default function CommunityBrowsePage() {
               ))}
             </div>
 
-            <VerifyEarnBanner
-              banner={browse.data.verifyBanner}
-              onGo={() => navigate(ROUTES.verifyAndEarn)}
-            />
+            <div className="flex flex-wrap items-end justify-between gap-3 pt-2">
+              <div>
+                <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-(--brand-500)">Browse library</div>
+                <h2 className="mt-1 font-ui text-[24px] font-extrabold tracking-[-0.5px] text-(--text-primary)">Find your next roadmap</h2>
+              </div>
+              <span className="font-mono text-[11px] uppercase tracking-widest text-(--text-muted)">
+                {browse.data.pagination.total} result{browse.data.pagination.total !== 1 ? 's' : ''}
+              </span>
+            </div>
 
             <CommunityFilters
               search={search}

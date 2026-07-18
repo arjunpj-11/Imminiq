@@ -1,7 +1,6 @@
-import { Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { useRoutes, type RouteObject } from 'react-router-dom';
 
-import AuthenticatedAppLayout from '../components/layout/AuthenticatedAppLayout';
 import PageLoadingScreen from '../components/ui/PageLoadingScreen';
 import NotFoundPage from '../pages/NotFoundPage';
 import { AdminRoute } from './guards/AdminRoute';
@@ -11,6 +10,10 @@ import { authenticatedRoutes } from './groups/authenticated.routes';
 import { focusedRoutes } from './groups/focused.routes';
 import { trackerCreationRoutes } from './groups/tracker-creation.routes';
 import { publicRoutes } from './groups/public.routes';
+
+const AuthenticatedAppLayout = lazy(
+  () => import('../components/layout/AuthenticatedAppLayout'),
+);
 
 const routes: RouteObject[] = [
   ...publicRoutes,
@@ -32,9 +35,7 @@ const routes: RouteObject[] = [
   { path: '*', element: <NotFoundPage /> },
 ];
 
-const loadingFallback = (
-  <PageLoadingScreen eyebrow="Loading" title="Opening Imminiq" description="Preparing your page." />
-);
+const loadingFallback = <PageLoadingScreen />;
 
 export default function AppRoutes() {
   return <Suspense fallback={loadingFallback}>{useRoutes(routes)}</Suspense>;
