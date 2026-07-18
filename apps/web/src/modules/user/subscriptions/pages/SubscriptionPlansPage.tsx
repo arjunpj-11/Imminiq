@@ -3,6 +3,7 @@ import { Check, Crown, ShieldCheck, Sparkles } from 'lucide-react';
 import { toast } from '../../../../lib/toast';
 import { useAuthStore } from '../../../../store/useAuthStore';
 import PageHero from '../../../../components/layout/PageHero';
+import SkeletonBlock from '../../../../components/feedback/SkeletonBlock';
 import {
   useCreateSubscriptionOrder,
   useCurrentSubscription,
@@ -156,8 +157,24 @@ export default function SubscriptionPlansPage() {
         )}
 
         {plans.isLoading && (
-          <div className="mt-10 rounded-2xl border border-(--border-subtle) bg-(--surface-muted) p-10 text-center text-sm text-(--text-secondary)">
-            Loading subscription plans…
+          <div className="mt-10 grid gap-5 lg:grid-cols-3" role="status" aria-label="Loading subscription plans">
+            <span className="sr-only">Loading subscription plans…</span>
+            {Array.from({ length: 3 }, (_, index) => (
+              <div key={index} aria-hidden="true" className="rounded-2xl border border-(--border-subtle) bg-(--surface-page) p-6">
+                <SkeletonBlock className="h-6 w-6 rounded-md" />
+                <SkeletonBlock className="mt-4 h-7 w-2/5 rounded-lg" />
+                <SkeletonBlock className="mt-3 h-4 w-full" />
+                <SkeletonBlock className="mt-2 h-4 w-4/5" />
+                <SkeletonBlock className="mt-6 h-10 w-1/2 rounded-lg" />
+                <div className="mt-5 grid grid-cols-2 gap-2">
+                  {Array.from({ length: 6 }, (_, item) => <SkeletonBlock key={item} className="h-10 w-full rounded-md" />)}
+                </div>
+                <div className="mt-6 space-y-3">
+                  {Array.from({ length: 4 }, (_, item) => <SkeletonBlock key={item} className="h-4 w-4/5" />)}
+                </div>
+                <SkeletonBlock className="mt-7 h-11 w-full rounded-xl" />
+              </div>
+            ))}
           </div>
         )}
         {plans.isError && (
@@ -173,7 +190,7 @@ export default function SubscriptionPlansPage() {
           </div>
         )}
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+        <div className={plans.isLoading ? 'hidden' : 'mt-10 grid gap-5 lg:grid-cols-3'}>
           {plans.data?.map((plan) => {
             const amount = billingCycle === 'annual' ? plan.annualAmount : plan.monthlyAmount;
             const isCurrent = current.data?.planId === plan.id;

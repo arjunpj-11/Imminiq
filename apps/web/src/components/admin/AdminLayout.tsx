@@ -16,7 +16,7 @@ import {
   TicketCheck,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import ConfirmDialog from "./AdminConfirmDialog";
 import ImminiqLogo from "../ui/ImminiqLogo";
@@ -29,6 +29,7 @@ import { useAppShellStore } from "../../store/useAppShellStore";
 import { useAuthStore } from "../../store/useAuthStore";
 import { AUTH_API_PATHS } from "../../modules/auth";
 import "./admin-theme.css";
+import { RouteSkeleton } from "../feedback/RouteSkeleton";
 
 const SIDEBAR_STORAGE_KEY = "imminiq.admin.sidebar.collapsed";
 
@@ -448,7 +449,9 @@ export default function AdminLayout() {
           className="contents"
           tabIndex={-1}
         >
-          <Outlet />
+          <Suspense fallback={<RouteSkeleton />}>
+            <Outlet />
+          </Suspense>
         </div>
       </div>
 

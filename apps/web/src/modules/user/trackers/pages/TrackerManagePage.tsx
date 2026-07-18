@@ -5,13 +5,13 @@ import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import { AppPageSkeleton } from '../../../../components/feedback/RouteSkeleton';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import { ContentModerationAppealPanel } from '../../../../components/moderation/ContentModerationAppealPanel';
 import { useUnsavedChangesGuard } from '../../../../hooks/useUnsavedChangesGuard';
 import SubtopicTreeNode from '../components/manage/SubtopicTreeNode';
 import {
   TrackerManageEmptyState as EmptyPanel,
-  TrackerManageLoadingState as LoadingPanel,
 } from '../components/manage/TrackerManageStates';
 
 import {
@@ -532,9 +532,7 @@ export default function TrackerManagePage() {
   if (isLoading) {
     return (
       <AppShellBoundary>
-        <div className="mx-auto flex w-full max-w-280 flex-1 items-center px-4 py-8 sm:px-6 md:px-12">
-          <LoadingPanel />
-        </div>
+        <AppPageSkeleton kind="editor" label="Loading tracker editor" />
       </AppShellBoundary>
     );
   }

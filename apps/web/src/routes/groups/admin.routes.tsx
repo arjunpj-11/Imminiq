@@ -3,8 +3,8 @@ import { Navigate, type RouteObject } from 'react-router-dom';
 import { lazy, type ReactNode } from 'react';
 import { ADMIN_ROUTES } from '../config/route-paths';
 import { AdminRoleGate } from '../guards/AdminRoleGate';
+import AdminLayout from '../../components/admin/AdminLayout';
 
-const AdminLayout = lazy(() => import('../../components/admin/AdminLayout'));
 const AdminDashboardPage = lazy(() => import('../../modules/admin/dashboard/pages/AdminDashboardPage'));
 const AdminUsersPage = lazy(() => import('../../modules/admin/users/pages/AdminUsersPage'));
 const AdminUserAppealsPage = lazy(() => import('../../modules/admin/users/pages/AdminUserAppealsPage'));

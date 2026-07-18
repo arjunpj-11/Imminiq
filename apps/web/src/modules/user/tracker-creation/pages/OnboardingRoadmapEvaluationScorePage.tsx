@@ -7,6 +7,7 @@ import { OnboardingWorkflowHeader } from '../components/OnboardingWorkflowLayout
 import { useRoadmapEvaluationResult } from '../hooks/useRoadmapEvaluationResult';
 import type { MissingRoadmapTopic } from '../hooks/useRoadmapEvaluationResult';
 import { cn } from '../utils/cn';
+import SkeletonBlock from '../../../../components/feedback/SkeletonBlock';
 
 const PlusIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true">
@@ -58,11 +59,18 @@ export default function OnboardingRoadmapEvaluationScorePage() {
 
       <main className="mx-auto flex w-full max-w-280 flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8 md:px-12 md:py-10">
         {isLoading ? (
-          <div className="flex min-h-125 items-center justify-center rounded-3xl border border-(--border-subtle) bg-(--surface-card) p-6 text-center shadow-[0_18px_55px_rgba(26,23,20,0.07)] dark:border-white/15">
-            <div className="flex flex-col items-center">
-              <div className="mb-5 h-12 w-12 animate-spin rounded-full border-2 border-(--border-subtle) border-t-(--brand-500)" />
-              <p className="font-serif text-[24px] font-black">Loading AI evaluation report</p>
-              <p className="mt-2 text-[12.5px] leading-6 text-(--text-secondary)">Preparing the score, summary, and recommended roadmap additions.</p>
+          <div role="status" aria-label="Loading AI evaluation report" className="space-y-5">
+            <span className="sr-only">Loading AI evaluation report…</span>
+            <div aria-hidden="true" className="space-y-5">
+              <div className="rounded-3xl border border-(--border-subtle) bg-[#1a1714] p-8 sm:p-10">
+                <SkeletonBlock className="h-7 w-48 rounded-full bg-white/8" />
+                <SkeletonBlock className="mt-5 h-12 w-[min(44rem,88%)] rounded-xl bg-white/8" />
+                <SkeletonBlock className="mt-4 h-4 w-4/5 bg-white/8" />
+              </div>
+              <div className="grid gap-5 lg:grid-cols-[18rem_minmax(0,1fr)]">
+                <SkeletonBlock className="h-72 w-full rounded-3xl" />
+                <div className="space-y-5"><SkeletonBlock className="h-40 w-full rounded-3xl" /><SkeletonBlock className="h-56 w-full rounded-3xl" /></div>
+              </div>
             </div>
           </div>
         ) : error || !evaluation ? (

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import { AppPageSkeleton } from '../../../../components/feedback/RouteSkeleton';
 import UserAvatar from '../../../../components/data-display/UserAvatar';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import { cn } from '../../../../lib/cn';
@@ -297,9 +298,7 @@ export default function TrackerClanPage() {
   if (clanQuery.isLoading) {
     return (
       <AppShellBoundary>
-        <div className="mx-auto w-full max-w-280 animate-pulse px-5 py-10">
-          <div className="h-56 rounded-2xl bg-(--surface-card)" />
-        </div>
+        <AppPageSkeleton kind="detail" label="Loading tracker clan" />
       </AppShellBoundary>
     );
   }

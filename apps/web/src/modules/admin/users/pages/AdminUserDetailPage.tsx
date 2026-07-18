@@ -33,6 +33,40 @@ import UserAvatar from "../../../../components/data-display/UserAvatar";
 
 type UserStatusAction = "suspend" | "block" | "restore";
 
+function AdminUserDetailSkeleton() {
+  return (
+    <main
+      className="mx-auto max-w-310 px-5 py-7 sm:px-8"
+      role="status"
+      aria-label="Loading user profile"
+      aria-busy="true"
+    >
+      <span className="sr-only">Loading user profile…</span>
+      <div aria-hidden="true">
+        <div className="h-4 w-32 animate-pulse rounded bg-white/8" />
+        <section className="mt-6 flex flex-wrap items-start justify-between gap-6">
+          <div className="flex min-w-0 flex-1 items-center gap-5 max-[560px]:items-start">
+            <div className="h-28 w-28 shrink-0 animate-pulse rounded-full bg-white/8 max-[560px]:h-20 max-[560px]:w-20" />
+            <div className="min-w-0 flex-1">
+              <div className="h-10 w-[min(24rem,75%)] animate-pulse rounded-lg bg-white/8" />
+              <div className="mt-3 h-4 w-[min(34rem,92%)] animate-pulse rounded bg-white/8" />
+              <div className="mt-3 h-7 w-44 animate-pulse rounded-full bg-white/8" />
+            </div>
+          </div>
+          <div className="flex gap-2"><div className="h-10 w-28 animate-pulse rounded-lg bg-white/8" /><div className="h-10 w-24 animate-pulse rounded-lg bg-white/8" /></div>
+        </section>
+        <div className="mt-8 grid grid-cols-3 gap-4 max-[850px]:grid-cols-2 max-[520px]:grid-cols-1">
+          {Array.from({ length: 6 }, (_, index) => <div key={index} className="h-28 animate-pulse rounded-xl border border-white/9 bg-white/4" />)}
+        </div>
+        <div className="mt-7 grid grid-cols-[minmax(0,1fr)_20rem] gap-5 max-[900px]:grid-cols-1">
+          <div className="h-96 animate-pulse rounded-xl border border-white/9 bg-white/4" />
+          <div className="h-96 animate-pulse rounded-xl border border-white/9 bg-white/4" />
+        </div>
+      </div>
+    </main>
+  );
+}
+
 export default function AdminUserDetailPage() {
   const { userId = "" } = useParams();
   const [statusAction, setStatusAction] = useState<UserStatusAction | null>(
@@ -48,8 +82,7 @@ export default function AdminUserDetailPage() {
   const currentUserRole = useAuthStore((state) => state.user?.role);
   const { data, isLoading, isError, error, refetch } =
     useAdminUserDetail(userId);
-  if (isLoading)
-    return <div className="p-10 text-sm">Loading user profile…</div>;
+  if (isLoading) return <AdminUserDetailSkeleton />;
   if (isError || !data)
     return (
       <div className="p-10">
