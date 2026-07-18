@@ -1,4 +1,4 @@
-import type { AdminListQuery } from "../../shared";
+import type { AdminListQuery } from "../../../../components/admin";
 
 export const adminAuditLogsKeys = {
   all: ["admin", "audit-logs"] as const,

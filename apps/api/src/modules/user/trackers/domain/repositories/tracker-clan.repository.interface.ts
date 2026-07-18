@@ -1,4 +1,9 @@
-import type { TrackerClanMessage, TrackerClanOverview, TrackerClanRole } from '../tracker-clan.types';
+import type {
+  TrackerClanMessage,
+  TrackerClanOverview,
+  TrackerClanRole,
+  TrackerCloneSyncResult,
+} from '../tracker-clan.types';
 
 export interface ITrackerClanRepository {
   getOverview(input: { trackerId: string; userId: string }): Promise<TrackerClanOverview | null>;
@@ -30,6 +35,16 @@ export interface ITrackerClanRepository {
     ownerId: string;
     newOwnerId: string;
   }): Promise<TrackerClanOverview | null>;
+  respondToRoleInvitation(input: {
+    trackerId: string;
+    userId: string;
+    invitationId: string;
+    action: 'accept' | 'decline';
+  }): Promise<TrackerClanOverview | null>;
+  syncPersonalClone(input: {
+    trackerId: string;
+    userId: string;
+  }): Promise<TrackerCloneSyncResult | null>;
   updateTopic(input: {
     trackerId: string;
     actorId: string;

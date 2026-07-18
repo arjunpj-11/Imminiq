@@ -1,4 +1,4 @@
-import type { AdminPage } from '../../shared/domain';
+import type { AdminPage } from '../../../../shared/admin';
 import type { AdminAuditLog } from '../domain/entities/admin-audit-log.entity';
 import type { AdminAuditLogDTO } from './admin-audit-logs.dto';
 

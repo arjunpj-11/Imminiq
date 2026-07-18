@@ -1,4 +1,4 @@
-import type { AdminActor } from '../../../shared/domain';
+import type { AdminActor } from '../../../../../shared/admin';
 import type { AdminSupportTicketUpdate } from '../../domain/entities/admin-support-ticket.entity';
 import type { IAdminSupportTicketsRepository } from '../../domain/repositories/admin-support-tickets.repository.interface';
 import { AdminSupportTicketsApplicationError } from '../admin-support-tickets-application.error';

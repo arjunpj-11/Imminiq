@@ -1,22 +1,22 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../../../../routes/config/route-paths';
 
 import { MicButton } from '../../../../components/input/VoiceInputButton';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import { useVoiceInput } from '../../../../hooks/useVoiceInput';
+import { ROUTES } from '../../../../routes/config/route-paths';
 import OnboardingBrandLink from '../components/OnboardingBrandLink';
+import { useActiveRoadmapJob } from '../hooks/useActiveRoadmapJob';
+import { useAnalyzeClonedTracker } from '../hooks/useAnalyzeClonedTracker';
 import { useGenerateRoadmap } from '../hooks/useGenerateRoadmap';
+import { useRoadmapJobStatus } from '../hooks/useRoadmapJobStatus';
 import { useSaveOnboardingStepOne } from '../hooks/useSaveOnboardingStepOne';
 import { useSaveOnboardingStepTwo } from '../hooks/useSaveOnboardingStepTwo';
-import { useRoadmapJobStatus } from '../hooks/useRoadmapJobStatus';
-import { useActiveRoadmapJob } from '../hooks/useActiveRoadmapJob';
 import { useTrackerIntake } from '../hooks/useTrackerIntake';
 import { useTrackerReuseSuggestions } from '../hooks/useTrackerReuseSuggestions';
-import { useAnalyzeClonedTracker } from '../hooks/useAnalyzeClonedTracker';
-import { useCloneCommunityTracker, type ICommunityTracker } from '../../community';
 import { useOnboardingStore } from '../store/useOnboardingStore';
 import type { ITrackerIntakeMessage, ITrackerIntakeProfile } from '../types/onboarding.types';
+import { useCloneCommunityTracker, type ICommunityTracker } from '../../community';
 
 const INITIAL_MESSAGE: ITrackerIntakeMessage = {
   role: 'assistant',
@@ -38,6 +38,122 @@ const buildPersonalizedGoal = (profile: ITrackerIntakeProfile) =>
     .filter(Boolean)
     .join(' · ')
     .slice(0, 400);
+
+const ArrowLeftIcon = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <line x1="19" y1="12" x2="5" y2="12" />
+    <polyline points="12 19 5 12 12 5" />
+  </svg>
+);
+
+const SendIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <line x1="22" y1="2" x2="11" y2="13" />
+    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+  </svg>
+);
+
+const CheckIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
+function ConversationMessage({ message }: { message: ITrackerIntakeMessage }) {
+  const isUser = message.role === 'user';
+
+  return (
+    <div className={`flex items-end gap-2.5 ${isUser ? 'justify-end' : 'justify-start'}`}>
+      {!isUser ? (
+        <span className="mb-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.09)] text-[13px] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)]">
+          ✦
+        </span>
+      ) : null}
+
+      <div
+        className={`max-w-[86%] rounded-2xl px-4 py-3 shadow-[0_5px_18px_rgba(26,23,20,0.05)] sm:max-w-[76%] ${
+          isUser
+            ? 'rounded-br-md bg-(--brand-500) text-white dark:text-[#141412]'
+            : 'rounded-bl-md border border-(--border-subtle) bg-(--surface-card) text-(--text-primary) dark:border-white/15'
+        }`}
+      >
+        <p className={`mb-1 text-[9px] font-bold uppercase tracking-widest ${isUser ? 'text-white/70 dark:text-[#141412]/60' : 'text-(--brand-500)'}`}>
+          {isUser ? 'You' : 'Immi'}
+        </p>
+        <p className="text-[13.5px] leading-6 sm:text-[14px]">{message.content}</p>
+      </div>
+    </div>
+  );
+}
+
+function CreationOverview({ profile }: { profile: ITrackerIntakeProfile | null }) {
+  const steps = [
+    ['Tell Immi your goal', 'A short conversation captures your outcome and current experience.'],
+    ['Review the best route', 'Reuse a trusted community tracker or generate a new personalised one.'],
+    ['Generate and evaluate', 'The roadmap is built, previewed, and checked for useful coverage.'],
+  ];
+
+  return (
+    <aside className="hidden min-h-0 flex-col gap-4 overflow-y-auto lg:flex">
+      <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-[0_12px_36px_rgba(26,23,20,0.05)] dark:border-white/15">
+        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-500)">
+          Creation overview
+        </p>
+        <h2 className="mt-2 font-serif text-[22px] font-black tracking-[-0.4px]">
+          From idea to roadmap
+        </h2>
+        <p className="mt-2 text-[12.5px] leading-6 text-(--text-secondary)">
+          The conversation stays focused and only asks for details needed to shape your tracker.
+        </p>
+
+        <div className="mt-5 space-y-3">
+          {steps.map(([title, description], index) => (
+            <div key={title} className="flex gap-3 rounded-xl bg-(--surface-canvas)/55 p-3.5 dark:bg-(--surface-canvas)/40">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.08)] text-[12px] font-black text-(--brand-500)">
+                {index + 1}
+              </span>
+              <div>
+                <p className="text-[12.5px] font-black text-(--text-primary)">{title}</p>
+                <p className="mt-1 text-[11px] leading-5 text-(--text-secondary)">{description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 dark:border-white/15">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-500)">
+            Personalisation status
+          </p>
+          <span className={`rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.08em] ${profile ? 'bg-[rgba(76,175,125,0.10)] text-(--success)' : 'bg-(--surface-canvas) text-(--text-secondary)'}`}>
+            {profile ? 'Ready' : 'Learning'}
+          </span>
+        </div>
+
+        {profile ? (
+          <dl className="mt-4 space-y-2.5">
+            {[
+              ['Topic', profile.topic],
+              ['Level', profile.inferredLevel],
+              ['Language', profile.preferredLanguage],
+              ['Weekly time', profile.weeklyTimeCommitment],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-xl border border-(--border-subtle) px-3.5 py-3 dark:border-white/10">
+                <dt className="text-[9px] font-bold uppercase tracking-[0.09em] text-(--text-secondary)">{label}</dt>
+                <dd className="mt-1 line-clamp-2 text-[12px] font-black text-(--text-primary)">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        ) : (
+          <div className="mt-4 rounded-xl border border-dashed border-(--border-subtle) bg-(--surface-canvas)/45 p-4 text-[11.5px] leading-5 text-(--text-secondary) dark:border-white/15">
+            Your topic, level, language, and available time will appear here as Immi understands your answers.
+          </div>
+        )}
+      </div>
+    </aside>
+  );
+}
 
 export default function OnboardingStepOnePage() {
   const navigate = useNavigate();
@@ -90,11 +206,7 @@ export default function OnboardingStepOnePage() {
     }
   }, [activeRoadmapJobId, serverActiveJob.data?.jobId, setActiveRoadmapJobId]);
 
-  const activeJobStatus = (
-    activeJob.data?.data?.status ||
-    activeJob.data?.data?.state ||
-    ''
-  ).toLowerCase();
+  const activeJobStatus = (activeJob.data?.data?.status || activeJob.data?.data?.state || '').toLowerCase();
   const trackerGenerationActive =
     Boolean(effectiveActiveJobId) &&
     !['completed', 'failed', 'success', 'done', 'error'].includes(activeJobStatus);
@@ -170,8 +282,7 @@ export default function OnboardingStepOnePage() {
       setActiveRoadmapJobId(jobId);
       navigate(ROUTES.trackerCreateGenerating(jobId), { replace: true });
     } catch (error) {
-      const apiMessage = (error as { response?: { data?: { message?: string } } }).response?.data
-        ?.message;
+      const apiMessage = (error as { response?: { data?: { message?: string } } }).response?.data?.message;
       setGenerationError(
         apiMessage ||
           (error instanceof Error
@@ -190,8 +301,7 @@ export default function OnboardingStepOnePage() {
       const result = await cloneTracker.mutateAsync({ trackerId: tracker._id });
       setClonedTracker(result.tracker);
     } catch (error) {
-      const apiMessage = (error as { response?: { data?: { message?: string } } }).response?.data
-        ?.message;
+      const apiMessage = (error as { response?: { data?: { message?: string } } }).response?.data?.message;
       setReuseError(apiMessage || 'Unable to add this tracker. Please try again.');
     }
   };
@@ -203,8 +313,7 @@ export default function OnboardingStepOnePage() {
       const result = await analyzeClone.mutateAsync(clonedTracker._id);
       navigate(ROUTES.trackerCreateEvaluation(result.data.jobId));
     } catch (error) {
-      const apiMessage = (error as { response?: { data?: { message?: string } } }).response?.data
-        ?.message;
+      const apiMessage = (error as { response?: { data?: { message?: string } } }).response?.data?.message;
       setReuseError(apiMessage || 'Unable to start the new-topic analysis.');
     }
   };
@@ -222,258 +331,208 @@ export default function OnboardingStepOnePage() {
     setClonedTracker(null);
   };
 
+  const errorMessage =
+    reuseError ||
+    generationError ||
+    (intake.isError ? 'Something went wrong. Your answer is still here—please try again.' : '');
+
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-(--surface-canvas) text-(--text-primary)">
-      <header className="flex shrink-0 items-center justify-between border-b border-(--border-subtle) px-5 py-4 sm:px-10">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="flex h-9 w-9 items-center justify-center rounded-md border border-(--border-subtle) bg-(--surface-card)"
-            aria-label="Go back"
-          >
-            ←
-          </button>
-          <OnboardingBrandLink hideWordmarkOnMobile />
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="hidden font-mono text-[9px] uppercase tracking-[0.14em] text-(--text-secondary) sm:inline">
-            AI-guided tracker creation
-          </span>
-          {!trackerGenerationActive && !serverActiveJob.isLoading ? (
+      <header className="shrink-0 border-b border-(--border-subtle) bg-(--surface-canvas)/92 backdrop-blur-xl dark:border-white/15">
+        <div className="mx-auto flex h-16 w-full max-w-300 items-center justify-between gap-4 px-4 sm:px-6 lg:px-10">
+          <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => setClearDialogOpen(true)}
-              disabled={intake.isPending || (messages.length === 1 && !answer && !profile)}
-              className="rounded-xl border border-(--border-subtle) bg-(--surface-card) px-3.5 py-2 text-[11px] font-bold text-(--text-secondary) transition hover:border-red-300 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-45 dark:hover:bg-red-950/20"
+              onClick={() => navigate(-1)}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-(--border-subtle) bg-(--surface-card) text-(--text-secondary) transition hover:border-(--brand-500) hover:text-(--brand-500) dark:border-white/15"
+              aria-label="Go back"
             >
-              Clear chat
+              <ArrowLeftIcon />
             </button>
-          ) : null}
+            <OnboardingBrandLink hideWordmarkOnMobile />
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <span className="hidden rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-(--brand-500) sm:inline-flex">
+              AI-guided creation
+            </span>
+            {!trackerGenerationActive && !serverActiveJob.isLoading ? (
+              <button
+                type="button"
+                onClick={() => setClearDialogOpen(true)}
+                disabled={intake.isPending || (messages.length === 1 && !answer && !profile)}
+                className="rounded-xl border border-(--border-subtle) bg-(--surface-card) px-3.5 py-2 text-[11px] font-bold text-(--text-secondary) transition hover:border-red-300 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-45 dark:border-white/15 dark:hover:bg-red-950/20"
+              >
+                Clear chat
+              </button>
+            ) : null}
+          </div>
         </div>
       </header>
 
-      <main className="flex min-h-0 w-full flex-1 flex-col">
+      <main className="min-h-0 flex-1">
         {serverActiveJob.isLoading ? (
-          <section className="flex h-full w-full flex-col items-center justify-center bg-(--surface-card) p-8 text-center">
-            <div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-(--border-subtle) border-t-(--brand-500)" />
-            <p className="mt-4 text-[13px] font-semibold text-(--text-secondary)">
-              Checking your tracker generation status…
-            </p>
+          <section className="flex h-full items-center justify-center p-5">
+            <div className="w-full max-w-lg rounded-3xl border border-(--border-subtle) bg-(--surface-card) p-8 text-center shadow-[0_20px_60px_rgba(26,23,20,0.08)] dark:border-white/15">
+              <div className="mx-auto h-11 w-11 animate-spin rounded-full border-2 border-(--border-subtle) border-t-(--brand-500)" />
+              <p className="mt-5 text-[14px] font-black">Checking your tracker status</p>
+              <p className="mt-2 text-[12px] leading-5 text-(--text-secondary)">
+                Immi is checking whether a roadmap is already being created for you.
+              </p>
+            </div>
           </section>
         ) : trackerGenerationActive ? (
-          <section className="relative flex h-full w-full items-center justify-center overflow-hidden bg-[linear-gradient(135deg,var(--surface-canvas),rgba(184,76,43,0.07),var(--surface-canvas))] px-5 py-10 text-center">
+          <section className="relative flex h-full items-center justify-center overflow-hidden bg-[linear-gradient(135deg,var(--surface-canvas),rgba(184,76,43,0.07),var(--surface-canvas))] px-5 py-10 text-center">
             <div className="pointer-events-none absolute -left-24 top-1/4 h-80 w-80 rounded-full bg-[rgba(184,76,43,0.08)] blur-3xl" />
             <div className="pointer-events-none absolute -right-24 bottom-0 h-96 w-96 rounded-full bg-[rgba(184,76,43,0.10)] blur-3xl" />
-            <div className="relative w-full max-w-180 rounded-3xl border border-[rgba(184,76,43,0.22)] bg-(--surface-card)/95 p-7 shadow-[0_28px_90px_rgba(26,23,20,0.13)] backdrop-blur sm:p-11">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-(--brand-500) text-2xl text-white shadow-[0_12px_32px_rgba(184,76,43,0.28)]">
-                ✦
-              </div>
-              <div className="mt-6 font-mono text-[9px] uppercase tracking-[0.16em] text-(--brand-500)">
-                Generation in progress
-              </div>
-              <h1 className="mt-3 font-serif text-[clamp(30px,5vw,48px)] font-black leading-tight">
-                Your tracker is taking shape
-              </h1>
+            <div className="relative w-full max-w-190 rounded-3xl border border-[rgba(184,76,43,0.22)] bg-(--surface-card)/95 p-7 shadow-[0_28px_90px_rgba(26,23,20,0.13)] backdrop-blur sm:p-11">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-(--brand-500) text-2xl text-white shadow-[0_12px_32px_rgba(184,76,43,0.28)] dark:text-[#141412]">✦</div>
+              <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.14em] text-(--brand-500)">Generation in progress</p>
+              <h1 className="mt-3 font-serif text-[clamp(30px,5vw,48px)] font-black leading-tight">Your tracker is taking shape</h1>
               <p className="mx-auto mt-3 max-w-xl text-[14px] leading-7 text-(--text-secondary)">
-                Another tracker cannot be started while Immi is building this one. You can watch the
-                generation or return to your dashboard—we’ll notify you when the review is ready.
+                Another tracker cannot be started while Immi is building this one. Watch the progress or return to your dashboard.
               </p>
-              <div className="mx-auto mt-7 max-w-lg rounded-2xl border border-(--border-subtle) bg-(--surface-canvas) p-4 text-left">
-                <div className="flex items-center justify-between text-[11px] font-bold text-(--text-secondary)">
-                  <span>Building personalized roadmap</span>
-                  <span className="text-(--brand-500)">In progress</span>
+              <div className="mx-auto mt-7 max-w-lg rounded-2xl border border-(--border-subtle) bg-(--surface-canvas)/70 p-5 text-left dark:border-white/15">
+                <div className="flex items-center justify-between gap-3 text-[12px] font-bold text-(--text-secondary)">
+                  <span>Building personalised roadmap</span>
+                  <span className="text-(--brand-500)">{generationProgress}%</span>
                 </div>
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-black/8 dark:bg-white/8">
-                  <div
-                    className="h-full animate-pulse rounded-full bg-(--brand-500) transition-[width] duration-500"
-                    style={{ width: `${generationProgress}%` }}
-                  />
+                <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-black/8 dark:bg-white/10">
+                  <div className="h-full animate-pulse rounded-full bg-(--brand-500) transition-[width] duration-500" style={{ width: `${generationProgress}%` }} />
                 </div>
               </div>
               <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-                <button
-                  type="button"
-                  onClick={() =>
-                    navigate(ROUTES.trackerCreateGenerating(effectiveActiveJobId ?? ''))
-                  }
-                  className="rounded-xl bg-(--brand-500) px-6 py-3.5 text-[12px] font-bold text-white shadow-[0_8px_24px_rgba(184,76,43,0.24)] transition hover:-translate-y-0.5 hover:bg-(--brand-600)"
-                >
+                <button type="button" onClick={() => navigate(ROUTES.trackerCreateGenerating(effectiveActiveJobId ?? ''))} className="rounded-xl bg-(--brand-500) px-6 py-3.5 text-[12px] font-bold text-white shadow-[0_8px_24px_rgba(184,76,43,0.24)] transition hover:-translate-y-0.5 hover:bg-(--brand-600) dark:text-[#141412]">
                   View generation progress
                 </button>
-                <button
-                  type="button"
-                  onClick={() => navigate(ROUTES.dashboard)}
-                  className="rounded-xl border border-(--border-subtle) bg-(--surface-canvas) px-6 py-3.5 text-[12px] font-bold text-(--text-primary) transition hover:border-(--brand-500)"
-                >
+                <button type="button" onClick={() => navigate(ROUTES.dashboard)} className="rounded-xl border border-(--border-subtle) bg-(--surface-canvas) px-6 py-3.5 text-[12px] font-bold text-(--text-primary) transition hover:border-(--brand-500) dark:border-white/15">
                   Return to dashboard
                 </button>
               </div>
             </div>
           </section>
         ) : (
-          <section className="flex h-full min-h-0 w-full flex-col bg-(--surface-card)">
-            <div className="shrink-0 border-b border-(--border-subtle) px-5 py-5 sm:px-10 lg:px-16">
-              <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-(--brand-500)">
-                Personalization conversation
+          <section className="mx-auto grid h-full w-full max-w-300 gap-5 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_330px] lg:p-6">
+            <div className="flex min-h-0 flex-col overflow-hidden rounded-3xl border border-(--border-subtle) bg-(--surface-card) shadow-[0_20px_60px_rgba(26,23,20,0.08)] dark:border-white/15">
+              <div className="shrink-0 border-b border-(--border-subtle) px-5 py-5 dark:border-white/15 sm:px-7">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 animate-pulse rounded-full bg-(--brand-500)" />
+                      <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-(--brand-500)">Personalisation conversation</p>
+                    </div>
+                    <h1 className="mt-2 font-serif text-[clamp(26px,4vw,36px)] font-black leading-tight tracking-[-0.6px]">Build a tracker around you</h1>
+                    <p className="mt-2 max-w-3xl text-[12.5px] leading-6 text-(--text-secondary)">Immi uses your learning history, then asks only what it still needs to create an accurate roadmap.</p>
+                  </div>
+                  <span className="hidden rounded-xl border border-(--border-subtle) bg-(--surface-canvas) px-3 py-2 text-[10px] font-bold text-(--text-secondary) sm:inline-flex dark:border-white/10">
+                    {profile ? 'Profile ready' : `${Math.max(messages.filter((message) => message.role === 'user').length, 0)} answers`}
+                  </span>
+                </div>
               </div>
-              <h1 className="mt-2 font-serif text-[32px] font-black leading-tight">
-                Build a tracker around you
-              </h1>
-              <p className="mt-2 text-[13px] leading-6 text-(--text-secondary)">
-                Immi uses your previous trackers and test performance, then asks only what it still
-                needs to create an accurate roadmap.
-              </p>
-            </div>
 
-            <div
-              ref={conversationRef}
-              className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-black/[0.018] px-5 py-6 dark:bg-white/[0.018] sm:px-10 lg:px-16"
-            >
-              {messages.map((message, index) => (
-                <div
-                  key={`${message.role}-${index}-${message.content.slice(0, 16)}`}
-                  className={`max-w-[86%] rounded-2xl px-4 py-3 text-[14px] leading-6 sm:max-w-[75%] ${
-                    message.role === 'user'
-                      ? 'ml-auto bg-(--brand-500) text-white'
-                      : 'border border-(--border-subtle) bg-(--surface-card)'
-                  }`}
-                >
-                  {message.content}
+              <div ref={conversationRef} className="min-h-0 flex-1 space-y-5 overflow-y-auto bg-black/1.5 px-4 py-5 dark:bg-white/1.5 sm:px-7 sm:py-6">
+                {messages.map((message, index) => (
+                  <ConversationMessage key={`${message.role}-${index}-${message.content.slice(0, 16)}`} message={message} />
+                ))}
+                {intake.isPending ? (
+                  <div className="flex items-end gap-2.5">
+                    <span className="mb-1 flex h-8 w-8 items-center justify-center rounded-xl border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.09)] text-[13px] text-(--brand-500)">✦</span>
+                    <div className="rounded-2xl rounded-bl-md border border-(--border-subtle) bg-(--surface-card) px-4 py-3 dark:border-white/15">
+                      <div className="flex items-center gap-1.5" aria-label="Immi is reviewing your answer">
+                        <span className="h-2 w-2 animate-bounce rounded-full bg-(--brand-500) [animation-delay:-0.2s]" />
+                        <span className="h-2 w-2 animate-bounce rounded-full bg-(--brand-500) [animation-delay:-0.1s]" />
+                        <span className="h-2 w-2 animate-bounce rounded-full bg-(--brand-500)" />
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+
+              {profile ? (
+                <div className="max-h-[46%] shrink-0 overflow-y-auto border-t border-(--border-subtle) bg-(--surface-card) p-4 dark:border-white/15 sm:p-5">
+                  {clonedTracker ? (
+                    <div className="rounded-2xl border border-[rgba(76,175,125,0.24)] bg-[rgba(76,175,125,0.07)] p-5">
+                      <div className="flex items-start gap-3">
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-(--success) text-white"><CheckIcon /></span>
+                        <div>
+                          <p className="text-[14px] font-black text-(--text-primary)">“{clonedTracker.title}” is in your dashboard</p>
+                          <p className="mt-1 text-[12px] leading-5 text-(--text-secondary)">Run one AI freshness check to find credible topics introduced after the community tracker was created.</p>
+                        </div>
+                      </div>
+                      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                        <button type="button" onClick={() => void analyzeNewTopics()} disabled={analyzeClone.isPending} className="rounded-xl bg-(--brand-500) px-5 py-3 text-[12px] font-bold text-white transition hover:bg-(--brand-600) disabled:opacity-60 dark:text-[#141412]">
+                          {analyzeClone.isPending ? 'Starting analysis…' : 'Analyse new topics'}
+                        </button>
+                        <button type="button" onClick={() => navigate(ROUTES.dashboard)} className="rounded-xl border border-(--border-subtle) px-5 py-3 text-[12px] font-bold transition hover:border-(--brand-500) dark:border-white/15">Open dashboard</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-500)">Recommended next step</p>
+                          <h2 className="mt-1 font-serif text-[20px] font-black">Choose the best starting point</h2>
+                          <p className="mt-1 text-[11.5px] leading-5 text-(--text-secondary)">Reuse a close community match, or create a new {profile.inferredLevel} tracker in {profile.preferredLanguage}.</p>
+                        </div>
+                        <span className="w-fit rounded-full bg-[rgba(76,175,125,0.09)] px-3 py-1.5 text-[10px] font-bold text-(--success)">Profile complete</span>
+                      </div>
+
+                      {suggestions.isLoading ? (
+                        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                          {[0, 1, 2].map((item) => <div key={item} className="h-28 animate-pulse rounded-2xl bg-(--surface-canvas)" />)}
+                        </div>
+                      ) : suggestions.data?.length ? (
+                        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                          {suggestions.data.map((tracker) => (
+                            <button key={tracker._id} type="button" onClick={() => void reuseTracker(tracker)} disabled={cloneTracker.isPending} className="group flex min-h-32 flex-col rounded-2xl border border-(--border-subtle) bg-(--surface-canvas)/55 p-4 text-left transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:shadow-[0_10px_28px_rgba(184,76,43,0.10)] disabled:opacity-60 dark:border-white/15 dark:bg-(--surface-canvas)/40">
+                              <div className="flex items-start justify-between gap-2">
+                                <span className="line-clamp-2 text-[13px] font-black text-(--text-primary)">{tracker.title}</span>
+                                <span className="shrink-0 text-[10px] font-bold text-(--warning)">★ {tracker.rating.toFixed(1)}</span>
+                              </div>
+                              <span className="mt-2 line-clamp-2 text-[11px] leading-5 text-(--text-secondary)">{tracker.description || tracker.topic}</span>
+                              <span className="mt-auto pt-3 text-[10px] font-black text-(--brand-500)">{tracker.inDashboard ? 'Open existing clone' : 'Clone tracker'} <span className="inline-block transition group-hover:translate-x-1">→</span></span>
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="mt-4 rounded-2xl border border-dashed border-(--border-subtle) bg-(--surface-canvas)/45 px-4 py-5 text-center text-[11.5px] text-(--text-secondary) dark:border-white/15">No close community match was found. A new personalised tracker is the best fit.</div>
+                      )}
+
+                      <button type="button" onClick={() => void startGeneration()} disabled={isStartingGeneration} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-(--brand-500) px-5 py-3.5 text-[12px] font-bold text-white shadow-[0_8px_22px_rgba(184,76,43,0.20)] transition hover:-translate-y-0.5 hover:bg-(--brand-600) disabled:opacity-60 dark:text-[#141412]">
+                        {isStartingGeneration ? 'Starting generation…' : 'Create a new personalised tracker'}
+                        {!isStartingGeneration ? <span>→</span> : null}
+                      </button>
+                    </div>
+                  )}
                 </div>
-              ))}
-              {intake.isPending ? (
-                <div className="text-[12px] text-(--text-secondary)">
-                  Immi is reviewing your answer and learning history…
+              ) : (
+                <div className="shrink-0 border-t border-(--border-subtle) bg-(--surface-card) p-4 dark:border-white/15 sm:p-5">
+                  <form onSubmit={(event) => void submitAnswer(event)} className="rounded-2xl border border-(--border-subtle) bg-(--surface-canvas)/50 p-2 transition focus-within:border-(--brand-500) focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.08)] dark:border-white/15 dark:bg-(--surface-canvas)/35">
+                    <textarea value={answer} onChange={(event) => setAnswer(event.target.value)} placeholder="Type your answer, or use the microphone…" rows={2} className="max-h-32 min-h-13 w-full resize-none bg-transparent px-2.5 py-2 text-[13px] leading-5 outline-none placeholder:text-(--text-secondary)/65" />
+                    <div className="flex items-center justify-between gap-3 border-t border-(--border-subtle) px-1 pt-2 dark:border-white/10">
+                      <span className="hidden text-[10px] text-(--text-secondary) sm:inline">Share only the detail needed to personalise your roadmap.</span>
+                      <div className="ml-auto flex items-center gap-2">
+                        <MicButton isListening={voice.isListening} isSupported={voice.isSupported} onToggle={voice.toggle} />
+                        <button type="submit" disabled={!answer.trim() || intake.isPending} className="flex h-10 items-center justify-center gap-2 rounded-xl bg-(--brand-500) px-4 text-[12px] font-bold text-white transition hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-50 dark:text-[#141412]">
+                          Send <SendIcon />
+                        </button>
+                      </div>
+                    </div>
+                  </form>
                 </div>
+              )}
+
+              {errorMessage ? (
+                <p className="shrink-0 border-t border-red-200 bg-red-50 px-5 py-3 text-[12px] font-semibold text-red-600 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-300">{errorMessage}</p>
               ) : null}
             </div>
 
-            {profile ? (
-              <div className="shrink-0 border-t border-(--border-subtle) px-5 py-4 sm:px-10 lg:px-16">
-                {clonedTracker ? (
-                  <div className="rounded-2xl border border-[rgba(40,160,90,0.28)] bg-[rgba(40,160,90,0.08)] p-5">
-                    <p className="text-[13px] font-black text-(--text-primary)">
-                      “{clonedTracker.title}” is now in your dashboard
-                    </p>
-                    <p className="mt-1 text-[12px] leading-5 text-(--text-secondary)">
-                      You can run one AI freshness check to find credible topics introduced since
-                      the community tracker was created. Approved topics are added only to your
-                      clone; you can later contribute them to the original tracker.
-                    </p>
-                    <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                      <button
-                        type="button"
-                        onClick={() => void analyzeNewTopics()}
-                        disabled={analyzeClone.isPending}
-                        className="rounded-xl bg-(--brand-500) px-5 py-3 text-[12px] font-bold text-white disabled:opacity-60"
-                      >
-                        {analyzeClone.isPending ? 'Starting analysis…' : 'Analyze new topics (once)'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => navigate(ROUTES.dashboard)}
-                        className="rounded-xl border border-(--border-subtle) px-5 py-3 text-[12px] font-bold"
-                      >
-                        Skip and open dashboard
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                <div className="rounded-xl border border-[rgba(40,160,90,0.24)] bg-[rgba(40,160,90,0.08)] p-4">
-                  <p className="text-[13px] font-bold text-(--text-primary)">
-                    We searched existing trackers for: {profile.topic}
-                  </p>
-                  <p className="mt-1 text-[12px] leading-5 text-(--text-secondary)">
-                    Reusing a proven community tracker is faster. Clone one below, or create a new
-                    {` ${profile.inferredLevel}`} tracker in {profile.preferredLanguage}.
-                  </p>
-                  {suggestions.isLoading ? (
-                    <p className="mt-3 text-[12px] text-(--text-secondary)">Searching the community…</p>
-                  ) : suggestions.data?.length ? (
-                    <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                      {suggestions.data.map((tracker) => (
-                        <button
-                          key={tracker._id}
-                          type="button"
-                          onClick={() => void reuseTracker(tracker)}
-                          disabled={cloneTracker.isPending}
-                          className="rounded-xl border border-(--border-subtle) bg-(--surface-card) p-3 text-left transition hover:border-(--brand-500) disabled:opacity-60"
-                        >
-                          <span className="block text-[12px] font-black text-(--text-primary)">
-                            {tracker.title}
-                          </span>
-                          <span className="mt-1 block line-clamp-2 text-[10px] leading-4 text-(--text-secondary)">
-                            {tracker.description || tracker.topic}
-                          </span>
-                          <span className="mt-2 block text-[10px] font-bold text-(--brand-500)">
-                            {tracker.inDashboard ? 'Open existing clone' : 'Clone this tracker'} · ★{' '}
-                            {tracker.rating.toFixed(1)}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="mt-3 text-[11px] text-(--text-secondary)">
-                      No close community match was found. A new personalized tracker is the best fit.
-                    </p>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => void startGeneration()}
-                    disabled={isStartingGeneration}
-                    className="mt-3 w-full rounded-xl bg-(--brand-500) py-3 text-[12px] font-bold text-white disabled:opacity-60"
-                  >
-                    {isStartingGeneration ? 'Starting generation…' : 'Create a new tracker instead →'}
-                  </button>
-                </div>
-                )}
-              </div>
-            ) : (
-              <div className="shrink-0 border-t border-(--border-subtle) bg-(--surface-card) px-5 py-4 sm:px-10 lg:px-16">
-                <form onSubmit={(event) => void submitAnswer(event)} className="flex gap-2">
-                  <textarea
-                    value={answer}
-                    onChange={(event) => setAnswer(event.target.value)}
-                    placeholder="Type your answer, or use the microphone…"
-                    rows={2}
-                    className="min-w-0 flex-1 resize-none rounded-xl border border-(--border-subtle) bg-transparent px-4 py-3 text-[13px] outline-none focus:border-(--brand-500)"
-                  />
-                  <MicButton
-                    isListening={voice.isListening}
-                    isSupported={voice.isSupported}
-                    onToggle={voice.toggle}
-                  />
-                  <button
-                    type="submit"
-                    disabled={!answer.trim() || intake.isPending}
-                    className="rounded-xl bg-(--brand-500) px-5 text-[12px] font-bold text-white disabled:opacity-50"
-                  >
-                    Send
-                  </button>
-                </form>
-              </div>
-            )}
-
-            {intake.isError || generationError || reuseError ? (
-              <p className="shrink-0 px-5 pb-3 text-[12px] font-semibold text-red-600 sm:px-10 lg:px-16">
-                {reuseError || generationError ||
-                  'Something went wrong. Your answer is still here—please try again.'}
-              </p>
-            ) : null}
+            <CreationOverview profile={profile} />
           </section>
         )}
       </main>
 
-      <ConfirmDialog
-        open={clearDialogOpen}
-        title="Start a new tracker conversation?"
-        description="Your current answers and Immi's tracker recommendations will be cleared."
-        confirmText="Clear chat"
-        variant="danger"
-        onConfirm={startNewConversation}
-        onClose={() => setClearDialogOpen(false)}
-      />
+      <ConfirmDialog open={clearDialogOpen} title="Start a new tracker conversation?" description="Your current answers and Immi's tracker recommendations will be cleared." confirmText="Clear chat" variant="danger" onConfirm={startNewConversation} onClose={() => setClearDialogOpen(false)} />
     </div>
   );
 }

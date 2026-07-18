@@ -18,14 +18,14 @@ import {
   AdminNumberInput,
   AdminPageHeader,
   AdminPanel,
-} from "../../shared";
+} from "../../../../components/admin";
 import { getUserFacingError } from "../../../../lib/user-facing-error";
 import { useAdminSettings } from "../hooks/useAdminSettings";
 import { useUpdateAdminSettings } from "../hooks/useUpdateAdminSettings";
 import type { AdminSettings } from "../types/admin-settings.types";
-import Modal from "../../shared/components/AdminModal";
-import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
+import Modal from "../../../../components/admin/AdminModal";
+import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
 export default function AdminSettingsPage() {
   const { data, isLoading, isError, error, refetch } = useAdminSettings();
   return (

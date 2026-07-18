@@ -1,4 +1,4 @@
-import type { AdminPageData } from "../../shared";
+import type { AdminPageData } from "../../../../components/admin";
 
 export type AdminSubscriptionItem = {
   id: string;

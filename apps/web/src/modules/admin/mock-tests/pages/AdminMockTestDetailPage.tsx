@@ -18,7 +18,7 @@ import {
   AdminPageHeader,
   AdminPanel,
   AdminStatusBadge,
-} from "../../shared";
+} from "../../../../components/admin";
 import { useAdminMockTestDetail } from "../hooks/useAdminMockTestDetail";
 import { ADMIN_MOCK_TESTS_ROUTES } from "../constants/admin-mock-tests.constants";
 import AdminMockTestModerationDialog from "../components/AdminMockTestModerationDialog";

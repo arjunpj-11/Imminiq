@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { sendAdminResult } from '../../shared/presentation';
+import { sendAdminResult } from '../../../../shared/admin';
 import type { AdminAnalyticsUseCases } from '../application/admin-analytics-use-cases.contract';
 import { adminAnalyticsQuerySchema } from './admin-analytics.schema';
 export class AdminAnalyticsController {

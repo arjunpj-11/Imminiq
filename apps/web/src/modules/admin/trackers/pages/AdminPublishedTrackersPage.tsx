@@ -11,7 +11,7 @@ import {
   AdminPaginationControls,
   AdminPanel,
   AdminSearch,
-} from "../../shared";
+} from "../../../../components/admin";
 import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
 import { toast } from "../../../../lib/toast";
 import { getUserFacingError } from "../../../../lib/user-facing-error";

@@ -1,4 +1,4 @@
-import type { AdminPage } from '../domain/admin-shared.types';
+import type { AdminPage } from './admin.types';
 
 export type AdminOutputDTO<T> = T;
 

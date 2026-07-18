@@ -1,4 +1,4 @@
-import type { AdminActor } from '../../../shared/domain';
+import type { AdminActor } from '../../../../../shared/admin';
 import type { AdminBroadcastInput } from '../../domain/entities/admin-broadcast.entity';
 import type { IAdminBroadcastRepository } from '../../domain/repositories/admin-broadcast.repository.interface';
 import { AdminBroadcastApplicationError } from '../admin-broadcast-application.error';

@@ -8,7 +8,7 @@ import {
   type IRoadmapTopic,
 } from '../hooks/useRoadmapJobResult';
 import { useRunRoadmapEvaluation } from '../hooks/useRunRoadmapEvaluation';
-import OnboardingBrandLink from '../components/OnboardingBrandLink';
+import { OnboardingWorkflowHeader } from '../components/OnboardingWorkflowLayout';
 import type { Section } from '../types/onboarding.types';
 import { cn } from '../utils/cn';
 import { capitalize } from '../utils/onboarding-formatters';
@@ -125,7 +125,7 @@ const SectionDifficultyBadge = ({ item }: { item: IRoadmapSubtopic }) => {
   return (
     <span
       className={cn(
-        'shrink-0 whitespace-nowrap rounded-sm border px-2 py-0.75 font-mono text-[8px] uppercase tracking-widest',
+        'shrink-0 whitespace-nowrap rounded-lg border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.08em]',
         difficulty === 'beginner' &&
           'border-[rgba(76,175,125,0.25)] bg-[rgba(76,175,125,0.10)] text-(--success) dark:border-[rgba(92,201,138,0.25)] dark:bg-[rgba(92,201,138,0.12)] dark:text-(--success)',
         difficulty === 'intermediate' &&
@@ -141,11 +141,11 @@ const SectionDifficultyBadge = ({ item }: { item: IRoadmapSubtopic }) => {
 
 const LoadingPanel = () => {
   return (
-    <div className="flex min-h-105 w-full items-center justify-center rounded-lg border border-(--border-subtle) bg-(--surface-card) px-6 text-center shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card)">
+    <div className="flex min-h-105 w-full items-center justify-center rounded-3xl border border-(--border-subtle) bg-(--surface-card) px-6 text-center shadow-[0_18px_55px_rgba(26,23,20,0.07)] dark:border-white/15 dark:bg-(--surface-card)">
       <div className="flex flex-col items-center">
-        <div className="mb-4 h-10 w-10 animate-spin rounded-full border-2 border-transparent border-t-(--brand-500) dark:border-t-(--brand-500)" />
+        <div className="mb-5 h-12 w-12 animate-spin rounded-full border-2 border-(--border-subtle) border-t-(--brand-500) dark:border-t-(--brand-500)" />
 
-        <p className="font-serif text-xl font-bold text-(--text-primary) dark:text-(--text-primary)">
+        <p className="font-serif text-[24px] font-black text-(--text-primary) dark:text-(--text-primary)">
           Loading your generated roadmap
         </p>
 
@@ -159,9 +159,9 @@ const LoadingPanel = () => {
 
 const EmptyPanel = ({ message }: { message: string }) => {
   return (
-    <div className="flex min-h-80 w-full items-center justify-center rounded-lg border border-(--border-subtle) bg-(--surface-card) px-6 text-center shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card)">
+    <div className="flex min-h-80 w-full items-center justify-center rounded-3xl border border-(--border-subtle) bg-(--surface-card) px-6 text-center shadow-[0_18px_55px_rgba(26,23,20,0.07)] dark:border-white/15 dark:bg-(--surface-card)">
       <div>
-        <p className="font-serif text-xl font-bold text-(--text-primary) dark:text-(--text-primary)">
+        <p className="font-serif text-[24px] font-black text-(--text-primary) dark:text-(--text-primary)">
           Roadmap result unavailable
         </p>
 
@@ -281,11 +281,8 @@ export default function OnboardingRoadmapReadyPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen flex-col bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)">
-        <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-(--border-subtle) bg-(--surface-canvas)/95 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-(--surface-canvas)/95 sm:px-8 md:px-12">
-          <OnboardingBrandLink />
-        </header>
-
+      <div className="flex min-h-screen flex-col bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary)">
+        <OnboardingWorkflowHeader label="Roadmap Preview" />
         <main className="mx-auto flex w-full max-w-280 flex-1 items-center px-4 py-8 sm:px-6 md:px-12">
           <LoadingPanel />
         </main>
@@ -295,11 +292,8 @@ export default function OnboardingRoadmapReadyPage() {
 
   if (!tracker) {
     return (
-      <div className="flex min-h-screen flex-col bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)">
-        <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-(--border-subtle) bg-(--surface-canvas)/95 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-(--surface-canvas)/95 sm:px-8 md:px-12">
-          <OnboardingBrandLink />
-        </header>
-
+      <div className="flex min-h-screen flex-col bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary)">
+        <OnboardingWorkflowHeader label="Roadmap Preview" />
         <main className="mx-auto flex w-full max-w-280 flex-1 items-center px-4 py-8 sm:px-6 md:px-12">
           <EmptyPanel message={resultError} />
         </main>
@@ -308,272 +302,186 @@ export default function OnboardingRoadmapReadyPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)">
-      <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-(--border-subtle) bg-(--surface-canvas)/95 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-(--surface-canvas)/95 sm:px-8 md:px-12">
-        <OnboardingBrandLink />
-      </header>
+    <div className="flex min-h-screen flex-col bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary)">
+      <OnboardingWorkflowHeader label="Roadmap Preview" />
 
       <main className="mx-auto flex w-full max-w-280 flex-1 flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8 md:px-12 md:py-10">
-        <section className="relative overflow-hidden rounded-lg bg-[#1a1714] px-5 py-6 text-[#fdf8f5] shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:bg-[#0f0e0c] sm:px-7 sm:py-7 md:px-9 md:py-8">
-          <div className="pointer-events-none absolute -right-12 -top-12 h-55 w-55 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.20)_0%,transparent_70%)]" />
+        <section className="relative overflow-hidden rounded-3xl border border-[rgba(184,76,43,0.18)] bg-[linear-gradient(135deg,#1a1714,#211b18)] px-5 py-7 text-[#fdf8f5] shadow-[0_22px_65px_rgba(26,23,20,0.16)] dark:border-[rgba(232,129,106,0.18)] dark:bg-[linear-gradient(135deg,#0f0e0c,#171310)] sm:px-8 sm:py-9">
+          <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.24)_0%,transparent_70%)]" />
+          <div className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-80 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.12)_0%,transparent_72%)]" />
 
-          <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0 flex-1">
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[rgba(184,76,43,0.32)] bg-[rgba(184,76,43,0.20)] px-3 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-(--brand-500)">
+          <div className="relative grid gap-7 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            <div className="min-w-0">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(184,76,43,0.34)] bg-[rgba(184,76,43,0.18)] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-500)">
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-(--brand-500)" />
-                Roadmap Ready
+                Roadmap ready
               </div>
 
-              <h1 className="max-w-175 font-serif text-[clamp(24px,5vw,38px)] font-extrabold leading-[1.08] tracking-[-1px]">
+              <h1 className="mt-4 max-w-190 font-serif text-[clamp(28px,5vw,44px)] font-black leading-[1.06] tracking-[-1px]">
                 {tracker.title}
               </h1>
 
-              {tracker.description && (
-                <p className="mt-3 max-w-175 text-sm leading-relaxed text-[#f2f0eb]/70">
+              {tracker.description ? (
+                <p className="mt-3 max-w-190 text-[13.5px] leading-7 text-[#f2f0eb]/72">
                   {tracker.description}
                 </p>
-              )}
+              ) : null}
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                <span className="inline-flex max-w-full items-center rounded-md border border-white/10 bg-white/[0.07] px-2.5 py-1 text-[11px] font-medium text-[#f2f0eb]/70">
-                  {tracker.field || 'AI-generated field'}
-                </span>
-
-                <span className="inline-flex items-center rounded-md border border-white/10 bg-white/[0.07] px-2.5 py-1 text-[11px] font-medium text-[#f2f0eb]/70">
-                  {capitalize(tracker.level)}
-                </span>
-
-                <span className="inline-flex items-center rounded-md border border-white/10 bg-white/[0.07] px-2.5 py-1 text-[11px] font-medium text-[#f2f0eb]/70">
-                  {capitalize(tracker.visibility || 'private')}
-                </span>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {[tracker.field || 'AI-generated field', capitalize(tracker.level), capitalize(tracker.visibility || 'private')].map((label) => (
+                  <span key={label} className="inline-flex max-w-full items-center rounded-lg border border-white/10 bg-white/[0.07] px-3 py-1.5 text-[11px] font-semibold text-[#f2f0eb]/72">
+                    {label}
+                  </span>
+                ))}
               </div>
             </div>
 
-            <div className="flex shrink-0 gap-5">
-              <div className="flex flex-col sm:items-end">
-                <span className="font-mono text-[8px] uppercase tracking-[0.13em] text-[#f2f0eb]/40">
-                  Topics
-                </span>
-                <span className="font-serif text-[34px] font-extrabold leading-none text-(--warning)">
-                  {totalTopics}
-                </span>
-              </div>
-
-              <div className="flex flex-col sm:items-end">
-                <span className="font-mono text-[8px] uppercase tracking-[0.13em] text-[#f2f0eb]/40">
-                  Subtopics
-                </span>
-                <span className="font-serif text-[34px] font-extrabold leading-none text-[#fdf8f5]">
-                  {totalSubtopics}
-                </span>
-              </div>
+            <div className="grid grid-cols-3 gap-2 sm:min-w-88">
+              {[
+                ['Topics', totalTopics],
+                ['Subtopics', totalSubtopics],
+                ['Nodes', totalPreviewNodes],
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-2xl border border-white/10 bg-white/6 px-3 py-4 text-center backdrop-blur">
+                  <span className="block text-[9px] font-bold uppercase tracking-widest text-[#f2f0eb]/45">{label}</span>
+                  <span className="mt-1 block font-serif text-[30px] font-black leading-none text-(--warning)">{value}</span>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        <section className="flex flex-col gap-5 lg:flex-row lg:items-start">
-          <div className="min-w-0 flex-1 overflow-hidden rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card)">
-            <div className="flex flex-wrap gap-2 px-4 pt-4 sm:px-6 sm:pt-5">
-              {topics.map((topic) => {
-                const active = topic._id === activeTopic?._id;
-
-                return (
-                  <button
-                    key={topic._id}
-                    type="button"
-                    onClick={() => setSelectedTopicId(topic._id)}
-                    className={cn(
-                      'rounded-full border-[1.5px] px-3 py-2 text-[12.5px] font-medium transition',
-                      active
-                        ? 'border-(--brand-500) bg-(--brand-500) text-[#fdf8f5] dark:border-(--brand-500) dark:bg-(--brand-500) dark:text-[#141412]'
-                        : 'border-(--border-subtle) bg-transparent text-(--text-secondary) hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-white/15 dark:text-(--text-secondary)'
-                    )}
-                  >
-                    {topic.title}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="mt-4 border-y-[1.5px] border-(--border-subtle) px-4 py-4 dark:border-white/15 sm:px-6">
-              <div className="mb-1 font-mono text-[9px] uppercase tracking-[0.14em] text-(--text-secondary)/60 dark:text-(--text-secondary)/60">
-                Roadmap Topic
+        <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+          <div className="min-w-0 overflow-hidden rounded-3xl border border-(--border-subtle) bg-(--surface-card) shadow-[0_16px_48px_rgba(26,23,20,0.07)] dark:border-white/15">
+            <div className="border-b border-(--border-subtle) px-4 py-4 dark:border-white/15 sm:px-6">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-500)">Roadmap structure</p>
+                  <h2 className="mt-1 font-serif text-[22px] font-black tracking-[-0.4px]">Explore generated topics</h2>
+                </div>
+                <span className="hidden rounded-full bg-(--surface-canvas) px-3 py-1.5 text-[10px] font-bold text-(--text-secondary) sm:inline-flex">{topics.length} topic groups</span>
               </div>
 
-              <h2 className="font-serif text-[clamp(18px,3vw,24px)] font-bold tracking-[-0.3px] text-(--brand-500) dark:text-(--brand-500)">
-                {activeTopic?.title || 'Generated Topic'}
-              </h2>
+              <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+                {topics.map((topic) => {
+                  const active = topic._id === activeTopic?._id;
+                  return (
+                    <button
+                      key={topic._id}
+                      type="button"
+                      onClick={() => setSelectedTopicId(topic._id)}
+                      className={cn(
+                        'shrink-0 rounded-xl border px-3.5 py-2.5 text-[12px] font-bold transition',
+                        active
+                          ? 'border-(--brand-500) bg-(--brand-500) text-white shadow-[0_7px_18px_rgba(184,76,43,0.20)] dark:text-[#141412]'
+                          : 'border-(--border-subtle) bg-(--surface-canvas)/55 text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-500) dark:border-white/15'
+                      )}
+                    >
+                      {topic.title}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-              <p className="mt-1 text-[12.5px] leading-relaxed text-(--text-secondary) dark:text-(--text-secondary)">
-                {activeTopic?.description ||
-                  'Explore the generated sections and learning nodes inside this topic.'}
-              </p>
+            <div className="border-b border-(--border-subtle) bg-[rgba(184,76,43,0.045)] px-4 py-5 dark:border-white/15 dark:bg-[rgba(232,129,106,0.05)] sm:px-6">
+              <p className="text-[10px] font-bold uppercase tracking-[0.11em] text-(--brand-500)">Selected topic</p>
+              <h3 className="mt-1 font-serif text-[clamp(20px,3vw,26px)] font-black tracking-[-0.4px] text-(--text-primary)">{activeTopic?.title || 'Generated Topic'}</h3>
+              <p className="mt-2 max-w-3xl text-[12.5px] leading-6 text-(--text-secondary)">{activeTopic?.description || 'Explore the generated sections and learning nodes inside this topic.'}</p>
             </div>
 
             {sections.length ? (
-              <div>
+              <div className="p-3 sm:p-4">
                 {sections.map((section, index) => {
                   const defaultOpen = index === 0;
                   const open = sectionOverrides[section.id] ?? defaultOpen;
 
                   return (
-                    <div
-                      key={section.id}
-                      className="border-b border-(--border-subtle) last:border-b-0 dark:border-white/15"
-                    >
-                      <button
-                        type="button"
-                        onClick={() => toggleSection(section.id, defaultOpen)}
-                        aria-expanded={open}
-                        className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left transition hover:bg-[rgba(184,76,43,0.04)] dark:hover:bg-[rgba(232,129,106,0.05)] sm:px-6"
-                      >
+                    <div key={section.id} className="mb-3 overflow-hidden rounded-2xl border border-(--border-subtle) last:mb-0 dark:border-white/12">
+                      <button type="button" onClick={() => toggleSection(section.id, defaultOpen)} aria-expanded={open} className="flex w-full items-center justify-between gap-4 bg-(--surface-canvas)/45 px-4 py-4 text-left transition hover:bg-[rgba(184,76,43,0.06)] dark:bg-(--surface-canvas)/35 dark:hover:bg-[rgba(232,129,106,0.06)] sm:px-5">
                         <div className="flex min-w-0 items-center gap-3">
-                          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[12px] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
-                            ✦
-                          </span>
-
-                          <span className="truncate text-sm font-semibold text-(--text-primary) dark:text-(--text-primary)">
-                            {section.title}
-                          </span>
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[13px] text-(--brand-500)">✦</span>
+                          <div className="min-w-0">
+                            <span className="block truncate text-[13.5px] font-black text-(--text-primary)">{section.title}</span>
+                            <span className="mt-0.5 block text-[10px] font-semibold text-(--text-secondary)">{section.items.length} learning items</span>
+                          </div>
                         </div>
-
-                        <div className="flex shrink-0 items-center gap-2">
-                          <span className="font-mono text-[9.5px] tracking-[0.08em] text-(--text-secondary)/60 dark:text-(--text-secondary)/60">
-                            {section.items.length} items
-                          </span>
-
-                          <span
-                            className={cn(
-                              'text-(--text-secondary)/50 transition-transform dark:text-(--text-secondary)/60',
-                              open && 'rotate-180'
-                            )}
-                          >
-                            <ChevronDownIcon />
-                          </span>
-                        </div>
+                        <span className={cn('text-(--text-secondary) transition-transform', open && 'rotate-180')}><ChevronDownIcon /></span>
                       </button>
 
-                      {open && (
-                        <div className="px-4 pb-3 sm:px-6">
+                      {open ? (
+                        <div className="space-y-1 border-t border-(--border-subtle) p-3 dark:border-white/10 sm:p-4">
                           {section.items.map((item, itemIndex) => (
-                            <div
-                              key={item._id || `${section.id}-${itemIndex}`}
-                              className="flex items-center justify-between gap-3 border-b border-(--border-subtle) py-3 last:border-b-0 dark:border-white/15"
-                            >
-                              <div className="flex min-w-0 flex-1 items-center gap-2">
-                                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-(--border-subtle) dark:bg-white/20" />
-                                <span className="min-w-0 text-[13px] text-(--text-primary) dark:text-(--text-primary)">
-                                  {item.title}
-                                </span>
+                            <div key={item._id || `${section.id}-${itemIndex}`} className="flex items-center justify-between gap-3 rounded-xl px-3 py-3 transition hover:bg-(--surface-canvas)/55">
+                              <div className="flex min-w-0 flex-1 items-center gap-3">
+                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-(--surface-canvas) text-[10px] font-black text-(--text-secondary)">{itemIndex + 1}</span>
+                                <span className="min-w-0 text-[13px] font-semibold leading-5 text-(--text-primary)">{item.title}</span>
                               </div>
-
                               <SectionDifficultyBadge item={item} />
                             </div>
                           ))}
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <div className="px-4 py-8 text-center text-sm text-(--text-secondary) dark:text-(--text-secondary) sm:px-6">
-                This topic does not contain preview subtopics in the result payload yet.
+              <div className="px-6 py-12 text-center">
+                <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(184,76,43,0.08)] text-(--brand-500)">✦</div>
+                <p className="mt-3 text-[13px] font-bold text-(--text-primary)">No preview items yet</p>
+                <p className="mt-1 text-[12px] text-(--text-secondary)">This topic does not contain preview subtopics in the result payload.</p>
               </div>
             )}
           </div>
 
-          <aside className="flex w-full flex-col gap-4 lg:w-78 lg:shrink-0">
-            <div className="rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 dark:border-white/15 dark:bg-(--surface-card)">
-              <h3 className="mb-4 font-serif text-[15px] font-bold tracking-[-0.3px]">Coverage</h3>
+          <aside className="flex w-full flex-col gap-4 lg:sticky lg:top-21">
+            <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-[0_12px_36px_rgba(26,23,20,0.05)] dark:border-white/15">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-500)">Coverage</p>
+                  <h3 className="mt-1 font-serif text-[20px] font-black tracking-[-0.3px]">Topic distribution</h3>
+                </div>
+                <span className="font-serif text-[28px] font-black text-(--brand-500)">{totalPreviewNodes}</span>
+              </div>
 
-              <div className="flex flex-col gap-3">
-                {coverageRows.map((row, index) => (
+              <div className="mt-5 space-y-4">
+                {coverageRows.map((row) => (
                   <div key={row.id}>
-                    <div className="mb-1.5 flex items-center justify-between gap-2">
-                      <span className="truncate text-[12px] font-medium">{row.title}</span>
-
-                      <span className="font-mono text-[9.5px] text-(--text-secondary) dark:text-(--text-secondary)">
-                        {row.count}
-                      </span>
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <span className="truncate text-[12px] font-bold">{row.title}</span>
+                      <span className="text-[10px] font-bold text-(--text-secondary)">{row.count} nodes</span>
                     </div>
-
-                    <div className="h-1 overflow-hidden rounded-full bg-[#1a1714]/8 dark:bg-[#f2f0eb]/9">
-                      <div
-                        className={cn(
-                          'h-full rounded-full',
-                          index % 3 === 1
-                            ? 'bg-(--success) dark:bg-(--success)'
-                            : index % 3 === 2
-                              ? 'bg-(--warning) dark:bg-(--warning)'
-                              : 'bg-(--brand-500) dark:bg-(--brand-500)'
-                        )}
-                        style={{ width: `${row.percent}%` }}
-                      />
+                    <div className="h-2 overflow-hidden rounded-full bg-black/8 dark:bg-white/10">
+                      <div className="h-full rounded-full bg-(--brand-500)" style={{ width: `${row.percent}%` }} />
                     </div>
                   </div>
                 ))}
               </div>
-
-              <div className="mt-4 flex items-center justify-between rounded-md border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-3">
-                <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-(--text-secondary) dark:text-(--text-secondary)">
-                  Total nodes
-                </span>
-
-                <span className="font-serif text-[22px] font-bold text-(--brand-500) dark:text-(--brand-500)">
-                  {totalPreviewNodes}
-                </span>
-              </div>
             </div>
 
-            <div className="rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 dark:border-white/15 dark:bg-(--surface-card)">
-              <div className="mb-3 flex items-center gap-2">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-(--brand-500) dark:bg-(--brand-500)" />
-                <span className="font-mono text-[9px] uppercase tracking-[0.13em] text-(--brand-500) dark:text-(--brand-500)">
-                  AI Insight
-                </span>
+            <div className="rounded-2xl border border-[rgba(184,76,43,0.20)] bg-[linear-gradient(145deg,var(--surface-card),rgba(184,76,43,0.07))] p-5 dark:border-[rgba(232,129,106,0.22)] dark:bg-[linear-gradient(145deg,var(--surface-card),rgba(232,129,106,0.07))]">
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-(--brand-500) text-white dark:text-[#141412]">✦</span>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-500)">AI insight</p>
+                  <p className="text-[12px] font-black text-(--text-primary)">Before evaluation</p>
+                </div>
               </div>
-
-              <p className="text-[12.5px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
-                {aiInsight}
-              </p>
+              <p className="mt-4 text-[12.5px] leading-6 text-(--text-secondary)">{aiInsight}</p>
             </div>
 
-            <button
-              type="button"
-              onClick={handleRunAiEvaluation}
-              disabled={runRoadmapEvaluation.isPending}
-              className="flex w-full items-center justify-center gap-2 rounded-md bg-[#1a1714] px-4 py-3.5 text-sm font-bold text-[#f5ede4] transition hover:-translate-y-px hover:shadow-[0_6px_24px_rgba(26,23,20,0.22)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 dark:bg-[#f2f0eb] dark:text-[#141412]"
-            >
-              <span className="flex h-5 w-5 items-center justify-center rounded-[5px] bg-(--brand-500) text-white dark:bg-(--brand-500)">
-                <PulseIcon />
-              </span>
-
-              {runRoadmapEvaluation.isPending
-                ? 'Gemini is evaluating roadmap...'
-                : 'Run AI Evaluation'}
+            <button type="button" onClick={handleRunAiEvaluation} disabled={runRoadmapEvaluation.isPending} className="flex w-full items-center justify-center gap-2 rounded-xl bg-(--brand-500) px-4 py-3.5 text-[13px] font-black text-white shadow-[0_10px_28px_rgba(184,76,43,0.22)] transition hover:-translate-y-0.5 hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-70 dark:text-[#141412]">
+              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/16 dark:bg-black/10"><PulseIcon /></span>
+              {runRoadmapEvaluation.isPending ? 'Evaluating roadmap…' : 'Run AI Evaluation'}
             </button>
 
-            <button
-              type="button"
-              onClick={() => navigate(ROUTES.dashboard)}
-              className="flex w-full items-center justify-center gap-2 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-3.5 text-sm font-bold text-(--text-secondary) transition hover:-translate-y-px hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) hover:shadow-[0_6px_24px_rgba(184,76,43,0.10)] dark:border-white/15 dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:border-(--brand-500) dark:hover:text-(--brand-500)"
-            >
-              <span className="flex h-5 w-5 items-center justify-center rounded-[5px] border border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
-                <DashboardIcon />
-              </span>
-              Go to Dashboard
+            <button type="button" onClick={() => navigate(ROUTES.dashboard)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-(--border-subtle) bg-(--surface-card) px-4 py-3.5 text-[13px] font-black text-(--text-secondary) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:text-(--brand-500) dark:border-white/15">
+              <DashboardIcon />
+              Go to dashboard
             </button>
 
-            {evaluationError && (
-              <p className="rounded-md border border-red-300 bg-red-50 px-3 py-2 text-center text-[12px] font-medium text-red-600 dark:border-red-400/30 dark:bg-red-400/10 dark:text-red-300">
-                {evaluationError}
-              </p>
-            )}
-
-            <p className="text-center font-mono text-[9px] uppercase tracking-widest text-(--text-secondary)/50 dark:text-(--text-secondary)/50">
-              Gemini-powered roadmap quality score
-            </p>
+            {evaluationError ? <p className="rounded-xl border border-red-300 bg-red-50 px-3 py-3 text-center text-[12px] font-semibold text-red-600 dark:border-red-400/30 dark:bg-red-400/10 dark:text-red-300">{evaluationError}</p> : null}
           </aside>
         </section>
       </main>

@@ -13,6 +13,10 @@ import { emailWorker, startEmailWorker } from './infrastructure/queue/workers/em
 import { notificationWorker, startNotificationWorker } from './infrastructure/queue/workers/notification.worker';
 
 const httpServer = http.createServer(app);
+httpServer.headersTimeout = 15_000;
+httpServer.requestTimeout = 120_000;
+httpServer.keepAliveTimeout = 5_000;
+httpServer.maxRequestsPerSocket = 1_000;
 initSocket(httpServer);
 
 const start = async () => {

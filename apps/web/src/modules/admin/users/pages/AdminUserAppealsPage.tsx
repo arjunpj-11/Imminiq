@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ArrowLeft, Eye, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
-import Modal from "../../shared/components/AdminModal";
+import Modal from "../../../../components/admin/AdminModal";
 import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
 import {
   AdminCardSkeleton,
@@ -14,7 +14,7 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
-} from "../../shared";
+} from "../../../../components/admin";
 import { ADMIN_USERS_ROUTES } from "../constants/admin-users.constants";
 import { useAdminUserAppeals } from "../hooks/useAdminUserAppeals";
 import { useUpdateAdminUserAppeal } from "../hooks/useUpdateAdminUserAppeal";
@@ -23,8 +23,8 @@ import type {
   AdminUserAppealUpdatePayload,
 } from "../types/admin-users.types";
 import { AdminPrivacyRequestsPanel } from "../components/AdminPrivacyRequestsPanel";
-import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
+import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
 
 export default function AdminUserAppealsPage() {
   const [search, setSearch] = useState("");

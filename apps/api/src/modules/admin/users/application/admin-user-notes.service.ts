@@ -1,4 +1,4 @@
-import type { AdminActor } from '../../shared/domain';
+import type { AdminActor } from '../../../../shared/admin';
 export interface IAdminUserNotesService {
   list(userId: string): Promise<object>;
   add(userId: string, input: { note: string; tags: string[] }, actor: AdminActor): Promise<object>;

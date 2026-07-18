@@ -2,11 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ShieldAlert, UsersRound, X } from "lucide-react";
 import { useState } from "react";
 import Modal from "./AdminModal";
-import api from "../../../../lib/axios";
-import { toast } from "../../../../lib/toast";
-import { getUserFacingError } from "../../../../lib/user-facing-error";
+import api from "../../lib/axios";
+import { toast } from "../../lib/toast";
+import { getUserFacingError } from "../../lib/user-facing-error";
 import AdminActionPasswordField from "./AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../utils/admin-action-password";
+import { isAdminActionPasswordReady } from "../../lib/admin/admin-action-password";
 
 type Kind = "users" | "trackers" | "mock-tests";
 type Action = "suspend" | "delete" | "restore" | "block";

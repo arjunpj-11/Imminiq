@@ -23,6 +23,11 @@ const trackerLessonSchema = new Schema(
       index: true,
     },
 
+    contentKey: {
+      type: String,
+      trim: true,
+    },
+
     title: {
       type: String,
       required: true,
@@ -123,6 +128,7 @@ trackerLessonSchema.index(
     unique: true,
   }
 );
+trackerLessonSchema.index({ contentKey: 1 }, { unique: true, sparse: true });
 
 export const TrackerLesson =
   mongoose.models.TrackerLesson || mongoose.model('TrackerLesson', trackerLessonSchema);

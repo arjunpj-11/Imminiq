@@ -3,6 +3,7 @@ import { SubscriptionPlan as SubscriptionPlanModel } from '../../../../../infras
 import { Subscription } from '../../../../../infrastructure/database/models/subscription.model';
 import { TrackerLesson } from '../../../../../infrastructure/database/models/tracker-lesson.model';
 import { Tracker } from '../../../../../infrastructure/database/models/tracker.model';
+import { TrackerSubtopic } from '../../../../../infrastructure/database/models/tracker-subtopic.model';
 import type {
   ISubscriptionLimitEnforcer,
   PlanLimitContext,
@@ -122,10 +123,27 @@ export class SubscriptionLimitService implements ISubscriptionLimitEnforcer {
       if (kind === 'tracker_capacity') return;
     }
     if (kind === 'lesson_generation' && context.trackerId && context.subtopicId) {
+      const [tracker, subtopic] = await Promise.all([
+        Tracker.findOne({ _id: context.trackerId, deletedAt: null })
+          .select('_id sourceTrackerId')
+          .lean<{ _id: unknown; sourceTrackerId?: unknown | null }>(),
+        TrackerSubtopic.findOne({
+          _id: context.subtopicId,
+          trackerId: context.trackerId,
+          deletedAt: null,
+        })
+          .select('_id sourceSubtopicId')
+          .lean<{ _id: unknown; sourceSubtopicId?: unknown | null }>(),
+      ]);
+      const canonicalTrackerId = tracker?.sourceTrackerId ?? tracker?._id ?? context.trackerId;
+      const canonicalSubtopicId = subtopic?.sourceSubtopicId ?? subtopic?._id ?? context.subtopicId;
+      const contentKey = `${String(canonicalTrackerId)}:${String(canonicalSubtopicId)}`;
       const existing = await TrackerLesson.exists({
-        userId,
-        trackerId: context.trackerId,
-        subtopicId: context.subtopicId,
+        $or: [
+          { contentKey },
+          { trackerId: canonicalTrackerId, subtopicId: canonicalSubtopicId },
+          { trackerId: context.trackerId, subtopicId: context.subtopicId },
+        ],
         deletedAt: null,
       });
       if (existing) return;

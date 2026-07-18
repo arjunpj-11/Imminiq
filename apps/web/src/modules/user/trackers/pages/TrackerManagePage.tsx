@@ -18,7 +18,6 @@ import {
   useCreateTrackerSubtopic,
   useCreateTrackerTopic,
   useCreateTopicContribution,
-  useReviewTopicContribution,
   useTrackerDetails,
   useTrackerRoadmap,
   useTrackerTopicContributions,
@@ -74,7 +73,6 @@ export default function TrackerManagePage() {
   const verifyTopicMutation = useVerifyTrackerTopic();
   const verifySubtopicMutation = useVerifyTrackerSubtopic();
   const createContributionMutation = useCreateTopicContribution();
-  const reviewContributionMutation = useReviewTopicContribution();
   const updateTopicMutation = useUpdateTrackerTopic();
   const deleteTopicMutation = useDeleteTrackerTopic();
   const deleteSubtopicMutation = useDeleteTrackerSubtopic();
@@ -83,9 +81,10 @@ export default function TrackerManagePage() {
   const roadmapData = roadmapQuery.data as TrackerRoadmapLike | undefined;
   const tracker = trackerDetailsQuery.data || extractRoadmapTracker(roadmapData);
   const isClonedTracker = Boolean(tracker?.sourceTrackerId);
+  const canDeleteRoadmapContent = !isClonedTracker && Boolean(clanQuery.data?.canManage);
   const contributionsQuery = useTrackerTopicContributions(
     trackerId,
-    Boolean(tracker)
+    Boolean(tracker && isClonedTracker)
   );
 
   const topics = useMemo(() => extractRoadmapTopics(roadmapData), [roadmapData]);
@@ -96,7 +95,6 @@ export default function TrackerManagePage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [trackerTitleDraft, setTrackerTitleDraft] = useState<string | null>(null);
   const [submittedTopicIds, setSubmittedTopicIds] = useState<Set<string>>(() => new Set());
-  const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
   const [editingTopic, setEditingTopic] = useState<{
     id: string;
     title: string;
@@ -136,6 +134,11 @@ export default function TrackerManagePage() {
   const activeTopic = useMemo(
     () => topics.find((topic) => topic._id === selectedTopicId) || topics[0],
     [selectedTopicId, topics]
+  );
+  const canEditActiveTopic = Boolean(
+    clanQuery.data?.canManage &&
+      activeTopic &&
+      (!isClonedTracker || activeTopic.isCloneAddition || !activeTopic.sourceTopicId)
   );
 
   const activeSubtopics = useMemo(() => getChildren(activeTopic), [activeTopic]);
@@ -461,30 +464,6 @@ export default function TrackerManagePage() {
     }
   };
 
-  const handleReviewContribution = async (
-    contributionId: string,
-    action: 'approve' | 'reject',
-    reviewNote?: string
-  ) => {
-    if (!trackerId || reviewContributionMutation.isPending) return;
-    clearMessages();
-    try {
-      await reviewContributionMutation.mutateAsync({
-        trackerId,
-        contributionId,
-        action,
-        reviewNote,
-      });
-      setStatusMessage(
-        action === 'approve'
-          ? 'Topic contribution approved and merged into this tracker.'
-          : 'Topic contribution rejected.'
-      );
-    } catch (error) {
-      setErrorMessage(getUserFacingError(error, 'Unable to review this contribution.'));
-    }
-  };
-
   const handleUpdateTopic = async () => {
     if (!trackerId || !editingTopic?.title.trim()) return;
     clearMessages();
@@ -503,7 +482,7 @@ export default function TrackerManagePage() {
   };
 
   const handleDeleteTopic = async () => {
-    if (!trackerId || !contentPendingDelete) return;
+    if (!trackerId || !contentPendingDelete || !canDeleteRoadmapContent) return;
     try {
       if (contentPendingDelete.type === 'topic') {
         await deleteTopicMutation.mutateAsync({ trackerId, topicId: contentPendingDelete.id });
@@ -527,6 +506,7 @@ export default function TrackerManagePage() {
   };
 
   const requestSubtopicDelete = (subtopic: RoadmapSubtopicNode) => {
+    if (!canDeleteRoadmapContent) return;
     setContentPendingDelete({
       id: subtopic._id,
       title: subtopic.title,
@@ -630,6 +610,25 @@ export default function TrackerManagePage() {
           <ContentModerationAppealPanel targetType="tracker" targetId={trackerId} />
         )}
 
+        {!isClonedTracker && clanQuery.data?.canManage && (
+          <section className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[#d6ad47]/30 bg-[linear-gradient(135deg,rgba(244,201,93,.12),rgba(184,76,43,.05))] px-5 py-4 dark:border-[#d6ad47]/20">
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-[#171512] text-lg text-white">🛡</span>
+              <div>
+                <p className="font-mono text-[8px] font-bold uppercase tracking-[.16em] text-[#8a6509] dark:text-[#f4c95d]">
+                  {clanQuery.data.role === 'owner' ? 'Guild owner' : 'Guild co-owner'} · shared original
+                </p>
+                <p className="mt-1 text-[12px] text-(--text-secondary)">
+                  Changes made here update the public guild tracker immediately for every member.
+                </p>
+              </div>
+            </div>
+            <button type="button" onClick={() => navigate(`/trackers/${trackerId}/clan`)} className={subtleButtonClass}>
+              Open guild &amp; merge requests
+            </button>
+          </section>
+        )}
+
         {(statusMessage || errorMessage) && (
           <div
             className={cn(
@@ -729,127 +728,6 @@ export default function TrackerManagePage() {
           </section>
         )}
 
-        {!isClonedTracker && Boolean(contributionsQuery.data?.length) && (
-          <section className="rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-white/15 dark:bg-(--surface-card) sm:p-6">
-            <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-(--brand-500)">
-              Community contributions
-            </p>
-            <h2 className="mt-1 font-serif text-2xl font-extrabold">Topic requests</h2>
-            <p className="mt-2 text-[13px] text-(--text-secondary)">
-              Review topic snapshots proposed by learners who cloned this tracker.
-            </p>
-            <div className="mt-5 grid gap-3">
-              {contributionsQuery.data?.map((contribution) => (
-                <article
-                  key={contribution.id}
-                  className="rounded-lg border border-(--border-subtle) bg-(--surface-canvas) p-4 dark:border-white/10"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-semibold text-(--text-primary)">{contribution.title}</h3>
-                      <button
-                        type="button"
-                        onClick={() => navigate(`/profile/${contribution.requester.username}`)}
-                        className="mt-1 text-xs text-[#4c82c8] hover:underline dark:text-[#7fb4ff]"
-                      >
-                        Proposed by {contribution.requester.name}
-                      </button>
-                    </div>
-                    <span className="rounded-full border border-(--border-subtle) px-2.5 py-1 font-mono text-[8px] uppercase tracking-wider text-(--text-secondary)">
-                      {contribution.status}
-                    </span>
-                  </div>
-                  {contribution.description && (
-                    <p className="mt-3 text-[12.5px] leading-relaxed text-(--text-secondary)">
-                      {contribution.description}
-                    </p>
-                  )}
-                  <p className="mt-2 font-mono text-[9px] uppercase tracking-wider text-(--text-secondary)/70">
-                    {contribution.subtopicsCount} nested subtopic
-                    {contribution.subtopicsCount === 1 ? '' : 's'} included
-                  </p>
-                  {contribution.subtopics.length > 0 && (
-                    <div className="mt-3 rounded-md border border-(--border-subtle) bg-(--surface-card) p-3 dark:border-white/10">
-                      <p className="font-mono text-[8px] uppercase tracking-wider text-(--text-secondary)/70">
-                        Included roadmap
-                      </p>
-                      <ul className="mt-2 space-y-2">
-                        {contribution.subtopics.map((subtopic, index) => (
-                          <li
-                            key={`${subtopic.title}-${index}`}
-                            className="text-[12px] text-(--text-secondary)"
-                            style={{ paddingLeft: `${Math.max(0, subtopic.depth - 1) * 14}px` }}
-                          >
-                            <span className="font-semibold text-(--text-primary)">
-                              {subtopic.depth > 1 ? '↳ ' : ''}
-                              {subtopic.title}
-                            </span>
-                            {subtopic.description && (
-                              <span className="ml-1">— {subtopic.description}</span>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {contribution.status !== 'pending' && contribution.reviewNote && (
-                    <p className="mt-3 rounded-md border border-(--border-subtle) bg-(--surface-card) px-3 py-2 text-[12px] text-(--text-secondary) dark:border-white/10">
-                      Review sent: {contribution.reviewNote}
-                    </p>
-                  )}
-                  {contribution.status === 'pending' && (
-                    <div className="mt-4">
-                      <label className={labelClass}>Response to contributor (optional)</label>
-                      <input
-                        value={reviewNotes[contribution.id] ?? ''}
-                        onChange={(event) =>
-                          setReviewNotes((current) => ({
-                            ...current,
-                            [contribution.id]: event.target.value,
-                          }))
-                        }
-                        maxLength={500}
-                        placeholder="Share feedback with the contributor"
-                        className={inputClass}
-                      />
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          disabled={reviewContributionMutation.isPending}
-                          onClick={() =>
-                            void handleReviewContribution(
-                              contribution.id,
-                              'approve',
-                              reviewNotes[contribution.id]
-                            )
-                          }
-                          className={buttonClass}
-                        >
-                          Approve &amp; merge
-                        </button>
-                        <button
-                          type="button"
-                          disabled={reviewContributionMutation.isPending}
-                          onClick={() =>
-                            void handleReviewContribution(
-                              contribution.id,
-                              'reject',
-                              reviewNotes[contribution.id]
-                            )
-                          }
-                          className={subtleButtonClass}
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </article>
-              ))}
-            </div>
-          </section>
-        )}
-
         <section className="grid gap-5 lg:grid-cols-[1fr_330px]">
           <div className="flex min-w-0 flex-col gap-5">
             {/* ── Tracker name ── */}
@@ -945,7 +823,7 @@ export default function TrackerManagePage() {
                       <h3 className="font-serif text-[clamp(18px,3vw,24px)] font-bold tracking-[-0.3px] text-(--brand-500) dark:text-(--brand-500)">
                         {activeTopic?.title || 'Roadmap Topic'}
                       </h3>
-                      {clanQuery.data?.canManage && activeTopic && (
+                      {canEditActiveTopic && activeTopic && (
                         <div className="flex gap-2">
                           <button
                             type="button"
@@ -960,20 +838,22 @@ export default function TrackerManagePage() {
                           >
                             Edit info
                           </button>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setContentPendingDelete({
-                                id: activeTopic._id,
-                                title: activeTopic.title,
-                                type: 'topic',
-                                nestedCount: countNestedSubtopics(getChildren(activeTopic)),
-                              })
-                            }
-                            className={cn(subtleButtonClass, 'px-3 py-2 text-[11px] hover:border-red-500 hover:text-red-500')}
-                          >
-                            Delete topic
-                          </button>
+                          {canDeleteRoadmapContent && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setContentPendingDelete({
+                                  id: activeTopic._id,
+                                  title: activeTopic.title,
+                                  type: 'topic',
+                                  nestedCount: countNestedSubtopics(getChildren(activeTopic)),
+                                })
+                              }
+                              className={cn(subtleButtonClass, 'px-3 py-2 text-[11px] hover:border-red-500 hover:text-red-500')}
+                            >
+                              Delete topic
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -1040,7 +920,7 @@ export default function TrackerManagePage() {
                             subtopic={subtopic}
                             index={index}
                             depth={0}
-                            canDelete={Boolean(clanQuery.data?.canManage)}
+                            canDelete={canDeleteRoadmapContent}
                             onDelete={requestSubtopicDelete}
                           />
                         ))}

@@ -1,4 +1,4 @@
-import type { AdminListQuery, AdminPage } from '../../../shared/domain';
+import type { AdminListQuery, AdminPage } from '../../../../../shared/admin';
 import type { IAdminAuditLogsRepository } from '../../domain/repositories/admin-audit-logs.repository.interface';
 import type { AdminAuditLogDTO } from '../admin-audit-logs.dto';
 import type { IAdminAuditLogsMapper } from '../admin-audit-logs.mapper';

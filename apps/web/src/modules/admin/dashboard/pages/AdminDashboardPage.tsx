@@ -10,7 +10,7 @@ import { useState } from "react";
 import { useAdminDashboard } from "../hooks/useAdminDashboard";
 import AdminDashboardState from "../components/AdminDashboardState";
 import { ADMIN_ROUTES } from "../../../../routes/config/route-paths";
-import { AdminMetricGrid, AdminPageHeader } from "../../shared";
+import { AdminMetricGrid, AdminPageHeader } from "../../../../components/admin";
 
 export default function AdminDashboardPage() {
   const [metricView, setMetricView] = useState<"platform" | "moderation">(

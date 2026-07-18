@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Eye, EyeOff, ShieldCheck } from 'lucide-react';
-import { useAuthStore } from '../../../../store/useAuthStore';
+import { useAuthStore } from '../../store/useAuthStore';
 
 type AdminActionPasswordFieldProps = {
   value: string;

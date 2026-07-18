@@ -1,4 +1,4 @@
-import type { AdminActor } from '../../shared/domain';
+import type { AdminActor } from '../../../../shared/admin';
 import type { IAdminMockTestsRepository } from '../domain/repositories/admin-mock-tests.repository.interface';
 import { AdminMockTestsApplicationError } from './admin-mock-tests-application.error';
 

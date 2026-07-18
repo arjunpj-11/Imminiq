@@ -8,8 +8,8 @@ import { MockTestQuestionModel } from '../../../../../infrastructure/database/mo
 import { MockTestQuestionVersionModel } from '../../../../../infrastructure/database/models/mock-test-question-version.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
 import { ActivityLog } from '../../../../../infrastructure/database/models/activity-log.model';
-import type { AdminActor, AdminListQuery } from '../../../shared/domain';
-import { createAdminPage, escapeAdminSearch, recordAdminAction } from '../../../shared/infrastructure';
+import type { AdminActor, AdminListQuery } from '../../../../../shared/admin';
+import { createAdminPage, escapeAdminSearch, recordAdminAction } from '../../../../../infrastructure/admin';
 import type {
   AdminMockTestIssueUpdateInput,
   AdminMockTestLifecycleInput,

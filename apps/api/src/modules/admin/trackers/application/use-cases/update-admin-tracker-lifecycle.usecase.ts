@@ -1,4 +1,4 @@
-import type { AdminActor } from '../../../shared/domain';
+import type { AdminActor } from '../../../../../shared/admin';
 import type { AdminTrackerLifecycleInput } from '../../domain/entities/admin-tracker.entity';
 import type { IAdminTrackerEmailProvider } from '../../domain/services/admin-tracker-email-provider.interface';
 import type { IAdminTrackersRepository } from '../../domain/repositories/admin-trackers.repository.interface';

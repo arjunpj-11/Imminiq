@@ -5,7 +5,7 @@ import type {
   AdminSubscriptionPlan,
   AdminSubscriptionPlanInput,
 } from '../entities/admin-subscription.entity';
-import type { AdminActor } from '../../../shared/domain';
+import type { AdminActor } from '../../../../../shared/admin';
 
 export interface IAdminSubscriptionsRepository {
   getOverview(query: AdminSubscriptionQuery): Promise<AdminSubscriptionOverview>;

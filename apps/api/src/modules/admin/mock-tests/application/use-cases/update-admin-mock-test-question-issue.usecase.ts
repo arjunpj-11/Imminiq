@@ -1,4 +1,4 @@
-import type { AdminActor } from '../../../shared/domain';
+import type { AdminActor } from '../../../../../shared/admin';
 import type { AdminMockTestIssueUpdateInput } from '../../domain/entities/admin-mock-test.entity';
 import type { IAdminMockTestsRepository } from '../../domain/repositories/admin-mock-tests.repository.interface';
 import type { IAdminMockTestEmailProvider } from '../../domain/services/admin-mock-test-email-provider.interface';

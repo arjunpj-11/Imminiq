@@ -19,8 +19,8 @@ export default function OnboardingBrandLink({
 }: IOnboardingBrandLinkProps) {
   return (
     <Link
-      to={ROUTES.home}
-      aria-label="Go to home page"
+      to={ROUTES.dashboard}
+      aria-label="Go to dashboard"
       className={cn('inline-flex items-center gap-2.5 leading-none', className)}
     >
       <OnboardingLogoIcon className={cn('h-8 w-8 rounded-lg', logoClassName)} decorative />

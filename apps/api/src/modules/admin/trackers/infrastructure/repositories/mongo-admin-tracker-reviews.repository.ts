@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import { CommunityVerificationSubmission } from '../../../../../infrastructure/database/models/community-verification-submission.model';
 import { Tracker } from '../../../../../infrastructure/database/models/tracker.model';
-import type { AdminActor, AdminListQuery } from '../../../shared/domain';
-import { createAdminPage, escapeAdminSearch, recordAdminAction } from '../../../shared/infrastructure';
+import type { AdminActor, AdminListQuery } from '../../../../../shared/admin';
+import { createAdminPage, escapeAdminSearch, recordAdminAction } from '../../../../../infrastructure/admin';
 import type { AdminTrackerReviewConsensusChoice } from '../../domain/entities/admin-tracker-review.entity';
 import type { IAdminTrackerReviewsRepository } from '../../domain/repositories/admin-tracker-reviews.repository.interface';
 

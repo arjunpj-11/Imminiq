@@ -206,9 +206,23 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
         .select('trackerId')
         .lean<Array<{ trackerId: unknown }>>();
       const managedTrackerIds = clans.map((clan) => clan.trackerId);
+      const ownedOriginals = await Tracker.find({
+        ownerId: userObjId,
+        sourceTrackerId: null,
+        deletedAt: null,
+      })
+        .select('_id')
+        .lean<Array<{ _id: unknown }>>();
+      const sharedOriginalIds = [
+        ...managedTrackerIds,
+        ...ownedOriginals.map((tracker) => tracker._id),
+      ];
 
       const query = {
         $or: [{ ownerId: userObjId }, { _id: { $in: managedTrackerIds } }],
+        ...(sharedOriginalIds.length
+          ? { sourceTrackerId: { $nin: sharedOriginalIds } }
+          : {}),
         deletedAt: null,
       } as unknown as MongoQuery;
 
@@ -246,11 +260,15 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           trackerId: { $in: sourceTrackerIds },
           'members.userId': userObjId,
         })
-          .select('trackerId members')
+          .select('trackerId members roleInvitations')
           .lean<
             Array<{
               trackerId: unknown;
               members: Array<{ userId: unknown; role: 'co_owner' | 'member' }>;
+              roleInvitations?: Array<{
+                userId: unknown;
+                status: 'pending' | 'accepted' | 'declined';
+              }>;
             }>
           >(),
       ]);
@@ -262,6 +280,16 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           const membership = clan.members.find((member) => String(member.userId) === userId);
           return membership ? [[String(clan.trackerId), membership.role] as const] : [];
         })
+      );
+      const pendingRoleInvitationSourceIds = new Set(
+        sourceClans.flatMap((clan) =>
+          clan.roleInvitations?.some(
+            (invitation) =>
+              String(invitation.userId) === userId && invitation.status === 'pending'
+          )
+            ? [String(clan.trackerId)]
+            : []
+        )
       );
 
       const pendingContributionCounts = await TrackerTopicContribution.aggregate<{
@@ -320,7 +348,12 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
             : String(tracker.ownerId) === userId
               ? ('owner' as const)
               : ('co_owner' as const),
-          clanNotificationsCount: pendingContributionMap.get(tracker._id.toString()) ?? 0,
+          clanNotificationsCount:
+            (pendingContributionMap.get(tracker._id.toString()) ?? 0) +
+            (tracker.sourceTrackerId &&
+            pendingRoleInvitationSourceIds.has(String(tracker.sourceTrackerId))
+              ? 1
+              : 0),
         };
       });
 

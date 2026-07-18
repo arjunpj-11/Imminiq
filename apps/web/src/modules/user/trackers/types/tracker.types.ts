@@ -110,6 +110,23 @@ export interface ITrackerClanJoinRequest {
   createdAt: string;
 }
 
+export interface ITrackerClanRoleInvitation {
+  id: string;
+  userId: string;
+  role: 'co_owner' | 'owner';
+  status: 'pending' | 'accepted' | 'declined';
+  createdAt: string;
+  invitedBy: Omit<ITrackerClanPerson, 'role' | 'joinedAt'>;
+}
+
+export interface ITrackerCloneSyncResult {
+  cloneTrackerId: string;
+  addedTopics: number;
+  updatedTopics: number;
+  addedSubtopics: number;
+  updatedSubtopics: number;
+}
+
 export interface ITrackerClanOverview {
   trackerId: string;
   trackerTitle: string;
@@ -121,8 +138,10 @@ export interface ITrackerClanOverview {
   canManage: boolean;
   canTransferOwnership: boolean;
   hasPendingJoinRequest: boolean;
+  personalCloneTrackerId: string | null;
   members: ITrackerClanPerson[];
   joinRequests: ITrackerClanJoinRequest[];
+  roleInvitations: ITrackerClanRoleInvitation[];
 }
 
 export interface ITrackerClanMessage {

@@ -1,4 +1,4 @@
-import type { AdminActor } from '../../../shared/domain';
+import type { AdminActor } from '../../../../../shared/admin';
 import type { AdminSettingsInput } from '../../domain/entities/admin-settings.entity';
 import type { IAdminSettingsRepository } from '../../domain/repositories/admin-settings.repository.interface';
 import type { AdminSettingsDTO } from '../admin-settings.dto';

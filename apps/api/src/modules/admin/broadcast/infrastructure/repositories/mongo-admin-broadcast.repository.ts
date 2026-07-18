@@ -3,9 +3,9 @@ import { AdminBroadcast } from '../../../../../infrastructure/database/models/ad
 import { AdminBroadcastPollVote } from '../../../../../infrastructure/database/models/admin-broadcast-poll-vote.model';
 import { AdminConsoleSettings } from '../../../../../infrastructure/database/models/admin-console-settings.model';
 import { notificationQueue } from '../../../../../infrastructure/queue/queues';
-import type { AdminActor, AdminListQuery } from '../../../shared/domain';
-import { recordAdminAction } from '../../../shared/infrastructure';
-import { createAdminPage, escapeAdminSearch } from '../../../shared/infrastructure';
+import type { AdminActor, AdminListQuery } from '../../../../../shared/admin';
+import { recordAdminAction } from '../../../../../infrastructure/admin';
+import { createAdminPage, escapeAdminSearch } from '../../../../../infrastructure/admin';
 import type { AdminBroadcastInput } from '../../domain/entities/admin-broadcast.entity';
 import type { IAdminBroadcastRepository } from '../../domain/repositories/admin-broadcast.repository.interface';
 export class MongoAdminBroadcastRepository implements IAdminBroadcastRepository {

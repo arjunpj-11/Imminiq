@@ -5,7 +5,7 @@ import {
   type InputHTMLAttributes,
   type ReactNode,
 } from "react";
-import { getUserFacingError } from "../../../../lib/user-facing-error";
+import { getUserFacingError } from "../../lib/user-facing-error";
 
 export type AdminMetric = {
   label: string;

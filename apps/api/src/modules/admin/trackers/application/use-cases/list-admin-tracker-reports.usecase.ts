@@ -1,4 +1,4 @@
-import type { AdminListQuery, AdminPage } from '../../../shared/domain';
+import type { AdminListQuery, AdminPage } from '../../../../../shared/admin';
 import type { AdminTrackerReport } from '../../domain/entities/admin-tracker.entity';
 import type { IAdminTrackersRepository } from '../../domain/repositories/admin-trackers.repository.interface';
 

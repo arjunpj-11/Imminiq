@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { getAdminActor, sendAdminResult } from '../../shared/presentation';
+import { getAdminActor, sendAdminResult } from '../../../../shared/admin';
 import type { AdminBroadcastUseCases } from '../application/admin-broadcast-use-cases.contract';
 import { adminBroadcastSchema, adminBroadcastsQuerySchema } from './admin-broadcast.schema';
 export class AdminBroadcastController {

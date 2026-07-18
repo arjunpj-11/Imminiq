@@ -2,16 +2,47 @@ import { useEffect, useRef, useState } from 'react';
 
 import { toast } from '../../lib/toast';
 
+const CONNECTIVITY_CHECK_TIMEOUT_MS = 4_000;
+const OFFLINE_RECHECK_INTERVAL_MS = 15_000;
+
+async function canReachAppOrigin(): Promise<boolean> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), CONNECTIVITY_CHECK_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(`/robots.txt?connectivity-check=${Date.now()}`, {
+      cache: 'no-store',
+      credentials: 'same-origin',
+      signal: controller.signal,
+    });
+
+    return response.ok;
+  } catch {
+    return false;
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
 export default function OnlineStatus() {
-  const [online, setOnline] = useState(() => navigator.onLine);
-  const wasOffline = useRef(!navigator.onLine);
+  // Start optimistically. `navigator.onLine` is only a browser/network-adapter
+  // hint and can be false even while the app is reachable.
+  const [online, setOnline] = useState(true);
+  const wasOffline = useRef(false);
 
   useEffect(() => {
-    const handleOffline = () => {
+    let disposed = false;
+    let latestCheck = 0;
+    let recheckTimer: number | undefined;
+
+    const markOffline = () => {
+      if (disposed) return;
       wasOffline.current = true;
       setOnline(false);
     };
-    const handleOnline = () => {
+
+    const markOnline = () => {
+      if (disposed) return;
       setOnline(true);
       if (wasOffline.current) {
         toast.success('You are back online', 'Live data can sync again.');
@@ -19,9 +50,44 @@ export default function OnlineStatus() {
       }
     };
 
+    const verifyConnection = async () => {
+      const checkId = ++latestCheck;
+      const reachable = await canReachAppOrigin();
+
+      if (disposed || checkId !== latestCheck) return;
+
+      if (reachable) {
+        markOnline();
+        return;
+      }
+
+      markOffline();
+      recheckTimer = window.setTimeout(() => {
+        void verifyConnection();
+      }, OFFLINE_RECHECK_INTERVAL_MS);
+    };
+
+    const handleOffline = () => {
+      window.clearTimeout(recheckTimer);
+      void verifyConnection();
+    };
+
+    const handleOnline = () => {
+      window.clearTimeout(recheckTimer);
+      void verifyConnection();
+    };
+
     window.addEventListener('offline', handleOffline);
     window.addEventListener('online', handleOnline);
+
+    if (!navigator.onLine) {
+      void verifyConnection();
+    }
+
     return () => {
+      disposed = true;
+      latestCheck += 1;
+      window.clearTimeout(recheckTimer);
       window.removeEventListener('offline', handleOffline);
       window.removeEventListener('online', handleOnline);
     };

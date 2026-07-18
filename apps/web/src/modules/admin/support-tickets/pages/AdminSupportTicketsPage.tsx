@@ -12,15 +12,15 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
-} from "../../shared";
+} from "../../../../components/admin";
 import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
 import { getUserFacingError } from "../../../../lib/user-facing-error";
 import { useAdminSupportTickets } from "../hooks/useAdminSupportTickets";
 import { useUpdateAdminSupportTicket } from "../hooks/useUpdateAdminSupportTicket";
-import Modal from "../../shared/components/AdminModal";
+import Modal from "../../../../components/admin/AdminModal";
 import type { AdminSupportTicket } from "../types/admin-support-tickets.types";
-import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
+import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
 
 const validStatuses = new Set([
   "all",

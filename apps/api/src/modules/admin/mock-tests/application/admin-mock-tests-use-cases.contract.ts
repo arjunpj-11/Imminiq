@@ -6,8 +6,8 @@ import type { IUpdateAdminMockTestQuestionIssueUseCase } from './use-cases/updat
 import type { IAdminMockTestQuestionVersionService } from './admin-mock-test-question-version.service';
 
 export type AdminMockTestsUseCases = {
-  exports: import('../../shared/application').IAdminExportService;
-  contentAppeals: import('../../shared/application').IAdminContentAppealService;
+  exports: import('../../../../shared/admin').IAdminExportService;
+  contentAppeals: import('../../../../shared/admin').IAdminContentAppealService;
   list: IListAdminMockTestsUseCase;
   getDetail: IGetAdminMockTestDetailUseCase;
   listQuestionIssues: IListAdminMockTestQuestionIssuesUseCase;

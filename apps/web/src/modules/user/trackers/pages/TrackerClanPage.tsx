@@ -14,8 +14,10 @@ import {
   useCancelTrackerClanChallenge,
   useCreateTrackerClanChallenge,
   useDeclineTrackerClanChallenge,
+  useFetchTrackerClanChanges,
   useLeaveTrackerClan,
   useRequestTrackerClanJoin,
+  useRespondTrackerClanRoleInvitation,
   useReviewTopicContribution,
   useTrackerClan,
   useTrackerClanMessages,
@@ -62,6 +64,8 @@ export default function TrackerClanPage() {
   const updateMember = useUpdateTrackerClanMember();
   const removeMember = useRemoveTrackerClanMember();
   const transferOwnership = useTransferTrackerClanOwnership();
+  const respondToRoleInvitation = useRespondTrackerClanRoleInvitation();
+  const fetchGuildChanges = useFetchTrackerClanChanges();
   const reviewContribution = useReviewTopicContribution();
   const createChallenge = useCreateTrackerClanChallenge();
   const acceptChallenge = useAcceptTrackerClanChallenge();
@@ -75,6 +79,9 @@ export default function TrackerClanPage() {
   const [memberMenuId, setMemberMenuId] = useState<string | null>(null);
   const [memberAction, setMemberAction] = useState<MemberAction | null>(null);
   const [memberActionError, setMemberActionError] = useState<string | null>(null);
+  const [memberActionNotice, setMemberActionNotice] = useState<string | null>(null);
+  const [syncNotice, setSyncNotice] = useState<string | null>(null);
+  const [roleInvitationAction, setRoleInvitationAction] = useState<'accept' | 'decline' | null>(null);
   const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
   const [challengeOpponent, setChallengeOpponent] = useState<ITrackerClanPerson | null | undefined>(undefined);
   const [chatClock, setChatClock] = useState(() => Date.now());
@@ -88,6 +95,13 @@ export default function TrackerClanPage() {
       combined.findIndex((candidate) => candidate.id === message.id) === index
     );
   }, [chatClock, liveMessages, messagesQuery.data]);
+  const incomingRoleInvitation = clan?.roleInvitations.find(
+    (invitation) => invitation.userId === currentUserId && invitation.status === 'pending'
+  );
+  const pendingInvitationByMember = useMemo(
+    () => new Map((clan?.roleInvitations ?? []).map((invitation) => [invitation.userId, invitation])),
+    [clan?.roleInvitations]
+  );
 
   useEffect(() => {
     const timer = window.setInterval(() => setChatClock(Date.now()), 60_000);
@@ -228,6 +242,7 @@ export default function TrackerClanPage() {
     if (!memberAction) return;
     const { member, type } = memberAction;
     setMemberActionError(null);
+    setMemberActionNotice(null);
     try {
       if (type === 'promote' || type === 'demote') {
         await updateMember.mutateAsync({
@@ -239,6 +254,13 @@ export default function TrackerClanPage() {
         await transferOwnership.mutateAsync({ trackerId, newOwnerId: member.userId });
       } else {
         await removeMember.mutateAsync({ trackerId, memberId: member.userId });
+      }
+      if (type === 'promote' || type === 'transfer') {
+        setMemberActionNotice(
+          type === 'transfer'
+            ? `Ownership invitation sent to ${member.name}. The tracker will transfer only after they accept.`
+            : `Co-owner invitation sent to ${member.name}. Their role will change only after they accept.`
+        );
       }
       setMemberAction(null);
     } catch (error) {
@@ -254,6 +276,21 @@ export default function TrackerClanPage() {
         ...input,
       },
       { onSuccess: () => setChallengeOpponent(undefined) }
+    );
+  };
+
+  const fetchLatestGuildChanges = () => {
+    setSyncNotice(null);
+    fetchGuildChanges.mutate(
+      { trackerId },
+      {
+        onSuccess: (response) => {
+          const result = response.data;
+          setSyncNotice(
+            `Fetched ${result.addedTopics} new topic${result.addedTopics === 1 ? '' : 's'} and ${result.addedSubtopics} new subtopic${result.addedSubtopics === 1 ? '' : 's'}. Your personal additions were kept.`
+          );
+        },
+      }
     );
   };
 
@@ -306,6 +343,8 @@ export default function TrackerClanPage() {
     updateMember.isPending ||
     removeMember.isPending ||
     transferOwnership.isPending ||
+    respondToRoleInvitation.isPending ||
+    fetchGuildChanges.isPending ||
     leaveClan.isPending;
 
   return (
@@ -324,10 +363,33 @@ export default function TrackerClanPage() {
               <div className="rounded-xl border border-white/10 bg-white/6 px-4 py-3 text-center"><strong className="block font-serif text-2xl text-[#f4c95d]">{clan.topicsCount}</strong><span className="font-mono text-[8px] uppercase tracking-wider text-white/50">Topics</span></div>
               <div className="rounded-xl border border-white/10 bg-white/6 px-4 py-3 text-center"><strong className="block font-serif text-2xl text-[#f4c95d]">{clan.members.length}</strong><span className="font-mono text-[8px] uppercase tracking-wider text-white/50">Members</span></div>
               {clan.canManage && <button type="button" onClick={() => navigate(ROUTES.trackerManage(trackerId))} className="rounded-lg border border-white/15 bg-white/8 px-4 py-3 text-xs font-extrabold transition hover:bg-white/15">Edit tracker</button>}
+              {clan.role === 'member' && clan.personalCloneTrackerId && <button type="button" disabled={fetchGuildChanges.isPending} onClick={fetchLatestGuildChanges} className="rounded-lg border border-[#f4c95d]/35 bg-[#f4c95d]/12 px-4 py-3 text-xs font-extrabold text-[#f4c95d] transition hover:bg-[#f4c95d]/20 disabled:opacity-50">{fetchGuildChanges.isPending ? 'Fetching…' : '↻ Fetch changes'}</button>}
               <button type="button" onClick={() => { leaveClan.reset(); setLeaveDialogOpen(true); }} className="rounded-lg border border-red-300/25 bg-red-500/8 px-4 py-3 text-xs font-extrabold text-red-200 transition hover:bg-red-500/18">Leave guild</button>
             </div>
           </div>
         </section>
+
+        {(memberActionNotice || syncNotice || fetchGuildChanges.error) && (
+          <div className={cn('rounded-xl border px-4 py-3 text-[12px] font-semibold', fetchGuildChanges.error ? 'border-red-500/25 bg-red-500/8 text-red-600 dark:text-red-300' : 'border-emerald-500/25 bg-emerald-500/8 text-emerald-700 dark:text-emerald-300')}>
+            {fetchGuildChanges.error ? getUserFacingError(fetchGuildChanges.error, 'Unable to fetch guild changes.') : memberActionNotice ?? syncNotice}
+          </div>
+        )}
+
+        {incomingRoleInvitation && (
+          <section className="rounded-2xl border border-[#d6ad47]/40 bg-[linear-gradient(135deg,rgba(244,201,93,.16),rgba(184,76,43,.07))] p-5 shadow-(--shadow-1) dark:border-[#d6ad47]/25 sm:p-6">
+            <p className="font-mono text-[9px] font-bold uppercase tracking-[.18em] text-[#8a6509] dark:text-[#f4c95d]">Role invitation</p>
+            <h2 className="mt-2 font-serif text-2xl font-extrabold">Become guild {incomingRoleInvitation.role === 'owner' ? 'owner' : 'co-owner'}?</h2>
+            <p className="mt-2 max-w-3xl text-[13px] leading-relaxed text-(--text-secondary)">
+              Before accepting, fetch the latest guild changes and send any private topics from your clone as merge requests. Your personal clone is retained after acceptance, so none of your work is deleted.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {clan.personalCloneTrackerId && <button type="button" onClick={() => navigate(ROUTES.trackerManage(clan.personalCloneTrackerId!))} className={buttonClass}>Review my clone</button>}
+              {clan.personalCloneTrackerId && <button type="button" disabled={fetchGuildChanges.isPending} onClick={fetchLatestGuildChanges} className={buttonClass}>↻ Fetch guild changes</button>}
+              <button type="button" disabled={respondToRoleInvitation.isPending} onClick={() => setRoleInvitationAction('accept')} className="rounded-md bg-[#171512] px-4 py-2 text-[12px] font-extrabold text-white disabled:opacity-50 dark:bg-[#f2f0eb] dark:text-[#171512]">Accept invitation</button>
+              <button type="button" disabled={respondToRoleInvitation.isPending} onClick={() => setRoleInvitationAction('decline')} className={buttonClass}>Decline</button>
+            </div>
+          </section>
+        )}
 
         <nav className="flex gap-2 overflow-x-auto rounded-xl border border-(--border-subtle) bg-(--surface-card) p-2 dark:border-white/15">
           {([
@@ -370,7 +432,7 @@ export default function TrackerClanPage() {
         {tab === 'members' && (
           <section className="grid gap-3 sm:grid-cols-2">
             {clan.members.map((member) => <article key={member.userId} className="flex items-center justify-between gap-3 rounded-xl border border-(--border-subtle) bg-(--surface-card) p-4 dark:border-white/15">
-              <button type="button" onClick={() => navigate(ROUTES.publicProfileFor(member.username))} className="flex min-w-0 items-center gap-3 text-left"><span className="grid h-11 w-11 place-items-center overflow-hidden rounded-full bg-[#171512] text-xs font-bold text-white">{member.avatarUrl ? <img src={member.avatarUrl} alt="" className="h-full w-full object-cover" /> : member.name.slice(0, 2).toUpperCase()}</span><span className="min-w-0"><strong className="block truncate text-sm">{member.name}</strong><span className="text-[11px] text-(--text-secondary)">@{member.username} · {member.role.replace('_', ' ')}</span></span></button>
+              <button type="button" onClick={() => navigate(ROUTES.publicProfileFor(member.username))} className="flex min-w-0 items-center gap-3 text-left"><span className="grid h-11 w-11 place-items-center overflow-hidden rounded-full bg-[#171512] text-xs font-bold text-white">{member.avatarUrl ? <img src={member.avatarUrl} alt="" className="h-full w-full object-cover" /> : member.name.slice(0, 2).toUpperCase()}</span><span className="min-w-0"><strong className="block truncate text-sm">{member.name}</strong><span className="text-[11px] text-(--text-secondary)">@{member.username} · {member.role.replace('_', ' ')}</span>{pendingInvitationByMember.get(member.userId) && <span className="mt-1 block font-mono text-[8px] uppercase tracking-wider text-[#8a6509] dark:text-[#f4c95d]">{pendingInvitationByMember.get(member.userId)?.role === 'owner' ? 'Ownership' : 'Co-owner'} invite pending</span>}</span></button>
               {member.userId !== currentUserId && <div className="relative"><button type="button" disabled={busy} aria-label={`Actions for ${member.name}`} onClick={(event) => { event.stopPropagation(); setMemberMenuId((current) => current === member.userId ? null : member.userId); }} className="grid h-9 w-9 place-items-center rounded-md text-(--text-secondary) transition hover:bg-black/5 hover:text-(--text-primary) disabled:opacity-50 dark:hover:bg-white/8"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>{memberMenuId === member.userId && <div onClick={(event) => event.stopPropagation()} className="absolute right-0 top-10 z-30 w-52 overflow-hidden rounded-lg border border-(--border-subtle) bg-(--surface-card) py-1 shadow-xl dark:border-white/15"><button type="button" onClick={() => { setMemberMenuId(null); setChallengeOpponent(member); }} className="block w-full px-4 py-3 text-left text-[12px] font-semibold text-[#9a7210] hover:bg-[#f4c95d]/10 dark:text-[#f4c95d]">⚔ Challenge to 1v1</button>{member.role !== 'owner' && clan.role === 'owner' && <><button type="button" onClick={() => { setMemberMenuId(null); setMemberAction({ type: member.role === 'co_owner' ? 'demote' : 'promote', member }); }} className="block w-full px-4 py-3 text-left text-[12px] font-semibold hover:bg-black/5 dark:hover:bg-white/8">{member.role === 'co_owner' ? 'Demote to member' : 'Promote to co-owner'}</button><button type="button" onClick={() => { setMemberMenuId(null); setMemberAction({ type: 'transfer', member }); }} className="block w-full px-4 py-3 text-left text-[12px] font-semibold hover:bg-black/5 dark:hover:bg-white/8">Transfer ownership</button></>}{member.role !== 'owner' && (clan.role === 'owner' || (clan.role === 'co_owner' && member.role === 'member')) && <button type="button" onClick={() => { setMemberMenuId(null); setMemberAction({ type: 'remove', member }); }} className="block w-full px-4 py-3 text-left text-[12px] font-semibold text-red-500 hover:bg-red-500/8">Remove from clan</button>}</div>}</div>}
             </article>)}
           </section>
@@ -383,6 +445,22 @@ export default function TrackerClanPage() {
           </section>
         )}
       </main>
+      <ConfirmDialog
+        open={Boolean(roleInvitationAction && incomingRoleInvitation)}
+        title={roleInvitationAction === 'accept' ? `Accept ${incomingRoleInvitation?.role === 'owner' ? 'ownership' : 'co-owner'} invitation?` : 'Decline role invitation?'}
+        description={<>{roleInvitationAction === 'accept' ? 'Your authority changes only after this confirmation. Your personal clone and its private topics stay stored; make any merge requests you want before continuing.' : 'Your current member role and personal clone will remain unchanged.'}{respondToRoleInvitation.error && <span className="mt-2 block font-semibold text-red-500">{getUserFacingError(respondToRoleInvitation.error, 'Unable to respond to this invitation.')}</span>}</>}
+        confirmText={roleInvitationAction === 'accept' ? 'Accept invitation' : 'Decline invitation'}
+        variant={roleInvitationAction === 'decline' ? 'danger' : 'default'}
+        isLoading={respondToRoleInvitation.isPending}
+        onClose={() => { if (!respondToRoleInvitation.isPending) { respondToRoleInvitation.reset(); setRoleInvitationAction(null); } }}
+        onConfirm={() => {
+          if (!incomingRoleInvitation || !roleInvitationAction) return;
+          respondToRoleInvitation.mutate(
+            { trackerId, invitationId: incomingRoleInvitation.id, action: roleInvitationAction },
+            { onSuccess: () => setRoleInvitationAction(null) }
+          );
+        }}
+      />
       <ConfirmDialog
         open={leaveDialogOpen}
         title={clan.role === 'owner' ? 'Transfer ownership before leaving' : 'Leave this guild?'}
@@ -413,9 +491,9 @@ export default function TrackerClanPage() {
       />
       <ConfirmDialog
         open={Boolean(memberAction)}
-        title={memberAction ? `${memberAction.type === 'promote' ? 'Promote' : memberAction.type === 'demote' ? 'Demote' : memberAction.type === 'transfer' ? 'Transfer ownership to' : 'Remove'} ${memberAction.member.name}?` : 'Confirm member change'}
-        description={memberAction ? <>{memberAction.type === 'transfer' ? 'You will become a co-owner and this member will become the clan owner. This changes who has final control of the tracker.' : memberAction.type === 'promote' ? 'This member will be able to manage the clan, review merge requests, and remove regular members.' : memberAction.type === 'demote' ? 'This co-owner will lose clan management permissions.' : 'This member will lose access to guild chat and clan features.'}{memberActionError && <span className="mt-2 block font-semibold text-red-500">{memberActionError}</span>}</> : undefined}
-        confirmText={memberAction?.type === 'transfer' ? 'Transfer ownership' : memberAction?.type === 'remove' ? 'Remove member' : memberAction?.type === 'promote' ? 'Promote member' : 'Demote member'}
+        title={memberAction ? `${memberAction.type === 'promote' ? 'Invite' : memberAction.type === 'demote' ? 'Demote' : memberAction.type === 'transfer' ? 'Invite as owner:' : 'Remove'} ${memberAction.member.name}?` : 'Confirm member change'}
+        description={memberAction ? <>{memberAction.type === 'transfer' ? 'This sends an ownership invitation. Nothing changes until the member reviews their clone and accepts it; after acceptance, you become a co-owner.' : memberAction.type === 'promote' ? 'This sends a co-owner invitation. Their current clone and private topics remain available while they decide and prepare merge requests.' : memberAction.type === 'demote' ? 'This co-owner will lose clan management permissions. Their retained personal clone becomes visible again.' : 'This member will lose access to guild chat and clan features.'}{memberActionError && <span className="mt-2 block font-semibold text-red-500">{memberActionError}</span>}</> : undefined}
+        confirmText={memberAction?.type === 'transfer' ? 'Send ownership invite' : memberAction?.type === 'remove' ? 'Remove member' : memberAction?.type === 'promote' ? 'Send co-owner invite' : 'Demote member'}
         variant={memberAction?.type === 'remove' || memberAction?.type === 'transfer' ? 'danger' : 'default'}
         isLoading={busy}
         onClose={() => { if (!busy) { setMemberAction(null); setMemberActionError(null); } }}

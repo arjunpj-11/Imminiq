@@ -1,6 +1,6 @@
 import { AdminConsoleSettings } from '../../../../../infrastructure/database/models/admin-console-settings.model';
-import type { AdminActor } from '../../../shared/domain';
-import { recordAdminAction } from '../../../shared/infrastructure';
+import type { AdminActor } from '../../../../../shared/admin';
+import { recordAdminAction } from '../../../../../infrastructure/admin';
 import type { AdminSettingsInput } from '../../domain/entities/admin-settings.entity';
 import type { IAdminSettingsRepository } from '../../domain/repositories/admin-settings.repository.interface';
 import { resolvePlatformPolicy, type PlatformPolicy } from '../../../../../shared/platform-policy';

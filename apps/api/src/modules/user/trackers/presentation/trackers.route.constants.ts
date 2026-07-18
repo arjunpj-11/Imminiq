@@ -16,6 +16,8 @@ export const TRACKER_ROUTE_PATHS = {
   CLAN_MEMBER: '/:trackerId/clan/members/:memberId',
   CLAN_LEAVE: '/:trackerId/clan/leave',
   CLAN_TRANSFER: '/:trackerId/clan/transfer-ownership',
+  CLAN_ROLE_INVITATION: '/:trackerId/clan/role-invitations/:invitationId',
+  CLAN_SYNC_CLONE: '/:trackerId/clan/fetch-changes',
   CLAN_MESSAGES: '/:trackerId/clan/messages',
   CLAN_CHALLENGES: '/:trackerId/clan/challenges',
   CLAN_CHALLENGE_ACCEPT: '/:trackerId/clan/challenges/:challengeId/accept',

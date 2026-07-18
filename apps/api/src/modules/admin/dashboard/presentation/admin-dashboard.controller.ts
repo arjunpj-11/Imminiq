@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { AdminDashboardUseCases } from '../application/admin-dashboard-use-cases.contract';
-import { sendAdminResult } from '../../shared/presentation';
+import { sendAdminResult } from '../../../../shared/admin';
 
 export class AdminDashboardController {
   constructor(private readonly _useCases: AdminDashboardUseCases) {}

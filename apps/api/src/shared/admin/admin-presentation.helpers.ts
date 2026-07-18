@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
-import { ApiResponse } from '../../../../shared/utils/ApiResponse';
-import { adminOutputMapper } from '../application/admin-output.mapper';
-import type { AdminActor } from '../domain/admin-shared.types';
+import { ApiResponse } from '../utils/ApiResponse';
+import { adminOutputMapper } from './admin-output.mapper';
+import type { AdminActor } from './admin.types';
 
 export const getAdminActor = (req: Request): AdminActor => ({
   userId: req.user!.userId,

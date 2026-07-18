@@ -1,4 +1,4 @@
-import type { AdminPage } from '../../shared/domain';
+import type { AdminPage } from '../../../../shared/admin';
 
 export interface AdminSubscriptionItemDTO {
   id: string;

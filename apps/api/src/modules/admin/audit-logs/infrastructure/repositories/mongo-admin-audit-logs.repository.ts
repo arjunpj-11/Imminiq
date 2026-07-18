@@ -1,8 +1,8 @@
 import { ActivityLog } from '../../../../../infrastructure/database/models/activity-log.model';
 import { SecurityAuditEvent } from '../../../../../infrastructure/database/models/security-audit-event.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
-import type { AdminListQuery } from '../../../shared/domain';
-import { createAdminPage } from '../../../shared/infrastructure';
+import type { AdminListQuery } from '../../../../../shared/admin';
+import { createAdminPage } from '../../../../../infrastructure/admin';
 import type { IAdminAuditLogsRepository } from '../../domain/repositories/admin-audit-logs.repository.interface';
 
 const SENSITIVE_METADATA_KEY =

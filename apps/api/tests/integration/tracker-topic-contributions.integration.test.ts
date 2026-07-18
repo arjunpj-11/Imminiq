@@ -3,6 +3,7 @@ import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { Tracker } from '../../src/infrastructure/database/models/tracker.model';
+import { TrackerLesson } from '../../src/infrastructure/database/models/tracker-lesson.model';
 import { TrackerSubtopic } from '../../src/infrastructure/database/models/tracker-subtopic.model';
 import { TrackerTopic } from '../../src/infrastructure/database/models/tracker-topic.model';
 import { TrackerTopicContribution } from '../../src/infrastructure/database/models/tracker-topic-contribution.model';
@@ -10,6 +11,7 @@ import { TrackerClanMessage } from '../../src/infrastructure/database/models/tra
 import { User } from '../../src/infrastructure/database/models/user.model';
 import { MongoTrackerTopicContributionRepository } from '../../src/modules/user/trackers/infrastructure/repositories/mongo-tracker-topic-contribution.repository';
 import { MongoTrackerManagementRepository } from '../../src/modules/user/trackers/infrastructure/repositories/internal/mongo-tracker-management.repository';
+import { MongoTrackerLessonRepository } from '../../src/modules/user/trackers/infrastructure/repositories/internal/mongo-tracker-lesson.repository';
 import { MongoTrackerProgressRepository } from '../../src/modules/user/trackers/infrastructure/repositories/internal/mongo-tracker-progress.repository';
 import { PublishTrackerUseCase } from '../../src/modules/user/trackers/application/use-cases/publish-tracker.usecase';
 import { TrackerMapper } from '../../src/modules/user/trackers/application/tracker.mapper';
@@ -285,7 +287,7 @@ describe('tracker topic contributions', () => {
         userId: outsider._id.toString(),
       })
     ).resolves.toBeNull();
-    await Tracker.create({
+    const memberClone = await Tracker.create({
       ownerId: member._id,
       title: tracker.title,
       slug: 'system-design-guild-clone',
@@ -311,6 +313,77 @@ describe('tracker topic contributions', () => {
         (listedTracker) => String(listedTracker.sourceTrackerId) === tracker._id.toString()
       )
     ).toMatchObject({ clanRole: 'member' });
+    const personalTopic = await TrackerTopic.create({
+      trackerId: memberClone._id,
+      title: 'My private interview notes',
+      description: 'Clone-only content',
+      order: 1,
+      status: 'active',
+    });
+    const upstreamTopic = await TrackerTopic.create({
+      trackerId: tracker._id,
+      title: 'Distributed caching',
+      description: 'New upstream topic',
+      order: 1,
+      status: 'active',
+    });
+    const upstreamSubtopic = await TrackerSubtopic.create({
+      trackerId: tracker._id,
+      topicId: upstreamTopic._id,
+      title: 'Cache invalidation',
+      description: 'Consistency strategies',
+      order: 1,
+      depth: 1,
+      isLocked: false,
+    });
+    await expect(
+      clans.syncPersonalClone({
+        trackerId: tracker._id.toString(),
+        userId: member._id.toString(),
+      })
+    ).resolves.toMatchObject({ addedTopics: 1, addedSubtopics: 1 });
+    await expect(
+      TrackerTopic.exists({ _id: personalTopic._id, trackerId: memberClone._id, deletedAt: null })
+    ).resolves.toBeTruthy();
+    await expect(
+      TrackerSubtopic.exists({
+        trackerId: memberClone._id,
+        sourceSubtopicId: upstreamSubtopic._id,
+        deletedAt: null,
+      })
+    ).resolves.toBeTruthy();
+    const syncedUpstreamTopic = await TrackerTopic.findOne({
+      trackerId: memberClone._id,
+      sourceTopicId: upstreamTopic._id,
+      deletedAt: null,
+    });
+    expect(syncedUpstreamTopic).not.toBeNull();
+    await expect(
+      clans.updateTopic({
+        trackerId: memberClone._id.toString(),
+        actorId: member._id.toString(),
+        topicId: syncedUpstreamTopic!._id.toString(),
+        title: 'Changed inherited title',
+        description: 'Inherited content must remain read-only.',
+      })
+    ).resolves.toBe(false);
+    await expect(
+      clans.updateTopic({
+        trackerId: memberClone._id.toString(),
+        actorId: member._id.toString(),
+        topicId: personalTopic._id.toString(),
+        title: 'My updated private interview notes',
+        description: 'Clone-only content remains editable.',
+      })
+    ).resolves.toBe(true);
+    await expect(
+      clans.deleteTopic({
+        trackerId: memberClone._id.toString(),
+        actorId: member._id.toString(),
+        topicId: personalTopic._id.toString(),
+      })
+    ).resolves.toBe(false);
+    await expect(TrackerTopic.findById(personalTopic._id)).resolves.not.toBeNull();
     const promoted = await clans.updateMemberRole({
       trackerId: tracker._id.toString(),
       ownerId: owner._id.toString(),
@@ -319,9 +392,47 @@ describe('tracker topic contributions', () => {
     });
     expect(promoted?.members).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ userId: member._id.toString(), role: 'co_owner' }),
+        expect.objectContaining({ userId: member._id.toString(), role: 'member' }),
       ])
     );
+    expect(promoted?.roleInvitations).toEqual([
+      expect.objectContaining({ userId: member._id.toString(), role: 'co_owner' }),
+    ]);
+    const invitationId = promoted?.roleInvitations[0]?.id;
+    expect(invitationId).toBeTruthy();
+    const acceptedPromotion = await clans.respondToRoleInvitation({
+      trackerId: tracker._id.toString(),
+      userId: member._id.toString(),
+      invitationId: invitationId!,
+      action: 'accept',
+    });
+    expect(acceptedPromotion?.role).toBe('co_owner');
+    const coOwnerTrackerList = await managementRepository.listOwnedTrackers({
+      userId: member._id.toString(),
+      status: 'all',
+      domain: 'all',
+      sortBy: 'createdAt',
+      page: 1,
+      limit: 10,
+    });
+    expect(coOwnerTrackerList.trackers).toHaveLength(1);
+    expect(coOwnerTrackerList.trackers[0]?._id.toString()).toBe(tracker._id.toString());
+    expect(coOwnerTrackerList.trackers[0]).toMatchObject({
+      sourceTrackerId: null,
+      clanRole: 'co_owner',
+    });
+    await expect(
+      managementRepository.publishOwnedTracker({
+        trackerId: tracker._id.toString(),
+        userId: member._id.toString(),
+      })
+    ).resolves.toBeNull();
+    await expect(
+      managementRepository.unpublishOwnedTracker({
+        trackerId: tracker._id.toString(),
+        userId: member._id.toString(),
+      })
+    ).resolves.toBeNull();
 
     await TrackerClanMessage.create({
       trackerId: tracker._id,
@@ -371,13 +482,12 @@ describe('tracker topic contributions', () => {
       reviewNote: 'Approved by co-owner.',
     });
     expect(reviewed).toMatchObject({ ok: true, contribution: { status: 'approved' } });
-    await expect(TrackerSubtopic.countDocuments({ trackerId: tracker._id })).resolves.toBe(2);
-
     const mergedTopic = await TrackerTopic.findOne({
       trackerId: tracker._id,
       title: 'Caching Strategies',
     }).lean();
     const roots = await TrackerSubtopic.find({ topicId: mergedTopic?._id }).sort({ order: 1 });
+    expect(roots).toHaveLength(2);
     await TrackerSubtopic.create({
       trackerId: tracker._id,
       topicId: mergedTopic?._id,
@@ -389,6 +499,22 @@ describe('tracker topic contributions', () => {
       isLocked: true,
     });
     await Tracker.updateOne({ _id: tracker._id }, { $inc: { subtopicsCount: 1 } });
+    const lessonForDeletedBranch = await TrackerLesson.create({
+      trackerId: tracker._id,
+      subtopicId: roots[0]!._id,
+      userId: owner._id,
+      title: 'Cache patterns lesson',
+      summary: 'Temporary lesson',
+      explanation: 'Temporary explanation',
+      insight: 'Temporary insight',
+      lessonType: 'concept',
+      compilerRuntime: null,
+      codeExample: { language: 'text', fileName: 'lesson.txt', code: '' },
+      practiceTask: { title: 'Practice', description: 'Practice cache patterns.' },
+      tags: ['cache'],
+      difficulty: 'beginner',
+      estimatedMinutes: 10,
+    });
     await expect(
       clans.deleteSubtopic({
         trackerId: tracker._id.toString(),
@@ -396,8 +522,10 @@ describe('tracker topic contributions', () => {
         subtopicId: roots[0]!._id.toString(),
       })
     ).resolves.toBe(true);
+    await expect(TrackerSubtopic.findById(roots[0]!._id)).resolves.toBeNull();
+    await expect(TrackerLesson.findById(lessonForDeletedBranch._id)).resolves.toBeNull();
     await expect(
-      TrackerSubtopic.countDocuments({ trackerId: tracker._id, deletedAt: null })
+      TrackerSubtopic.countDocuments({ topicId: mergedTopic?._id, deletedAt: null })
     ).resolves.toBe(1);
     await expect(
       clans.deleteTopic({
@@ -406,9 +534,28 @@ describe('tracker topic contributions', () => {
         topicId: mergedTopic!._id.toString(),
       })
     ).resolves.toBe(true);
+    await expect(TrackerTopic.findById(mergedTopic!._id)).resolves.toBeNull();
     await expect(
-      TrackerSubtopic.countDocuments({ trackerId: tracker._id, deletedAt: null })
+      TrackerSubtopic.countDocuments({ topicId: mergedTopic?._id })
     ).resolves.toBe(0);
+    await expect(
+      TrackerSubtopic.countDocuments({ topicId: mergedTopic?._id, deletedAt: null })
+    ).resolves.toBe(0);
+    const recreatedTopic = await TrackerTopic.create({
+      trackerId: tracker._id,
+      title: 'Caching Strategies',
+      description: 'Recreated after permanent deletion.',
+      order: 2,
+      status: 'active',
+    });
+    expect(recreatedTopic.title).toBe('Caching Strategies');
+    await expect(
+      clans.deleteTopic({
+        trackerId: tracker._id.toString(),
+        actorId: member._id.toString(),
+        topicId: recreatedTopic._id.toString(),
+      })
+    ).resolves.toBe(true);
 
     const retainedSourceTopic = await TrackerTopic.create({
       trackerId: tracker._id,
@@ -515,7 +662,23 @@ describe('tracker topic contributions', () => {
       newOwnerId: member._id.toString(),
     });
     expect(transferred).toMatchObject({
-      role: 'co_owner',
+      role: 'owner',
+      members: expect.arrayContaining([
+        expect.objectContaining({ userId: member._id.toString(), role: 'co_owner' }),
+      ]),
+    });
+    const ownershipInvitation = transferred?.roleInvitations.find(
+      (invitation) => invitation.userId === member._id.toString() && invitation.role === 'owner'
+    );
+    expect(ownershipInvitation).toBeTruthy();
+    const acceptedOwnership = await clans.respondToRoleInvitation({
+      trackerId: tracker._id.toString(),
+      userId: member._id.toString(),
+      invitationId: ownershipInvitation!.id,
+      action: 'accept',
+    });
+    expect(acceptedOwnership).toMatchObject({
+      role: 'owner',
       members: expect.arrayContaining([
         expect.objectContaining({ userId: member._id.toString(), role: 'owner' }),
         expect.objectContaining({ userId: owner._id.toString(), role: 'co_owner' }),
@@ -569,11 +732,21 @@ describe('tracker topic contributions', () => {
         userId: member._id.toString(),
       })
     ).resolves.toBeNull();
-    await clans.updateMemberRole({
+    const reinvited = await clans.updateMemberRole({
       trackerId: tracker._id.toString(),
       ownerId: member._id.toString(),
       memberId: owner._id.toString(),
       role: 'co_owner',
+    });
+    const coOwnerInvitation = reinvited?.roleInvitations.find(
+      (invitation) => invitation.userId === owner._id.toString()
+    );
+    expect(coOwnerInvitation).toBeTruthy();
+    await clans.respondToRoleInvitation({
+      trackerId: tracker._id.toString(),
+      userId: owner._id.toString(),
+      invitationId: coOwnerInvitation!.id,
+      action: 'accept',
     });
     const leftGuild = await clans.leaveClan({
       trackerId: tracker._id.toString(),
@@ -586,5 +759,82 @@ describe('tracker topic contributions', () => {
       ])
     );
     await expect(Tracker.findById(retainedClone?._id)).resolves.not.toBeNull();
+  });
+
+  it('reuses one generated lesson across an original tracker and its clones', async () => {
+    const [owner, learner] = await User.create([
+      { fullName: 'Lesson Author', username: 'lesson-author', passwordHash: null, emailVerified: true },
+      { fullName: 'Lesson Learner', username: 'lesson-learner', passwordHash: null, emailVerified: true },
+    ]);
+    const original = await Tracker.create({
+      ownerId: owner._id,
+      title: 'Shared Mathematics',
+      slug: 'shared-mathematics',
+      visibility: 'public',
+      status: 'active',
+      publishedAt: new Date(),
+    });
+    const originalTopic = await TrackerTopic.create({
+      trackerId: original._id,
+      title: 'Algebra',
+      order: 1,
+      status: 'active',
+    });
+    const originalSubtopic = await TrackerSubtopic.create({
+      trackerId: original._id,
+      topicId: originalTopic._id,
+      title: 'Quadratic equations',
+      order: 1,
+      depth: 1,
+      isLocked: false,
+    });
+    const clone = await Tracker.create({
+      ownerId: learner._id,
+      sourceTrackerId: original._id,
+      title: original.title,
+      slug: 'shared-mathematics-clone',
+      visibility: 'private',
+      status: 'active',
+    });
+    const cloneTopic = await TrackerTopic.create({
+      trackerId: clone._id,
+      sourceTopicId: originalTopic._id,
+      title: originalTopic.title,
+      order: 1,
+      status: 'active',
+    });
+    const cloneSubtopic = await TrackerSubtopic.create({
+      trackerId: clone._id,
+      topicId: cloneTopic._id,
+      sourceSubtopicId: originalSubtopic._id,
+      title: originalSubtopic.title,
+      order: 1,
+      depth: 1,
+      isLocked: false,
+    });
+    const lessons = new MongoTrackerLessonRepository();
+    const generated = await lessons.createLesson({
+      trackerId: original._id.toString(),
+      subtopicId: originalSubtopic._id.toString(),
+      userId: owner._id.toString(),
+      title: 'Solving quadratic equations',
+      summary: 'Factor or use the quadratic formula.',
+      explanation: 'A shared explanation.',
+      insight: 'Check the discriminant first.',
+      lessonType: 'concept',
+      compilerRuntime: null,
+      codeExample: { language: 'text', fileName: 'lesson.txt', code: '' },
+      practiceTask: { title: 'Solve', description: 'Solve x² - 5x + 6 = 0.' },
+      tags: ['algebra'],
+      difficulty: 'beginner',
+      estimatedMinutes: 12,
+    });
+    const reused = await lessons.findLessonBySubtopicId({
+      trackerId: clone._id.toString(),
+      subtopicId: cloneSubtopic._id.toString(),
+      userId: learner._id.toString(),
+    });
+    expect(reused?._id.toString()).toBe(generated._id.toString());
+    expect(reused?.title).toBe('Solving quadratic equations');
   });
 });

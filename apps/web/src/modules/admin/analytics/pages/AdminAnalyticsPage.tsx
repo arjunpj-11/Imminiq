@@ -6,7 +6,7 @@ import {
   AdminMetricGrid,
   AdminPageHeader,
   AdminPanel,
-} from "../../shared";
+} from "../../../../components/admin";
 import { useAdminAnalytics } from "../hooks/useAdminAnalytics";
 import {
   AdminDateRangeFilter,
@@ -14,7 +14,7 @@ import {
   downloadTablePdf,
   enumerateDateRange,
   useAdminDateRange,
-} from "../../shared";
+} from "../../../../components/admin";
 
 export default function AdminAnalyticsPage() {
   const dateRange = useAdminDateRange(30);
