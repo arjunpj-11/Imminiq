@@ -9,6 +9,7 @@ import {
 
 const TRUSTED_ORIGIN = 'http://localhost:5173';
 const FOREIGN_ORIGIN = 'https://evil.example';
+const CANONICAL_API_HOST = 'localhost:5009';
 
 let runtime: SecurityHttpIntegrationRuntime;
 let app: Express;
@@ -138,7 +139,9 @@ describe('security HTTP integration flows', () => {
   });
 
   it('starts Google OAuth with a one-time state nonce and HttpOnly state cookie', async () => {
-    const response = await request(app).get('/api/auth/oauth/google');
+    const response = await request(app)
+      .get('/api/auth/oauth/google')
+      .set('Host', CANONICAL_API_HOST);
 
     expect(response.status).toBe(302);
 
@@ -153,9 +156,11 @@ describe('security HTTP integration flows', () => {
       ? setCookieHeader
       : [setCookieHeader].filter(Boolean);
 
-    expect(cookies.some((cookie) => String(cookie).includes('imminiq_oauth_state_google='))).toBe(
-      true
-    );
+    expect(
+      cookies.some((cookie) =>
+        String(cookie).match(/imminiq_oauth_state_google_[a-f0-9]{24}=/)
+      )
+    ).toBe(true);
 
     expect(cookies.some((cookie) => String(cookie).toLowerCase().includes('httponly'))).toBe(true);
   });
@@ -180,7 +185,9 @@ describe('security HTTP integration flows', () => {
   });
 
   it('accepts a valid OAuth state pair before Passport handles the missing provider code', async () => {
-    const startResponse = await request(app).get('/api/auth/oauth/google');
+    const startResponse = await request(app)
+      .get('/api/auth/oauth/google')
+      .set('Host', CANONICAL_API_HOST);
 
     expect(startResponse.status).toBe(302);
 
