@@ -7,7 +7,7 @@ export default function IntroSection() {
   return (
     <section
       id="system"
-      className="render-lazy-section min-h-screen bg-[#f5ede4] px-4 py-24 text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb] sm:px-8 lg:px-10"
+      className="render-lazy-section bg-[#f5ede4] px-4 py-18 text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb] sm:px-8 sm:py-24 lg:px-10"
     >
       <div className="mx-auto max-w-340">
         <h2 className="max-w-285 font-['Playfair_Display',serif] text-[clamp(34px,6vw,76px)] font-extrabold leading-[1.02] tracking-[-0.06em]">
@@ -28,7 +28,7 @@ export default function IntroSection() {
           </span>
         </h2>
 
-        <div className="mt-20 grid gap-4 md:grid-cols-3">
+        <div className="mt-12 grid gap-4 sm:mt-20 md:grid-cols-3">
           {[
             [
               'Personal by design',

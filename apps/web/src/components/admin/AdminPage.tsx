@@ -56,7 +56,7 @@ export function AdminMetricGrid({ metrics }: { metrics: AdminMetric[] }) {
   return (
     <section
       aria-label="Key metrics"
-      className="mt-7 grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-4"
+      className="mt-7 grid grid-cols-[repeat(auto-fit,minmax(min(100%,10.5rem),1fr))] gap-4"
     >
       {metrics.map((metric, index) => {
         const tone = metric.tone ?? (index === 0 ? "accent" : "success");

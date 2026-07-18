@@ -12,6 +12,11 @@ export const useHorizontalScroll = () => {
       const track = trackRef.current;
       if (!section || !track) return;
 
+      if (window.matchMedia('(max-width: 767px)').matches) {
+        track.style.transform = 'none';
+        return;
+      }
+
       const rect = section.getBoundingClientRect();
       const maxScroll = section.offsetHeight - window.innerHeight;
       const progress = Math.min(1, Math.max(0, -rect.top / Math.max(maxScroll, 1)));

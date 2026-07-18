@@ -29,7 +29,7 @@ export default function LeaderboardAvatar({
     <Link
       to={`/profile/${username}`}
       aria-label={`Open ${name}'s public profile`}
-      className="shrink-0 rounded-full transition hover:ring-2 hover:ring-(--brand-500)/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500)"
+      className="inline-flex aspect-square shrink-0 items-center justify-center rounded-full leading-none transition hover:ring-2 hover:ring-(--brand-500)/30 hover:ring-offset-2 hover:ring-offset-(--surface-card) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500) focus-visible:ring-offset-2 focus-visible:ring-offset-(--surface-card)"
     >
       <UserAvatar
         name={name}

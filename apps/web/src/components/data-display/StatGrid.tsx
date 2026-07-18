@@ -16,7 +16,7 @@ const columnClasses = {
 
 export default function StatGrid({ children, className, columns = 4 }: IStatGridProps) {
   return (
-    <section className={cn('grid grid-cols-1 gap-3', columnClasses[columns], className)}>
+    <section className={cn('grid grid-cols-2 gap-3', columnClasses[columns], className)}>
       {children}
     </section>
   );

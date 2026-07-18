@@ -260,11 +260,26 @@ img {
 
 .type-label-sm {
   font-family: var(--font-mono);
-  font-size: 0.67rem;
+  font-size: 0.75rem;
   font-weight: 650;
   line-height: 1.4;
   letter-spacing: 0.075em;
   text-transform: uppercase;
+}
+
+/*
+ * Product metadata used to drift as low as 7.5px across older modules.
+ * Keep the compact mono treatment while enforcing a readable UI floor.
+ */
+[class~='text-[7px]'],
+[class~='text-[7.5px]'],
+[class~='text-[8px]'],
+[class~='text-[8.5px]'],
+[class~='text-[9px]'],
+[class~='text-[9.5px]'],
+[class~='text-[10px]'] {
+  font-size: 0.6875rem !important;
+  line-height: 1rem !important;
 }
 
 .type-metric-xl {

@@ -215,8 +215,10 @@ export default function RegisterForm() {
             />
             <button
               type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-(--text-secondary) transition hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
+              className="absolute right-1 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-md text-(--text-secondary) transition hover:bg-(--surface-muted) hover:text-(--brand-500) focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
               onClick={() => setShowPw((value) => !value)}
+              aria-label={showPw ? 'Hide password' : 'Show password'}
+              title={showPw ? 'Hide password' : 'Show password'}
             >
               <EyeIcon open={showPw} />
             </button>
@@ -260,8 +262,10 @@ export default function RegisterForm() {
             />
             <button
               type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-(--text-secondary) transition hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
+              className="absolute right-1 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-md text-(--text-secondary) transition hover:bg-(--surface-muted) hover:text-(--brand-500) focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
               onClick={() => setShowCpw((value) => !value)}
+              aria-label={showCpw ? 'Hide confirm password' : 'Show confirm password'}
+              title={showCpw ? 'Hide confirm password' : 'Show confirm password'}
             >
               <EyeIcon open={showCpw} />
             </button>
@@ -269,14 +273,14 @@ export default function RegisterForm() {
           <FieldError message={errors.confirmPassword} />
         </label>
 
-        <label className="flex items-start gap-2 text-[12.5px] leading-normal text-(--text-secondary) dark:text-(--text-secondary)">
+        <label className="flex cursor-pointer items-start gap-2.5 rounded-md text-[12.5px] leading-normal text-(--text-secondary) focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-(--brand-500) dark:text-(--text-secondary)">
           <input
             type="checkbox"
             name="terms"
             checked={form.terms}
             onChange={handleChange}
             onBlur={handleBlur}
-            className="mt-0.5 accent-(--brand-500) dark:accent-(--brand-500)"
+            className="mt-0.5 h-5 w-5 shrink-0 accent-(--brand-500) dark:accent-(--brand-500)"
           />
           <span>
             I agree to the{' '}
@@ -303,7 +307,7 @@ export default function RegisterForm() {
 
       <div className="my-5 flex items-center gap-3">
         <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/15" />
-        <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-(--text-secondary) opacity-60 dark:text-(--text-secondary)">
+        <span className="font-mono text-[9px] font-medium uppercase tracking-[0.12em] text-(--text-secondary) dark:text-(--text-secondary)">
           Or
         </span>
         <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/15" />

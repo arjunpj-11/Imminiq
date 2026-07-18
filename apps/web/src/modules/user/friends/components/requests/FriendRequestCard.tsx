@@ -31,7 +31,7 @@ export default function FriendRequestCard({
         <Link
           to={`/profile/${request.user.username}`}
           aria-label={`Open ${request.user.fullName}'s profile`}
-          className="shrink-0 rounded-full transition hover:ring-2 hover:ring-(--brand-500)/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500)"
+          className="inline-flex aspect-square shrink-0 items-center justify-center rounded-full leading-none transition hover:ring-2 hover:ring-(--brand-500)/30 hover:ring-offset-2 hover:ring-offset-(--surface-card) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500) focus-visible:ring-offset-2 focus-visible:ring-offset-(--surface-card)"
         >
           <FriendsAvatar
             fullName={request.user.fullName}
@@ -45,7 +45,7 @@ export default function FriendRequestCard({
           </p>
           <p className="truncate text-[11.5px] text-[#9b9a92]">{request.user.handle}</p>
           <div className="mt-1.5 flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[rgba(184,76,43,0.08)] px-2 py-0.5 font-mono text-[8px] uppercase tracking-widest text-(--brand-500) dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
+            <span className="rounded-full bg-[rgba(184,76,43,0.08)] px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-(--brand-500) dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
               {request.user.levelLabel}
             </span>
             {request.user.mutualCount > 0 && (

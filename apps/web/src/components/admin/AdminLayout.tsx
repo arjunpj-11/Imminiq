@@ -219,6 +219,19 @@ export default function AdminLayout() {
   const visibleLinks = links.filter(
     (item) => user?.role !== "moderator" || item.moderator,
   );
+  const currentPageLabel =
+    temporaryItem?.label ||
+    visibleLinks
+      .slice()
+      .sort((a, b) => b.to.length - a.to.length)
+      .find(
+        (item) =>
+          location.pathname === item.to ||
+          location.pathname.startsWith(`${item.to}/`),
+      )?.label ||
+    (location.pathname.startsWith(ADMIN_ROUTES.settings)
+      ? "Settings"
+      : "Admin console");
 
   return (
     <div className="admin-theme min-h-screen bg-[#141412] text-[#f2f0eb]">
@@ -288,7 +301,8 @@ export default function AdminLayout() {
           )}
         </div>
 
-        <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-5 pt-5">
+        <div className="relative min-h-0 flex-1">
+        <nav className="h-full space-y-1 overflow-y-auto px-3 pb-9 pt-5">
           {visibleLinks.map(({ to, label, section, icon: Icon, end }, index) => (
             <div key={label}>
               {showSidebarLabels && section !== visibleLinks[index - 1]?.section && (
@@ -339,6 +353,11 @@ export default function AdminLayout() {
             </NavLink>
           )}
         </nav>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#18100e] to-transparent"
+        />
+        </div>
 
         <div className="shrink-0 border-t border-[rgba(255,255,255,0.09)] p-3">
           {user?.role !== "moderator" && (
@@ -399,6 +418,9 @@ export default function AdminLayout() {
               </span>
               <span className="truncate">Admin console</span>
             </div>
+            <span className="min-w-0 truncate text-sm font-semibold sm:hidden">
+              {currentPageLabel}
+            </span>
           </div>
 
           <div className="ml-auto flex min-w-0 items-center gap-3 sm:gap-4">

@@ -141,9 +141,10 @@ export default function LoginForm() {
             />
             <button
               type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-(--text-secondary) transition hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
+              className="absolute right-1 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-md text-(--text-secondary) transition hover:bg-(--surface-muted) hover:text-(--brand-500) focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
               onClick={() => setShowPw((value) => !value)}
               aria-label={showPw ? 'Hide password' : 'Show password'}
+              title={showPw ? 'Hide password' : 'Show password'}
             >
               <EyeIcon open={showPw} />
             </button>
@@ -162,7 +163,7 @@ export default function LoginForm() {
 
       <div className="my-5 flex items-center gap-3">
         <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/15" />
-        <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-(--text-secondary) opacity-60 dark:text-(--text-secondary)">
+        <span className="font-mono text-[9px] font-medium uppercase tracking-[0.12em] text-(--text-secondary) dark:text-(--text-secondary)">
           Or continue with
         </span>
         <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/15" />

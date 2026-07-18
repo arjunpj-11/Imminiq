@@ -28,7 +28,7 @@ export default function FinalCta() {
   return (
     <section
       ref={sectionRef}
-      className="render-lazy-section relative flex min-h-[82vh] flex-col justify-between overflow-hidden bg-[#f5ede4] px-5 pb-4 pt-20 text-[#1a1714] dark:bg-[#050505] dark:text-[#f2f0eb] sm:px-8 lg:px-10"
+      className="render-lazy-section relative flex min-h-[68vh] flex-col justify-between overflow-hidden bg-[#f5ede4] px-5 pb-4 pt-18 text-[#1a1714] dark:bg-[#050505] dark:text-[#f2f0eb] sm:px-8 sm:pt-20 lg:px-10"
     >
       <div className="pointer-events-none absolute inset-0 opacity-[0.035]">
         <div
@@ -80,7 +80,7 @@ export default function FinalCta() {
         </div>
 
         <Link
-          to={ROUTES.login}
+          to={ROUTES.register}
           className="h-fit rounded-full bg-[#b84c2b] px-6 py-3 text-[13px] font-extrabold text-[#fdf8f5] transition hover:-translate-y-1 hover:bg-[#963d22] dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#f09a84]"
         >
           Start learning
@@ -89,7 +89,7 @@ export default function FinalCta() {
 
       {/* Big "Let’s start" with staggered letter reveal */}
       <Link
-        to={ROUTES.login}
+        to={ROUTES.register}
         className={cn(
           "relative z-10 mt-20 block text-center font-['Playfair_Display',serif] text-[clamp(70px,20vw,260px)] font-black leading-[0.8] tracking-[-0.11em] text-[#1a1714] transition-all duration-1000 hover:text-[#b84c2b] dark:text-[#f2f0eb] dark:hover:text-[#e8816a]",
           bigVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'

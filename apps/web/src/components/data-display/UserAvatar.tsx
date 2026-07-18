@@ -60,7 +60,7 @@ export default function UserAvatar({
   return (
     <span
       className={cn(
-        'inline-flex aspect-square shrink-0 items-center justify-center overflow-hidden font-bold leading-none',
+        'inline-flex aspect-square shrink-0 items-center justify-center overflow-hidden font-bold leading-none [clip-path:circle(50%)]',
         roundedClassName,
         sizeClassName || sizeClasses[size],
         !showImage && 'bg-linear-to-br from-(--brand-500) to-[#e9a08e] text-white',

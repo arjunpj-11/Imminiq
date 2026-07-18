@@ -225,7 +225,7 @@ export default function TopBar({
           {!isGuest && (
             <>
               <span className="hidden h-5 w-px bg-(--border-subtle) sm:block" aria-hidden="true" />
-              <span className="truncate text-[13px] font-[660] text-(--text-primary) max-[430px]:max-w-28">
+              <span className="truncate text-[13px] font-[660] text-(--text-primary) max-[640px]:hidden">
                 {pageLabel}
               </span>
             </>

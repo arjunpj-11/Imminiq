@@ -94,6 +94,7 @@ export default function CommunityFilters({
           </span>
           <input
             type="text"
+            aria-label="Search community trackers"
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder="Search trackers…"
@@ -105,6 +106,8 @@ export default function CommunityFilters({
           <button
             type="button"
             onClick={() => setTopicDropdownOpen((value) => !value)}
+            aria-expanded={topicDropdownOpen}
+            aria-haspopup="listbox"
             className={cn(
               'inline-flex min-w-40 items-center justify-between gap-2 rounded-xl border-[1.5px] px-4 py-2.25 text-[13px] font-medium transition',
               selectedTopics.length > 0
@@ -123,6 +126,7 @@ export default function CommunityFilters({
               <div className="border-b border-[#e8ddd6] p-3 dark:border-white/8">
                 <input
                   type="text"
+                  aria-label="Search community topics"
                   value={topicSearch}
                   onChange={(event) => setTopicSearch(event.target.value)}
                   placeholder="Find topic…"
@@ -163,6 +167,7 @@ export default function CommunityFilters({
         </div>
 
         <select
+          aria-label="Sort community trackers"
           value={sort}
           onChange={(event) => onSortChange(event.target.value as CommunitySort)}
           className="rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2.25 text-[13px] text-(--text-secondary) outline-none focus:border-[rgba(184,76,43,0.3)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)"
