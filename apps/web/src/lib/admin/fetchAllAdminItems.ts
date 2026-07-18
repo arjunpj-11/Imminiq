@@ -1,5 +1,5 @@
-import api from "../../../../lib/axios";
-import type { ApiEnvelope } from "../../../../lib/api.types";
+import api from "../axios";
+import type { ApiEnvelope } from "../api.types";
 
 type ExportQueryValue = string | number | boolean | null | undefined;
 

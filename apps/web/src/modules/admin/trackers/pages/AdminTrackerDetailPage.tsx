@@ -15,7 +15,7 @@ import {
   AdminPageHeader,
   AdminPanel,
   AdminStatusBadge,
-} from "../../shared";
+} from "../../../../components/admin";
 import { useAdminTrackerDetail } from "../hooks/useAdminTrackerDetail";
 import type {
   AdminTrackerLifecyclePayload,

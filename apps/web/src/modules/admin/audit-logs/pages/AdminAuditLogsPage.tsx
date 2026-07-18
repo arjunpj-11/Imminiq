@@ -12,7 +12,7 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
-} from "../../shared";
+} from "../../../../components/admin";
 import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
 import { toast } from "../../../../lib/toast";
 import { getUserFacingError } from "../../../../lib/user-facing-error";
@@ -22,8 +22,8 @@ import {
   downloadTablePdf,
   redactSensitiveMetadata,
   useAdminDateRange,
-} from "../../shared";
-import Modal from "../../shared/components/AdminModal";
+} from "../../../../components/admin";
+import Modal from "../../../../components/admin/AdminModal";
 import { useAdminAuditLogs } from "../hooks/useAdminAuditLogs";
 import { useExportAdminAuditLogs } from "../hooks/useExportAdminAuditLogs";
 import type { AdminAuditLog } from "../types/admin-audit-logs.types";

@@ -1,6 +1,7 @@
-import { User } from '../../../../infrastructure/database/models/user.model';
-import { Tracker } from '../../../../infrastructure/database/models/tracker.model';
-import { MockTestModel } from '../../../../infrastructure/database/models/mock-test.model';
+import { User } from '../database/models/user.model';
+import { Tracker } from '../database/models/tracker.model';
+import { MockTestModel } from '../database/models/mock-test.model';
+import type { IAdminExportService } from '../../shared/admin/admin-export.service';
 
 export const escapeAdminExportSearch = (value: string) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -11,12 +12,6 @@ export const safeAdminCsvValue = (value: unknown) => {
 };
 const csv = (rows: unknown[][]) => rows.map((row) => row.map(safeAdminCsvValue).join(',')).join('\r\n');
 const search = (value: string, fields: string[]) => value ? { $or: fields.map((field) => ({ [field]: { $regex: escapeAdminExportSearch(value), $options: 'i' } })) } : {};
-
-export interface IAdminExportService {
-  users(query: { search: string; status: string }): Promise<string>;
-  trackers(query: { search: string; status: string }): Promise<string>;
-  mockTests(query: { search: string; status: string }): Promise<string>;
-}
 
 export class AdminExportService implements IAdminExportService {
   async users(query: { search: string; status: string }) {

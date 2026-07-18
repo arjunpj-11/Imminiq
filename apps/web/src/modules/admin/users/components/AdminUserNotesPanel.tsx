@@ -5,8 +5,8 @@ import api from "../../../../lib/axios";
 import type { ApiEnvelope } from "../../../../lib/api.types";
 import { toast } from "../../../../lib/toast";
 import { ADMIN_USERS_ENDPOINTS } from "../constants/admin-users.constants";
-import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
+import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
 
 type NotesData = {
   tags: string[];

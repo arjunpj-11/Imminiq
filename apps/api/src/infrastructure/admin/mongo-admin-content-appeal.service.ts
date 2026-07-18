@@ -1,15 +1,11 @@
 import mongoose from 'mongoose';
-import { ContentModerationAppeal } from '../../../../infrastructure/database/models/content-moderation-appeal.model';
-import { MockTestModel } from '../../../../infrastructure/database/models/mock-test.model';
-import { Tracker } from '../../../../infrastructure/database/models/tracker.model';
-import { ServiceError } from '../../../../shared/errors/service.error';
-import type { AdminActor } from '../domain/admin-shared.types';
-import { recordAdminAction } from '../infrastructure/admin-audit.helper';
-
-export interface IAdminContentAppealService {
-  list(targetType: 'tracker' | 'mock_test', query: { status: string; page: number; limit: number }): Promise<object>;
-  update(targetType: 'tracker' | 'mock_test', id: string, input: { status: 'under_review' | 'approved' | 'rejected'; decisionNote: string }, actor: AdminActor): Promise<object>;
-}
+import { ContentModerationAppeal } from '../database/models/content-moderation-appeal.model';
+import { MockTestModel } from '../database/models/mock-test.model';
+import { Tracker } from '../database/models/tracker.model';
+import { ServiceError } from '../../shared/errors/service.error';
+import type { AdminActor } from '../../shared/admin/admin.types';
+import type { IAdminContentAppealService } from '../../shared/admin/admin-content-appeal.service';
+import { recordAdminAction } from './admin-audit.helper';
 
 export class AdminContentAppealService implements IAdminContentAppealService {
   async list(targetType: 'tracker' | 'mock_test', query: { status: string; page: number; limit: number }) {

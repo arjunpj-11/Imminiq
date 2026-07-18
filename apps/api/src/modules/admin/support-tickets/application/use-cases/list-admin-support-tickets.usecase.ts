@@ -1,4 +1,4 @@
-import type { AdminListQuery, AdminPage } from '../../../shared/domain';
+import type { AdminListQuery, AdminPage } from '../../../../../shared/admin';
 import type { IAdminSupportTicketsRepository } from '../../domain/repositories/admin-support-tickets.repository.interface';
 import type { AdminSupportTicketDTO } from '../admin-support-tickets.dto';
 import type { IAdminSupportTicketsMapper } from '../admin-support-tickets.mapper';

@@ -16,20 +16,20 @@ import {
   AdminPageHeader,
   AdminPanel,
   AdminStatusBadge,
-} from "../../shared";
+} from "../../../../components/admin";
 import { useAdminBroadcasts } from "../hooks/useAdminBroadcasts";
 import { useCreateAdminBroadcast } from "../hooks/useCreateAdminBroadcast";
 import { getUserFacingError } from "../../../../lib/user-facing-error";
-import ConfirmDialog from "../../shared/components/AdminConfirmDialog";
+import ConfirmDialog from "../../../../components/admin/AdminConfirmDialog";
 import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
-import { AdminSearch } from "../../shared";
+import { AdminSearch } from "../../../../components/admin";
 import { useAdminUsers } from "../../users/hooks/useAdminUsers";
 import type {
   AdminBroadcastAudience,
   AdminBroadcastPoll,
 } from "../types/admin-broadcast.types";
-import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
+import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
 
 export default function AdminBroadcastPage() {
   const [page, setPage] = useState(1);

@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components -- Route-level lazy components intentionally live with their route map. */
 import { Navigate, type RouteObject } from 'react-router-dom';
 import { lazy, type ReactNode } from 'react';
-import { AdminLayout } from '../../modules/admin/shared';
+import { AdminLayout } from '../../components/admin';
 import { ADMIN_ROUTES } from '../config/route-paths';
 import { AdminRoleGate } from '../guards/AdminRoleGate';
 

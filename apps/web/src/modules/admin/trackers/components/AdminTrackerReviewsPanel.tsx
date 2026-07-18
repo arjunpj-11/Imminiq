@@ -11,7 +11,7 @@ import {
   AdminPaginationControls,
   AdminSearch,
   AdminStatusBadge,
-} from "../../shared";
+} from "../../../../components/admin";
 import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
 import { toast } from "../../../../lib/toast";
 import { getUserFacingError } from "../../../../lib/user-facing-error";
@@ -19,8 +19,8 @@ import { useAdminTrackerReviews } from "../hooks/useAdminTrackerReviews";
 import { useAddAdminTrackerReviewConsensus } from "../hooks/useAddAdminTrackerReviewConsensus";
 import { useResolveAdminTrackerReview } from "../hooks/useResolveAdminTrackerReview";
 import { ADMIN_TRACKERS_ROUTES } from "../constants/admin-trackers.constants";
-import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
+import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
 
 export default function AdminTrackerReviewsPanel() {
   const [search, setSearch] = useState("");

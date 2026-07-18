@@ -5,8 +5,8 @@ import {
   createAdminPage,
   escapeAdminSearch,
   recordAdminAction,
-} from '../../../shared/infrastructure';
-import type { AdminActor } from '../../../shared/domain';
+} from '../../../../../infrastructure/admin';
+import type { AdminActor } from '../../../../../shared/admin';
 import {
   getDefaultSubscriptionPlan,
   type SubscriptionPlanId,

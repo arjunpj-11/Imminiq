@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { getAdminActor, sendAdminResult } from '../../shared/presentation';
+import { getAdminActor, sendAdminResult } from '../../../../shared/admin';
 import type { AdminSettingsUseCases } from '../application/admin-settings-use-cases.contract';
 import { adminSettingsSchema } from './admin-settings.schema';
 export class AdminSettingsController {

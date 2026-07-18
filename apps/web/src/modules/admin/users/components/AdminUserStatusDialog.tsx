@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Modal from "../../shared/components/AdminModal";
+import Modal from "../../../../components/admin/AdminModal";
 import { toast } from "../../../../lib/toast";
 import { getUserFacingError } from "../../../../lib/user-facing-error";
 import { useSetAdminUserStatus } from "../hooks/useSetAdminUserStatus";
@@ -7,8 +7,8 @@ import type {
   AdminUser,
   AdminUserStatusPayload,
 } from "../types/admin-users.types";
-import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
+import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
 
 type UserStatusAction = "suspend" | "block" | "restore";
 

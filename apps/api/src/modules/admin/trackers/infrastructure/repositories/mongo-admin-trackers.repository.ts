@@ -8,9 +8,9 @@ import { TrackerReport } from '../../../../../infrastructure/database/models/tra
 import { Notification } from '../../../../../infrastructure/database/models/notification.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
 import { ActivityLog } from '../../../../../infrastructure/database/models/activity-log.model';
-import { recordAdminAction } from '../../../shared/infrastructure';
-import { createAdminPage, escapeAdminSearch } from '../../../shared/infrastructure';
-import type { AdminActor, AdminListQuery } from '../../../shared/domain';
+import { recordAdminAction } from '../../../../../infrastructure/admin';
+import { createAdminPage, escapeAdminSearch } from '../../../../../infrastructure/admin';
+import type { AdminActor, AdminListQuery } from '../../../../../shared/admin';
 import type { IAdminTrackersRepository } from '../../domain/repositories/admin-trackers.repository.interface';
 import type {
   AdminTrackerLifecycleInput,

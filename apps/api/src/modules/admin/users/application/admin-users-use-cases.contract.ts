@@ -10,7 +10,7 @@ import type { ISetAdminActionPasswordUseCase } from './use-cases/set-admin-actio
 
 export type AdminUsersUseCases = {
   notes: import('./admin-user-notes.service').IAdminUserNotesService;
-  exports: import('../../shared/application').IAdminExportService;
+  exports: import('../../../../shared/admin').IAdminExportService;
   privacyRequests: import('./admin-data-privacy-request.service').IAdminDataPrivacyRequestService;
   list: IListAdminUsersUseCase;
   getDetail: IGetAdminUserDetailUseCase;

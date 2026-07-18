@@ -1,4 +1,4 @@
-import type { AdminActor } from '../../../shared/domain';
+import type { AdminActor } from '../../../../../shared/admin';
 import type { IAdminUsersRepository } from '../../domain/repositories/admin-users.repository.interface';
 import { AdminUsersApplicationError } from '../admin-users-application.error';
 

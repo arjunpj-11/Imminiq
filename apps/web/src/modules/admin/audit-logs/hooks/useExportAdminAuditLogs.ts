@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import api from "../../../../lib/axios";
 import { toast } from "../../../../lib/toast";
-import type { AdminListQuery, AdminPageData } from "../../shared";
+import type { AdminListQuery, AdminPageData } from "../../../../components/admin";
 import type { ApiEnvelope } from "../../../../lib/api.types";
 import type { AdminAuditLog } from "../types/admin-audit-logs.types";
 import {

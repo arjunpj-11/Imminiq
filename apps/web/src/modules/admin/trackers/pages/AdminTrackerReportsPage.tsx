@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ArrowLeft, Eye, ShieldAlert } from "lucide-react";
 import { Link } from "react-router-dom";
-import Modal from "../../shared/components/AdminModal";
+import Modal from "../../../../components/admin/AdminModal";
 import {
   AdminContentAppealsPanel,
   AdminCardSkeleton,
@@ -13,7 +13,7 @@ import {
   AdminPaginationControls,
   AdminPanel,
   AdminStatusBadge,
-} from "../../shared";
+} from "../../../../components/admin";
 import { ADMIN_TRACKERS_ROUTES } from "../constants/admin-trackers.constants";
 import { useAdminTrackerReports } from "../hooks/useAdminTrackerReports";
 import { useUpdateAdminTrackerReport } from "../hooks/useUpdateAdminTrackerReport";
@@ -21,8 +21,8 @@ import type {
   AdminTrackerReport,
   AdminTrackerReportUpdatePayload,
 } from "../types/admin-trackers.types";
-import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
+import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
 
 const label = (value: string) => value.replaceAll("_", " ");
 

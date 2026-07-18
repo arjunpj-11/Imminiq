@@ -2,11 +2,11 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { ExternalLink, Eye, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import Modal from "./AdminModal";
-import api from "../../../../lib/axios";
-import type { ApiEnvelope } from "../../../../lib/api.types";
-import { toast } from "../../../../lib/toast";
-import { getUserFacingError } from "../../../../lib/user-facing-error";
-import { ADMIN_CONTENT_APPEALS_ENDPOINTS } from "../constants/admin-shared.constants";
+import api from "../../lib/axios";
+import type { ApiEnvelope } from "../../lib/api.types";
+import { toast } from "../../lib/toast";
+import { getUserFacingError } from "../../lib/user-facing-error";
+import { ADMIN_CONTENT_APPEALS_ENDPOINTS } from "../../config/admin-shared.constants";
 import {
   AdminCardSkeleton,
   AdminEmpty,
@@ -18,7 +18,7 @@ import {
   AdminStatusBadge,
 } from "./AdminPage";
 import AdminActionPasswordField from "./AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../utils/admin-action-password";
+import { isAdminActionPasswordReady } from "../../lib/admin/admin-action-password";
 
 type Appeal = {
   id: string;

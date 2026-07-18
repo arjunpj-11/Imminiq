@@ -8,14 +8,14 @@ import {
   AdminMetricGrid,
   AdminPageHeader,
   AdminPanel,
-} from "../../shared";
+} from "../../../../components/admin";
 import {
   AdminDateRangeFilter,
   downloadCsv,
   downloadTablePdf,
   enumerateDateRange,
   useAdminDateRange,
-} from "../../shared";
+} from "../../../../components/admin";
 import { useAdminAITokenSpend } from "../hooks/useAdminAITokenSpend";
 
 const categoryLabels: Record<string, string> = {

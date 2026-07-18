@@ -1,12 +1,12 @@
 import { useState } from "react";
-import Modal from "../../shared/components/AdminModal";
+import Modal from "../../../../components/admin/AdminModal";
 import type {
   AdminMockTestLifecyclePayload,
   AdminMockTest,
 } from "../types/admin-mock-tests.types";
 import { useUpdateAdminMockTestLifecycle } from "../hooks/useUpdateAdminMockTestLifecycle";
-import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
+import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
 
 type Props = {
   test: Pick<

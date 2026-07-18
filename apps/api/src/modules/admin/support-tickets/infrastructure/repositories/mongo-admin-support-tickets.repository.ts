@@ -1,8 +1,8 @@
 import { SupportTicket } from '../../../../../infrastructure/database/models/support-ticket.model';
 import { Notification } from '../../../../../infrastructure/database/models/notification.model';
-import type { AdminActor, AdminListQuery } from '../../../shared/domain';
-import { recordAdminAction } from '../../../shared/infrastructure';
-import { createAdminPage, escapeAdminSearch } from '../../../shared/infrastructure';
+import type { AdminActor, AdminListQuery } from '../../../../../shared/admin';
+import { recordAdminAction } from '../../../../../infrastructure/admin';
+import { createAdminPage, escapeAdminSearch } from '../../../../../infrastructure/admin';
 import type { AdminSupportTicketUpdate } from '../../domain/entities/admin-support-ticket.entity';
 import type { IAdminSupportTicketsRepository } from '../../domain/repositories/admin-support-tickets.repository.interface';
 const SLA_HOURS: Record<string, { firstResponse: number; resolution: number }> = {

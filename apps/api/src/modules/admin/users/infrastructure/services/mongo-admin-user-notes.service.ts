@@ -1,8 +1,8 @@
 import { AdminUserNote } from '../../../../../infrastructure/database/models/admin-user-note.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
 import { ServiceError } from '../../../../../shared/errors/service.error';
-import type { AdminActor } from '../../../shared/domain';
-import { recordAdminAction } from '../../../shared/infrastructure';
+import type { AdminActor } from '../../../../../shared/admin';
+import { recordAdminAction } from '../../../../../infrastructure/admin';
 
 export interface IAdminUserNotesService {
   list(userId: string): Promise<object>;

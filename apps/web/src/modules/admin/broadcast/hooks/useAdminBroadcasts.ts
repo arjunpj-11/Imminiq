@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import api from "../../../../lib/axios";
-import type { AdminPageData } from "../../shared";
+import type { AdminPageData } from "../../../../components/admin";
 import type { ApiEnvelope } from "../../../../lib/api.types";
 import type { AdminBroadcast } from "../types/admin-broadcast.types";
 import { adminBroadcastKeys } from "./admin-broadcast.query-keys";

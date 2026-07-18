@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import api from "../../../../lib/axios";
-import type { AdminListQuery, AdminPageData } from "../../shared";
+import type { AdminListQuery, AdminPageData } from "../../../../components/admin";
 import type { ApiEnvelope } from "../../../../lib/api.types";
 import type { AdminMockTest } from "../types/admin-mock-tests.types";
 import { adminMockTestsKeys } from "./admin-mock-tests.query-keys";

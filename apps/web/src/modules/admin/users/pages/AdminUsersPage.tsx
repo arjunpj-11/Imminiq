@@ -17,7 +17,7 @@ import {
   downloadServerCsv,
   downloadTablePdf,
   fetchAllAdminItems,
-} from "../../shared";
+} from "../../../../components/admin";
 import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
 import { getUserFacingError } from "../../../../lib/user-facing-error";
 import { toast } from "../../../../lib/toast";

@@ -71,10 +71,8 @@ const moduleRoots = () =>
 const adminFeatureRoots = () =>
   moduleRoots().filter((moduleRoot) => {
     const id = portable(relative(modulesRoot, moduleRoot));
-    return id.startsWith('admin/') && id !== 'admin/shared';
+    return id.startsWith('admin/');
   });
-
-const adminSharedRoot = join(modulesRoot, 'admin', 'shared');
 
 const moduleLocation = (path: string) => {
   if (!path.startsWith(`${modulesRoot}${sep}`)) return null;
@@ -119,8 +117,6 @@ describe('clean architecture boundaries', () => {
   it('gives every feature a root public API and an explicit composition factory', () => {
     const violations = moduleRoots().flatMap((moduleRoot) => {
       const id = portable(relative(modulesRoot, moduleRoot));
-      if (id === 'admin/shared') return [];
-
       const files = readdirSync(moduleRoot, { withFileTypes: true })
         .filter((entry) => entry.isFile())
         .map((entry) => entry.name);
@@ -141,8 +137,6 @@ describe('clean architecture boundaries', () => {
   it('maps every feature through an application DTO boundary', () => {
     const violations = moduleRoots().flatMap((moduleRoot) => {
       const id = portable(relative(modulesRoot, moduleRoot));
-      if (id === 'admin/shared') return [];
-
       const applicationFiles = readdirSync(join(moduleRoot, 'application'));
       const dtoFiles = applicationFiles.filter((file) => file.endsWith('.dto.ts'));
       const mapperFiles = applicationFiles.filter((file) => file.endsWith('.mapper.ts'));
@@ -322,33 +316,10 @@ describe('clean architecture boundaries', () => {
     expect(readFileSync(join(presentationRoot, 'index.ts'), 'utf8')).not.toMatch(/internal/);
   });
 
-  it('exposes the admin shared kernel only through inward-safe layer APIs', () => {
-    const allowedSharedLayers: Record<string, Set<string>> = {
-      domain: new Set(['domain']),
-      application: new Set(['domain', 'application']),
-      infrastructure: new Set(['domain', 'application', 'infrastructure']),
-      presentation: new Set(['domain', 'application', 'presentation']),
-    };
-    const violations = adminFeatureRoots().flatMap((moduleRoot) =>
-      collectFiles(moduleRoot).flatMap((source) => {
-        const sourceLayer = moduleLocation(source)?.parts[0] ?? '';
-        return moduleImports(source)
-          .filter((target) => moduleLocation(target)?.id === 'admin/shared')
-          .filter((target) => {
-            const targetParts = moduleLocation(target)?.parts ?? [];
-            return (
-              targetParts.length !== 1 || !allowedSharedLayers[sourceLayer]?.has(targetParts[0])
-            );
-          })
-          .map(
-            (target) =>
-              `${portable(relative(sourceRoot, source))} -> ${portable(relative(sourceRoot, target))}`
-          );
-      })
-    );
-
-    expect(existsSync(join(adminSharedRoot, 'index.ts'))).toBe(false);
-    expect(violations).toEqual([]);
+  it('keeps cross-admin contracts in root shared and implementations in root infrastructure', () => {
+    expect(existsSync(join(modulesRoot, 'admin', 'shared'))).toBe(false);
+    expect(existsSync(join(sourceRoot, 'shared', 'admin', 'index.ts'))).toBe(true);
+    expect(existsSync(join(sourceRoot, 'infrastructure', 'admin', 'index.ts'))).toBe(true);
   });
 
   it('does not recreate flattened one-file category directories', () => {
@@ -430,16 +401,10 @@ describe('clean architecture boundaries', () => {
           const targetLocation = moduleLocation(target);
           if (!targetLocation) return false;
 
-          const isAdminSharedLayerApi =
-            targetLocation.id === 'admin/shared' &&
-            targetLocation.parts.length === 1 &&
-            layers.some((layer) => layer === targetLocation.parts[0]);
-
           return (
             targetLocation.id !== sourceModule &&
             targetLocation.parts.length > 0 &&
-            targetLocation.parts.join('/') !== 'index' &&
-            !isAdminSharedLayerApi
+            targetLocation.parts.join('/') !== 'index'
           );
         })
         .map(

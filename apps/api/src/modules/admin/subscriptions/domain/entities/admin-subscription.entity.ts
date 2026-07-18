@@ -1,4 +1,4 @@
-import type { AdminListQuery, AdminPage } from '../../../shared/domain';
+import type { AdminListQuery, AdminPage } from '../../../../../shared/admin';
 
 export type AdminSubscriptionItem = {
   id: string;

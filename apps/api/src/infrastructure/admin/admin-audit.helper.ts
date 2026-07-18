@@ -1,5 +1,5 @@
-import { ActivityLog } from '../../../../infrastructure/database/models/activity-log.model';
-import type { AdminActor } from '../domain/admin-shared.types';
+import { ActivityLog } from '../database/models/activity-log.model';
+import type { AdminActor } from '../../shared/admin/admin.types';
 import type { ClientSession } from 'mongoose';
 
 export const recordAdminAction = (

@@ -14,7 +14,7 @@ import {
   adminUserBulkStatusSchema,
   adminActionPasswordSchema,
 } from './admin-users.schema';
-import { sendAdminResult } from '../../shared/presentation';
+import { sendAdminResult } from '../../../../shared/admin';
 
 type UserIdParams = { userId: string };
 type AppealIdParams = { appealId: string };

@@ -19,16 +19,16 @@ import {
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import ConfirmDialog from "./AdminConfirmDialog";
-import ImminiqLogo from "../../../../components/ui/ImminiqLogo";
-import ImminiqWordmark from "../../../../components/ui/ImminiqWordmark";
-import api from "../../../../lib/axios";
-import { getTemporaryAdminNavItem } from "../../../../lib/current-page-navigation";
-import { refreshCurrentRoute } from "../../../../lib/refresh-current-route";
-import { ADMIN_ROUTES, ROUTES } from "../../../../routes/config/route-paths";
-import { useAppShellStore } from "../../../../store/useAppShellStore";
-import { useAuthStore } from "../../../../store/useAuthStore";
-import { AUTH_API_PATHS } from "../../../auth";
-import "./styles/admin-theme.css";
+import ImminiqLogo from "../ui/ImminiqLogo";
+import ImminiqWordmark from "../ui/ImminiqWordmark";
+import api from "../../lib/axios";
+import { getTemporaryAdminNavItem } from "../../lib/current-page-navigation";
+import { refreshCurrentRoute } from "../../lib/refresh-current-route";
+import { ADMIN_ROUTES, ROUTES } from "../../routes/config/route-paths";
+import { useAppShellStore } from "../../store/useAppShellStore";
+import { useAuthStore } from "../../store/useAuthStore";
+import { AUTH_API_PATHS } from "../../modules/auth";
+import "./admin-theme.css";
 
 const SIDEBAR_STORAGE_KEY = "imminiq.admin.sidebar.collapsed";
 

@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import { DataPrivacyRequest } from '../../../../../infrastructure/database/models/data-privacy-request.model';
 import { ServiceError } from '../../../../../shared/errors/service.error';
-import { recordAdminAction } from '../../../shared/infrastructure';
-import type { AdminActor } from '../../../shared/domain';
+import { recordAdminAction } from '../../../../../infrastructure/admin';
+import type { AdminActor } from '../../../../../shared/admin';
 
 export interface IAdminDataPrivacyRequestService {
   list(query: { search: string; status: string; type: string; page: number; limit: number }): Promise<object>;

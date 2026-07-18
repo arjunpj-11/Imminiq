@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { AdminOutputMapper } from '../../src/modules/admin/shared/application/admin-output.mapper';
+import { AdminOutputMapper } from '../../src/shared/admin/admin-output.mapper';
 
 describe('AdminOutputMapper', () => {
   it('creates a detached DTO for a single output entity', () => {

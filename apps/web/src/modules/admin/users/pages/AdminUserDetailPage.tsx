@@ -17,7 +17,7 @@ import {
   KeyRound,
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-import { AdminError } from "../../shared";
+import { AdminError } from "../../../../components/admin";
 import { useState } from "react";
 import { useAdminUserDetail } from "../hooks/useAdminUserDetail";
 import { ADMIN_USERS_ROUTES } from "../constants/admin-users.constants";

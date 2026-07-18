@@ -1,4 +1,4 @@
-import type { AdminListQuery, AdminPage } from '../../../shared/domain';
+import type { AdminListQuery, AdminPage } from '../../../../../shared/admin';
 import type { AdminMockTestQuestionIssue } from '../../domain/entities/admin-mock-test.entity';
 import type { IAdminMockTestsRepository } from '../../domain/repositories/admin-mock-tests.repository.interface';
 import type { AdminMockTestQuestionIssueDTO } from '../admin-mock-tests.dto';

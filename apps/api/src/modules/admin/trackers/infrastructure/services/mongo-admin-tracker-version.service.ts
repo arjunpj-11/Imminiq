@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 import { Tracker } from '../../../../../infrastructure/database/models/tracker.model';
 import { TrackerVersion } from '../../../../../infrastructure/database/models/tracker-version.model';
 import { ServiceError } from '../../../../../shared/errors/service.error';
-import type { AdminActor } from '../../../shared/domain';
-import { recordAdminAction } from '../../../shared/infrastructure';
+import type { AdminActor } from '../../../../../shared/admin';
+import { recordAdminAction } from '../../../../../infrastructure/admin';
 import type { IAdminTrackerVersionService } from '../../application/admin-tracker-version.service';
 
 const restorable = ['title', 'description', 'category', 'field', 'goal', 'level', 'tags', 'allowClone', 'visibility', 'status', 'coverImageUrl'] as const;

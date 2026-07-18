@@ -20,6 +20,13 @@ import { ApiError } from './shared/utils/ApiError';
 const app = express();
 const { router: apiRouter, authRepository } = createApiRouter();
 
+app.disable('x-powered-by');
+if (env.NODE_ENV === 'production') {
+  // Render terminates TLS at one reverse proxy. Trusting exactly one hop keeps
+  // rate limits and audit IPs accurate without accepting spoofed forwarded IPs.
+  app.set('trust proxy', 1);
+}
+
 const globalApiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 1000,
@@ -45,7 +52,9 @@ app.use(
           level: 'info',
           event: 'http_request',
           method: tokens.method(req, res),
-          path: tokens.url(req, res),
+          // Query strings may contain OAuth codes or one-time tokens. They
+          // must never enter production logs.
+          path: tokens.url(req, res)?.split('?')[0],
           status: Number(tokens.status(req, res) ?? 0),
           responseTimeMs: Number(tokens['response-time'](req, res) ?? 0),
           contentLength: Number(tokens.res(req, res, 'content-length') ?? 0),
@@ -55,8 +64,8 @@ app.use(
       )
     : morgan('dev')
 );
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb', parameterLimit: 1_000 }));
 app.use(cookieParser());
 
 app.use(globalApiLimiter);

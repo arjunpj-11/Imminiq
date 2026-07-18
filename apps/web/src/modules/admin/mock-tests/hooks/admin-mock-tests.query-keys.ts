@@ -1,4 +1,4 @@
-import type { AdminListQuery } from "../../shared";
+import type { AdminListQuery } from "../../../../components/admin";
 
 export const adminMockTestsKeys = {
   all: ["admin", "mock-tests"] as const,

@@ -1,4 +1,4 @@
-import type { AdminActor, AdminListQuery, AdminPage } from '../../../shared/domain';
+import type { AdminActor, AdminListQuery, AdminPage } from '../../../../../shared/admin';
 import type { IAdminTrackersRepository } from '../../domain/repositories/admin-trackers.repository.interface';
 import type { AdminPublishedTrackerDTO } from '../admin-trackers.dto';
 import type { IAdminTrackersMapper } from '../admin-trackers.mapper';

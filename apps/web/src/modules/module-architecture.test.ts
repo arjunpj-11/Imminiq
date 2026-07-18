@@ -91,7 +91,6 @@ describe('frontend feature-module architecture', () => {
 
   it('centralizes every admin feature query key', () => {
     const violations = scopedModuleRoots('admin').flatMap((moduleRoot) => {
-      if (moduleRoot === join(modulesRoot, 'admin', 'shared')) return [];
       const hooksRoot = join(moduleRoot, 'hooks');
       if (!existsSync(hooksRoot)) return [];
 
@@ -139,7 +138,6 @@ describe('frontend feature-module architecture', () => {
 
   it('gives every admin feature one constants owner', () => {
     const violations = scopedModuleRoots('admin').flatMap((moduleRoot) => {
-      if (moduleRoot === join(modulesRoot, 'admin', 'shared')) return [];
       const constantsRoot = join(moduleRoot, 'constants');
       if (!existsSync(constantsRoot)) return [moduleRoot.replace(`${modulesRoot}/`, '')];
 
@@ -187,28 +185,27 @@ describe('frontend feature-module architecture', () => {
     expect(violations).toEqual([]);
   });
 
-  it('keeps shared admin UI inside the admin module boundary', () => {
-    const violations = scopedModuleRoots('admin')
-      .flatMap(collectFiles)
-      .filter((file) => /components\/admin\//.test(readFileSync(file, 'utf8')))
-      .map((file) => file.replace(`${modulesRoot}/`, ''));
-
-    expect(violations).toEqual([]);
+  it('keeps reusable admin UI in the root component library', () => {
+    expect(existsSync(join(modulesRoot, 'admin', 'shared'))).toBe(false);
+    expect(existsSync(join(sourceRoot, 'components', 'admin', 'index.ts'))).toBe(true);
   });
 
-  it('keeps global API contracts out of the admin shared public API', () => {
-    const adminSharedIndex = readFileSync(join(modulesRoot, 'admin', 'shared', 'index.ts'), 'utf8');
+  it('keeps global API contracts out of the admin component public API', () => {
+    const adminComponentIndex = readFileSync(
+      join(sourceRoot, 'components', 'admin', 'index.ts'),
+      'utf8'
+    );
     const violations = scopedModuleRoots('admin')
       .flatMap(collectFiles)
       .filter((file) => {
         const source = readFileSync(file, 'utf8');
-        return /import\s+type\s+\{[^}]*\bApiEnvelope\b[^}]*\}\s+from\s+['"][^'"]*shared['"]/s.test(
+        return /import\s+type\s+\{[^}]*\bApiEnvelope\b[^}]*\}\s+from\s+['"][^'"]*components\/admin['"]/s.test(
           source
         );
       })
       .map((file) => file.replace(`${modulesRoot}/`, ''));
 
-    expect(adminSharedIndex).not.toMatch(/\bApiEnvelope\b/);
+    expect(adminComponentIndex).not.toMatch(/\bApiEnvelope\b/);
     expect(violations).toEqual([]);
   });
 

@@ -1,4 +1,4 @@
-import type { AdminListQuery, AdminPage } from '../domain/admin-shared.types';
+import type { AdminListQuery, AdminPage } from '../../shared/admin/admin.types';
 
 export const escapeAdminSearch = (value = '') => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 

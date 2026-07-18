@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ArrowLeft, Eye, ShieldAlert } from "lucide-react";
 import { Link } from "react-router-dom";
-import Modal from "../../shared/components/AdminModal";
+import Modal from "../../../../components/admin/AdminModal";
 import {
   AdminCardSkeleton,
   AdminEmpty,
@@ -13,7 +13,7 @@ import {
   AdminPanel,
   AdminStatusBadge,
   AdminContentAppealsPanel,
-} from "../../shared";
+} from "../../../../components/admin";
 import { ADMIN_MOCK_TESTS_ROUTES } from "../constants/admin-mock-tests.constants";
 import { useAdminMockTestReports } from "../hooks/useAdminMockTestReports";
 import { useUpdateAdminMockTestReport } from "../hooks/useUpdateAdminMockTestReport";
@@ -21,8 +21,8 @@ import type {
   AdminMockTestIssueUpdatePayload,
   AdminMockTestQuestionIssue,
 } from "../types/admin-mock-tests.types";
-import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
+import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
 
 const reasonLabel = (value: string) => value.replaceAll("_", " ");
 

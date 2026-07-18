@@ -1,4 +1,4 @@
-import type { AdminListQuery, AdminPage } from '../../../shared/domain';
+import type { AdminListQuery, AdminPage } from '../../../../../shared/admin';
 import type { IAdminMockTestsRepository } from '../../domain/repositories/admin-mock-tests.repository.interface';
 import type { AdminMockTestDTO } from '../admin-mock-tests.dto';
 import type { IAdminMockTestsMapper } from '../admin-mock-tests.mapper';

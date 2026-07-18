@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Modal from "../../shared/components/AdminModal";
+import Modal from "../../../../components/admin/AdminModal";
 import type { AdminUser } from "../types/admin-users.types";
 import { useUpdateAdminUserRole } from "../hooks/useUpdateAdminUserRole";
 

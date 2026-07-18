@@ -1,6 +1,6 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import { AdminPageHeader } from "../../shared";
+import { AdminPageHeader } from "../../../../components/admin";
 import AdminTrackerReviewsPanel from "../components/AdminTrackerReviewsPanel";
 import { ADMIN_TRACKERS_ROUTES } from "../constants/admin-trackers.constants";
 

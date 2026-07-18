@@ -1,4 +1,4 @@
-import type { AdminListQuery, AdminPage } from '../../../shared/domain';
+import type { AdminListQuery, AdminPage } from '../../../../../shared/admin';
 import type { IAdminBroadcastRepository } from '../../domain/repositories/admin-broadcast.repository.interface';
 import type { AdminBroadcastDTO } from '../admin-broadcast.dto';
 import type { IAdminBroadcastMapper } from '../admin-broadcast.mapper';
