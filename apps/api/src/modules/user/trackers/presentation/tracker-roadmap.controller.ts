@@ -122,6 +122,47 @@ export class TrackerRoadmapController {
     }
   };
 
+  updateTopic = async (req: Request<TopicParams>, res: Response, next: NextFunction) => {
+    try {
+      await this._useCases.trackerClan.updateTopic({
+        trackerId: req.params.trackerId,
+        topicId: req.params.topicId,
+        userId: getAuthUser(req).userId,
+        title: req.body.title,
+        description: req.body.description,
+      });
+      res.json(new ApiResponse('Topic updated successfully', null));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deleteTopic = async (req: Request<TopicParams>, res: Response, next: NextFunction) => {
+    try {
+      await this._useCases.trackerClan.deleteTopic({
+        trackerId: req.params.trackerId,
+        topicId: req.params.topicId,
+        userId: getAuthUser(req).userId,
+      });
+      res.json(new ApiResponse('Topic deleted successfully', null));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deleteSubtopic = async (req: Request<LessonParams>, res: Response, next: NextFunction) => {
+    try {
+      await this._useCases.trackerClan.deleteSubtopic({
+        trackerId: req.params.trackerId,
+        subtopicId: req.params.subtopicId,
+        userId: getAuthUser(req).userId,
+      });
+      res.json(new ApiResponse('Subtopic branch deleted successfully', null));
+    } catch (error) {
+      next(error);
+    }
+  };
+
   updateSubtopicProgress = async (
     req: Request<LessonParams>,
     res: Response,
@@ -201,4 +242,3 @@ export class TrackerRoadmapController {
   };
 
 }
-

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import type { ITracker } from '../types/tracker.types';
 import ConfirmDialog from './ConfirmDialog';
 import PublishTrackerModal, { type PublishFormData } from './PublishTrackerModal';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 export type { PublishFormData } from './PublishTrackerModal';
 
@@ -240,6 +241,7 @@ export default function TrackerCard({
   const isUnavailable = tracker.moderationStatus && tracker.moderationStatus !== 'active';
   const isArchived = tracker.status === 'archived';
   const cloneSource = tracker.clonedFrom;
+  const hasClanMembership = Boolean(tracker.clanRole);
   const verificationStatus =
     (
       tracker as ITracker & {
@@ -407,6 +409,26 @@ export default function TrackerCard({
             )}
           </div>
 
+          <div className="flex items-center gap-2">
+            {(cloneSource || tracker.clanRole === 'owner' || tracker.clanRole === 'co_owner') && (
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  navigate(ROUTES.trackerClan(cloneSource?.trackerId ?? tracker._id));
+                }}
+                className="relative inline-flex h-8 items-center gap-1.5 rounded-md border border-[#d6ad47]/35 bg-[#f4c95d]/10 px-2.5 font-mono text-[8px] font-bold uppercase tracking-wider text-[#8a6509] transition hover:-translate-y-px hover:bg-[#f4c95d]/20 dark:text-[#f4c95d]"
+                aria-label={cloneSource && !hasClanMembership ? 'Join tracker clan' : 'Open tracker clan'}
+              >
+                <span aria-hidden="true">🛡</span>
+                {cloneSource && !hasClanMembership ? 'Join clan' : 'Clan'}
+                {Boolean(tracker.clanNotificationsCount) && (
+                  <span className="absolute -right-1.5 -top-1.5 grid min-h-4 min-w-4 place-items-center rounded-full bg-(--brand-500) px-1 text-[8px] text-white shadow-sm dark:text-[#141412]">
+                    {Math.min(99, tracker.clanNotificationsCount ?? 0)}
+                  </span>
+                )}
+              </button>
+            )}
           <div ref={menuRef} className="relative">
             <button
               type="button"
@@ -501,6 +523,7 @@ export default function TrackerCard({
                 </button>
               </div>
             )}
+          </div>
           </div>
         </div>
 

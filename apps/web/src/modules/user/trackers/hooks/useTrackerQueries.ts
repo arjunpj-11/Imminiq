@@ -18,6 +18,9 @@ import type {
   ITrackerRoadmapResponse,
   ITrackerSummary,
   ITrackerTopicContribution,
+  ITrackerClanOverview,
+  ITrackerClanMessage,
+  ITrackerClanChallenge,
 } from '../types/tracker.types';
 import { trackerKeys } from './trackers.query-keys';
 
@@ -108,6 +111,44 @@ export const useTrackerTopicContributions = (trackerId?: string, enabled = true)
     },
   });
 };
+
+export const useTrackerClan = (trackerId?: string, enabled = true) =>
+  useQuery({
+    queryKey: trackerKeys.clan(trackerId || ''),
+    enabled: Boolean(trackerId) && enabled,
+    queryFn: async () => {
+      const response = await api.get<IApiResponse<ITrackerClanOverview>>(
+        TRACKER_API_PATHS.clan(trackerId || '')
+      );
+      return unwrap(response.data);
+    },
+  });
+
+export const useTrackerClanMessages = (trackerId?: string, enabled = true) =>
+  useQuery({
+    queryKey: trackerKeys.clanMessages(trackerId || ''),
+    enabled: Boolean(trackerId) && enabled,
+    queryFn: async () => {
+      const response = await api.get<IApiResponse<ITrackerClanMessage[]>>(
+        TRACKER_API_PATHS.clanMessages(trackerId || ''),
+        { params: { limit: 60 } }
+      );
+      return unwrap(response.data);
+    },
+  });
+
+export const useTrackerClanChallenges = (trackerId?: string, enabled = true) =>
+  useQuery({
+    queryKey: trackerKeys.clanChallenges(trackerId || ''),
+    enabled: Boolean(trackerId) && enabled,
+    refetchInterval: 10_000,
+    queryFn: async () => {
+      const response = await api.get<IApiResponse<ITrackerClanChallenge[]>>(
+        TRACKER_API_PATHS.clanChallenges(trackerId || '')
+      );
+      return unwrap(response.data);
+    },
+  });
 
 export const useTrackerLesson = (trackerId?: string, subtopicId?: string) => {
   return useQuery({

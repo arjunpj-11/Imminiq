@@ -39,6 +39,7 @@ export type {
   TrackerStatus,
   TrackerVisibility,
 } from './domain/trackers.types';
+export type { TrackerClanChallengeEvent } from './domain/tracker-clan.types';
 
 export { createTrackerComposition } from './tracker.factory';
 export { createTrackerRoutes } from './presentation/trackers.routes';

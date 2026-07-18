@@ -26,6 +26,7 @@ import {
   ProfilePage,
   TrackerManagePage,
   TrackerRoadmapPage,
+  TrackerClanPage,
   VerifyAndEarnPage,
   RaiseSupportTicketPage,
   SubscriptionPlansPage,
@@ -82,6 +83,10 @@ export const authenticatedRoutes: RouteObject[] = [
   {
     path: ROUTES.trackerRoadmapPattern,
     element: <TrackerRoadmapPage />,
+  },
+  {
+    path: ROUTES.trackerClanPattern,
+    element: <TrackerClanPage />,
   },
 
   {

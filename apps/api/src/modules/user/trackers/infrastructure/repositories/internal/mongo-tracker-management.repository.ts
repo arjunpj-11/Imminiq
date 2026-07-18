@@ -4,6 +4,8 @@ import { TrackerProgress } from '../../../../../../infrastructure/database/model
 import { User } from '../../../../../../infrastructure/database/models/user.model';
 import { TrackerReport } from '../../../../../../infrastructure/database/models/tracker-report.model';
 import { TrackerVersion } from '../../../../../../infrastructure/database/models/tracker-version.model';
+import { TrackerClan } from '../../../../../../infrastructure/database/models/tracker-clan.model';
+import { TrackerTopicContribution } from '../../../../../../infrastructure/database/models/tracker-topic-contribution.model';
 import type {
   ArchiveOwnedTrackerInput,
   FindOwnedTrackerByIdInput,
@@ -198,11 +200,17 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
       const { userId, status = 'all', domain = 'all', sortBy = 'lastActive', page, limit } = filter;
 
       const userObjId = this.mapper.toObjectId(userId);
+      const clans = await TrackerClan.find({
+        members: { $elemMatch: { userId: userObjId, role: 'co_owner' } },
+      })
+        .select('trackerId')
+        .lean<Array<{ trackerId: unknown }>>();
+      const managedTrackerIds = clans.map((clan) => clan.trackerId);
 
-      const query: MongoQuery = {
-        ownerId: userObjId,
+      const query = {
+        $or: [{ ownerId: userObjId }, { _id: { $in: managedTrackerIds } }],
         deletedAt: null,
-      };
+      } as unknown as MongoQuery;
 
       if (status !== 'all') {
         query.status = status;
@@ -224,6 +232,53 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
       ]);
 
       const trackerIds = trackers.map((tracker) => tracker._id);
+      const sourceTrackerIds = trackers
+        .map((tracker) => tracker.sourceTrackerId)
+        .filter((sourceTrackerId): sourceTrackerId is NonNullable<typeof sourceTrackerId> =>
+          Boolean(sourceTrackerId)
+        );
+
+      const [sourceTrackers, sourceClans] = await Promise.all([
+        Tracker.find({ _id: { $in: sourceTrackerIds }, deletedAt: null })
+          .select('_id ownerId')
+          .lean<Array<{ _id: unknown; ownerId: unknown }>>(),
+        TrackerClan.find({
+          trackerId: { $in: sourceTrackerIds },
+          'members.userId': userObjId,
+        })
+          .select('trackerId members')
+          .lean<
+            Array<{
+              trackerId: unknown;
+              members: Array<{ userId: unknown; role: 'co_owner' | 'member' }>;
+            }>
+          >(),
+      ]);
+      const sourceOwnerMap = new Map(
+        sourceTrackers.map((sourceTracker) => [String(sourceTracker._id), String(sourceTracker.ownerId)])
+      );
+      const sourceClanRoleMap = new Map(
+        sourceClans.flatMap((clan) => {
+          const membership = clan.members.find((member) => String(member.userId) === userId);
+          return membership ? [[String(clan.trackerId), membership.role] as const] : [];
+        })
+      );
+
+      const pendingContributionCounts = await TrackerTopicContribution.aggregate<{
+        _id: unknown;
+        count: number;
+      }>([
+        {
+          $match: {
+            sourceTrackerId: { $in: trackerIds },
+            status: 'pending',
+          },
+        },
+        { $group: { _id: '$sourceTrackerId', count: { $sum: 1 } } },
+      ]);
+      const pendingContributionMap = new Map(
+        pendingContributionCounts.map((row) => [String(row._id), row.count])
+      );
 
       const progressList = await TrackerProgress.find(
         this.mapper.asMongoFilter({
@@ -258,6 +313,14 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
             tracker.lastActiveAt ??
             tracker.updatedAt ??
             tracker.createdAt,
+          clanRole: tracker.sourceTrackerId
+            ? sourceOwnerMap.get(String(tracker.sourceTrackerId)) === userId
+              ? ('owner' as const)
+              : sourceClanRoleMap.get(String(tracker.sourceTrackerId))
+            : String(tracker.ownerId) === userId
+              ? ('owner' as const)
+              : ('co_owner' as const),
+          clanNotificationsCount: pendingContributionMap.get(tracker._id.toString()) ?? 0,
         };
       });
 
@@ -312,9 +375,15 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
       'TRACKER_UPDATE_FAILED',
       'Failed to update owned tracker',
       async () => {
+        const trackerId = this.mapper.toObjectId(data.trackerId);
+        const userId = this.mapper.toObjectId(data.userId);
+        const coOwner = await TrackerClan.exists({
+          trackerId,
+          members: { $elemMatch: { userId, role: 'co_owner' } },
+        });
         const current = await Tracker.findOne({
-          _id: this.mapper.toObjectId(data.trackerId),
-          ownerId: this.mapper.toObjectId(data.userId),
+          _id: trackerId,
+          ...(coOwner ? {} : { ownerId: userId }),
           deletedAt: null,
           moderationStatus: { $in: ['active', null] },
         }).lean();
@@ -324,8 +393,8 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           {
             $setOnInsert: {
               snapshot: current,
-              changedBy: this.mapper.toObjectId(data.userId),
-              reason: 'Owner edited tracker metadata',
+              changedBy: userId,
+              reason: coOwner ? 'Co-owner edited tracker metadata' : 'Owner edited tracker metadata',
             },
           },
           { upsert: true }
@@ -354,8 +423,8 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
 
         const tracker = await Tracker.findOneAndUpdate(
           this.mapper.asMongoFilter({
-            _id: this.mapper.toObjectId(data.trackerId),
-            ownerId: this.mapper.toObjectId(data.userId),
+            _id: trackerId,
+            ...(coOwner ? {} : { ownerId: userId }),
             deletedAt: null,
             moderationStatus: { $in: ['active', null] },
           }),
@@ -418,10 +487,16 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
 
   async findOwnedTrackerById(data: FindOwnedTrackerByIdInput) {
     return this.execute('TRACKER_READ_FAILED', 'Failed to read owned tracker', async () => {
+      const trackerId = this.mapper.toObjectId(data.trackerId);
+      const userId = this.mapper.toObjectId(data.userId);
+      const coOwner = await TrackerClan.exists({
+        trackerId,
+        members: { $elemMatch: { userId, role: 'co_owner' } },
+      });
       const tracker = await Tracker.findOne(
         this.mapper.asMongoFilter({
-          _id: this.mapper.toObjectId(data.trackerId),
-          ownerId: this.mapper.toObjectId(data.userId),
+          _id: trackerId,
+          ...(coOwner ? {} : { ownerId: userId }),
           deletedAt: null,
           moderationStatus: { $in: ['active', null] },
         })

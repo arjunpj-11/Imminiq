@@ -62,6 +62,8 @@ export interface ITracker {
     username: string;
     avatarUrl?: string | null;
   } | null;
+  clanRole?: 'owner' | 'co_owner' | 'member';
+  clanNotificationsCount?: number;
 }
 
 export type TrackerTopicContributionStatus = 'pending' | 'approved' | 'rejected';
@@ -85,6 +87,91 @@ export interface ITrackerTopicContribution {
   reviewNote?: string | null;
   /** @deprecated Legacy rejection-only field. */
   rejectionReason?: string | null;
+}
+
+export type TrackerClanRole = 'owner' | 'co_owner' | 'member' | 'outsider';
+
+export interface ITrackerClanPerson {
+  userId: string;
+  name: string;
+  username: string;
+  avatarUrl?: string | null;
+  role: Exclude<TrackerClanRole, 'outsider'>;
+  joinedAt?: string;
+}
+
+export interface ITrackerClanJoinRequest {
+  id: string;
+  userId: string;
+  name: string;
+  username: string;
+  avatarUrl?: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+}
+
+export interface ITrackerClanOverview {
+  trackerId: string;
+  trackerTitle: string;
+  trackerDescription: string;
+  topicsCount: number;
+  subtopicsCount: number;
+  visibility: 'private' | 'public';
+  role: TrackerClanRole;
+  canManage: boolean;
+  canTransferOwnership: boolean;
+  hasPendingJoinRequest: boolean;
+  members: ITrackerClanPerson[];
+  joinRequests: ITrackerClanJoinRequest[];
+}
+
+export interface ITrackerClanMessage {
+  id: string;
+  trackerId: string;
+  text: string;
+  createdAt: string;
+  user: { userId: string; name: string; username: string; avatarUrl?: string | null };
+}
+
+export type TrackerClanChallengeStatus =
+  | 'open'
+  | 'pending'
+  | 'active'
+  | 'completed'
+  | 'declined'
+  | 'cancelled'
+  | 'expired';
+
+export interface ITrackerClanChallenge {
+  id: string;
+  trackerId: string;
+  challengeType: 'open' | 'direct';
+  status: TrackerClanChallengeStatus;
+  durationMinutes: number;
+  questionCount: number;
+  maxScore: number;
+  challenger: Omit<ITrackerClanPerson, 'role' | 'joinedAt'>;
+  opponent: Omit<ITrackerClanPerson, 'role' | 'joinedAt'> | null;
+  challengerScore: number | null;
+  opponentScore: number | null;
+  winnerId: string | null;
+  createdAt: string;
+  acceptBy: string;
+  startsAt: string | null;
+  endsAt: string | null;
+  completedAt: string | null;
+  canAccept: boolean;
+  canDecline: boolean;
+  canCancel: boolean;
+  canSubmit: boolean;
+  submitted: boolean;
+  questions: Array<{
+    id: string;
+    prompt: string;
+    options: string[];
+    topicTitle: string;
+    points: number;
+  }>;
 }
 
 export interface ITrackerSummary {

@@ -52,8 +52,12 @@ export class MongoCommunityRepository implements ICommunityRepository {
     return this._trackerRepository.findCommunityTrackerById(trackerId, userId);
   }
 
-  async cloneTrackerForUser(trackerId: string, userId: string) {
-    return this._trackerRepository.cloneTrackerForUser(trackerId, userId);
+  async cloneTrackerForUser(
+    trackerId: string,
+    userId: string,
+    options?: { bypassClonePermission?: boolean }
+  ) {
+    return this._trackerRepository.cloneTrackerForUser(trackerId, userId, options);
   }
 
   async submitTrackerForVerification(data: SubmitTrackerForVerificationInput) {

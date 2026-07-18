@@ -54,6 +54,7 @@ const routeLabels: Array<[RegExp, string]> = [
   [nestedRoute(ROUTES.publishedTrackers), 'Published trackers'],
   [nestedRoute(ROUTES.trackers, '/[^/]+/manage'), 'Manage tracker'],
   [nestedRoute(ROUTES.trackers, '/[^/]+/roadmap'), 'Tracker roadmap'],
+  [nestedRoute(ROUTES.trackers, '/[^/]+/clan'), 'Tracker guild'],
   [nestedRoute(ROUTES.community, '/verify'), 'Verify submission'],
   [nestedRoute(ROUTES.community, '/trackers'), 'Community tracker'],
   [nestedRoute(ROUTES.leaderboardRewards), 'Rewards'],
