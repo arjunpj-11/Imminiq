@@ -43,4 +43,21 @@ export interface ITrackerClanChallengeRepository {
     userId: string;
     answers: Array<{ questionId: string; answer: string }>;
   }): Promise<TrackerClanChallenge | null>;
+  chooseChallengeCheckpoint(input: {
+    trackerId: string;
+    challengeId: string;
+    userId: string;
+    decision: 'attempt' | 'skip';
+  }): Promise<TrackerClanChallenge | null>;
+  answerChallengeNode(input: {
+    trackerId: string;
+    challengeId: string;
+    userId: string;
+    answer: string;
+  }): Promise<TrackerClanChallenge | null>;
+  useChallengePower(input: {
+    trackerId: string;
+    challengeId: string;
+    userId: string;
+  }): Promise<TrackerClanChallenge | null>;
 }

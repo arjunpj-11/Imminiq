@@ -165,12 +165,22 @@ export interface ITrackerClanChallenge {
   canCancel: boolean;
   canSubmit: boolean;
   submitted: boolean;
+  totalNodes: number;
+  checkpointNodes: number[];
+  viewerPosition: number;
+  opponentPosition: number;
+  viewerScore: number;
+  opponentLiveScore: number;
+  pushBackPowers: number;
+  checkpointDecisionRequired: boolean;
+  lastAnswerCorrect: boolean | null;
   questions: Array<{
     id: string;
     prompt: string;
     options: string[];
     topicTitle: string;
     points: number;
+    isCheckpoint: boolean;
   }>;
 }
 

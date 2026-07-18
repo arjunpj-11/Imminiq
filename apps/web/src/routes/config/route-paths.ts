@@ -27,9 +27,12 @@ export const ROUTES = {
   trackerManagePattern: '/trackers/:trackerId/manage',
   trackerRoadmapPattern: '/trackers/:trackerId/roadmap',
   trackerClanPattern: '/trackers/:trackerId/clan',
+  trackerClanBattlePattern: '/trackers/:trackerId/clan/challenges/:challengeId',
   trackerManage: (trackerId: string) => `/trackers/${trackerId}/manage`,
   trackerRoadmap: (trackerId: string) => `/trackers/${trackerId}/roadmap`,
   trackerClan: (trackerId: string) => `/trackers/${trackerId}/clan`,
+  trackerClanBattle: (trackerId: string, challengeId: string) =>
+    `/trackers/${trackerId}/clan/challenges/${challengeId}`,
   community: '/community',
   communityTrackerPattern: '/community/trackers/:trackerId',
   communityTracker: (trackerId: string) => `/community/trackers/${trackerId}`,

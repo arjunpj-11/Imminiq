@@ -57,6 +57,8 @@ Battle constraints:
 - Give exactly four distinct, plausible options. correctAnswer must exactly equal one option.
 - Use plain text and readable mathematical notation. Do not require diagrams or external resources.
 - Assign 1 point per question.
+- Mark exactly ${Math.floor(input.questionCount / 5)} questions as checkpoints using isCheckpoint: true. They must be the questions at positions 5, 10, and 15 when those positions exist; all other questions use false.
+- Checkpoint questions must be substantially harder than the other questions, but still fair, self-contained, and solvable from the supplied subject syllabus.
 
 Return ONLY valid JSON in this shape:
 {
@@ -66,7 +68,8 @@ Return ONLY valid JSON in this shape:
       "options": ["option 1", "option 2", "option 3", "option 4"],
       "correctAnswer": "exact option text",
       "topicTitle": "the subject topic assessed",
-      "points": 1
+      "points": 1,
+      "isCheckpoint": false
     }
   ]
 }`;

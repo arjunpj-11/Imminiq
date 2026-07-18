@@ -74,7 +74,16 @@ export type TrackerClanChallenge = {
   canCancel: boolean;
   canSubmit: boolean;
   submitted: boolean;
-  questions: Array<{ id: string; prompt: string; options: string[]; topicTitle: string; points: number }>;
+  totalNodes: number;
+  checkpointNodes: number[];
+  viewerPosition: number;
+  opponentPosition: number;
+  viewerScore: number;
+  opponentLiveScore: number;
+  pushBackPowers: number;
+  checkpointDecisionRequired: boolean;
+  lastAnswerCorrect: boolean | null;
+  questions: Array<{ id: string; prompt: string; options: string[]; topicTitle: string; points: number; isCheckpoint: boolean }>;
 };
 
 export type TrackerClanChallengeEvent = {
@@ -91,6 +100,7 @@ export type TrackerClanChallengeQuestion = {
   correctAnswer: string;
   topicTitle: string;
   points: number;
+  isCheckpoint: boolean;
 };
 
 export type TrackerClanChallengeQuestionContext = {

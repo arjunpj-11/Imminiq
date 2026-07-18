@@ -58,6 +58,16 @@ type ChallengeSubmissionLean = {
   submittedAt: Date;
 };
 
+type ChallengeProgressLean = {
+  position: number;
+  score: number;
+  pushBackPowers: number;
+  attemptedAnswers: string[];
+  attemptedCheckpoints: number[];
+  resolvedCheckpoints: number[];
+  lastAnswerCorrect?: boolean | null;
+};
+
 type ChallengeLean = {
   _id: unknown;
   trackerId: unknown;
@@ -73,6 +83,7 @@ type ChallengeLean = {
     correctAnswer?: string;
     topicTitle: string;
     points: number;
+    isCheckpoint?: boolean;
   }>;
   challengerSubmission?: ChallengeSubmissionLean | null;
   opponentSubmission?: ChallengeSubmissionLean | null;
@@ -81,6 +92,8 @@ type ChallengeLean = {
   acceptBy: Date;
   completedAt?: Date | null;
   winnerId?: unknown | null;
+  challengerProgress?: ChallengeProgressLean | null;
+  opponentProgress?: ChallengeProgressLean | null;
   createdAt: Date;
 };
 
@@ -583,11 +596,158 @@ export class MongoTrackerClanRepository
     const endsAt = new Date(now.getTime() + existing.durationMinutes * 60 * 1000);
     const accepted = await TrackerClanChallengeModel.findOneAndUpdate(
       { _id: challengeId, trackerId, status: existing.status },
-      { $set: { opponentId: userId, status: 'active', startsAt: now, endsAt } },
+      {
+        $set: {
+          opponentId: userId,
+          status: 'active',
+          startsAt: now,
+          endsAt,
+          challengerProgress: {
+            position: 0, score: 0, pushBackPowers: 0, attemptedAnswers: [],
+            attemptedCheckpoints: [], resolvedCheckpoints: [], lastAnswerCorrect: null,
+          },
+          opponentProgress: {
+            position: 0, score: 0, pushBackPowers: 0, attemptedAnswers: [],
+            attemptedCheckpoints: [], resolvedCheckpoints: [], lastAnswerCorrect: null,
+          },
+        },
+      },
       { returnDocument: 'after' }
     ).lean<ChallengeLean>();
     if (!accepted) return null;
     return (await this.mapChallenges([accepted], input.userId))[0] ?? null;
+  }
+
+  async chooseChallengeCheckpoint(input: {
+    trackerId: string;
+    challengeId: string;
+    userId: string;
+    decision: 'attempt' | 'skip';
+  }) {
+    const challenge = await this.findActiveParticipantChallenge(input);
+    if (!challenge) return null;
+    const isChallenger = String(challenge.challengerId) === input.userId;
+    const progressField = isChallenger ? 'challengerProgress' : 'opponentProgress';
+    const progress = this.progressOf(challenge, isChallenger);
+    const node = progress.position + 1;
+    const question = challenge.questions[progress.position];
+    if (!question?.isCheckpoint || progress.resolvedCheckpoints.includes(node) || progress.attemptedCheckpoints.includes(node)) return null;
+
+    const update: Record<string, unknown> = input.decision === 'attempt'
+      ? { $addToSet: { [`${progressField}.attemptedCheckpoints`]: node } }
+      : {
+          $set: {
+            [`${progressField}.position`]: node,
+            [`${progressField}.attemptedAnswers`]: [],
+            [`${progressField}.lastAnswerCorrect`]: null,
+            ...(node >= challenge.questions.length
+              ? { status: 'completed', winnerId: objectId(input.userId), completedAt: new Date() }
+              : {}),
+          },
+          $addToSet: { [`${progressField}.resolvedCheckpoints`]: node },
+        };
+    const updated = await TrackerClanChallengeModel.findOneAndUpdate(
+      { _id: challenge._id, status: 'active', [`${progressField}.position`]: progress.position },
+      update,
+      { returnDocument: 'after' }
+    ).lean<ChallengeLean>();
+    return updated ? (await this.mapChallenges([updated], input.userId))[0] ?? null : null;
+  }
+
+  async answerChallengeNode(input: { trackerId: string; challengeId: string; userId: string; answer: string }) {
+    const challenge = await this.findActiveParticipantChallenge(input);
+    if (!challenge) return null;
+    const isChallenger = String(challenge.challengerId) === input.userId;
+    const progressField = isChallenger ? 'challengerProgress' : 'opponentProgress';
+    const progress = this.progressOf(challenge, isChallenger);
+    const node = progress.position + 1;
+    const question = challenge.questions[progress.position];
+    const answer = input.answer.trim();
+    if (!question || !answer || progress.attemptedAnswers.includes(answer)) return null;
+    if (question.isCheckpoint && !progress.resolvedCheckpoints.includes(node) && !progress.attemptedCheckpoints.includes(node)) return null;
+    const correct = answer.toLocaleLowerCase() === question.correctAnswer?.trim().toLocaleLowerCase();
+    const earnedPower = correct && Boolean(question.isCheckpoint) && !progress.resolvedCheckpoints.includes(node);
+    const finished = correct && node >= challenge.questions.length;
+    const update = correct
+      ? {
+          $set: {
+            [`${progressField}.position`]: node,
+            [`${progressField}.attemptedAnswers`]: [],
+            [`${progressField}.lastAnswerCorrect`]: true,
+            ...(finished ? { status: 'completed', winnerId: objectId(input.userId), completedAt: new Date() } : {}),
+          },
+          $inc: {
+            [`${progressField}.score`]: 1,
+            ...(earnedPower ? { [`${progressField}.pushBackPowers`]: 1 } : {}),
+          },
+          ...(question.isCheckpoint ? { $addToSet: { [`${progressField}.resolvedCheckpoints`]: node } } : {}),
+        }
+      : {
+          $set: { [`${progressField}.lastAnswerCorrect`]: false },
+          $addToSet: { [`${progressField}.attemptedAnswers`]: answer },
+        };
+    const updated = await TrackerClanChallengeModel.findOneAndUpdate(
+      { _id: challenge._id, status: 'active', [`${progressField}.position`]: progress.position },
+      update,
+      { returnDocument: 'after' }
+    ).lean<ChallengeLean>();
+    return updated ? (await this.mapChallenges([updated], input.userId))[0] ?? null : null;
+  }
+
+  async useChallengePower(input: { trackerId: string; challengeId: string; userId: string }) {
+    const challenge = await this.findActiveParticipantChallenge(input);
+    if (!challenge) return null;
+    const isChallenger = String(challenge.challengerId) === input.userId;
+    const ownField = isChallenger ? 'challengerProgress' : 'opponentProgress';
+    const opponentField = isChallenger ? 'opponentProgress' : 'challengerProgress';
+    const own = this.progressOf(challenge, isChallenger);
+    const opponent = this.progressOf(challenge, !isChallenger);
+    if (own.pushBackPowers < 1) return null;
+    const updated = await TrackerClanChallengeModel.findOneAndUpdate(
+      {
+        _id: challenge._id,
+        status: 'active',
+        [`${ownField}.pushBackPowers`]: { $gte: 1 },
+        [`${opponentField}.position`]: opponent.position,
+      },
+      {
+        $inc: { [`${ownField}.pushBackPowers`]: -1 },
+        $set: {
+          [`${opponentField}.position`]: Math.max(0, opponent.position - 2),
+          [`${opponentField}.attemptedAnswers`]: [],
+          [`${opponentField}.lastAnswerCorrect`]: null,
+        },
+      },
+      { returnDocument: 'after' }
+    ).lean<ChallengeLean>();
+    return updated ? (await this.mapChallenges([updated], input.userId))[0] ?? null : null;
+  }
+
+  private async findActiveParticipantChallenge(input: { trackerId: string; challengeId: string; userId: string }) {
+    const trackerId = objectId(input.trackerId);
+    const challengeId = objectId(input.challengeId);
+    const userId = objectId(input.userId);
+    if (!trackerId || !challengeId || !userId) return null;
+    const challenge = await TrackerClanChallengeModel.findOne({
+      _id: challengeId,
+      trackerId,
+      status: 'active',
+      endsAt: { $gt: new Date() },
+      $or: [{ challengerId: userId }, { opponentId: userId }],
+    }).select('+questions.correctAnswer').lean<ChallengeLean>();
+    return challenge ? this.refreshChallenge(challenge) : null;
+  }
+
+  private progressOf(challenge: ChallengeLean, challenger: boolean): ChallengeProgressLean {
+    return (challenger ? challenge.challengerProgress : challenge.opponentProgress) ?? {
+      position: 0,
+      score: 0,
+      pushBackPowers: 0,
+      attemptedAnswers: [],
+      attemptedCheckpoints: [],
+      resolvedCheckpoints: [],
+      lastAnswerCorrect: null,
+    };
   }
 
   async declineChallenge(input: { trackerId: string; challengeId: string; userId: string }) {
@@ -687,8 +847,13 @@ export class MongoTrackerClanRepository
   }
 
   private async completeChallenge(challenge: ChallengeLean): Promise<ChallengeLean> {
-    const challengerScore = challenge.challengerSubmission?.score ?? 0;
-    const opponentScore = challenge.opponentSubmission?.score ?? 0;
+    const usesLegacySubmissions = Boolean(challenge.challengerSubmission || challenge.opponentSubmission);
+    const challengerScore = usesLegacySubmissions
+      ? challenge.challengerSubmission?.score ?? 0
+      : challenge.challengerProgress?.position ?? 0;
+    const opponentScore = usesLegacySubmissions
+      ? challenge.opponentSubmission?.score ?? 0
+      : challenge.opponentProgress?.position ?? 0;
     const winnerId = challengerScore === opponentScore
       ? null
       : challengerScore > opponentScore
@@ -717,6 +882,16 @@ export class MongoTrackerClanRepository
       const isChallenger = String(challenge.challengerId) === viewerId;
       const isOpponent = String(challenge.opponentId ?? '') === viewerId;
       const ownSubmission = isChallenger ? challenge.challengerSubmission : challenge.opponentSubmission;
+      const viewerProgress = this.progressOf(challenge, isChallenger);
+      const opponentProgress = this.progressOf(challenge, !isChallenger);
+      const currentQuestion = challenge.questions[viewerProgress.position];
+      const currentNode = viewerProgress.position + 1;
+      const checkpointDecisionRequired = Boolean(
+        challenge.status === 'active' &&
+        currentQuestion?.isCheckpoint &&
+        !viewerProgress.attemptedCheckpoints.includes(currentNode) &&
+        !viewerProgress.resolvedCheckpoints.includes(currentNode)
+      );
       const canAccept = ['open', 'pending'].includes(challenge.status) && !isChallenger &&
         (challenge.challengeType === 'open' || isOpponent) && challenge.acceptBy > new Date();
       const canSubmit = challenge.status === 'active' && (isChallenger || isOpponent) && !ownSubmission &&
@@ -731,8 +906,8 @@ export class MongoTrackerClanRepository
         maxScore: challenge.questions.reduce((total, question) => total + question.points, 0),
         challenger: person(challenge.challengerId),
         opponent: challenge.opponentId ? person(challenge.opponentId) : null,
-        challengerScore: challenge.challengerSubmission?.score ?? null,
-        opponentScore: challenge.opponentSubmission?.score ?? null,
+        challengerScore: challenge.challengerSubmission?.score ?? challenge.challengerProgress?.score ?? null,
+        opponentScore: challenge.opponentSubmission?.score ?? challenge.opponentProgress?.score ?? null,
         winnerId: challenge.winnerId ? String(challenge.winnerId) : null,
         createdAt: challenge.createdAt,
         acceptBy: challenge.acceptBy,
@@ -744,11 +919,20 @@ export class MongoTrackerClanRepository
         canCancel: ['open', 'pending'].includes(challenge.status) && isChallenger,
         canSubmit,
         submitted: Boolean(ownSubmission),
-        questions: challenge.status === 'active' && (isChallenger || isOpponent)
-          ? challenge.questions.map((question) => ({
-              id: String(question._id), prompt: question.prompt, options: question.options,
-              topicTitle: question.topicTitle, points: question.points,
-            }))
+        totalNodes: challenge.questions.length,
+        checkpointNodes: challenge.questions.flatMap((question, index) => question.isCheckpoint ? [index + 1] : []),
+        viewerPosition: viewerProgress.position,
+        opponentPosition: opponentProgress.position,
+        viewerScore: viewerProgress.score,
+        opponentLiveScore: opponentProgress.score,
+        pushBackPowers: viewerProgress.pushBackPowers,
+        checkpointDecisionRequired,
+        lastAnswerCorrect: viewerProgress.lastAnswerCorrect ?? null,
+        questions: challenge.status === 'active' && (isChallenger || isOpponent) && currentQuestion && !checkpointDecisionRequired
+          ? [{
+              id: String(currentQuestion._id), prompt: currentQuestion.prompt, options: currentQuestion.options,
+              topicTitle: currentQuestion.topicTitle, points: currentQuestion.points, isCheckpoint: Boolean(currentQuestion.isCheckpoint),
+            }]
           : [],
       } satisfies TrackerClanChallenge;
     });

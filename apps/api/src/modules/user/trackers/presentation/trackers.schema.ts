@@ -134,6 +134,14 @@ export const submitClanChallengeSchema = z.object({
     .max(15),
 });
 
+export const chooseClanChallengeCheckpointSchema = z.object({
+  decision: z.enum(['attempt', 'skip']),
+});
+
+export const answerClanChallengeNodeSchema = z.object({
+  answer: z.string().trim().min(1).max(500),
+});
+
 export const updateTrackerTopicSchema = z.object({
   title: titleSchema,
   description: defaultTrimmedStringSchema(500, 'Description is too long'),

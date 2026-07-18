@@ -31,6 +31,9 @@ const repository = () =>
     declineChallenge: vi.fn(),
     cancelChallenge: vi.fn(),
     submitChallenge: vi.fn(),
+    chooseChallengeCheckpoint: vi.fn(),
+    answerChallengeNode: vi.fn(),
+    useChallengePower: vi.fn(),
   }) as unknown as ITrackerClanRepository & ITrackerClanChallengeRepository;
 
 describe('TrackerClanUseCase', () => {
@@ -118,6 +121,7 @@ describe('TrackerClanUseCase', () => {
         correctAnswer: '6',
         topicTitle: 'Calculus',
         points: 1,
+        isCheckpoint: true,
       },
     ];
     vi.mocked(clans.getChallengeQuestionContext).mockResolvedValue(context);
@@ -156,6 +160,32 @@ describe('TrackerClanUseCase', () => {
       status: 'open',
       challengerId: 'member-1',
       opponentId: null,
+    });
+  });
+
+  it('announces each live race move without exposing question data in the event', async () => {
+    const clans = repository();
+    const challenge = {
+      id: 'challenge-1',
+      trackerId: 'tracker-1',
+      status: 'active',
+      challenger: { userId: 'member-1' },
+      opponent: { userId: 'member-2' },
+    } as TrackerClanChallenge;
+    vi.mocked(clans.answerChallengeNode).mockResolvedValue(challenge);
+    const notifier: ITrackerClanChallengeNotifier = { notify: vi.fn() };
+    const useCase = new TrackerClanChallengeUseCase(
+      clans,
+      { generate: vi.fn() },
+      notifier
+    );
+
+    await expect(useCase.answerNode({
+      trackerId: 'tracker-1', challengeId: 'challenge-1', userId: 'member-1', answer: '42',
+    })).resolves.toBe(challenge);
+    expect(notifier.notify).toHaveBeenCalledWith({
+      id: 'challenge-1', trackerId: 'tracker-1', status: 'active',
+      challengerId: 'member-1', opponentId: 'member-2',
     });
   });
 });

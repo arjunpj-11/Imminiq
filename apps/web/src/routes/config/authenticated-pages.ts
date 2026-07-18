@@ -40,6 +40,10 @@ export const TrackerClanPage = lazy(
   () => import('../../modules/user/trackers/pages/TrackerClanPage')
 );
 
+export const TrackerClanBattlePage = lazy(
+  () => import('../../modules/user/trackers/pages/TrackerClanBattlePage')
+);
+
 export const TrackerRoadmapPage = lazy(
   () => import('../../modules/user/trackers/pages/TrackerRoadmapPage')
 );

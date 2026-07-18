@@ -15,6 +15,7 @@ const challengeQuestionSchema = z
     correctAnswer: z.string().trim().min(1),
     topicTitle: z.string().trim().min(1),
     points: z.literal(1),
+    isCheckpoint: z.boolean().default(false),
   })
   .superRefine((question, context) => {
     if (new Set(question.options).size !== question.options.length) {
@@ -26,7 +27,7 @@ const challengeQuestionSchema = z
   });
 
 const challengeQuestionsSchema = z.object({
-  questions: z.array(challengeQuestionSchema).min(1).max(10),
+  questions: z.array(challengeQuestionSchema).min(1).max(15),
 });
 
 export type TrackerClanChallengeAIQuestion = z.infer<typeof challengeQuestionSchema>;
@@ -54,5 +55,8 @@ export const generateTrackerClanChallengeQuestionsAI = async (
       temperature: 0.45,
     }
   );
-  return result.questions;
+  return result.questions.map((question, index) => ({
+    ...question,
+    isCheckpoint: (index + 1) % 5 === 0,
+  }));
 };

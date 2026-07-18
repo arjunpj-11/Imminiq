@@ -28,5 +28,7 @@ describe('tracker guild challenge prompt', () => {
     expect(prompt).toContain('Never ask "which topic includes"');
     expect(prompt).toContain('Test actual subject knowledge and problem solving');
     expect(prompt).toContain('Definite integration');
+    expect(prompt).toContain('Mark exactly 2 questions as checkpoints');
+    expect(prompt).toContain('substantially harder than the other questions');
   });
 });
