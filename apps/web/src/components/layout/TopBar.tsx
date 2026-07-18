@@ -265,16 +265,7 @@ export default function TopBar({
             </>
           ) : (
             <>
-              <button
-                type="button"
-                onClick={openCommandPalette}
-                className={cn(iconClass, 'md:hidden')}
-                aria-label="Open search and commands"
-              >
-                <SearchIcon />
-              </button>
-
-              <div className="relative" ref={streakRef}>
+              <div className="relative hidden md:block" ref={streakRef}>
                 <button
                   type="button"
                   onClick={() => setStreakOpen((open) => !open)}
@@ -324,7 +315,7 @@ export default function TopBar({
 
               <Link
                 to={ROUTES.friends}
-                className={cn(iconClass, 'max-[520px]:hidden')}
+                className={iconClass}
                 aria-label={
                   friendRequestCount
                     ? `${friendRequestCount} pending friend requests`
@@ -336,7 +327,7 @@ export default function TopBar({
               </Link>
               <Link
                 to={ROUTES.notifications}
-                className={cn(iconClass, 'max-[640px]:hidden')}
+                className={iconClass}
                 aria-label={
                   notificationCount
                     ? `${notificationCount} unread notifications`
