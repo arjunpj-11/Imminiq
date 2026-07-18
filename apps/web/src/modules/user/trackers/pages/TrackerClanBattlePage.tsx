@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import { AppPageSkeleton } from '../../../../components/feedback/RouteSkeleton';
 import UserAvatar from '../../../../components/data-display/UserAvatar';
 import { cn } from '../../../../lib/cn';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
@@ -92,7 +93,7 @@ export default function TrackerClanBattlePage() {
   };
 
   if (challengesQuery.isLoading) {
-    return <AppShellBoundary><main className="mx-auto w-full max-w-300 animate-pulse px-5 py-10"><div className="h-150 rounded-3xl bg-(--surface-card)" /></main></AppShellBoundary>;
+    return <AppShellBoundary><AppPageSkeleton kind="detail" label="Loading clan battle" /></AppShellBoundary>;
   }
 
   if (!challenge || !isParticipant) {

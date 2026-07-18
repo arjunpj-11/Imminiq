@@ -5,6 +5,7 @@ import { cn } from '../../../../lib/cn';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import SkeletonBlock from '../../../../components/feedback/SkeletonBlock';
 
 import { useMockTestAttemptResult } from '../hooks/useMockTests';
 import { formatDuration } from '../utils/mock-tests-formatters';
@@ -24,7 +25,16 @@ export default function MockTestResultPage() {
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-10 max-[640px]:px-4">
         <div className="w-full max-w-215">
           {resultQuery.isLoading && (
-            <div className="h-72 animate-pulse rounded-2xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)" />
+            <section role="status" aria-label="Loading test result" className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-10 text-center shadow-(--shadow-1) max-[640px]:p-6">
+              <span className="sr-only">Loading test result…</span>
+              <SkeletonBlock className="mx-auto h-7 w-24 rounded-full" />
+              <SkeletonBlock className="mx-auto mt-5 h-18 w-40 rounded-xl" />
+              <SkeletonBlock className="mx-auto mt-4 h-9 w-28 rounded-full" />
+              <div className="mt-7 grid gap-3 sm:grid-cols-4">
+                {Array.from({ length: 4 }, (_, index) => <SkeletonBlock key={index} className="h-24 w-full rounded-xl" />)}
+              </div>
+              <SkeletonBlock className="mx-auto mt-7 h-11 w-36 rounded-md" />
+            </section>
           )}
 
           {resultQuery.isError && (

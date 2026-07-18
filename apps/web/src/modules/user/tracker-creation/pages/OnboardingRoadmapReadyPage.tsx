@@ -11,6 +11,7 @@ import { useRunRoadmapEvaluation } from '../hooks/useRunRoadmapEvaluation';
 import { OnboardingWorkflowHeader } from '../components/OnboardingWorkflowLayout';
 import type { Section } from '../types/onboarding.types';
 import { cn } from '../utils/cn';
+import SkeletonBlock from '../../../../components/feedback/SkeletonBlock';
 import { capitalize } from '../utils/onboarding-formatters';
 import { useOnboardingStore } from '../store/useOnboardingStore';
 
@@ -141,17 +142,25 @@ const SectionDifficultyBadge = ({ item }: { item: IRoadmapSubtopic }) => {
 
 const LoadingPanel = () => {
   return (
-    <div className="flex min-h-105 w-full items-center justify-center rounded-3xl border border-(--border-subtle) bg-(--surface-card) px-6 text-center shadow-[0_18px_55px_rgba(26,23,20,0.07)] dark:border-white/15 dark:bg-(--surface-card)">
-      <div className="flex flex-col items-center">
-        <div className="mb-5 h-12 w-12 animate-spin rounded-full border-2 border-(--border-subtle) border-t-(--brand-500) dark:border-t-(--brand-500)" />
-
-        <p className="font-serif text-[24px] font-black text-(--text-primary) dark:text-(--text-primary)">
-          Loading your generated roadmap
-        </p>
-
-        <p className="mt-2 max-w-90 text-sm leading-relaxed text-(--text-secondary) dark:text-(--text-secondary)">
-          Fetching the tracker, topics, and roadmap structure saved by the AI job.
-        </p>
+    <div className="w-full" role="status" aria-label="Loading generated roadmap">
+      <span className="sr-only">Loading your generated roadmap…</span>
+      <div aria-hidden="true">
+        <div className="mb-6 rounded-3xl border border-(--border-subtle) bg-(--surface-card) p-6 shadow-(--shadow-1)">
+          <SkeletonBlock className="h-3 w-28" />
+          <SkeletonBlock className="mt-4 h-9 w-[min(34rem,80%)] rounded-xl" />
+          <SkeletonBlock className="mt-3 h-4 w-[min(42rem,95%)]" />
+          <div className="mt-6 flex gap-3"><SkeletonBlock className="h-9 w-28 rounded-md" /><SkeletonBlock className="h-9 w-32 rounded-md" /></div>
+        </div>
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_19rem]">
+          <div className="space-y-4">
+            {Array.from({ length: 5 }, (_, index) => (
+              <div key={index} className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5">
+                <div className="flex items-center gap-4"><SkeletonBlock className="h-11 w-11 shrink-0 rounded-full" /><div className="flex-1"><SkeletonBlock className="h-5 w-2/5" /><SkeletonBlock className="mt-2 h-3 w-4/5" /></div><SkeletonBlock className="h-8 w-16 rounded-md" /></div>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-4"><SkeletonBlock className="h-44 w-full rounded-2xl" /><SkeletonBlock className="h-64 w-full rounded-2xl" /></div>
+        </div>
       </div>
     </div>
   );

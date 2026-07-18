@@ -4,6 +4,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ROUTES } from '../../../../routes/config/route-paths';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import { AppPageSkeleton } from '../../../../components/feedback/RouteSkeleton';
 import { useTrackerRoadmap } from '../hooks/useTrackers';
 import {
   CheckIcon,
@@ -125,29 +126,7 @@ export default function TrackerRoadmapPage() {
   return (
     <AppShellBoundary>
       {isMainLoading ? (
-        <div className="flex min-h-[calc(100vh-88px)] items-center justify-center px-4">
-          <div className="w-full max-w-md rounded-3xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-8 text-center shadow-[0_14px_48px_rgba(26,23,20,0.08)] dark:border-(--border-subtle) dark:bg-(--surface-card)">
-            <div className="mx-auto mb-5 h-13 w-13 animate-pulse rounded-2xl bg-[rgba(184,76,43,0.10)] dark:bg-[rgba(232,129,106,0.12)]" />
-
-            <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-(--brand-500) dark:text-(--brand-500)">
-              Study Roadmap
-            </p>
-
-            <h1 className="mt-2 font-ui text-[28px] font-extrabold tracking-[-0.5px] text-(--text-primary) dark:text-(--text-primary)">
-              Opening your roadmap
-            </h1>
-
-            <p className="mt-2 text-[13px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
-              Preparing your node-based learning path.
-            </p>
-
-            <div className="mt-6 space-y-3">
-              <div className="h-3 w-full animate-pulse rounded-full bg-[rgba(26,23,20,0.08)] dark:bg-white/8" />
-              <div className="mx-auto h-3 w-4/5 animate-pulse rounded-full bg-[rgba(26,23,20,0.08)] dark:bg-white/8" />
-              <div className="mx-auto h-3 w-3/5 animate-pulse rounded-full bg-[rgba(26,23,20,0.08)] dark:bg-white/8" />
-            </div>
-          </div>
-        </div>
+        <AppPageSkeleton kind="roadmap" label="Loading roadmap" />
       ) : hasMainError || !roadmapData ? (
         <div className="flex min-h-[calc(100vh-88px)] items-center justify-center px-4">
           <div className="max-w-md rounded-2xl border border-[rgba(200,50,50,0.22)] bg-(--surface-card) p-6 text-center shadow-(--shadow-2) dark:bg-(--surface-card)">

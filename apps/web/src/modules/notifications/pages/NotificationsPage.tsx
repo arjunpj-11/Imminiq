@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageContainer from '../../../components/layout/PageContainer';
 import PageHeader from '../../../components/layout/PageHeader';
+import SkeletonBlock from '../../../components/feedback/SkeletonBlock';
 import { cn } from '../../../lib/cn';
 import { useNotifications } from '../hooks/useNotifications';
 import { useMarkNotificationRead } from '../hooks/useMarkNotificationRead';
@@ -31,7 +32,19 @@ export default function NotificationsPage() {
       </div>
       <section className="overflow-hidden rounded-2xl border border-(--border-subtle) bg-(--surface-card)">
         {query.isLoading && (
-          <p className="p-8 text-center text-sm text-(--text-secondary)">Loading notifications…</p>
+          <div role="status" aria-label="Loading notifications" className="divide-y divide-(--border-subtle)">
+            <span className="sr-only">Loading notifications…</span>
+            {Array.from({ length: 6 }, (_, index) => (
+              <div key={index} aria-hidden="true" className="flex gap-4 p-5 max-[520px]:p-4">
+                <SkeletonBlock className="h-11 w-11 shrink-0 rounded-full" />
+                <div className="min-w-0 flex-1">
+                  <SkeletonBlock className="h-4 w-2/5" />
+                  <SkeletonBlock className="mt-2 h-3 w-4/5" />
+                  <SkeletonBlock className="mt-2 h-3 w-24" />
+                </div>
+              </div>
+            ))}
+          </div>
         )}
         {query.isError && (
           <p className="p-8 text-center text-sm text-(--danger)">Unable to load notifications.</p>
