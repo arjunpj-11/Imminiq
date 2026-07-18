@@ -36,6 +36,10 @@ export const TrackerManagePage = lazy(
   () => import('../../modules/user/trackers/pages/TrackerManagePage')
 );
 
+export const TrackerClanPage = lazy(
+  () => import('../../modules/user/trackers/pages/TrackerClanPage')
+);
+
 export const TrackerRoadmapPage = lazy(
   () => import('../../modules/user/trackers/pages/TrackerRoadmapPage')
 );

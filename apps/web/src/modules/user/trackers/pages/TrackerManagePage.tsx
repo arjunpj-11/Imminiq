@@ -23,6 +23,10 @@ import {
   useTrackerRoadmap,
   useTrackerTopicContributions,
   useUpdateTracker,
+  useTrackerClan,
+  useUpdateTrackerTopic,
+  useDeleteTrackerTopic,
+  useDeleteTrackerSubtopic,
 } from '../hooks/useTrackers';
 
 import { useVerifyTrackerSubtopic, useVerifyTrackerTopic } from '../hooks/useTrackerAiVerification';
@@ -37,6 +41,7 @@ import {
   type AiVerificationState,
   type SubtopicDifficulty,
   type TrackerRoadmapLike,
+  type RoadmapSubtopicNode,
 } from '../utils/tracker-roadmap-normalizers';
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
@@ -70,6 +75,10 @@ export default function TrackerManagePage() {
   const verifySubtopicMutation = useVerifyTrackerSubtopic();
   const createContributionMutation = useCreateTopicContribution();
   const reviewContributionMutation = useReviewTopicContribution();
+  const updateTopicMutation = useUpdateTrackerTopic();
+  const deleteTopicMutation = useDeleteTrackerTopic();
+  const deleteSubtopicMutation = useDeleteTrackerSubtopic();
+  const clanQuery = useTrackerClan(trackerId);
 
   const roadmapData = roadmapQuery.data as TrackerRoadmapLike | undefined;
   const tracker = trackerDetailsQuery.data || extractRoadmapTracker(roadmapData);
@@ -88,6 +97,17 @@ export default function TrackerManagePage() {
   const [trackerTitleDraft, setTrackerTitleDraft] = useState<string | null>(null);
   const [submittedTopicIds, setSubmittedTopicIds] = useState<Set<string>>(() => new Set());
   const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
+  const [editingTopic, setEditingTopic] = useState<{
+    id: string;
+    title: string;
+    description: string;
+  } | null>(null);
+  const [contentPendingDelete, setContentPendingDelete] = useState<{
+    id: string;
+    title: string;
+    type: 'topic' | 'subtopic';
+    nestedCount: number;
+  } | null>(null);
 
   const [newTopicTitle, setNewTopicTitle] = useState('');
   const [newTopicDescription, setNewTopicDescription] = useState('');
@@ -164,7 +184,9 @@ export default function TrackerManagePage() {
   const subtopicTitleReady = Boolean(newSubtopicTitle.trim());
 
   const canAddTopic =
-    topicTitleReady && topicVerification.status === 'approved' && !createTopicMutation.isPending;
+    topicTitleReady &&
+    topicVerification.status === 'approved' &&
+    !createTopicMutation.isPending;
 
   const canAddSubtopic =
     Boolean(activeTopic?._id) &&
@@ -463,6 +485,56 @@ export default function TrackerManagePage() {
     }
   };
 
+  const handleUpdateTopic = async () => {
+    if (!trackerId || !editingTopic?.title.trim()) return;
+    clearMessages();
+    try {
+      await updateTopicMutation.mutateAsync({
+        trackerId,
+        topicId: editingTopic.id,
+        title: editingTopic.title.trim(),
+        description: editingTopic.description.trim(),
+      });
+      setEditingTopic(null);
+      setStatusMessage('Topic information updated.');
+    } catch (error) {
+      setErrorMessage(getUserFacingError(error, 'Unable to update this topic.'));
+    }
+  };
+
+  const handleDeleteTopic = async () => {
+    if (!trackerId || !contentPendingDelete) return;
+    try {
+      if (contentPendingDelete.type === 'topic') {
+        await deleteTopicMutation.mutateAsync({ trackerId, topicId: contentPendingDelete.id });
+        setSelectedTopicId(null);
+      } else {
+        await deleteSubtopicMutation.mutateAsync({
+          trackerId,
+          subtopicId: contentPendingDelete.id,
+        });
+      }
+      setContentPendingDelete(null);
+      setStatusMessage(
+        contentPendingDelete.type === 'topic'
+          ? 'Topic and all its subtopics were deleted.'
+          : 'Subtopic branch deleted.'
+      );
+    } catch (error) {
+      setContentPendingDelete(null);
+      setErrorMessage(getUserFacingError(error, 'Unable to delete this roadmap item.'));
+    }
+  };
+
+  const requestSubtopicDelete = (subtopic: RoadmapSubtopicNode) => {
+    setContentPendingDelete({
+      id: subtopic._id,
+      title: subtopic.title,
+      type: 'subtopic',
+      nestedCount: countNestedSubtopics(getChildren(subtopic)),
+    });
+  };
+
   // ── Loading / error flags ──
   const isLoading = trackerDetailsQuery.isLoading || roadmapQuery.isLoading;
 
@@ -553,6 +625,7 @@ export default function TrackerManagePage() {
             </div>
           </div>
         </section>
+
         {tracker.moderationStatus && tracker.moderationStatus !== 'active' && trackerId && (
           <ContentModerationAppealPanel targetType="tracker" targetId={trackerId} />
         )}
@@ -868,14 +941,78 @@ export default function TrackerManagePage() {
                       Selected Topic
                     </div>
 
-                    <h3 className="font-serif text-[clamp(18px,3vw,24px)] font-bold tracking-[-0.3px] text-(--brand-500) dark:text-(--brand-500)">
-                      {activeTopic?.title || 'Roadmap Topic'}
-                    </h3>
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <h3 className="font-serif text-[clamp(18px,3vw,24px)] font-bold tracking-[-0.3px] text-(--brand-500) dark:text-(--brand-500)">
+                        {activeTopic?.title || 'Roadmap Topic'}
+                      </h3>
+                      {clanQuery.data?.canManage && activeTopic && (
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setEditingTopic({
+                                id: activeTopic._id,
+                                title: activeTopic.title,
+                                description: activeTopic.description || '',
+                              })
+                            }
+                            className={cn(subtleButtonClass, 'px-3 py-2 text-[11px]')}
+                          >
+                            Edit info
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setContentPendingDelete({
+                                id: activeTopic._id,
+                                title: activeTopic.title,
+                                type: 'topic',
+                                nestedCount: countNestedSubtopics(getChildren(activeTopic)),
+                              })
+                            }
+                            className={cn(subtleButtonClass, 'px-3 py-2 text-[11px] hover:border-red-500 hover:text-red-500')}
+                          >
+                            Delete topic
+                          </button>
+                        </div>
+                      )}
+                    </div>
 
                     {activeTopic?.description && (
                       <p className="mt-1 text-[12.5px] leading-relaxed text-(--text-secondary) dark:text-(--text-secondary)">
                         {activeTopic.description}
                       </p>
+                    )}
+
+                    {editingTopic?.id === activeTopic?._id && (
+                      <div className="mt-4 grid gap-3 rounded-lg border border-(--border-subtle) bg-(--surface-card) p-4 dark:border-white/15">
+                        <input
+                          value={editingTopic.title}
+                          onChange={(event) =>
+                            setEditingTopic((current) =>
+                              current ? { ...current, title: event.target.value } : current
+                            )
+                          }
+                          className={inputClass}
+                          placeholder="Topic title"
+                        />
+                        <textarea
+                          value={editingTopic.description}
+                          onChange={(event) =>
+                            setEditingTopic((current) =>
+                              current ? { ...current, description: event.target.value } : current
+                            )
+                          }
+                          className={cn(inputClass, 'min-h-20 resize-y')}
+                          placeholder="Topic description"
+                        />
+                        <div className="flex gap-2">
+                          <button type="button" onClick={() => void handleUpdateTopic()} disabled={updateTopicMutation.isPending} className={buttonClass}>
+                            {updateTopicMutation.isPending ? 'Saving...' : 'Save topic'}
+                          </button>
+                          <button type="button" onClick={() => setEditingTopic(null)} className={subtleButtonClass}>Cancel</button>
+                        </div>
+                      </div>
                     )}
                   </div>
 
@@ -903,6 +1040,8 @@ export default function TrackerManagePage() {
                             subtopic={subtopic}
                             index={index}
                             depth={0}
+                            canDelete={Boolean(clanQuery.data?.canManage)}
+                            onDelete={requestSubtopicDelete}
                           />
                         ))}
                       </div>
@@ -1163,6 +1302,26 @@ export default function TrackerManagePage() {
         variant="danger"
         onClose={unsavedChangesGuard.stayOnPage}
         onConfirm={unsavedChangesGuard.discardAndLeave}
+      />
+      <ConfirmDialog
+        open={Boolean(contentPendingDelete)}
+        title={`Delete “${contentPendingDelete?.title ?? 'roadmap item'}”?`}
+        description={
+          contentPendingDelete?.type === 'topic'
+            ? `This permanently removes the topic and all ${contentPendingDelete.nestedCount} subtopics beneath it.`
+            : contentPendingDelete?.nestedCount
+              ? `This permanently removes the subtopic and ${contentPendingDelete.nestedCount} nested subtopics beneath it.`
+              : 'This permanently removes this subtopic.'
+        }
+        confirmText={
+          deleteTopicMutation.isPending || deleteSubtopicMutation.isPending
+            ? 'Deleting...'
+            : 'Delete permanently'
+        }
+        cancelText="Keep it"
+        variant="danger"
+        onClose={() => setContentPendingDelete(null)}
+        onConfirm={() => void handleDeleteTopic()}
       />
     </AppShellBoundary>
   );

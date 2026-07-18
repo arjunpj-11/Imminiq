@@ -31,6 +31,7 @@ const routeLabels: Array<[RegExp, string]> = [
   [beginsWith(ROUTES.trackers, '/[^/]+/lessons'), 'Lesson'],
   [beginsWith(ROUTES.trackers, '/[^/]+/roadmap'), 'Roadmap'],
   [beginsWith(ROUTES.trackers, '/[^/]+/manage'), 'Manage tracker'],
+  [beginsWith(ROUTES.trackers, '/[^/]+/clan'), 'Tracker guild'],
   [beginsWith(ROUTES.trackers), 'Trackers'],
   [beginsWith(ROUTES.mockTests, '/attempts/.+/analysis'), 'Test analysis'],
   [beginsWith(ROUTES.mockTests, '/attempts/.+/result'), 'Test result'],

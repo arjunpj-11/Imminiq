@@ -29,7 +29,11 @@ export interface ICommunityTrackerRepository {
     userId: string
   ): Promise<CommunityTrackerEntity | null>;
 
-  cloneTrackerForUser(trackerId: string, userId: string): Promise<CommunityTrackerEntity | null>;
+  cloneTrackerForUser(
+    trackerId: string,
+    userId: string,
+    options?: { bypassClonePermission?: boolean }
+  ): Promise<CommunityTrackerEntity | null>;
 
   getPersonalStats(userId: string): Promise<CommunityMemberStatsEntity>;
 

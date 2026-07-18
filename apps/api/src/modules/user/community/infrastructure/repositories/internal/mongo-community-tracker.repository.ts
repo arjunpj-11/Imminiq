@@ -91,7 +91,11 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
     );
   }
 
-  async cloneTrackerForUser(trackerId: string, userId: string) {
+  async cloneTrackerForUser(
+    trackerId: string,
+    userId: string,
+    options?: { bypassClonePermission?: boolean }
+  ) {
     return this.execute(
       'COMMUNITY_TRACKER_CLONE_FAILED',
       'Failed to clone community tracker',
@@ -105,7 +109,7 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
 
         const source = await CommunityTrackerModel.findOne({
           _id: trackerObjectId,
-          allowClone: true,
+          ...(options?.bypassClonePermission ? {} : { allowClone: true }),
           ...MongoCommunityQueryUtils.publicTrackerVisibilityQuery(),
         }).lean<MongoCommunityTrackerRecord>();
 

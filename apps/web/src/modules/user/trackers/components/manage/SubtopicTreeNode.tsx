@@ -6,9 +6,17 @@ interface ISubtopicTreeNodeProps {
   subtopic: RoadmapSubtopicNode;
   index: number;
   depth?: number;
+  canDelete?: boolean;
+  onDelete?: (subtopic: RoadmapSubtopicNode) => void;
 }
 
-export default function SubtopicTreeNode({ subtopic, index, depth = 0 }: ISubtopicTreeNodeProps) {
+export default function SubtopicTreeNode({
+  subtopic,
+  index,
+  depth = 0,
+  canDelete = false,
+  onDelete,
+}: ISubtopicTreeNodeProps) {
   const children = getChildren(subtopic);
 
   return (
@@ -50,6 +58,16 @@ export default function SubtopicTreeNode({ subtopic, index, depth = 0 }: ISubtop
               </p>
             )}
           </div>
+          {canDelete && onDelete && (
+            <button
+              type="button"
+              onClick={() => onDelete(subtopic)}
+              className="rounded-md border border-red-500/20 px-2.5 py-1.5 text-[10px] font-bold text-red-500 transition hover:bg-red-500/10"
+              title={children.length ? 'Delete this subtopic and all nested children' : 'Delete subtopic'}
+            >
+              Delete
+            </button>
+          )}
         </div>
       </div>
 
@@ -61,6 +79,8 @@ export default function SubtopicTreeNode({ subtopic, index, depth = 0 }: ISubtop
               subtopic={child}
               index={childIndex}
               depth={depth + 1}
+              canDelete={canDelete}
+              onDelete={onDelete}
             />
           ))}
         </div>

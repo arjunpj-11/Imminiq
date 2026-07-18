@@ -42,6 +42,8 @@ import { UpdateTrackerUseCase } from './application/use-cases/update-tracker.use
 import { VerifyLessonAnswerUseCase } from './application/use-cases/verify-lesson-answer.usecase';
 import { VerifyTrackerSubtopicUseCase } from './application/use-cases/verify-tracker-subtopic.usecase';
 import { VerifyTrackerTopicUseCase } from './application/use-cases/verify-tracker-topic.usecase';
+import { TrackerClanUseCase } from './application/use-cases/tracker-clan.usecase';
+import { TrackerClanChallengeUseCase } from './application/use-cases/tracker-clan-challenge.usecase';
 import type { ITrackerRepository } from './domain/repositories/tracker.repository.interface';
 import { mongoPlatformPolicyReader } from '../../../infrastructure/mongo-platform-policy.reader';
 import { ActivityTrackerGateway } from './infrastructure/gateways/activity-tracker.gateway';
@@ -53,6 +55,8 @@ import { mongoTrackerRepository } from './infrastructure/repositories/mongo-trac
 import { cryptoQuestionHasher } from './infrastructure/services/crypto-question-hasher.service';
 import { mongoTrackerTopicContributionRepository } from './infrastructure/repositories/mongo-tracker-topic-contribution.repository';
 import { TrackerContributionNotificationGateway } from './infrastructure/gateways/tracker-contribution-notification.gateway';
+import { trackerClanChallengeGateway } from './infrastructure/gateways/tracker-clan-challenge.gateway';
+import { mongoTrackerClanRepository } from './infrastructure/repositories/mongo-tracker-clan.repository';
 
 export type TrackerListInput = Parameters<ListTrackersUseCase['execute']>[0];
 
@@ -168,6 +172,13 @@ export const createTrackerComposition = (
       unpublishTracker: new UnpublishTrackerUseCase(trackerRepository, _trackerMapper),
 
       reportTracker: new ReportTrackerUseCase(trackerRepository),
+
+      trackerClan: new TrackerClanUseCase(mongoTrackerClanRepository),
+
+      trackerClanChallenges: new TrackerClanChallengeUseCase(
+        mongoTrackerClanRepository,
+        trackerClanChallengeGateway
+      ),
 
       getTrackerRoadmap: new GetTrackerRoadmapUseCase(trackerRepository, _trackerMapper),
 

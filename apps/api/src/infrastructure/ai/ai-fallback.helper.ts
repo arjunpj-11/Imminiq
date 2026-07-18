@@ -63,12 +63,16 @@ const classifyProviderFailure = (error: unknown): AIFailureReason | null => {
 
   if (
     status === 429 ||
+    status === 413 ||
     message.includes('429') ||
+    message.includes('rate_limit_exceeded') ||
     message.includes('resource_exhausted') ||
     message.includes('quota') ||
     message.includes('rate limit') ||
+    message.includes('tokens per minute') ||
     code.includes('resource_exhausted') ||
-    code.includes('rate_limit')
+    code.includes('rate_limit') ||
+    code.includes('tokens')
   ) {
     return 'quota';
   }
@@ -104,6 +108,12 @@ const classifyProviderFailure = (error: unknown): AIFailureReason | null => {
   }
 
   if (
+    status === 404 ||
+    code === 'model_not_found' ||
+    code === 'model_not_available' ||
+    message.includes('model does not exist') ||
+    message.includes('model not found') ||
+    message.includes('model is not available') ||
     (typeof status === 'number' && status >= 500) ||
     possibleError.kind === 'dependency-unavailable' ||
     message.includes('high demand') ||
@@ -262,7 +272,10 @@ const getEconomyProviders = (
           temperature: options.temperature,
         }),
     },
-    { name: 'Cerebras Qwen 3', generate: () => cerebrasChat(prompt, system, category) },
+    {
+      name: `Cerebras ${env.CEREBRAS_MODEL}`,
+      generate: () => cerebrasChat(prompt, system, category),
+    },
   ];
 };
 
@@ -326,11 +339,11 @@ const getTrackerProviders = (
     generate: () => gemini31FlashLiteChat(prompt, system, category),
   },
   {
-    name: 'Cerebras Qwen 3',
+    name: `Cerebras ${env.CEREBRAS_MODEL}`,
     generate: () => cerebrasStructuredFallback(prompt, system, category),
   },
   {
-    name: 'Groq Llama 3.3 70B',
+    name: `Groq ${env.GROQ_DEFAULT_MODEL}`,
     generate: () =>
       groqChat(
         [

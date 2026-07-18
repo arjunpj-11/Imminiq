@@ -1,5 +1,14 @@
 export type WebEnvironment = {
   apiUrl: string;
+  socketUrl?: string;
+};
+
+const parseAbsoluteHttpUrl = (value: string, key: string) => {
+  const parsed = new URL(value);
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
+    throw new Error(`${key} must use HTTP or HTTPS`);
+  }
+  return value.replace(/\/$/, '');
 };
 
 export const parseWebEnvironment = (source: Record<string, unknown>): WebEnvironment => {
@@ -12,12 +21,13 @@ export const parseWebEnvironment = (source: Record<string, unknown>): WebEnviron
   const apiUrl = rawApiUrl.trim().replace(/\/$/, '');
   const isRootRelative = apiUrl.startsWith('/') && !apiUrl.startsWith('//');
 
-  if (!isRootRelative) {
-    const parsed = new URL(apiUrl);
-    if (!['http:', 'https:'].includes(parsed.protocol)) {
-      throw new Error('VITE_API_URL must use HTTP or HTTPS');
-    }
-  }
+  if (!isRootRelative) parseAbsoluteHttpUrl(apiUrl, 'VITE_API_URL');
 
-  return { apiUrl };
+  const rawSocketUrl = source.VITE_SOCKET_URL;
+  const socketUrl =
+    typeof rawSocketUrl === 'string' && rawSocketUrl.trim()
+      ? parseAbsoluteHttpUrl(rawSocketUrl.trim(), 'VITE_SOCKET_URL')
+      : undefined;
+
+  return { apiUrl, ...(socketUrl ? { socketUrl } : {}) };
 };
