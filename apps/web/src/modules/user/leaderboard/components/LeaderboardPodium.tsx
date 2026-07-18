@@ -58,7 +58,10 @@ function PodiumCard({ entry }: { entry: ILeaderboardTopThreeEntry }) {
         'group relative flex flex-col items-center overflow-hidden rounded-xl border-[1.5px] px-5 pb-6 pt-6 transition-all duration-200',
         token.background,
         token.border,
-        token.shadow
+        token.shadow,
+        entry.rank === 1 && 'max-[540px]:order-1',
+        entry.rank === 2 && 'max-[540px]:order-2',
+        entry.rank === 3 && 'max-[540px]:order-3'
       )}
     >
       <div

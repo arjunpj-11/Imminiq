@@ -15,7 +15,7 @@ export default function AuthLayout({ badge, title, subtitle, children }: IAuthLa
     <div
       id="page"
       className={cn(
-        'min-h-screen bg-(--surface-canvas) text-(--text-primary) font-[DM_Sans,sans-serif]',
+        'min-h-screen overflow-x-clip bg-(--surface-canvas) text-(--text-primary) font-[DM_Sans,sans-serif]',
         'dark:bg-(--surface-canvas) dark:text-(--text-primary)',
         'lg:fixed lg:inset-0 lg:flex lg:flex-col lg:overflow-hidden'
       )}
@@ -52,22 +52,23 @@ export default function AuthLayout({ badge, title, subtitle, children }: IAuthLa
           </Link>
           <div className="relative z-1 max-w-135">
             <p className="mb-4 font-mono text-[9px] uppercase tracking-[0.18em] text-(--brand-500) dark:text-(--brand-500)">
-              Scholarly rigor meets digital intelligence
+              Adaptive learning meets real collaboration
             </p>
             <h2 className="font-serif text-[clamp(40px,5vw,64px)] font-extrabold leading-[1.02] tracking-[-1.6px]">
-              Learn with structure, speed, and confidence.
+              Build knowledge that holds up in practice.
             </h2>
             <p className="mt-5 max-w-md text-[15px] leading-[1.8] text-(--text-secondary) dark:text-(--text-secondary)">
-              Sign in to continue your roadmap, progress streaks, battles, and AI-guided practice.
+              Continue your adaptive roadmap, learn with Scribe AI, collaborate in guilds, and
+              measure mastery with focused practice.
             </p>
           </div>
           <div className="relative z-1 font-mono text-[9px] uppercase tracking-[0.13em] text-(--text-secondary) opacity-60 dark:text-(--text-secondary)">
-            Private by design · Secure sessions · AI-powered learning
+            Private by design · Secure sessions · Progress you can prove
           </div>
         </aside>
 
-        <main className="relative flex flex-1 items-center justify-center px-4 py-10 sm:px-8">
-          <div className="pointer-events-none absolute left-1/2 top-1/2 h-125 w-125 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.06)_0%,transparent_70%)] dark:bg-[radial-gradient(circle,rgba(232,129,106,0.10)_0%,transparent_70%)]" />
+        <main className="relative flex flex-1 items-center justify-center overflow-hidden px-4 py-10 sm:px-8 lg:overflow-y-auto">
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.06)_0%,transparent_70%)] dark:bg-[radial-gradient(circle,rgba(232,129,106,0.10)_0%,transparent_70%)] sm:h-125 sm:w-125" />
           <div className="relative w-full max-w-120">
             <div className="w-full rounded-xl border border-(--border-subtle) bg-(--surface-card) px-5 py-8 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card) dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)] sm:px-9 sm:py-10">
               <div className="mb-7 text-center">

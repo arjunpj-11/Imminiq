@@ -270,7 +270,8 @@ export default function LessonChatCard({
         type="button"
         onClick={sendMessage}
         disabled={isChatBusy}
-        className="flex h-8 w-8 items-center justify-center text-(--brand-500) transition hover:translate-x-0.5 hover:scale-110 disabled:cursor-wait disabled:opacity-50 dark:text-(--brand-500)"
+        aria-label="Send message"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--brand-500) text-sm text-(--brand-contrast) shadow-(--shadow-1) transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-wait disabled:opacity-50"
       >
         ➤
       </button>

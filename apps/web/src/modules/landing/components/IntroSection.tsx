@@ -1,13 +1,13 @@
 export default function IntroSection() {
   const words =
-    'Imminiq is built for learners who want structure, pressure, and feedback in one place. Start with a goal, generate a path, learn with AI, practice with intent, and keep improving until the skill becomes yours.'.split(
+    'Imminiq brings personalized roadmaps, AI-guided lessons, collaborative guilds, live challenges, mock tests, and progress intelligence into one focused learning system.'.split(
       ' '
     );
 
   return (
     <section
       id="system"
-      className="min-h-screen bg-[#f5ede4] px-4 py-24 text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb] sm:px-8 lg:px-10"
+      className="render-lazy-section min-h-screen bg-[#f5ede4] px-4 py-24 text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb] sm:px-8 lg:px-10"
     >
       <div className="mx-auto max-w-340">
         <h2 className="max-w-285 font-['Playfair_Display',serif] text-[clamp(34px,6vw,76px)] font-extrabold leading-[1.02] tracking-[-0.06em]">
@@ -31,14 +31,14 @@ export default function IntroSection() {
         <div className="mt-20 grid gap-4 md:grid-cols-3">
           {[
             [
-              'No fake promises',
-              'Launch-safe product messaging without inflated counts or demo achievements.',
+              'Personal by design',
+              'Every roadmap begins with your goal, level, pace, language, and learning preferences.',
             ],
             [
-              'Built around action',
-              'Lessons, coding, answers, roadmaps, and practice are part of one learning loop.',
+              'Built for active learning',
+              'Lessons, voice input, coding, answer checks, revision, and mock tests reinforce one another.',
             ],
-            ['Theme-native', 'Warm Imminiq cream, rust, blue, green, amber, and deep dark mode.'],
+            ['Better together', 'Guilds let learners collaborate on roadmaps, contribute safely, and compete in real time.'],
           ].map(([title, body], index) => (
             <article
               key={title}

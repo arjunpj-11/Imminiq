@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import UserAvatar from '../../../../components/data-display/UserAvatar';
 import { cn } from '../../../../lib/cn';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { socket } from '../../../../lib/socket';
@@ -25,9 +26,6 @@ const buildNodes = (count: number) => {
   }
   return rows.flat();
 };
-
-const avatar = (name: string, url?: string | null) =>
-  url ? <img src={url} alt="" className="h-full w-full object-cover" /> : name.slice(0, 2).toUpperCase();
 
 export default function TrackerClanBattlePage() {
   const { trackerId = '', challengeId = '' } = useParams<{ trackerId: string; challengeId: string }>();
@@ -132,8 +130,8 @@ export default function TrackerClanBattlePage() {
               const passed = node <= Math.max(challenge.viewerPosition, challenge.opponentPosition);
               return <div key={node} className="relative grid place-items-center">
                 {(mine || theirs) && <div className="absolute -top-9 flex gap-1">
-                  {mine && <span title={me!.name} className="grid h-7 w-7 place-items-center overflow-hidden rounded-full border-2 border-(--brand-500) bg-[#171512] text-[7px] font-black text-white">{avatar(me!.name, me!.avatarUrl)}</span>}
-                  {theirs && <span title={rival!.name} className="grid h-7 w-7 place-items-center overflow-hidden rounded-full border-2 border-[#d6ad47] bg-[#171512] text-[7px] font-black text-white">{avatar(rival!.name, rival!.avatarUrl)}</span>}
+                  {mine && <UserAvatar name={me!.name} src={me!.avatarUrl} sizeClassName="h-7 w-7 text-[7px]" className="border-2 border-(--brand-500)" />}
+                  {theirs && <UserAvatar name={rival!.name} src={rival!.avatarUrl} sizeClassName="h-7 w-7 text-[7px]" className="border-2 border-[#d6ad47]" />}
                 </div>}
                 <div className={cn('relative grid aspect-square w-full max-w-16 place-items-center rounded-full border text-sm font-black transition-all', checkpoint ? 'border-[#d6ad47] bg-[#f4c95d]/15 text-[#9a7210] dark:text-[#f4c95d]' : passed ? 'border-[#34714e] bg-[#34714e] text-white' : 'border-(--border-subtle) bg-(--surface-card) text-(--text-secondary)', mine && 'ring-4 ring-(--brand-500)/25 shadow-xl')}>
                   {checkpoint ? '★' : node}
@@ -159,5 +157,5 @@ export default function TrackerClanBattlePage() {
 }
 
 function Player({ name, avatarUrl, position, total, align }: { name: string; avatarUrl?: string | null; position: number; total: number; align: 'left' | 'right' }) {
-  return <div className={cn('flex items-center gap-3', align === 'right' && 'md:flex-row-reverse md:text-right')}><span className="grid h-13 w-13 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-(--brand-500) bg-[#171512] text-xs font-black text-white">{avatar(name, avatarUrl)}</span><div className="min-w-0 flex-1"><p className="truncate font-serif text-xl font-extrabold">{name}</p><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-(--border-subtle)"><div className="h-full bg-(--brand-500)" style={{ width: `${(position / Math.max(1, total)) * 100}%` }} /></div><p className="mt-1 font-mono text-[8px] uppercase text-(--text-secondary)">Node {position} of {total}</p></div></div>;
+  return <div className={cn('flex items-center gap-3', align === 'right' && 'md:flex-row-reverse md:text-right')}><UserAvatar name={name} src={avatarUrl} sizeClassName="h-13 w-13 text-xs" className="border-2 border-(--brand-500)" /><div className="min-w-0 flex-1"><p className="truncate font-serif text-xl font-extrabold">{name}</p><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-(--border-subtle)"><div className="h-full bg-(--brand-500)" style={{ width: `${(position / Math.max(1, total)) * 100}%` }} /></div><p className="mt-1 font-mono text-[8px] uppercase text-(--text-secondary)">Node {position} of {total}</p></div></div>;
 }

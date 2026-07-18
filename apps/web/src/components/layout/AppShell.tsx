@@ -104,14 +104,12 @@ export function AppShell({
 
         <div className="relative z-1 flex min-h-screen w-full overflow-x-clip">
           {showSidebar && (
-            <div className="hidden lg:block">
-              <Sidebar
-                mobileOpen={mobileSidebarOpen}
-                collapsed={sidebarCollapsed}
-                onCloseMobile={closeMobileSidebar}
-                onToggleCollapsed={toggleSidebarCollapsed}
-              />
-            </div>
+            <Sidebar
+              mobileOpen={mobileSidebarOpen}
+              collapsed={sidebarCollapsed}
+              onCloseMobile={closeMobileSidebar}
+              onToggleCollapsed={toggleSidebarCollapsed}
+            />
           )}
 
           <main

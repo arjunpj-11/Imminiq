@@ -1,7 +1,8 @@
 import type { IDashboardFriend } from '../types/dashboard.types';
 import { cn } from '../utils/cn';
-import { formatRelativeTime, getInitials } from '../utils/dashboard-formatters';
+import { formatRelativeTime } from '../utils/dashboard-formatters';
 import EmptyCard from './EmptyCard';
+import UserAvatar from '../../../../components/data-display/UserAvatar';
 
 type FriendsCardProps = {
   friends: IDashboardFriend[];
@@ -41,21 +42,17 @@ export default function FriendsCard({ friends, onOpenFriends, onOpenProfile }: F
                 type="button"
                 onClick={() => onOpenProfile(friend.username)}
                 aria-label={`Open ${friend.fullName}'s profile`}
-                className="relative flex h-8.5 w-8.5 shrink-0 items-center justify-center overflow-hidden rounded-full bg-linear-to-br from-(--brand-500) to-(--brand-500) text-[11px] font-bold text-white transition hover:ring-2 hover:ring-(--brand-500)/30"
+                className="relative shrink-0 rounded-full transition hover:ring-2 hover:ring-(--brand-500)/30"
               >
-                {friend.avatarUrl ? (
-                  <img
-                    src={friend.avatarUrl}
-                    alt={friend.fullName}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  getInitials(friend.fullName)
-                )}
+                <UserAvatar
+                  name={friend.fullName}
+                  src={friend.avatarUrl}
+                  sizeClassName="h-8.5 w-8.5 text-[11px]"
+                />
 
                 <span
                   className={cn(
-                    'absolute bottom-px right-px h-2 w-2 rounded-full border-2 border-[#fdf8f5] dark:border-[#1e1c19]',
+                    'absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#fdf8f5] dark:border-[#1e1c19]',
                     friend.isOnline ? 'bg-(--success)' : 'bg-[#6b5f58]/50 dark:bg-[#9b9a92]/50'
                   )}
                 />

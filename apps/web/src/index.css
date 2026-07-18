@@ -311,8 +311,26 @@ img {
     background-color var(--motion-fast) ease;
 }
 
-.interactive-lift:hover {
-  transform: translateY(-1px);
+@media (hover: hover) and (pointer: fine) {
+  .interactive-lift:hover {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes voice-wave {
+  0%,
+  100% {
+    transform: scaleY(0.45);
+  }
+
+  50% {
+    transform: scaleY(1.15);
+  }
+}
+
+.voice-wave {
+  transform-origin: bottom;
+  animation: voice-wave 680ms ease-in-out infinite;
 }
 
 .skip-link {
@@ -452,6 +470,11 @@ img {
 .render-lazy {
   content-visibility: auto;
   contain-intrinsic-size: auto 220px;
+}
+
+.render-lazy-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
 }
 
 /* Admin console: fixed warm-dark theme and dense data surfaces. */

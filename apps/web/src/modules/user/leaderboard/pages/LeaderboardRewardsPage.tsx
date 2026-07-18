@@ -17,6 +17,7 @@ import {
   ChalkBoardIcon,
   GraduationCapIcon,
 } from '../components/icons/LeaderboardIcons';
+import PageContainer from '../../../../components/layout/PageContainer';
 
 export default function LeaderboardRewardsPage() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export default function LeaderboardRewardsPage() {
 
   return (
     <LeaderboardAppShell>
-      <div className="mx-auto mt-6 flex w-[min(1080px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-7 pb-[calc(80px+env(safe-area-inset-bottom,0)+24px)] max-[900px]:w-[calc(100%-32px)] max-[640px]:w-[calc(100%-20px)]">
+      <PageContainer className="max-w-270 gap-7">
         {rewardsQuery.isPending ? (
           <LeaderboardContentSkeleton />
         ) : rewardsQuery.isError || !rewardsQuery.data ? (
@@ -91,7 +92,7 @@ export default function LeaderboardRewardsPage() {
             />
           </>
         )}
-      </div>
+      </PageContainer>
     </LeaderboardAppShell>
   );
 }

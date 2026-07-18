@@ -17,7 +17,7 @@ export default function LandingFooter() {
     return () => observer.disconnect();
   }, []);
 
-  const text = 'Imminiq · AI learning system · Early access';
+  const text = 'Imminiq · Adaptive learning · Built for mastery';
 
   return (
     <footer

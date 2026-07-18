@@ -24,18 +24,17 @@ const setPlayed = () => {
 
 export default function LandingPage() {
   const [alreadyPlayed] = useState(() => getPlayed());
-  const [heroReady, setHeroReady] = useState(() => getPlayed());
 
   return (
     <main className="min-h-screen overflow-x-clip bg-[#f5ede4] font-['DM_Sans',sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
       <LandingStudioStyles />
 
       {!alreadyPlayed && (
-        <LandingLoader onDone={() => setHeroReady(true)} onGone={() => setPlayed()} />
+        <LandingLoader onGone={() => setPlayed()} />
       )}
 
       <FloatingStudioNav />
-      {heroReady && <LandingHero skipIntro={alreadyPlayed} />}
+      <LandingHero skipIntro={alreadyPlayed} />
       <LandingTicker />
       <IntroSection />
       <StickyFeatureCards />

@@ -9,6 +9,7 @@ import { LEADERBOARD_DISPLAY_LIMIT } from '../constants/leaderboard.constants';
 import { useLeaderboard } from '../hooks/useLeaderboard';
 import type { LeaderboardScope, LeaderboardSection } from '../types/leaderboard.types';
 import { parseLeaderboardScope, parseLeaderboardSection } from '../utils/leaderboard-formatters';
+import PageContainer from '../../../../components/layout/PageContainer';
 
 export default function LeaderboardPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -44,7 +45,7 @@ export default function LeaderboardPage() {
 
   return (
     <LeaderboardAppShell viewer={viewer}>
-      <div className="mx-auto mt-6 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-7 pb-[calc(80px+env(safe-area-inset-bottom,0)+24px)] max-[900px]:mt-5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-4 max-[640px]:w-[calc(100%-20px)]">
+      <PageContainer className="gap-7">
         {leaderboardQuery.isPending ? (
           <LeaderboardContentSkeleton />
         ) : leaderboardQuery.isError || !leaderboardQuery.data ? (
@@ -81,7 +82,7 @@ export default function LeaderboardPage() {
             <LeaderboardSectionView leaderboard={leaderboardQuery.data} />
           </>
         )}
-      </div>
+      </PageContainer>
     </LeaderboardAppShell>
   );
 }

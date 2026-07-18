@@ -29,6 +29,7 @@ import type { AdminUserDetailData } from "../types/admin-users.types";
 import { useAuthStore } from "../../../../store/useAuthStore";
 import AdminUserNotesPanel from "../components/AdminUserNotesPanel";
 import AdminActionPasswordDialog from "../components/AdminActionPasswordDialog";
+import UserAvatar from "../../../../components/data-display/UserAvatar";
 
 type UserStatusAction = "suspend" | "block" | "restore";
 
@@ -65,11 +66,6 @@ export default function AdminUserDetailPage() {
   const blocked = user.status === "blocked";
   const paused = user.status === "paused";
   const canChangeStatus = currentUserId !== user._id;
-  const initials = user.fullName
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("");
   const metricCards = [
     ["Current level", user.level ?? 1, UserRound],
     ["Total experience", user.xp ?? 0, BookOpenCheck],
@@ -90,17 +86,13 @@ export default function AdminUserDetailPage() {
       </Link>
       <section className="flex flex-wrap items-start justify-between gap-6">
         <div className="flex min-w-0 items-center gap-5">
-          {user.avatarUrl ? (
-            <img
-              src={user.avatarUrl}
-              alt=""
-              className="h-28 w-28 rounded-3xl object-cover"
-            />
-          ) : (
-            <div className="grid h-28 w-28 shrink-0 place-items-center rounded-3xl bg-[#d4705a] font-editorial text-4xl text-white">
-              {initials}
-            </div>
-          )}
+          <UserAvatar
+            name={user.fullName}
+            src={user.avatarUrl}
+            sizeClassName="h-24 w-24 text-3xl sm:h-28 sm:w-28"
+            className="rounded-full border-4 border-[#24211e] shadow-[0_14px_34px_rgba(0,0,0,.32)]"
+            imageLoading="eager"
+          />
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="font-editorial text-4xl font-bold">

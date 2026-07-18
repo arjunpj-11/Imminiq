@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '../utils/landing-ui';
 
-const EXIT_MS = 800;
-const REVEAL_MS = 1600;
+const EXIT_MS = 280;
+const REVEAL_MS = 420;
 const DECODE_GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&$*';
 const FULL_WORD = 'imminiq'; // first 5 chars = main color, last 2 = rust
 
@@ -95,18 +95,18 @@ export default function LandingLoader({
     }
 
     // ── schedule ──
-    t(() => setLoaderPhase('frame'), 600);
-    t(() => setLoaderPhase('revealing'), 1000);
-    t(() => setLoaderPhase('settled'), 1000 + REVEAL_MS); // 2600
-    t(() => setLoaderPhase('naming'), 1000 + REVEAL_MS + 260); // 2860
+    t(() => setLoaderPhase('frame'), 80);
+    t(() => setLoaderPhase('revealing'), 140);
+    t(() => setLoaderPhase('settled'), 140 + REVEAL_MS);
+    t(() => setLoaderPhase('naming'), 140 + REVEAL_MS + 80);
     t(() => {
       onDoneRef.current?.();
-    }, 4260);
-    t(() => setLoaderPhase('leaving'), 4460);
+    }, 760);
+    t(() => setLoaderPhase('leaving'), 820);
     t(() => {
       onGoneRef.current?.();
       setLoaderPhase('done');
-    }, 4460 + EXIT_MS);
+    }, 820 + EXIT_MS);
 
     // Safety net: hidden tabs may throttle timers, so finish on return.
     const onVisible = () => {

@@ -1,7 +1,6 @@
-import { useLayoutEffect } from 'react';
+import { lazy, Suspense, useLayoutEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import GlobalNavigationController from './components/navigation/GlobalNavigationController';
 import AppErrorBoundary from './components/system/AppErrorBoundary';
 import NetworkRedirector from './components/system/NetworkRedirector';
 import OnlineStatus from './components/system/OnlineStatus';
@@ -11,6 +10,10 @@ import AppRoutes from './routes/AppRoutes';
 import AuthSessionBridge from './routes/session/AuthSessionBridge';
 import { useAuthStore } from './store/useAuthStore';
 import { useThemeStore } from './store/useThemeStore';
+
+const GlobalNavigationController = lazy(
+  () => import('./components/navigation/GlobalNavigationController'),
+);
 
 export default function App() {
   const initTheme = useThemeStore((state) => state.initTheme);
@@ -32,7 +35,11 @@ export default function App() {
       <OnlineStatus />
       <RouteExperience />
       <AuthSessionBridge />
-      {isAuthenticated && <GlobalNavigationController />}
+      {isAuthenticated && (
+        <Suspense fallback={null}>
+          <GlobalNavigationController />
+        </Suspense>
+      )}
       <AppRoutes />
       <ToastProvider />
     </AppErrorBoundary>

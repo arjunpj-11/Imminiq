@@ -6,6 +6,7 @@ import type {
 } from '../types/profile.types';
 import { formatCompactNumber } from '../utils/profile-formatters';
 import { cn } from '../../../../lib/cn';
+import UserAvatar from '../../../../components/data-display/UserAvatar';
 
 interface IProfileHeaderProps {
   profile: IProfileData;
@@ -64,13 +65,6 @@ function ProfileAvatar({
   isOwnView,
   onChange,
 }: Pick<IProfileHeaderProps, 'profile' | 'isOwnView'> & { onChange: () => void }) {
-  const initials = profile.name
-    .split(' ')
-    .map((word) => word[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-
   return (
     <div className="relative z-20 -mt-18 shrink-0 max-[640px]:-mt-13.5">
       <button
@@ -85,11 +79,13 @@ function ProfileAvatar({
             : 'cursor-default'
         )}
       >
-        {profile.avatarUrl ? (
-          <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" />
-        ) : (
-          <span className="font-ui text-[26px] font-bold text-white/90">{initials}</span>
-        )}
+        <UserAvatar
+          name={profile.name}
+          src={profile.avatarUrl}
+          sizeClassName="h-full w-full text-[26px]"
+          className="rounded-full"
+          imageLoading="eager"
+        />
 
         {isOwnView && (
           <span className="absolute inset-0 flex flex-col items-center justify-center gap-0.75 rounded-full bg-[rgba(0,0,0,0.52)] opacity-0 backdrop-blur-[2px] transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">

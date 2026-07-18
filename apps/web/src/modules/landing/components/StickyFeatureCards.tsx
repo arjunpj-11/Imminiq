@@ -24,8 +24,8 @@ export default function StickyFeatureCards() {
             </h2>
           </div>
           <p className="max-w-94 text-[14px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
-            Sticky cards stack vertically like your reference design, but the content is fully
-            Imminiq-focused and launch-safe.
+            A connected system for planning, understanding, collaborating, practising, and proving
+            what you know.
           </p>
         </div>
 
@@ -33,7 +33,7 @@ export default function StickyFeatureCards() {
           {featureCards.map((card, index) => (
             <article
               key={card.title}
-              className="sticky top-0 mb-5 flex min-h-screen flex-col justify-between overflow-hidden rounded-[34px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_28px_90px_rgba(26,23,20,0.12)] dark:border-white/9 dark:bg-[#1e1c19] md:flex-row md:p-8"
+              className="sticky top-0 mb-5 flex min-h-[calc(100dvh-4rem)] flex-col justify-between overflow-hidden rounded-[34px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 pb-24 shadow-[0_28px_90px_rgba(26,23,20,0.12)] dark:border-white/9 dark:bg-[#1e1c19] md:min-h-[78vh] md:flex-row md:p-8"
               style={{ zIndex: index + 1 }}
             >
               <div className="flex flex-[0.38] justify-between gap-4">

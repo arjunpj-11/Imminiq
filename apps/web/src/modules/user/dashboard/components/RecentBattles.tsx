@@ -1,7 +1,8 @@
 import type { IDashboardRecentBattle } from '../types/dashboard.types';
 import { cn } from '../utils/cn';
-import { formatRelativeTime, getInitials } from '../utils/dashboard-formatters';
+import { formatRelativeTime } from '../utils/dashboard-formatters';
 import EmptyCard from './EmptyCard';
+import UserAvatar from '../../../../components/data-display/UserAvatar';
 
 type RecentBattlesProps = {
   battles: IDashboardRecentBattle[];
@@ -43,17 +44,12 @@ export default function RecentBattles({ battles }: RecentBattlesProps) {
 
               <div className="flex items-center gap-2.5">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-5 w-5 items-center justify-center overflow-hidden rounded-full bg-linear-to-br from-(--info) to-[#7aa4e8] text-[8px] font-bold text-white">
-                    {battle.opponent?.avatarUrl ? (
-                      <img
-                        src={battle.opponent.avatarUrl}
-                        alt={battle.opponent.fullName}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      getInitials(battle.opponent?.fullName ?? 'Unknown Opponent')
-                    )}
-                  </div>
+                  <UserAvatar
+                    name={battle.opponent?.fullName ?? 'Unknown Opponent'}
+                    src={battle.opponent?.avatarUrl}
+                    sizeClassName="h-6 w-6 text-[8px]"
+                    fallbackClassName="from-(--info) to-[#7aa4e8]"
+                  />
 
                   <span className="text-[12.5px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
                     @{battle.opponent?.username ?? 'unknown'}

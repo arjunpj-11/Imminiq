@@ -60,7 +60,7 @@ export default function UserAvatar({
   return (
     <span
       className={cn(
-        'inline-flex shrink-0 items-center justify-center overflow-hidden font-bold',
+        'inline-flex aspect-square shrink-0 items-center justify-center overflow-hidden font-bold leading-none',
         roundedClassName,
         sizeClassName || sizeClasses[size],
         !showImage && 'bg-linear-to-br from-(--brand-500) to-[#e9a08e] text-white',
@@ -74,7 +74,7 @@ export default function UserAvatar({
         <img
           src={src ?? undefined}
           alt={`${name}'s avatar`}
-          className={cn('h-full w-full object-cover', imageClassName)}
+          className={cn('aspect-square h-full w-full rounded-[inherit] object-cover object-center', imageClassName)}
           loading={imageLoading}
           decoding="async"
           draggable={false}

@@ -36,62 +36,78 @@ const links = [
   {
     to: ADMIN_ROUTES.dashboard,
     label: "Dashboard",
+    section: "Overview",
     icon: Gauge,
     end: true,
     moderator: true,
   },
-  { to: ADMIN_ROUTES.users, label: "Users", icon: Users, moderator: false },
+  {
+    to: ADMIN_ROUTES.users,
+    label: "Users",
+    section: "People",
+    icon: Users,
+    moderator: false,
+  },
   {
     to: ADMIN_ROUTES.trackers,
     label: "Trackers",
+    section: "Content",
     icon: BookOpenCheck,
     moderator: true,
   },
   {
     to: ADMIN_ROUTES.mockTests,
     label: "Mock Tests",
+    section: "Content",
     icon: ClipboardCheck,
     moderator: true,
   },
   {
     to: ADMIN_ROUTES.activity,
     label: "Activity",
+    section: "Insights",
     icon: BarChart3,
     moderator: false,
   },
   {
     to: ADMIN_ROUTES.broadcast,
     label: "Broadcast",
+    section: "Engagement",
     icon: Megaphone,
     moderator: false,
   },
   {
     to: ADMIN_ROUTES.subscriptions,
     label: "Premium / Subscriptions",
+    section: "Business",
     icon: ShieldCheck,
     moderator: false,
   },
   {
     to: ADMIN_ROUTES.auditLogs,
     label: "Audit Logs",
+    section: "Operations",
     icon: Activity,
     moderator: false,
   },
   {
     to: ADMIN_ROUTES.systemHealth,
     label: "System Health",
+    section: "Operations",
     icon: HeartPulse,
     moderator: false,
   },
   {
     to: ADMIN_ROUTES.aiTokenSpend,
     label: "AI Token Spend",
+    section: "Operations",
     icon: Cpu,
     moderator: false,
   },
   {
     to: ADMIN_ROUTES.supportTickets,
     label: "Support Tickets",
+    section: "Support",
     icon: TicketCheck,
     moderator: true,
   },
@@ -200,6 +216,9 @@ export default function AdminLayout() {
         ? "bg-[rgba(232,129,106,0.15)] text-[#e8816a]"
         : "text-[#aaa59d] hover:bg-[#24211e] hover:text-[#f2f0eb]"
     }`;
+  const visibleLinks = links.filter(
+    (item) => user?.role !== "moderator" || item.moderator,
+  );
 
   return (
     <div className="admin-theme min-h-screen bg-[#141412] text-[#f2f0eb]">
@@ -270,26 +289,32 @@ export default function AdminLayout() {
         </div>
 
         <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-5 pt-5">
-          {links
-            .filter((item) => user?.role !== "moderator" || item.moderator)
-            .map(({ to, label, icon: Icon, end }) => (
+          {visibleLinks.map(({ to, label, section, icon: Icon, end }, index) => (
+            <div key={label}>
+              {showSidebarLabels && section !== visibleLinks[index - 1]?.section && (
+                <div
+                  className={`px-5 pb-1 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#817c75] ${index === 0 ? "pt-0" : "pt-4"}`}
+                >
+                  {section}
+                </div>
+              )}
               <NavLink
-                key={label}
-                to={to}
-                end={end}
-                title={!showSidebarLabels ? label : undefined}
-                onDoubleClick={refreshCurrentRoute}
-                className={linkClassName}
-              >
-                <Icon
-                  className="shrink-0"
-                  size={20}
-                  strokeWidth={1.8}
-                  aria-hidden="true"
-                />
-                {showSidebarLabels && <span className="truncate">{label}</span>}
-              </NavLink>
-            ))}
+                  to={to}
+                  end={end}
+                  title={!showSidebarLabels ? label : undefined}
+                  onDoubleClick={refreshCurrentRoute}
+                  className={linkClassName}
+                >
+                  <Icon
+                    className="shrink-0"
+                    size={20}
+                    strokeWidth={1.8}
+                    aria-hidden="true"
+                  />
+                  {showSidebarLabels && <span className="truncate">{label}</span>}
+                </NavLink>
+            </div>
+          ))}
 
           {temporaryItem && (
             <NavLink
