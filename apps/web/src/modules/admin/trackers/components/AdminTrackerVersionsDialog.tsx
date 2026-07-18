@@ -4,6 +4,7 @@ import { useAdminTrackerVersions } from "../hooks/useAdminTrackerVersions";
 import { useRestoreAdminTrackerVersion } from "../hooks/useRestoreAdminTrackerVersion";
 import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
 import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
+import { AdminError } from "../../../../components/admin";
 export default function AdminTrackerVersionsDialog({
   trackerId,
   onClose,
@@ -33,6 +34,12 @@ export default function AdminTrackerVersionsDialog({
       </p>
       <div className="mt-5 max-h-90 space-y-2 overflow-y-auto">
         {query.isLoading && <p>Loading versions…</p>}
+        {query.isError && (
+          <AdminError
+            error={query.error}
+            onRetry={() => void query.refetch()}
+          />
+        )}
         {query.data?.map((item) => (
           <label
             key={item.id}
@@ -51,9 +58,9 @@ export default function AdminTrackerVersionsDialog({
             </span>
             <p className="mt-2 text-xs text-[#aaa59d]">{item.reason}</p>
             <p className="mt-1 text-sm">
-              {String(item.snapshot.title ?? "Untitled")} ·{" "}
-              {String(item.snapshot.status ?? "")} ·{" "}
-              {String(item.snapshot.visibility ?? "")}
+              {String(item.snapshot?.title ?? "Untitled")} ·{" "}
+              {String(item.snapshot?.status ?? "")} ·{" "}
+              {String(item.snapshot?.visibility ?? "")}
             </p>
           </label>
         ))}
@@ -75,10 +82,10 @@ export default function AdminTrackerVersionsDialog({
             />
           </label>
           <AdminActionPasswordField
-        value={actionPassword}
-        onChange={setActionPassword}
-        className="admin-field mt-4 block"
-      />
+            value={actionPassword}
+            onChange={setActionPassword}
+            className="admin-field mt-4 block"
+          />
         </>
       )}
       <div className="mt-6 flex justify-end gap-2">

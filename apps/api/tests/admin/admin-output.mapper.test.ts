@@ -25,4 +25,17 @@ describe('AdminOutputMapper', () => {
     expect(dto.pagination).not.toBe(page.pagination);
     expect(dto.stats).not.toBe(page.stats);
   });
+
+  it('preserves array responses and detaches their entries', () => {
+    const versions = [
+      { id: 'version-two', version: 2 },
+      { id: 'version-one', version: 1 },
+    ];
+    const dto = new AdminOutputMapper().toResponseDTO(versions);
+
+    expect(Array.isArray(dto)).toBe(true);
+    expect(dto).toEqual(versions);
+    expect(dto).not.toBe(versions);
+    expect(dto[0]).not.toBe(versions[0]);
+  });
 });
