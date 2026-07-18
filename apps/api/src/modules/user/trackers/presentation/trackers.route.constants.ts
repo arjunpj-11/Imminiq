@@ -22,6 +22,9 @@ export const TRACKER_ROUTE_PATHS = {
   CLAN_CHALLENGE_DECLINE: '/:trackerId/clan/challenges/:challengeId/decline',
   CLAN_CHALLENGE_CANCEL: '/:trackerId/clan/challenges/:challengeId/cancel',
   CLAN_CHALLENGE_SUBMIT: '/:trackerId/clan/challenges/:challengeId/submit',
+  CLAN_CHALLENGE_CHECKPOINT: '/:trackerId/clan/challenges/:challengeId/checkpoint',
+  CLAN_CHALLENGE_ANSWER: '/:trackerId/clan/challenges/:challengeId/answer',
+  CLAN_CHALLENGE_POWER: '/:trackerId/clan/challenges/:challengeId/power',
 
   TOPICS: '/:trackerId/topics',
   TOPIC_BY_ID: '/:trackerId/topics/:topicId',

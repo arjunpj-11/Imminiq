@@ -6,4 +6,15 @@ export const redis = new Redis(env.REDIS_URL, {
 });
 
 redis.on('connect', () => console.log('✅ Redis connected'));
-redis.on('error', (err) => console.error('Redis error:', err));
+
+let lastRedisError = '';
+let lastRedisErrorAt = 0;
+redis.on('error', (error: unknown) => {
+  const message = error instanceof Error ? error.message : 'Unknown Redis error';
+  const now = Date.now();
+  if (message !== lastRedisError || now - lastRedisErrorAt >= 30_000) {
+    console.error(`Redis error: ${message}`);
+    lastRedisError = message;
+    lastRedisErrorAt = now;
+  }
+});

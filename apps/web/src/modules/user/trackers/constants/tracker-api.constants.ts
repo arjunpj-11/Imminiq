@@ -22,6 +22,12 @@ export const TRACKER_API_PATHS = {
     `/trackers/${trackerId}/clan/challenges/${challengeId}/cancel`,
   clanChallengeSubmit: (trackerId: string, challengeId: string) =>
     `/trackers/${trackerId}/clan/challenges/${challengeId}/submit`,
+  clanChallengeCheckpoint: (trackerId: string, challengeId: string) =>
+    `/trackers/${trackerId}/clan/challenges/${challengeId}/checkpoint`,
+  clanChallengeAnswer: (trackerId: string, challengeId: string) =>
+    `/trackers/${trackerId}/clan/challenges/${challengeId}/answer`,
+  clanChallengePower: (trackerId: string, challengeId: string) =>
+    `/trackers/${trackerId}/clan/challenges/${challengeId}/power`,
   archive: (trackerId: string) => `/trackers/${trackerId}/archive`,
   restore: (trackerId: string) => `/trackers/${trackerId}/restore`,
   publish: (trackerId: string) => `/trackers/${trackerId}/publish`,

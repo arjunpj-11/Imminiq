@@ -90,4 +90,39 @@ export class TrackerClanChallengesController {
       next(error);
     }
   };
+
+  chooseCheckpoint = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.useCases.trackerClanChallenges.chooseCheckpoint({
+        trackerId: req.params.trackerId,
+        challengeId: req.params.challengeId,
+        userId: getAuthUser(req).userId,
+        decision: req.body.decision,
+      });
+      res.json(new ApiResponse('Checkpoint decision saved', result));
+    } catch (error) { next(error); }
+  };
+
+  answerNode = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.useCases.trackerClanChallenges.answerNode({
+        trackerId: req.params.trackerId,
+        challengeId: req.params.challengeId,
+        userId: getAuthUser(req).userId,
+        answer: req.body.answer,
+      });
+      res.json(new ApiResponse('Node answer checked', result));
+    } catch (error) { next(error); }
+  };
+
+  usePower = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.useCases.trackerClanChallenges.usePower({
+        trackerId: req.params.trackerId,
+        challengeId: req.params.challengeId,
+        userId: getAuthUser(req).userId,
+      });
+      res.json(new ApiResponse('Push-back power used', result));
+    } catch (error) { next(error); }
+  };
 }

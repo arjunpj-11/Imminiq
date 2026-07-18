@@ -41,6 +41,8 @@ import {
   updateTrackerTopicSchema,
   createClanChallengeSchema,
   submitClanChallengeSchema,
+  chooseClanChallengeCheckpointSchema,
+  answerClanChallengeNodeSchema,
 } from './trackers.schema';
 
 export const createTrackerRoutes = (useCases: TrackerUseCases) => {
@@ -160,6 +162,17 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
     validate(submitClanChallengeSchema),
     clanChallengesController.submit
   );
+  router.post(
+    TRACKER_ROUTE_PATHS.CLAN_CHALLENGE_CHECKPOINT,
+    validate(chooseClanChallengeCheckpointSchema),
+    clanChallengesController.chooseCheckpoint
+  );
+  router.post(
+    TRACKER_ROUTE_PATHS.CLAN_CHALLENGE_ANSWER,
+    validate(answerClanChallengeNodeSchema),
+    clanChallengesController.answerNode
+  );
+  router.post(TRACKER_ROUTE_PATHS.CLAN_CHALLENGE_POWER, clanChallengesController.usePower);
 
   // ─── ROADMAP CONTENT ─────────────────────────────────────────────────────────
 

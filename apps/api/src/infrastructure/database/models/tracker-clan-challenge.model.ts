@@ -7,8 +7,22 @@ const challengeQuestionSchema = new Schema(
     correctAnswer: { type: String, required: true, select: false },
     topicTitle: { type: String, required: true, trim: true },
     points: { type: Number, required: true, default: 1, min: 1 },
+    isCheckpoint: { type: Boolean, required: true, default: false },
   },
   { _id: true }
+);
+
+const challengeProgressSchema = new Schema(
+  {
+    position: { type: Number, required: true, default: 0, min: 0 },
+    score: { type: Number, required: true, default: 0, min: 0 },
+    pushBackPowers: { type: Number, required: true, default: 0, min: 0 },
+    attemptedAnswers: { type: [String], default: [] },
+    attemptedCheckpoints: { type: [Number], default: [] },
+    resolvedCheckpoints: { type: [Number], default: [] },
+    lastAnswerCorrect: { type: Boolean, default: null },
+  },
+  { _id: false }
 );
 
 const challengeSubmissionSchema = new Schema(
@@ -52,8 +66,10 @@ const trackerClanChallengeSchema = new Schema(
     acceptBy: { type: Date, required: true, index: true },
     completedAt: { type: Date, default: null },
     winnerId: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+    challengerProgress: { type: challengeProgressSchema, default: () => ({}) },
+    opponentProgress: { type: challengeProgressSchema, default: () => ({}) },
   },
-  { timestamps: true, collection: 'tracker_clan_challenges' }
+  { timestamps: true, collection: 'tracker_clan_challenges', optimisticConcurrency: true }
 );
 
 trackerClanChallengeSchema.index({ trackerId: 1, status: 1, createdAt: -1 });

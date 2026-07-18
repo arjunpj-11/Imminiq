@@ -4,6 +4,7 @@ import { TrackerClanUseCase } from '../../src/modules/user/trackers/application/
 import { TrackerClanChallengeUseCase } from '../../src/modules/user/trackers/application/use-cases/tracker-clan-challenge.usecase';
 import type {
   ITrackerClanChallengeNotifier,
+  ITrackerClanChallengeQuestionGenerator,
   ITrackerClanChallengeRepository,
   ITrackerClanRepository,
   TrackerClanChallenge,
@@ -24,11 +25,15 @@ const repository = () =>
     deleteSubtopic: vi.fn(),
     listMessages: vi.fn(),
     listChallenges: vi.fn(),
+    getChallengeQuestionContext: vi.fn(),
     createChallenge: vi.fn(),
     acceptChallenge: vi.fn(),
     declineChallenge: vi.fn(),
     cancelChallenge: vi.fn(),
     submitChallenge: vi.fn(),
+    chooseChallengeCheckpoint: vi.fn(),
+    answerChallengeNode: vi.fn(),
+    useChallengePower: vi.fn(),
   }) as unknown as ITrackerClanRepository & ITrackerClanChallengeRepository;
 
 describe('TrackerClanUseCase', () => {
@@ -93,6 +98,33 @@ describe('TrackerClanUseCase', () => {
 
   it('announces a created challenge to realtime guild listeners', async () => {
     const clans = repository();
+    const context = {
+      trackerTitle: 'JEE Mathematics',
+      trackerDescription: 'Prepare for JEE Main and Advanced mathematics',
+      category: 'Exam preparation',
+      field: 'Mathematics',
+      goal: 'Score well in JEE',
+      level: 'advanced' as const,
+      contentLanguage: 'English',
+      topics: [
+        {
+          title: 'Calculus',
+          description: 'Limits and derivatives',
+          subtopics: [{ title: 'Differentiation', description: 'Derivative applications' }],
+        },
+      ],
+    };
+    const questions = [
+      {
+        prompt: 'If f(x) = x², what is f′(3)?',
+        options: ['3', '6', '9', '12'],
+        correctAnswer: '6',
+        topicTitle: 'Calculus',
+        points: 1,
+        isCheckpoint: true,
+      },
+    ];
+    vi.mocked(clans.getChallengeQuestionContext).mockResolvedValue(context);
     const challenge = {
       id: 'challenge-1',
       trackerId: 'tracker-1',
@@ -101,8 +133,10 @@ describe('TrackerClanUseCase', () => {
       opponent: null,
     } as TrackerClanChallenge;
     vi.mocked(clans.createChallenge).mockResolvedValue(challenge);
+    const questionGenerator: ITrackerClanChallengeQuestionGenerator = { generate: vi.fn() };
+    vi.mocked(questionGenerator.generate).mockResolvedValue(questions);
     const notifier: ITrackerClanChallengeNotifier = { notify: vi.fn() };
-    const useCase = new TrackerClanChallengeUseCase(clans, notifier);
+    const useCase = new TrackerClanChallengeUseCase(clans, questionGenerator, notifier);
 
     await expect(
       useCase.create({
@@ -112,12 +146,46 @@ describe('TrackerClanUseCase', () => {
         questionCount: 5,
       })
     ).resolves.toBe(challenge);
+    expect(questionGenerator.generate).toHaveBeenCalledWith({
+      context,
+      questionCount: 5,
+      durationMinutes: 10,
+    });
+    expect(clans.createChallenge).toHaveBeenCalledWith(
+      expect.objectContaining({ questions })
+    );
     expect(notifier.notify).toHaveBeenCalledWith({
       id: 'challenge-1',
       trackerId: 'tracker-1',
       status: 'open',
       challengerId: 'member-1',
       opponentId: null,
+    });
+  });
+
+  it('announces each live race move without exposing question data in the event', async () => {
+    const clans = repository();
+    const challenge = {
+      id: 'challenge-1',
+      trackerId: 'tracker-1',
+      status: 'active',
+      challenger: { userId: 'member-1' },
+      opponent: { userId: 'member-2' },
+    } as TrackerClanChallenge;
+    vi.mocked(clans.answerChallengeNode).mockResolvedValue(challenge);
+    const notifier: ITrackerClanChallengeNotifier = { notify: vi.fn() };
+    const useCase = new TrackerClanChallengeUseCase(
+      clans,
+      { generate: vi.fn() },
+      notifier
+    );
+
+    await expect(useCase.answerNode({
+      trackerId: 'tracker-1', challengeId: 'challenge-1', userId: 'member-1', answer: '42',
+    })).resolves.toBe(challenge);
+    expect(notifier.notify).toHaveBeenCalledWith({
+      id: 'challenge-1', trackerId: 'tracker-1', status: 'active',
+      challengerId: 'member-1', opponentId: 'member-2',
     });
   });
 });

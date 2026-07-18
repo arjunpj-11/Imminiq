@@ -436,6 +436,13 @@ describe('tracker topic contributions', () => {
       challengerId: owner._id.toString(),
       durationMinutes: 10,
       questionCount: 5,
+      questions: Array.from({ length: 5 }, (_, index) => ({
+        prompt: `What is ${index + 1} + ${index + 1}?`,
+        options: [String(index + 1), String((index + 1) * 2), String((index + 1) * 3), '0'],
+        correctAnswer: String((index + 1) * 2),
+        topicTitle: 'Retained topic',
+        points: 1,
+      })),
     });
     expect(openBattle).toMatchObject({
       challengeType: 'open',
@@ -460,7 +467,7 @@ describe('tracker topic contributions', () => {
       userId: owner._id.toString(),
       answers: acceptedBattle!.questions.map((question) => ({
         questionId: question.id,
-        answer: question.prompt.includes('unrelated') ? 'No' : 'Yes',
+        answer: question.options[1]!,
       })),
     });
     const completedBattle = await clans.submitChallenge({
@@ -469,7 +476,7 @@ describe('tracker topic contributions', () => {
       userId: member._id.toString(),
       answers: acceptedBattle!.questions.map((question) => ({
         questionId: question.id,
-        answer: question.prompt.includes('unrelated') ? 'Yes' : 'No',
+        answer: 'not a valid option',
       })),
     });
     expect(completedBattle).toMatchObject({
@@ -485,6 +492,13 @@ describe('tracker topic contributions', () => {
       opponentId: member._id.toString(),
       durationMinutes: 5,
       questionCount: 3,
+      questions: Array.from({ length: 3 }, (_, index) => ({
+        prompt: `Solve the subject problem ${index + 1}`,
+        options: ['A', 'B', 'C', 'D'],
+        correctAnswer: 'A',
+        topicTitle: 'Retained topic',
+        points: 1,
+      })),
     });
     expect(directBattle).toMatchObject({ challengeType: 'direct', status: 'pending' });
     await expect(

@@ -23,12 +23,10 @@ import {
   useTrackerTopicContributions,
   useTransferTrackerClanOwnership,
   useUpdateTrackerClanMember,
-  useSubmitTrackerClanChallenge,
 } from '../hooks/useTrackers';
 import type { ITrackerClanChallenge, ITrackerClanMessage, ITrackerClanPerson } from '../types/tracker.types';
 import ClanChallengeCard from '../components/clan/ClanChallengeCard';
 import ClanChallengeDialog from '../components/clan/ClanChallengeDialog';
-import ClanBattleModal from '../components/clan/ClanBattleModal';
 
 type GuildTab = 'chat' | 'members' | 'requests';
 type ClanChallengeEvent = {
@@ -69,7 +67,6 @@ export default function TrackerClanPage() {
   const acceptChallenge = useAcceptTrackerClanChallenge();
   const declineChallenge = useDeclineTrackerClanChallenge();
   const cancelChallenge = useCancelTrackerClanChallenge();
-  const submitChallenge = useSubmitTrackerClanChallenge();
   const [tab, setTab] = useState<GuildTab>('chat');
   const [liveMessages, setLiveMessages] = useState<ITrackerClanMessage[]>([]);
   const [draft, setDraft] = useState('');
@@ -80,10 +77,7 @@ export default function TrackerClanPage() {
   const [memberActionError, setMemberActionError] = useState<string | null>(null);
   const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
   const [challengeOpponent, setChallengeOpponent] = useState<ITrackerClanPerson | null | undefined>(undefined);
-  const [battleChallengeId, setBattleChallengeId] = useState<string | null>(null);
-  const [battleSnapshot, setBattleSnapshot] = useState<ITrackerClanChallenge | null>(null);
   const [chatClock, setChatClock] = useState(() => Date.now());
-  const battleChallengeIdRef = useRef<string | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
 
   const messages = useMemo(() => {
@@ -130,20 +124,13 @@ export default function TrackerClanPage() {
     };
     const onChallenge = (event: ClanChallengeEvent) => {
       if (event.trackerId !== trackerId) return;
-      if (event.status === 'completed' && event.id === battleChallengeIdRef.current) {
-        battleChallengeIdRef.current = null;
-        setBattleSnapshot(null);
-        setBattleChallengeId(null);
-      }
       void refetchChallenges().then((result) => {
         const challenge = result.data?.find((item) => item.id === event.id);
         const isParticipant =
           challenge?.challenger.userId === currentUserId ||
           challenge?.opponent?.userId === currentUserId;
-        if (challenge?.status === 'active' && challenge.canSubmit && isParticipant) {
-          battleChallengeIdRef.current = challenge.id;
-          setBattleChallengeId(challenge.id);
-          setBattleSnapshot(challenge);
+        if (challenge?.status === 'active' && isParticipant) {
+          navigate(ROUTES.trackerClanBattle(trackerId, challenge.id));
         }
       });
     };
@@ -163,7 +150,7 @@ export default function TrackerClanPage() {
       socket.off('tracker-clan:challenge', onChallenge);
       socket.disconnect();
     };
-  }, [accessToken, currentUserId, isMember, refetchChallenges, trackerId]);
+  }, [accessToken, currentUserId, isMember, navigate, refetchChallenges, trackerId]);
 
   useEffect(() => {
     if (!memberMenuId) return;
@@ -177,8 +164,6 @@ export default function TrackerClanPage() {
     [contributionsQuery.data]
   );
   const challenges = useMemo(() => challengesQuery.data ?? [], [challengesQuery.data]);
-  const battleChallenge =
-    battleSnapshot ?? challenges.find((challenge) => challenge.id === battleChallengeId) ?? null;
   const timeline = useMemo(() => {
     const chatWindowStart = chatClock - CHAT_RETENTION_MS;
     const items: Array<
@@ -224,15 +209,7 @@ export default function TrackerClanPage() {
     createChallenge.isPending ||
     acceptChallenge.isPending ||
     declineChallenge.isPending ||
-    cancelChallenge.isPending ||
-    submitChallenge.isPending;
-  const challengeError =
-    createChallenge.error ||
-    acceptChallenge.error ||
-    declineChallenge.error ||
-    cancelChallenge.error ||
-    submitChallenge.error;
-
+    cancelChallenge.isPending;
   const sendMessage = () => {
     const text = draft.trim();
     if (!text || !connected) return;
@@ -370,7 +347,7 @@ export default function TrackerClanPage() {
               {timeline.map((item) => {
                 if (item.kind === 'challenge' || item.kind === 'result') {
                   const challenge = item.challenge;
-                  return <ClanChallengeCard key={item.key} eventType={item.kind === 'result' ? 'result' : 'invite'} challenge={challenge} currentUserId={currentUserId} busy={challengeBusy} onProfile={(username) => navigate(ROUTES.publicProfileFor(username))} onAccept={() => acceptChallenge.mutate({ trackerId, challengeId: challenge.id }, { onSuccess: (response) => { battleChallengeIdRef.current = response.data.id; setBattleChallengeId(response.data.id); setBattleSnapshot(response.data); } })} onDecline={() => declineChallenge.mutate({ trackerId, challengeId: challenge.id })} onCancel={() => cancelChallenge.mutate({ trackerId, challengeId: challenge.id })} onEnter={() => { battleChallengeIdRef.current = challenge.id; setBattleChallengeId(challenge.id); setBattleSnapshot(challenge); }} />;
+                  return <ClanChallengeCard key={item.key} eventType={item.kind === 'result' ? 'result' : 'invite'} challenge={challenge} currentUserId={currentUserId} busy={challengeBusy} onProfile={(username) => navigate(ROUTES.publicProfileFor(username))} onAccept={() => acceptChallenge.mutate({ trackerId, challengeId: challenge.id }, { onSuccess: (response) => navigate(ROUTES.trackerClanBattle(trackerId, response.data.id)) })} onDecline={() => declineChallenge.mutate({ trackerId, challengeId: challenge.id })} onCancel={() => cancelChallenge.mutate({ trackerId, challengeId: challenge.id })} onEnter={() => navigate(ROUTES.trackerClanBattle(trackerId, challenge.id))} />;
                 }
                 const message = item.message;
                 const mine = message.user.userId === currentUserId;
@@ -451,14 +428,6 @@ export default function TrackerClanPage() {
         error={createChallenge.error ? getUserFacingError(createChallenge.error, 'Unable to create this challenge.') : null}
         onClose={() => { if (!createChallenge.isPending) { createChallenge.reset(); setChallengeOpponent(undefined); } }}
         onCreate={createGuildChallenge}
-      />
-      <ClanBattleModal
-        key={battleChallenge?.id ?? 'closed-battle'}
-        challenge={battleChallenge}
-        isSubmitting={submitChallenge.isPending}
-        error={challengeError ? getUserFacingError(challengeError, 'Unable to update this battle.') : null}
-        onClose={() => { if (!submitChallenge.isPending) { battleChallengeIdRef.current = null; setBattleChallengeId(null); setBattleSnapshot(null); } }}
-        onSubmit={(answers) => submitChallenge.mutate({ trackerId, challengeId: battleChallengeId!, answers }, { onSuccess: () => { battleChallengeIdRef.current = null; setBattleChallengeId(null); setBattleSnapshot(null); } })}
       />
     </AppShellBoundary>
   );

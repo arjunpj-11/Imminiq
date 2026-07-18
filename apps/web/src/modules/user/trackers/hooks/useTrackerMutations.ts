@@ -428,6 +428,33 @@ export const useSubmitTrackerClanChallenge = () =>
     ({ trackerId }) => trackerId
   );
 
+export const useChooseTrackerClanCheckpoint = () =>
+  useClanChallengeMutation(
+    async ({ trackerId, challengeId, decision }: { trackerId: string; challengeId: string; decision: 'attempt' | 'skip' }) =>
+      (await api.post<IApiResponse<ITrackerClanChallenge>>(
+        TRACKER_API_PATHS.clanChallengeCheckpoint(trackerId, challengeId), { decision }
+      )).data,
+    ({ trackerId }) => trackerId
+  );
+
+export const useAnswerTrackerClanNode = () =>
+  useClanChallengeMutation(
+    async ({ trackerId, challengeId, answer }: { trackerId: string; challengeId: string; answer: string }) =>
+      (await api.post<IApiResponse<ITrackerClanChallenge>>(
+        TRACKER_API_PATHS.clanChallengeAnswer(trackerId, challengeId), { answer }
+      )).data,
+    ({ trackerId }) => trackerId
+  );
+
+export const useTrackerClanChallengePower = () =>
+  useClanChallengeMutation(
+    async ({ trackerId, challengeId }: { trackerId: string; challengeId: string }) =>
+      (await api.post<IApiResponse<ITrackerClanChallenge>>(
+        TRACKER_API_PATHS.clanChallengePower(trackerId, challengeId)
+      )).data,
+    ({ trackerId }) => trackerId
+  );
+
 export const useUpdateTrackerTopic = () => {
   const queryClient = useQueryClient();
   return useMutation<IApiResponse<null>, Error, { trackerId: string; topicId: string; title: string; description: string }>({
