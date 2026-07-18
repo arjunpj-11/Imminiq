@@ -66,6 +66,8 @@ export {
   generateMockTestQuestionsGroqAI,
 } from './services/mock-test-ai.service';
 
+export { generateTrackerClanChallengeQuestionsAI } from './services/tracker-clan-challenge-ai.service';
+
 export type {
   EvaluateMockTestOpenAnswerAIInput,
   EvaluateMockTestOpenAnswerAIOutput,

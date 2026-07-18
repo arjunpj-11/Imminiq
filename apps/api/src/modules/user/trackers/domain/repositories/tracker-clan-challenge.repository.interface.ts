@@ -1,6 +1,15 @@
-import type { TrackerClanChallenge } from '../tracker-clan.types';
+import type {
+  TrackerClanChallenge,
+  TrackerClanChallengeQuestion,
+  TrackerClanChallengeQuestionContext,
+} from '../tracker-clan.types';
 
 export interface ITrackerClanChallengeRepository {
+  getChallengeQuestionContext(input: {
+    trackerId: string;
+    challengerId: string;
+    opponentId?: string;
+  }): Promise<TrackerClanChallengeQuestionContext | null>;
   listChallenges(input: {
     trackerId: string;
     userId: string;
@@ -11,6 +20,7 @@ export interface ITrackerClanChallengeRepository {
     opponentId?: string;
     durationMinutes: number;
     questionCount: number;
+    questions: TrackerClanChallengeQuestion[];
   }): Promise<TrackerClanChallenge | null>;
   acceptChallenge(input: {
     trackerId: string;

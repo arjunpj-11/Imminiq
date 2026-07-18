@@ -19,3 +19,7 @@ export {
   TrackerClanChallengeGateway,
   trackerClanChallengeGateway,
 } from './gateways/tracker-clan-challenge.gateway';
+export {
+  TrackerClanChallengeQuestionGateway,
+  trackerClanChallengeQuestionGateway,
+} from './gateways/tracker-clan-challenge-question.gateway';
