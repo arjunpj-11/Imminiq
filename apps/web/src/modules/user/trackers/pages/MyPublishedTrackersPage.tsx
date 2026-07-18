@@ -319,6 +319,7 @@ type PublishedTrackerCardProps = {
   onView: (trackerId: string) => void;
   onRequestUnpublish: (tracker: ITracker) => void;
   isUnpublishing: boolean;
+  canUnpublish: boolean;
 };
 
 function PublishedTrackerCard({
@@ -326,6 +327,7 @@ function PublishedTrackerCard({
   onView,
   onRequestUnpublish,
   isUnpublishing,
+  canUnpublish,
 }: PublishedTrackerCardProps) {
   const [copied, setCopied] = useState(false);
 
@@ -470,18 +472,24 @@ function PublishedTrackerCard({
         </div>
 
         {/* Destructive action — separate row, full width */}
-        <button
-          type="button"
-          disabled={isUnpublishing}
-          onClick={(e) => {
-            e.stopPropagation();
-            onRequestUnpublish(tracker);
-          }}
-          className="inline-flex w-full items-center justify-center gap-1.5 rounded-sm border-[1.5px] border-[rgba(200,50,50,0.20)] px-3.5 py-2 text-[12px] font-bold text-[#b83232] transition hover:bg-[rgba(200,50,50,0.08)] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[rgba(255,120,120,0.18)] dark:text-[#ff8c8c] dark:hover:bg-[rgba(255,120,120,0.08)]"
-        >
-          <UnpublishIcon />
-          {isUnpublishing ? 'Unpublishing…' : 'Unpublish'}
-        </button>
+        {canUnpublish ? (
+          <button
+            type="button"
+            disabled={isUnpublishing}
+            onClick={(e) => {
+              e.stopPropagation();
+              onRequestUnpublish(tracker);
+            }}
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded-sm border-[1.5px] border-[rgba(200,50,50,0.20)] px-3.5 py-2 text-[12px] font-bold text-[#b83232] transition hover:bg-[rgba(200,50,50,0.08)] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[rgba(255,120,120,0.18)] dark:text-[#ff8c8c] dark:hover:bg-[rgba(255,120,120,0.08)]"
+          >
+            <UnpublishIcon />
+            {isUnpublishing ? 'Unpublishing…' : 'Unpublish'}
+          </button>
+        ) : (
+          <div className="rounded-sm border border-[#d6ad47]/30 bg-[#f4c95d]/10 px-3.5 py-2 text-center text-[11px] font-bold text-[#8a6509] dark:text-[#f4c95d]">
+            Shared original · owner controls visibility
+          </div>
+        )}
       </div>
     </article>
   );
@@ -549,6 +557,7 @@ export default function MyPublishedTrackersPage() {
   const isLoading = trackersQuery.isLoading && !trackersQuery.data;
 
   const handleRequestUnpublish = (tracker: ITracker) => {
+    if (tracker.clanRole === 'co_owner') return;
     setConfirmTracker(tracker);
   };
 
@@ -591,12 +600,12 @@ export default function MyPublishedTrackersPage() {
             </div>
 
             <h1 className="font-ui text-[clamp(26px,3.5vw,38px)] font-extrabold leading-[1.15] tracking-[-0.8px] text-(--text-primary) dark:text-(--text-primary)">
-              Your <span className="text-(--success) dark:text-(--success)">public</span> roadmaps
+              Public roadmaps <span className="text-(--success) dark:text-(--success)">you manage</span>
             </h1>
 
             <p className="mt-2 max-w-lg text-[13px] italic leading-[1.55] text-(--text-secondary) opacity-80 dark:text-(--text-secondary)">
               {publishedTrackers.length > 0
-                ? `${publishedTrackers.length} tracker${publishedTrackers.length === 1 ? '' : 's'} shared with the community. Manage visibility, copy links, and track engagement.`
+                ? `${publishedTrackers.length} tracker${publishedTrackers.length === 1 ? '' : 's'} shared with the community. Owners control visibility; co-owners manage the shared content.`
                 : 'Share your learning roadmaps with the community and help others grow.'}
             </p>
           </div>
@@ -615,6 +624,7 @@ export default function MyPublishedTrackersPage() {
                 onView={(id) => navigate(`/community/trackers/${id}`)}
                 onRequestUnpublish={handleRequestUnpublish}
                 isUnpublishing={unpublishingId === tracker._id}
+                canUnpublish={tracker.clanRole !== 'co_owner'}
               />
             ))}
           </section>

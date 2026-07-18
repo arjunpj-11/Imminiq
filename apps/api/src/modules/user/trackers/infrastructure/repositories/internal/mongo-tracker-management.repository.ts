@@ -206,9 +206,23 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
         .select('trackerId')
         .lean<Array<{ trackerId: unknown }>>();
       const managedTrackerIds = clans.map((clan) => clan.trackerId);
+      const ownedOriginals = await Tracker.find({
+        ownerId: userObjId,
+        sourceTrackerId: null,
+        deletedAt: null,
+      })
+        .select('_id')
+        .lean<Array<{ _id: unknown }>>();
+      const sharedOriginalIds = [
+        ...managedTrackerIds,
+        ...ownedOriginals.map((tracker) => tracker._id),
+      ];
 
       const query = {
         $or: [{ ownerId: userObjId }, { _id: { $in: managedTrackerIds } }],
+        ...(sharedOriginalIds.length
+          ? { sourceTrackerId: { $nin: sharedOriginalIds } }
+          : {}),
         deletedAt: null,
       } as unknown as MongoQuery;
 

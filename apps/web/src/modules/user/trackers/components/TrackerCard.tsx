@@ -242,6 +242,8 @@ export default function TrackerCard({
   const isArchived = tracker.status === 'archived';
   const cloneSource = tracker.clonedFrom;
   const hasClanMembership = Boolean(tracker.clanRole);
+  const isSharedCoOwner = !cloneSource && tracker.clanRole === 'co_owner';
+  const hasOwnerControls = !cloneSource && !isSharedCoOwner;
   const verificationStatus =
     (
       tracker as ITracker & {
@@ -254,7 +256,7 @@ export default function TrackerCard({
 
   // must be published + not archived/pending/verified
   const canSendForVerification =
-    !cloneSource && isPublished && !isArchived && !isVerificationPending && !isVerificationVerified;
+    hasOwnerControls && isPublished && !isArchived && !isVerificationPending && !isVerificationVerified;
 
   const totalTopics = Number(tracker.topicsCount ?? 0);
   const completedTopics = Number(tracker.completedTopics ?? 0);
@@ -337,7 +339,7 @@ export default function TrackerCard({
   // button is disabled only when action is truly unavailable (pending/verified/sending)
   // unpublished case is handled via nudge instead of disabling
   const verificationButtonDisabled =
-    isSendingVerification || isVerificationPending || isVerificationVerified || isArchived;
+    isSharedCoOwner || isSendingVerification || isVerificationPending || isVerificationVerified || isArchived;
 
   const handleDeleteConfirmation = async () => {
     if (deleteConfirmationStep === 1 && isPublished) {
@@ -471,25 +473,27 @@ export default function TrackerCard({
                   <QuickRevisionIcon />
                   Quick Revision
                 </button>
-                <button
-                  type="button"
-                  disabled={verificationButtonDisabled}
-                  onClick={(e) =>
-                    handleMenuAction(e, () => {
-                      void handleSendForVerification();
-                    })
-                  }
-                  className={cn(
-                    'flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-55',
-                    canSendForVerification || (!isPublished && !isArchived)
-                      ? 'text-(--text-primary) hover:bg-[rgba(45,106,71,0.08)] hover:text-(--success) dark:text-(--text-primary) dark:hover:bg-[rgba(92,201,138,0.10)] dark:hover:text-(--success)'
-                      : 'text-[#9b9a92] dark:text-(--text-secondary)'
-                  )}
-                >
-                  {isSendingVerification ? <SpinnerIcon /> : <VerifyIcon />}
-                  {verificationMenuLabel}
-                </button>
-                {onArchive && (
+                {!isSharedCoOwner && (
+                  <button
+                    type="button"
+                    disabled={verificationButtonDisabled}
+                    onClick={(e) =>
+                      handleMenuAction(e, () => {
+                        void handleSendForVerification();
+                      })
+                    }
+                    className={cn(
+                      'flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-55',
+                      canSendForVerification || (!isPublished && !isArchived)
+                        ? 'text-(--text-primary) hover:bg-[rgba(45,106,71,0.08)] hover:text-(--success) dark:text-(--text-primary) dark:hover:bg-[rgba(92,201,138,0.10)] dark:hover:text-(--success)'
+                        : 'text-[#9b9a92] dark:text-(--text-secondary)'
+                    )}
+                  >
+                    {isSendingVerification ? <SpinnerIcon /> : <VerifyIcon />}
+                    {verificationMenuLabel}
+                  </button>
+                )}
+                {onArchive && !isSharedCoOwner && (
                   <>
                     <div className="h-px bg-(--border-subtle) dark:bg-white/9" />
                     <button
@@ -507,20 +511,24 @@ export default function TrackerCard({
                     </button>
                   </>
                 )}
-                <div className="h-px bg-(--border-subtle) dark:bg-white/9" />
-                <button
-                  type="button"
-                  onClick={(e) =>
-                    handleMenuAction(e, () => {
-                      setDeleteError(null);
-                      setDeleteConfirmationStep(1);
-                    })
-                  }
-                  className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold text-[#b83232] transition hover:bg-[rgba(200,50,50,0.08)] dark:text-[#ff8c8c] dark:hover:bg-[rgba(255,120,120,0.08)]"
-                >
-                  <DeleteIcon />
-                  Delete tracker
-                </button>
+                {!isSharedCoOwner && (
+                  <>
+                    <div className="h-px bg-(--border-subtle) dark:bg-white/9" />
+                    <button
+                      type="button"
+                      onClick={(e) =>
+                        handleMenuAction(e, () => {
+                          setDeleteError(null);
+                          setDeleteConfirmationStep(1);
+                        })
+                      }
+                      className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold text-[#b83232] transition hover:bg-[rgba(200,50,50,0.08)] dark:text-[#ff8c8c] dark:hover:bg-[rgba(255,120,120,0.08)]"
+                    >
+                      <DeleteIcon />
+                      Delete tracker
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -620,6 +628,10 @@ export default function TrackerCard({
             >
               View Published
             </button>
+          ) : isSharedCoOwner ? (
+            <span className="rounded-sm border border-[#d6ad47]/30 bg-[#f4c95d]/10 px-3.5 py-2 text-[11px] font-bold text-[#8a6509] dark:text-[#f4c95d]">
+              Owner controls publishing
+            </span>
           ) : (
             <button
               type="button"
@@ -656,7 +668,7 @@ export default function TrackerCard({
         )}
       </article>
 
-      {publishModalOpen && !cloneSource && (
+      {publishModalOpen && hasOwnerControls && (
         <PublishTrackerModal
           tracker={tracker}
           isPublishing={isPublishing}

@@ -322,6 +322,32 @@ describe('tracker topic contributions', () => {
         expect.objectContaining({ userId: member._id.toString(), role: 'co_owner' }),
       ])
     );
+    const coOwnerTrackerList = await managementRepository.listOwnedTrackers({
+      userId: member._id.toString(),
+      status: 'all',
+      domain: 'all',
+      sortBy: 'createdAt',
+      page: 1,
+      limit: 10,
+    });
+    expect(coOwnerTrackerList.trackers).toHaveLength(1);
+    expect(coOwnerTrackerList.trackers[0]?._id.toString()).toBe(tracker._id.toString());
+    expect(coOwnerTrackerList.trackers[0]).toMatchObject({
+      sourceTrackerId: null,
+      clanRole: 'co_owner',
+    });
+    await expect(
+      managementRepository.publishOwnedTracker({
+        trackerId: tracker._id.toString(),
+        userId: member._id.toString(),
+      })
+    ).resolves.toBeNull();
+    await expect(
+      managementRepository.unpublishOwnedTracker({
+        trackerId: tracker._id.toString(),
+        userId: member._id.toString(),
+      })
+    ).resolves.toBeNull();
 
     await TrackerClanMessage.create({
       trackerId: tracker._id,
