@@ -3,6 +3,7 @@ import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { Tracker } from '../../src/infrastructure/database/models/tracker.model';
+import { TrackerLesson } from '../../src/infrastructure/database/models/tracker-lesson.model';
 import { TrackerSubtopic } from '../../src/infrastructure/database/models/tracker-subtopic.model';
 import { TrackerTopic } from '../../src/infrastructure/database/models/tracker-topic.model';
 import { TrackerTopicContribution } from '../../src/infrastructure/database/models/tracker-topic-contribution.model';
@@ -351,6 +352,38 @@ describe('tracker topic contributions', () => {
         deletedAt: null,
       })
     ).resolves.toBeTruthy();
+    const syncedUpstreamTopic = await TrackerTopic.findOne({
+      trackerId: memberClone._id,
+      sourceTopicId: upstreamTopic._id,
+      deletedAt: null,
+    });
+    expect(syncedUpstreamTopic).not.toBeNull();
+    await expect(
+      clans.updateTopic({
+        trackerId: memberClone._id.toString(),
+        actorId: member._id.toString(),
+        topicId: syncedUpstreamTopic!._id.toString(),
+        title: 'Changed inherited title',
+        description: 'Inherited content must remain read-only.',
+      })
+    ).resolves.toBe(false);
+    await expect(
+      clans.updateTopic({
+        trackerId: memberClone._id.toString(),
+        actorId: member._id.toString(),
+        topicId: personalTopic._id.toString(),
+        title: 'My updated private interview notes',
+        description: 'Clone-only content remains editable.',
+      })
+    ).resolves.toBe(true);
+    await expect(
+      clans.deleteTopic({
+        trackerId: memberClone._id.toString(),
+        actorId: member._id.toString(),
+        topicId: personalTopic._id.toString(),
+      })
+    ).resolves.toBe(false);
+    await expect(TrackerTopic.findById(personalTopic._id)).resolves.not.toBeNull();
     const promoted = await clans.updateMemberRole({
       trackerId: tracker._id.toString(),
       ownerId: owner._id.toString(),
@@ -466,6 +499,22 @@ describe('tracker topic contributions', () => {
       isLocked: true,
     });
     await Tracker.updateOne({ _id: tracker._id }, { $inc: { subtopicsCount: 1 } });
+    const lessonForDeletedBranch = await TrackerLesson.create({
+      trackerId: tracker._id,
+      subtopicId: roots[0]!._id,
+      userId: owner._id,
+      title: 'Cache patterns lesson',
+      summary: 'Temporary lesson',
+      explanation: 'Temporary explanation',
+      insight: 'Temporary insight',
+      lessonType: 'concept',
+      compilerRuntime: null,
+      codeExample: { language: 'text', fileName: 'lesson.txt', code: '' },
+      practiceTask: { title: 'Practice', description: 'Practice cache patterns.' },
+      tags: ['cache'],
+      difficulty: 'beginner',
+      estimatedMinutes: 10,
+    });
     await expect(
       clans.deleteSubtopic({
         trackerId: tracker._id.toString(),
@@ -473,6 +522,8 @@ describe('tracker topic contributions', () => {
         subtopicId: roots[0]!._id.toString(),
       })
     ).resolves.toBe(true);
+    await expect(TrackerSubtopic.findById(roots[0]!._id)).resolves.toBeNull();
+    await expect(TrackerLesson.findById(lessonForDeletedBranch._id)).resolves.toBeNull();
     await expect(
       TrackerSubtopic.countDocuments({ topicId: mergedTopic?._id, deletedAt: null })
     ).resolves.toBe(1);
@@ -483,9 +534,28 @@ describe('tracker topic contributions', () => {
         topicId: mergedTopic!._id.toString(),
       })
     ).resolves.toBe(true);
+    await expect(TrackerTopic.findById(mergedTopic!._id)).resolves.toBeNull();
+    await expect(
+      TrackerSubtopic.countDocuments({ topicId: mergedTopic?._id })
+    ).resolves.toBe(0);
     await expect(
       TrackerSubtopic.countDocuments({ topicId: mergedTopic?._id, deletedAt: null })
     ).resolves.toBe(0);
+    const recreatedTopic = await TrackerTopic.create({
+      trackerId: tracker._id,
+      title: 'Caching Strategies',
+      description: 'Recreated after permanent deletion.',
+      order: 2,
+      status: 'active',
+    });
+    expect(recreatedTopic.title).toBe('Caching Strategies');
+    await expect(
+      clans.deleteTopic({
+        trackerId: tracker._id.toString(),
+        actorId: member._id.toString(),
+        topicId: recreatedTopic._id.toString(),
+      })
+    ).resolves.toBe(true);
 
     const retainedSourceTopic = await TrackerTopic.create({
       trackerId: tracker._id,

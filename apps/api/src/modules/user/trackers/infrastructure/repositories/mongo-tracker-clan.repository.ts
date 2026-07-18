@@ -1,5 +1,12 @@
 import mongoose, { Types } from 'mongoose';
 
+import { LessonAnswerAttempt } from '../../../../../infrastructure/database/models/lesson-answer-attempt.model';
+import { LessonChatMessage } from '../../../../../infrastructure/database/models/lesson-chat-message.model';
+import { LessonCodeSubmission } from '../../../../../infrastructure/database/models/lesson-code-submission.model';
+import { LessonGeneratedQuestion } from '../../../../../infrastructure/database/models/lesson-generated-question.model';
+import { LessonQuestionSolutionDoubt } from '../../../../../infrastructure/database/models/lesson-question-solution-doubt.model';
+import { LessonQuestionSolution } from '../../../../../infrastructure/database/models/lesson-question-solution.model';
+import { LessonVisualization } from '../../../../../infrastructure/database/models/lesson-visualization.model';
 import { TrackerClan } from '../../../../../infrastructure/database/models/tracker-clan.model';
 import { TrackerClanChallenge as TrackerClanChallengeModel } from '../../../../../infrastructure/database/models/tracker-clan-challenge.model';
 import {
@@ -7,9 +14,13 @@ import {
   TrackerClanMessage,
 } from '../../../../../infrastructure/database/models/tracker-clan-message.model';
 import { Tracker } from '../../../../../infrastructure/database/models/tracker.model';
+import { TrackerLesson } from '../../../../../infrastructure/database/models/tracker-lesson.model';
+import { TrackerProgress } from '../../../../../infrastructure/database/models/tracker-progress.model';
 import { TrackerSubtopic } from '../../../../../infrastructure/database/models/tracker-subtopic.model';
 import { TrackerTopic } from '../../../../../infrastructure/database/models/tracker-topic.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
+import { UserSubtopicProgress } from '../../../../../infrastructure/database/models/user-subtopic-progress.model';
+import { UserTopicProgress } from '../../../../../infrastructure/database/models/user-topic-progress.model';
 import { mongoCommunityRepository, type ICommunityTrackerRepository } from '../../../community';
 import type {
   ITrackerClanRepository,
@@ -628,45 +639,77 @@ export class MongoTrackerClanRepository
     description: string;
   }) {
     if (!(await this.canManage(input.trackerId, input.actorId))) return false;
+    const trackerId = objectId(input.trackerId);
+    const topicId = objectId(input.topicId);
+    if (!trackerId || !topicId) return false;
+    const [tracker, topic] = await Promise.all([
+      Tracker.findOne({ _id: trackerId, deletedAt: null }).select('sourceTrackerId').lean(),
+      TrackerTopic.findOne({ _id: topicId, trackerId, deletedAt: null })
+        .select('sourceTopicId')
+        .lean(),
+    ]);
+    if (!tracker || !topic || (tracker.sourceTrackerId && topic.sourceTopicId)) return false;
     const result = await TrackerTopic.updateOne(
-      { _id: objectId(input.topicId), trackerId: objectId(input.trackerId), deletedAt: null },
+      { _id: topicId, trackerId, deletedAt: null },
       { $set: { title: input.title, description: input.description } }
     );
     return result.matchedCount > 0;
   }
 
   async deleteTopic(input: { trackerId: string; actorId: string; topicId: string }) {
-    if (!(await this.canManage(input.trackerId, input.actorId))) return false;
     const trackerId = objectId(input.trackerId);
     const topicId = objectId(input.topicId);
-    if (!trackerId || !topicId) return false;
-    const now = new Date();
-    const topic = await TrackerTopic.findOneAndUpdate(
-      { _id: topicId, trackerId, deletedAt: null },
-      { $set: { deletedAt: now } },
-      { returnDocument: 'after' }
-    );
-    if (!topic) return false;
-    const subtopics = await TrackerSubtopic.countDocuments({ trackerId, topicId, deletedAt: null });
-    await Promise.all([
-      TrackerSubtopic.updateMany({ trackerId, topicId, deletedAt: null }, { $set: { deletedAt: now } }),
-      Tracker.updateOne(
-        { _id: trackerId },
-        { $inc: { topicsCount: -1, subtopicsCount: -subtopics } }
-      ),
-    ]);
-    return true;
+    if (!trackerId || !topicId || !(await this.canManageOriginal(input.trackerId, input.actorId))) {
+      return false;
+    }
+    const session = await mongoose.startSession();
+    let deleted = false;
+    try {
+      await session.withTransaction(async () => {
+        const topic = await TrackerTopic.findOne({
+          _id: topicId,
+          trackerId,
+          deletedAt: null,
+        }).session(session);
+        if (!topic) return;
+        const subtopics = await TrackerSubtopic.find({ trackerId, topicId })
+          .select('_id')
+          .session(session)
+          .lean<Array<{ _id: Types.ObjectId }>>();
+        const subtopicIds = subtopics.map((subtopic) => subtopic._id);
+        await this.deleteSubtopicData(trackerId, subtopicIds, session);
+        await UserTopicProgress.deleteMany({ trackerId, topicId }).session(session);
+        await TrackerTopic.deleteOne({ _id: topicId, trackerId }).session(session);
+        await this.refreshTrackerProgress(trackerId, session);
+        deleted = true;
+      });
+    } finally {
+      await session.endSession();
+    }
+    return deleted;
   }
 
   async deleteSubtopic(input: { trackerId: string; actorId: string; subtopicId: string }) {
-    if (!(await this.canManage(input.trackerId, input.actorId))) return false;
     const trackerId = objectId(input.trackerId);
     const subtopicId = objectId(input.subtopicId);
-    if (!trackerId || !subtopicId) return false;
-    const all = await TrackerSubtopic.find({ trackerId, deletedAt: null })
-      .select('_id parentSubtopicId')
-      .lean<Array<{ _id: Types.ObjectId; parentSubtopicId?: Types.ObjectId | null }>>();
-    if (!all.some((item) => item._id.equals(subtopicId))) return false;
+    if (
+      !trackerId ||
+      !subtopicId ||
+      !(await this.canManageOriginal(input.trackerId, input.actorId))
+    ) {
+      return false;
+    }
+    const all = await TrackerSubtopic.find({ trackerId })
+      .select('_id parentSubtopicId deletedAt')
+      .lean<
+        Array<{
+          _id: Types.ObjectId;
+          parentSubtopicId?: Types.ObjectId | null;
+          deletedAt?: Date | null;
+        }>
+      >();
+    const selected = all.find((item) => item._id.equals(subtopicId));
+    if (!selected || selected.deletedAt) return false;
     const ids = new Set([subtopicId.toString()]);
     let added = true;
     while (added) {
@@ -679,14 +722,18 @@ export class MongoTrackerClanRepository
       }
     }
     const deletedIds = [...ids].map((id) => new Types.ObjectId(id));
-    await Promise.all([
-      TrackerSubtopic.updateMany(
-        { trackerId, _id: { $in: deletedIds }, deletedAt: null },
-        { $set: { deletedAt: new Date() } }
-      ),
-      Tracker.updateOne({ _id: trackerId }, { $inc: { subtopicsCount: -deletedIds.length } }),
-    ]);
-    return true;
+    const session = await mongoose.startSession();
+    let deleted = false;
+    try {
+      await session.withTransaction(async () => {
+        await this.deleteSubtopicData(trackerId, deletedIds, session);
+        await this.refreshTrackerProgress(trackerId, session);
+        deleted = true;
+      });
+    } finally {
+      await session.endSession();
+    }
+    return deleted;
   }
 
   async listMessages(input: { trackerId: string; userId: string; limit: number }) {
@@ -1244,6 +1291,119 @@ export class MongoTrackerClanRepository
 
   private isManager(ownerId: unknown, clan: ClanLean, userId: unknown) {
     return ['owner', 'co_owner'].includes(this.resolveRole(ownerId, clan, userId));
+  }
+
+  private async canManageOriginal(trackerId: string, userId: string) {
+    const trackerObjectId = objectId(trackerId);
+    const userObjectId = objectId(userId);
+    if (!trackerObjectId || !userObjectId) return false;
+    const tracker = await Tracker.findOne({
+      _id: trackerObjectId,
+      sourceTrackerId: null,
+      deletedAt: null,
+    })
+      .select('ownerId')
+      .lean<{ ownerId: unknown }>();
+    if (!tracker) return false;
+    const clan = await this.ensureClan(trackerObjectId);
+    return this.isManager(tracker.ownerId, clan, userObjectId);
+  }
+
+  private async deleteSubtopicData(
+    trackerId: Types.ObjectId,
+    subtopicIds: Types.ObjectId[],
+    session: mongoose.ClientSession
+  ) {
+    if (!subtopicIds.length) return;
+    const subtopicFilter = { trackerId, subtopicId: { $in: subtopicIds } };
+    await LessonAnswerAttempt.deleteMany(subtopicFilter).session(session);
+    await LessonChatMessage.deleteMany(subtopicFilter).session(session);
+    await LessonCodeSubmission.deleteMany(subtopicFilter).session(session);
+    await LessonGeneratedQuestion.deleteMany(subtopicFilter).session(session);
+    await LessonQuestionSolution.deleteMany(subtopicFilter).session(session);
+    await LessonQuestionSolutionDoubt.deleteMany(subtopicFilter).session(session);
+    await LessonVisualization.deleteMany(subtopicFilter).session(session);
+    await TrackerLesson.deleteMany(subtopicFilter).session(session);
+    await UserSubtopicProgress.deleteMany({
+      trackerId,
+      subtopicId: { $in: subtopicIds },
+    }).session(session);
+    await TrackerSubtopic.deleteMany({ trackerId, _id: { $in: subtopicIds } }).session(session);
+  }
+
+  private async refreshTrackerProgress(
+    trackerId: Types.ObjectId,
+    session: mongoose.ClientSession
+  ) {
+    const tracker = await Tracker.findById(trackerId)
+      .select('ownerId')
+      .session(session)
+      .lean<{ ownerId: unknown }>();
+    const totalTopics = await TrackerTopic.countDocuments({ trackerId, deletedAt: null }).session(
+      session
+    );
+    const totalSubtopics = await TrackerSubtopic.countDocuments({
+      trackerId,
+      deletedAt: null,
+    }).session(session);
+    const progressRows = await TrackerProgress.find({ trackerId })
+      .select('userId')
+      .session(session)
+      .lean();
+    for (const progress of progressRows) {
+      const completedTopics = await UserTopicProgress.countDocuments({
+        userId: progress.userId,
+        trackerId,
+        status: 'completed',
+      }).session(session);
+      const completedSubtopics = await UserSubtopicProgress.countDocuments({
+        userId: progress.userId,
+        trackerId,
+        status: 'completed',
+      }).session(session);
+      const completionPercentage = totalSubtopics
+        ? Math.min(100, Math.round((completedSubtopics / totalSubtopics) * 100))
+        : 0;
+      await TrackerProgress.updateOne(
+        { _id: progress._id },
+        {
+          $set: {
+            totalTopics,
+            totalSubtopics,
+            completedTopics,
+            completedSubtopics,
+            completionPercentage,
+            completedAt: completionPercentage === 100 ? new Date() : null,
+          },
+        },
+        { session }
+      );
+    }
+    const ownerProgress = tracker
+      ? progressRows.find((progress) => String(progress.userId) === String(tracker.ownerId))
+      : null;
+    const ownerCompletedSubtopics = ownerProgress
+      ? await UserSubtopicProgress.countDocuments({
+          userId: ownerProgress.userId,
+          trackerId,
+          status: 'completed',
+        }).session(session)
+      : 0;
+    await Tracker.updateOne(
+      { _id: trackerId },
+      {
+        $set: {
+          topicsCount: totalTopics,
+          subtopicsCount: totalSubtopics,
+          completedSubtopicsCount: ownerCompletedSubtopics,
+          progressPercent: totalSubtopics
+            ? Math.min(100, Math.round((ownerCompletedSubtopics / totalSubtopics) * 100))
+            : 0,
+          lastActiveAt: new Date(),
+        },
+      },
+      { session }
+    );
   }
 
   private async canManage(trackerId: string, userId: string) {

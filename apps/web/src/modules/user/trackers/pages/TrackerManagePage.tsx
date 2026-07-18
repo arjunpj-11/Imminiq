@@ -81,6 +81,7 @@ export default function TrackerManagePage() {
   const roadmapData = roadmapQuery.data as TrackerRoadmapLike | undefined;
   const tracker = trackerDetailsQuery.data || extractRoadmapTracker(roadmapData);
   const isClonedTracker = Boolean(tracker?.sourceTrackerId);
+  const canDeleteRoadmapContent = !isClonedTracker && Boolean(clanQuery.data?.canManage);
   const contributionsQuery = useTrackerTopicContributions(
     trackerId,
     Boolean(tracker && isClonedTracker)
@@ -133,6 +134,11 @@ export default function TrackerManagePage() {
   const activeTopic = useMemo(
     () => topics.find((topic) => topic._id === selectedTopicId) || topics[0],
     [selectedTopicId, topics]
+  );
+  const canEditActiveTopic = Boolean(
+    clanQuery.data?.canManage &&
+      activeTopic &&
+      (!isClonedTracker || activeTopic.isCloneAddition || !activeTopic.sourceTopicId)
   );
 
   const activeSubtopics = useMemo(() => getChildren(activeTopic), [activeTopic]);
@@ -476,7 +482,7 @@ export default function TrackerManagePage() {
   };
 
   const handleDeleteTopic = async () => {
-    if (!trackerId || !contentPendingDelete) return;
+    if (!trackerId || !contentPendingDelete || !canDeleteRoadmapContent) return;
     try {
       if (contentPendingDelete.type === 'topic') {
         await deleteTopicMutation.mutateAsync({ trackerId, topicId: contentPendingDelete.id });
@@ -500,6 +506,7 @@ export default function TrackerManagePage() {
   };
 
   const requestSubtopicDelete = (subtopic: RoadmapSubtopicNode) => {
+    if (!canDeleteRoadmapContent) return;
     setContentPendingDelete({
       id: subtopic._id,
       title: subtopic.title,
@@ -816,7 +823,7 @@ export default function TrackerManagePage() {
                       <h3 className="font-serif text-[clamp(18px,3vw,24px)] font-bold tracking-[-0.3px] text-(--brand-500) dark:text-(--brand-500)">
                         {activeTopic?.title || 'Roadmap Topic'}
                       </h3>
-                      {clanQuery.data?.canManage && activeTopic && (
+                      {canEditActiveTopic && activeTopic && (
                         <div className="flex gap-2">
                           <button
                             type="button"
@@ -831,20 +838,22 @@ export default function TrackerManagePage() {
                           >
                             Edit info
                           </button>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setContentPendingDelete({
-                                id: activeTopic._id,
-                                title: activeTopic.title,
-                                type: 'topic',
-                                nestedCount: countNestedSubtopics(getChildren(activeTopic)),
-                              })
-                            }
-                            className={cn(subtleButtonClass, 'px-3 py-2 text-[11px] hover:border-red-500 hover:text-red-500')}
-                          >
-                            Delete topic
-                          </button>
+                          {canDeleteRoadmapContent && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setContentPendingDelete({
+                                  id: activeTopic._id,
+                                  title: activeTopic.title,
+                                  type: 'topic',
+                                  nestedCount: countNestedSubtopics(getChildren(activeTopic)),
+                                })
+                              }
+                              className={cn(subtleButtonClass, 'px-3 py-2 text-[11px] hover:border-red-500 hover:text-red-500')}
+                            >
+                              Delete topic
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -911,7 +920,7 @@ export default function TrackerManagePage() {
                             subtopic={subtopic}
                             index={index}
                             depth={0}
-                            canDelete={Boolean(clanQuery.data?.canManage)}
+                            canDelete={canDeleteRoadmapContent}
                             onDelete={requestSubtopicDelete}
                           />
                         ))}
