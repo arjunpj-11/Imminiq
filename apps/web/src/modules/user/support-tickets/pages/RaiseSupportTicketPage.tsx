@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useCreateSupportTicket } from '../hooks/useCreateSupportTicket';
 import type { CreateSupportTicketInput } from '../types/support-tickets.types';
 import { ROUTES } from '../../../../routes/config/route-paths';
+import PageHero from '../../../../components/layout/PageHero';
 
 const initial: CreateSupportTicketInput = {
   subject: '',
@@ -20,17 +21,22 @@ export default function RaiseSupportTicketPage() {
   };
   return (
     <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8">
-      <div className="mb-7 flex items-center gap-4">
-        <div className="grid h-12 w-12 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--brand-500)_16%,transparent)] text-(--brand-500)">
-          <LifeBuoy />
-        </div>
-        <div>
-          <div className="text-[10px] font-bold uppercase tracking-[.18em] text-(--brand-500)">
-            Imminiq support
+      <PageHero
+        eyebrow="Imminiq support"
+        title="How can we help?"
+        description="Tell us what happened and include enough context for the support team to reproduce the issue quickly."
+        compact
+        className="mb-7"
+        aside={
+          <div className="flex items-center gap-4">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--brand-500)_14%,transparent)] text-(--brand-500)"><LifeBuoy /></span>
+            <div>
+              <div className="font-mono text-[10px] font-semibold uppercase tracking-wider text-(--text-muted)">Support desk</div>
+              <div className="mt-1 text-[13px] font-bold text-(--text-primary)">Clear details get faster answers.</div>
+            </div>
           </div>
-          <h1 className="mt-1 text-3xl font-bold text-(--text-primary)">Raise a support ticket</h1>
-        </div>
-      </div>
+        }
+      />
       <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-6 shadow-(--shadow-1) sm:p-8">
         {create.isSuccess ? (
           <div className="rounded-xl border border-[color-mix(in_srgb,var(--success)_35%,transparent)] bg-[color-mix(in_srgb,var(--success)_10%,transparent)] p-5">

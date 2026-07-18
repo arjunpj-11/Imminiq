@@ -163,7 +163,6 @@ export default function TrackerClanPage() {
       socket.off('connect_error', onConnectError);
       socket.off('tracker-clan:message', onMessage);
       socket.off('tracker-clan:challenge', onChallenge);
-      socket.disconnect();
     };
   }, [accessToken, currentUserId, isMember, navigate, refetchChallenges, trackerId]);
 

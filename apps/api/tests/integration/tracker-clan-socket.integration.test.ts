@@ -9,6 +9,7 @@ import { env } from '../../src/config/env';
 import { Tracker } from '../../src/infrastructure/database/models/tracker.model';
 import { TrackerClan } from '../../src/infrastructure/database/models/tracker-clan.model';
 import { TrackerClanMessage } from '../../src/infrastructure/database/models/tracker-clan-message.model';
+import { Notification } from '../../src/infrastructure/database/models/notification.model';
 import { User } from '../../src/infrastructure/database/models/user.model';
 import {
   closeSocket,
@@ -90,6 +91,17 @@ describe('tracker guild Socket.IO chat', () => {
       status: 'active',
       challengerId: owner._id.toString(),
       opponentId: member._id.toString(),
+    });
+    const notificationEvent = new Promise<{ type: string }>((resolve) =>
+      client!.once('notification:created', resolve)
+    );
+    await Notification.create({
+      userId: member._id,
+      type: 'tracker_clan_challenge_received',
+      message: 'You received a direct challenge.',
+    });
+    await expect(notificationEvent).resolves.toEqual({
+      type: 'tracker_clan_challenge_received',
     });
     const broadcast = new Promise<{ text: string; user: { username: string } }>((resolve) =>
       client!.once('tracker-clan:message', resolve)

@@ -31,7 +31,7 @@ export default function AuthLoadingScreen() {
         </h1>
 
         <p className="max-w-85 text-sm leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
-          Reconnecting your session and preparing your Imminiq workspace.
+          Reconnecting your session and preparing your imminiq workspace.
         </p>
 
         {/* animated progress line */}

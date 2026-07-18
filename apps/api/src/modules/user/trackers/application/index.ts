@@ -1,6 +1,7 @@
 export * from './tracker.dto';
 export * from './tracker.mapper';
 export * from './tracker-application.error';
+export * from './tracker-clan.contract';
 export * from './use-cases/add-missing-evaluation-topic.usecase';
 export * from './use-cases/archive-tracker.usecase';
 export * from './use-cases/ask-lesson-question-solution-doubt.usecase';

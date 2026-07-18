@@ -16,6 +16,7 @@ import type { VerifyPurpose, VerifyState } from '../types/auth.types';
 import { maskIdentifier, formatTime } from '../utils/auth-formatters';
 import { cn } from '../utils/auth-ui';
 import { LogoIcon } from '../components/icons/AuthIcons';
+import ImminiqWordmark from '../../../components/ui/ImminiqWordmark';
 import { ROUTES } from '../../../routes/config/route-paths';
 
 export default function VerifyAccountPage() {
@@ -243,9 +244,10 @@ export default function VerifyAccountPage() {
         <main className="px-5 py-8 text-center sm:px-8">
           <Link to={ROUTES.home} className="mb-6 inline-flex items-center justify-center gap-2">
             <LogoIcon className="h-10 w-10" />
-            <span className="text-[24px] font-black tracking-[-0.8px]">
-              immin<span className="text-(--brand-500) dark:text-(--brand-500)">iq</span>
-            </span>
+            <ImminiqWordmark
+              lowercase
+              className="text-[24px] font-black tracking-[-0.8px]"
+            />
           </Link>
 
           <div className="relative mx-auto mb-5 h-2 overflow-hidden rounded-full bg-(--border-subtle) dark:bg-white/10">

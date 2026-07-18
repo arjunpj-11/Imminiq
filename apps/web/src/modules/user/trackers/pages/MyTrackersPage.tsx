@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 
 import StatCard from "../../../../components/data-display/StatCard";
 import SkeletonBlock from "../../../../components/feedback/SkeletonBlock";
+import PageHero from "../../../../components/layout/PageHero";
 import { ROUTES } from "../../../../routes/config/route-paths";
 import TrackerCard, { type PublishFormData } from "../components/TrackerCard";
 import TrackerFilterBar from "../components/TrackerFilterBar";
@@ -245,44 +246,45 @@ export default function MyTrackersPage() {
 
   return (
     <TrackerShell>
-      <section className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
-            <span className="h-1.25 w-1.25 rounded-full bg-(--success) dark:bg-(--success)" />
-            My Trackers
-          </div>
-          <h1 className="font-ui text-[clamp(26px,3.5vw,38px)] font-extrabold leading-[1.15] tracking-[-0.8px] text-(--text-primary) dark:text-(--text-primary)">
+      <PageHero
+        eyebrow="Learning workspace"
+        title={
+          <>
             Build your{" "}
-            <span className="text-(--brand-500) dark:text-(--brand-500)">zero-to-hero</span>{" "}
+            <span className="text-(--brand-500)">zero-to-hero</span>{" "}
             learning path
-          </h1>
-          <p className="mt-2 max-w-125 text-[13px] italic leading-[1.55] text-(--text-secondary) opacity-80 dark:text-(--text-secondary)">
-            Manage your roadmaps, continue lessons, and improve your learning path step by step.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 max-[560px]:w-full max-[560px]:flex-col">
-          <button
-            type="button"
-            onClick={() => navigate(ROUTES.publishedTrackers)}
-            className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.06)] px-4 py-2.5 text-[13px] font-bold text-(--success) transition hover:-translate-y-px dark:text-(--success) max-[560px]:w-full max-[560px]:justify-center"
-          >
-            <GlobeIcon /> Published
-            {summary.publishedTrackers > 0 && (
-              <span className="rounded-full bg-[rgba(45,106,71,0.12)] px-2 py-0.5 text-[10px]">
-                {summary.publishedTrackers}
-              </span>
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate(ROUTES.trackerCreate)}
-            className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-(--brand-600) dark:bg-(--brand-500) dark:text-[#141412] max-[560px]:w-full max-[560px]:justify-center"
-          >
-            <PlusIcon /> Create Tracker
-          </button>
-        </div>
-      </section>
+          </>
+        }
+        description="Manage personalized roadmaps, continue exactly where you stopped, and turn every completed topic into visible mastery."
+        actions={
+          <>
+            <button
+              type="button"
+              onClick={() => navigate(ROUTES.trackerCreate)}
+              className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-(--brand-500) px-5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-0.5 hover:bg-(--brand-600) dark:text-[#141412]"
+            >
+              <PlusIcon /> Create tracker
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate(ROUTES.publishedTrackers)}
+              className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-(--border-subtle) bg-(--surface-elevated) px-5 text-[13px] font-bold text-(--text-primary) transition hover:-translate-y-0.5 hover:border-[rgba(45,106,71,0.3)] hover:text-(--success)"
+            >
+              <GlobeIcon /> Published
+              {summary.publishedTrackers > 0 && (
+                <span className="rounded-full bg-[rgba(45,106,71,0.12)] px-2 py-0.5 text-[10px] text-(--success)">{summary.publishedTrackers}</span>
+              )}
+            </button>
+          </>
+        }
+        aside={
+          <div>
+            <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-(--text-muted)">Overall mastery</div>
+            <div className="mt-3 font-ui text-[36px] font-extrabold leading-none text-(--brand-500)">{summary.averageProgress || 0}%</div>
+            <p className="mt-2 text-[12px] leading-5 text-(--text-secondary)">{summary.activeTrackers || 0} active path{summary.activeTrackers === 1 ? '' : 's'} moving forward.</p>
+          </div>
+        }
+      />
 
       {/* Shared StatCard components intentionally remain unchanged. */}
       <section className="grid grid-cols-4 gap-3 max-[860px]:grid-cols-2 max-[440px]:grid-cols-1">

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import type { CSSProperties } from 'react';
 
 import ImminiqLogo from '../../../components/ui/ImminiqLogo';
 import ImminiqWordmark from '../../../components/ui/ImminiqWordmark';
@@ -17,7 +18,12 @@ export default function FloatingStudioNav() {
 
           <ImminiqWordmark
             className="truncate text-[14px] font-extrabold tracking-[-0.02em]"
-            prefixClassName="text-[#1a1714] dark:text-[#141412]"
+            style={
+              {
+                '--imminiq-wordmark-prefix': '#1a1714',
+                '--imminiq-wordmark-accent': '#b84c2b',
+              } as CSSProperties
+            }
           />
         </Link>
 

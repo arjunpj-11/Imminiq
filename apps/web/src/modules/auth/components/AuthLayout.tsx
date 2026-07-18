@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
 import { LogoIcon } from './icons/AuthIcons';
+import ImminiqWordmark from '../../../components/ui/ImminiqWordmark';
 import { cn } from '../utils/auth-ui';
 import { ROUTES } from '../../../routes/config/route-paths';
 
 interface IAuthLayoutProps {
   badge: string;
-  title: string;
+  title: React.ReactNode;
   subtitle: string;
   children: React.ReactNode;
 }
@@ -23,10 +24,10 @@ export default function AuthLayout({ badge, title, subtitle, children }: IAuthLa
       <div className="flex shrink-0 items-center justify-between px-4 pt-5 sm:px-8 sm:pt-7 lg:hidden">
         <Link to={ROUTES.home} className="inline-flex items-center gap-2.5 leading-none">
           <LogoIcon className="h-9 w-9 rounded-md sm:h-10 sm:w-10" />
-          <span className="text-[22px] font-bold leading-none tracking-[-0.5px] text-(--text-primary) dark:text-(--text-primary) sm:text-2xl">
-            immin<span className="text-(--brand-500) dark:text-(--brand-500)">iq</span>
-            <span className="text-(--brand-500) dark:text-(--brand-500)">.</span>
-          </span>
+          <ImminiqWordmark
+            lowercase
+            className="text-[22px] font-bold leading-none tracking-[-0.5px] sm:text-2xl"
+          />
         </Link>
         <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 font-mono text-[8.5px] font-medium uppercase tracking-[0.07em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-(--brand-500) sm:text-[9px]">
           <span className="h-1.25 w-1.25 rounded-full bg-(--brand-500) dark:bg-(--brand-500)" />
@@ -45,10 +46,10 @@ export default function AuthLayout({ badge, title, subtitle, children }: IAuthLa
             className="relative z-1 inline-flex items-center gap-3 leading-none"
           >
             <LogoIcon className="h-11 w-11" />
-            <span className="text-[27px] font-bold tracking-[-0.7px]">
-              immin<span className="text-(--brand-500) dark:text-(--brand-500)">iq</span>
-              <span className="text-(--brand-500) dark:text-(--brand-500)">.</span>
-            </span>
+            <ImminiqWordmark
+              lowercase
+              className="text-[27px] font-bold tracking-[-0.7px]"
+            />
           </Link>
           <div className="relative z-1 max-w-135">
             <p className="mb-4 font-mono text-[9px] uppercase tracking-[0.18em] text-(--brand-500) dark:text-(--brand-500)">

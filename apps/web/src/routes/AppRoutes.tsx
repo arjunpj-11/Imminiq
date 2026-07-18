@@ -35,9 +35,7 @@ const routes: RouteObject[] = [
   { path: '*', element: <NotFoundPage /> },
 ];
 
-const loadingFallback = (
-  <PageLoadingScreen eyebrow="Loading" title="Opening Imminiq" description="Preparing your page." />
-);
+const loadingFallback = <PageLoadingScreen />;
 
 export default function AppRoutes() {
   return <Suspense fallback={loadingFallback}>{useRoutes(routes)}</Suspense>;

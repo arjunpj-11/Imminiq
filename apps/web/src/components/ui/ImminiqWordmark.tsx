@@ -19,10 +19,16 @@ export default function ImminiqWordmark({
 }: IImminiqWordmarkProps) {
   return (
     <span className={cn('inline-flex items-baseline', className)} {...props}>
-      <span className={cn('text-(--text-primary) dark:text-[#fff8ed]', prefixClassName)}>
+      <span
+        className={prefixClassName}
+        style={{ color: 'var(--imminiq-wordmark-prefix, var(--text-primary))' }}
+      >
         {lowercase ? 'immin' : 'Immin'}
       </span>
-      <span className={cn('text-(--brand-500) dark:text-(--brand-500)', accentClassName)}>
+      <span
+        className={accentClassName}
+        style={{ color: 'var(--imminiq-wordmark-accent, var(--brand-500))' }}
+      >
         iq{trailingDot ? '.' : ''}
       </span>
     </span>

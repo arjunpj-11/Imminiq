@@ -4,10 +4,12 @@ import { TrackerClanUseCase } from '../../src/modules/user/trackers/application/
 import { TrackerClanChallengeUseCase } from '../../src/modules/user/trackers/application/use-cases/tracker-clan-challenge.usecase';
 import type {
   ITrackerClanChallengeNotifier,
+  ITrackerClanNotificationNotifier,
   ITrackerClanChallengeQuestionGenerator,
   ITrackerClanChallengeRepository,
   ITrackerClanRepository,
   TrackerClanChallenge,
+  TrackerClanOverview,
 } from '../../src/modules/user/trackers/domain';
 
 const repository = () =>
@@ -77,6 +79,56 @@ describe('TrackerClanUseCase', () => {
     ).rejects.toMatchObject({ code: 'FORBIDDEN' });
   });
 
+  it('notifies a member when a co-owner invitation is created', async () => {
+    const clans = repository();
+    const invitation = {
+      id: 'invitation-1',
+      userId: 'member-2',
+      role: 'co_owner' as const,
+      status: 'pending' as const,
+      createdAt: new Date(),
+      invitedBy: { userId: 'owner-1', name: 'Owner', username: 'owner' },
+    };
+    vi.mocked(clans.updateMemberRole).mockResolvedValue({
+      trackerId: 'tracker-1',
+      trackerTitle: 'MERN Stack',
+      trackerDescription: '',
+      topicsCount: 8,
+      subtopicsCount: 24,
+      visibility: 'public',
+      role: 'owner',
+      canManage: true,
+      canTransferOwnership: true,
+      hasPendingJoinRequest: false,
+      personalCloneTrackerId: 'clone-1',
+      members: [],
+      joinRequests: [],
+      roleInvitations: [invitation],
+    } satisfies TrackerClanOverview);
+    const notifications: ITrackerClanNotificationNotifier = { notify: vi.fn() };
+    const useCase = new TrackerClanUseCase(clans, notifications);
+
+    await useCase.updateMemberRole({
+      trackerId: 'tracker-1',
+      userId: 'owner-1',
+      memberId: 'member-2',
+      role: 'co_owner',
+    });
+
+    expect(notifications.notify).toHaveBeenCalledWith({
+      userId: 'member-2',
+      type: 'tracker_clan_role_invitation',
+      message: 'You were invited to become a co-owner of “MERN Stack”.',
+      deepLink: '/trackers/tracker-1/clan',
+      eventId: 'invitation-1',
+      metadata: {
+        trackerId: 'tracker-1',
+        invitationId: 'invitation-1',
+        role: 'co_owner',
+      },
+    });
+  });
+
   it('allows only guild members to load chat history', async () => {
     const clans = repository();
     vi.mocked(clans.listMessages).mockResolvedValue(null);
@@ -132,20 +184,27 @@ describe('TrackerClanUseCase', () => {
     const challenge = {
       id: 'challenge-1',
       trackerId: 'tracker-1',
-      status: 'open',
-      challenger: { userId: 'member-1' },
-      opponent: null,
+      status: 'pending',
+      challenger: { userId: 'member-1', name: 'Ada', username: 'ada' },
+      opponent: { userId: 'member-2', name: 'Lin', username: 'lin' },
     } as TrackerClanChallenge;
     vi.mocked(clans.createChallenge).mockResolvedValue(challenge);
     const questionGenerator: ITrackerClanChallengeQuestionGenerator = { generate: vi.fn() };
     vi.mocked(questionGenerator.generate).mockResolvedValue(questions);
     const notifier: ITrackerClanChallengeNotifier = { notify: vi.fn() };
-    const useCase = new TrackerClanChallengeUseCase(clans, questionGenerator, notifier);
+    const notifications: ITrackerClanNotificationNotifier = { notify: vi.fn() };
+    const useCase = new TrackerClanChallengeUseCase(
+      clans,
+      questionGenerator,
+      notifier,
+      notifications
+    );
 
     await expect(
       useCase.create({
         trackerId: 'tracker-1',
         userId: 'member-1',
+        opponentId: 'member-2',
         durationMinutes: 10,
         questionCount: 5,
       })
@@ -161,9 +220,52 @@ describe('TrackerClanUseCase', () => {
     expect(notifier.notify).toHaveBeenCalledWith({
       id: 'challenge-1',
       trackerId: 'tracker-1',
-      status: 'open',
+      status: 'pending',
       challengerId: 'member-1',
-      opponentId: null,
+      opponentId: 'member-2',
+    });
+    expect(notifications.notify).toHaveBeenCalledWith({
+      userId: 'member-2',
+      type: 'tracker_clan_challenge_received',
+      message: 'Ada challenged you to a guild battle.',
+      deepLink: '/trackers/tracker-1/clan/challenges/challenge-1',
+      eventId: 'challenge-1:received',
+      metadata: { trackerId: 'tracker-1', challengeId: 'challenge-1' },
+    });
+  });
+
+  it('notifies the challenger when another member accepts the challenge', async () => {
+    const clans = repository();
+    const challenge = {
+      id: 'challenge-1',
+      trackerId: 'tracker-1',
+      status: 'active',
+      challenger: { userId: 'member-1', name: 'Ada', username: 'ada' },
+      opponent: { userId: 'member-2', name: 'Lin', username: 'lin' },
+    } as TrackerClanChallenge;
+    vi.mocked(clans.acceptChallenge).mockResolvedValue(challenge);
+    const notifier: ITrackerClanChallengeNotifier = { notify: vi.fn() };
+    const notifications: ITrackerClanNotificationNotifier = { notify: vi.fn() };
+    const useCase = new TrackerClanChallengeUseCase(
+      clans,
+      { generate: vi.fn() },
+      notifier,
+      notifications
+    );
+
+    await useCase.accept({
+      trackerId: 'tracker-1',
+      challengeId: 'challenge-1',
+      userId: 'member-2',
+    });
+
+    expect(notifications.notify).toHaveBeenCalledWith({
+      userId: 'member-1',
+      type: 'tracker_clan_challenge_accepted',
+      message: 'Lin accepted your guild challenge.',
+      deepLink: '/trackers/tracker-1/clan/challenges/challenge-1',
+      eventId: 'challenge-1:accepted',
+      metadata: { trackerId: 'tracker-1', challengeId: 'challenge-1' },
     });
   });
 

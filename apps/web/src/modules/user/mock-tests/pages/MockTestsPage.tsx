@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import PageHero from '../../../../components/layout/PageHero';
 import EmptyState from '../../../../components/feedback/EmptyState';
 import ErrorState from '../../../../components/feedback/ErrorState';
 import Pagination from '../../../../components/navigation/Pagination';
@@ -162,37 +163,36 @@ export default function MockTestsPage() {
       />
 
       <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
-              <span className="h-1.25 w-1.25 rounded-full bg-(--success) dark:bg-(--success)" />
-              My Mock Tests
-            </div>
-
-            <h1 className="mt-3 font-ui text-[38px] font-black leading-tight text-(--text-primary) dark:text-(--text-primary)">
+        <PageHero
+          eyebrow="Assessment studio"
+          title={
+            <>
               Practice{' '}
-              <span className="text-(--brand-500) dark:text-(--brand-500)">under pressure</span>
-            </h1>
-
-            <p className="mt-2 max-w-125 text-[13px] italic leading-[1.55] text-(--text-secondary) opacity-80 dark:text-(--text-secondary)">
-              Generate AI mock tests, attempt timed questions, review results, and track weak areas.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 self-start max-[520px]:w-full max-[520px]:flex-col">
+              <span className="text-(--brand-500)">under pressure</span>
+            </>
+          }
+          description="Generate focused assessments from your learning paths, test recall under realistic timing, and turn every result into a smarter next step."
+          actions={
             <button
               type="button"
               onClick={() => {
                 if (!generationBlocked) setGenerateModalOpen(true);
               }}
               disabled={generationBlocked || activeGenerationQuery.isLoading}
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-(--brand-500) px-5 py-3 font-ui text-[15px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 max-[520px]:w-full dark:bg-(--brand-500) dark:shadow-none dark:hover:bg-[#d9522d] dark:hover:shadow-[0_8px_24px_rgba(232,129,106,0.3)]"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-(--brand-500) px-5 font-ui text-[14px] font-bold text-white shadow-[0_8px_22px_rgba(184,76,43,0.18)] transition hover:-translate-y-0.5 hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 dark:text-[#141412]"
             >
               <SparklesSmall />
               {generationBlocked ? 'Test generating…' : 'Generate test'}
             </button>
-          </div>
-        </div>
+          }
+          aside={
+            <div>
+              <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-(--text-muted)">Adaptive mode</div>
+              <div className="mt-3 font-ui text-[24px] font-extrabold text-(--text-primary)">{generationBlocked ? 'Generation active' : 'Ready to test'}</div>
+              <p className="mt-2 text-[12px] leading-5 text-(--text-secondary)">Questions adjust to your roadmap, level, and recent weak areas.</p>
+            </div>
+          }
+        />
 
         <AdaptiveExamPanel />
 

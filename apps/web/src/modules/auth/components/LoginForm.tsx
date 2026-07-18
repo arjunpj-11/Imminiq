@@ -12,6 +12,7 @@ import { EyeIcon } from './icons/AuthIcons';
 import { authInputClass, authLabelClass, cn } from '../utils/auth-ui';
 import { validateIdentifier } from '../utils/auth-validation';
 import { ROUTES } from '../../../routes/config/route-paths';
+import ImminiqWordmark from '../../../components/ui/ImminiqWordmark';
 
 interface IFormState {
   identifier: string;
@@ -101,7 +102,11 @@ export default function LoginForm() {
   return (
     <AuthLayout
       badge="Welcome back"
-      title="Sign in to Imminiq"
+      title={
+        <>
+          Sign in to <ImminiqWordmark lowercase />
+        </>
+      }
       subtitle="Continue your personalized learning journey."
     >
       <ApiErrorBanner message={apiError} warning={tooManyAttempts} />
@@ -172,7 +177,7 @@ export default function LoginForm() {
       <AuthSocialButtons />
 
       <p className="mt-6 text-center text-[13px] text-(--text-secondary) dark:text-(--text-secondary)">
-        New to Imminiq?{' '}
+        New to <ImminiqWordmark lowercase />?{' '}
         <Link
           to={ROUTES.register}
           className="font-semibold text-(--brand-500) hover:opacity-70 dark:text-(--brand-500)"

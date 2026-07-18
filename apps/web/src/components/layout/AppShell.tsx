@@ -1,10 +1,12 @@
 import { useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { useStreak } from '../../hooks/progress/useStreak';
+import { useRealtimeAppEvents } from '../../hooks/useRealtimeAppEvents';
 import { cn } from '../../lib/cn';
 import { useAppShellStore } from '../../store/useAppShellStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useNotifications } from '../../modules/notifications';
+import { useReceivedFriendRequests } from '../../modules/user/friends';
 import AppNoiseOverlay from './AppNoiseOverlay';
 import {
   AppShellContext,
@@ -51,11 +53,17 @@ export function AppShell({
 }: IAppShellProps) {
   const authUser = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const accessToken = useAuthStore((state) => state.accessToken);
 
   const streakQuery = useStreak(undefined, {
     enabled: !isGuest && isAuthenticated,
   });
   const notificationsQuery = useNotifications(1, !isGuest && isAuthenticated);
+  const friendRequestsQuery = useReceivedFriendRequests(
+    { limit: 1 },
+    !isGuest && isAuthenticated
+  );
+  useRealtimeAppEvents(accessToken, !isGuest && isAuthenticated);
 
   const [pageViewer, setPageViewer] = useState<IAppShellViewer | null>(initialViewer ?? null);
 
@@ -144,7 +152,10 @@ export function AppShell({
                 }
                 messageCount={pageViewer?.messageCount ?? initialViewer?.messageCount ?? 0}
                 friendRequestCount={
-                  pageViewer?.friendRequestCount ?? initialViewer?.friendRequestCount ?? 0
+                  friendRequestsQuery.data?.pages[0]?.pendingReceivedCount ??
+                  pageViewer?.friendRequestCount ??
+                  initialViewer?.friendRequestCount ??
+                  0
                 }
               />
             )}

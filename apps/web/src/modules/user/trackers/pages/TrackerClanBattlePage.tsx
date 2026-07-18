@@ -72,7 +72,6 @@ export default function TrackerClanBattlePage() {
       socket.emit('tracker-clan:leave', { trackerId });
       socket.off('connect', join);
       socket.off('tracker-clan:challenge', refresh);
-      socket.disconnect();
     };
   }, [accessToken, challengeId, refetchChallenges, trackerId]);
 

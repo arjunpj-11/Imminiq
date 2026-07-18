@@ -17,6 +17,7 @@ import {
   validatePassword,
 } from '../utils/auth-validation';
 import { ROUTES } from '../../../routes/config/route-paths';
+import ImminiqWordmark from '../../../components/ui/ImminiqWordmark';
 
 interface IFormState {
   fullName: string;
@@ -169,7 +170,11 @@ export default function RegisterForm() {
   return (
     <AuthLayout
       badge="Create account"
-      title="Join Imminiq"
+      title={
+        <>
+          Join <ImminiqWordmark lowercase />
+        </>
+      }
       subtitle="Build your personalized learning roadmap."
     >
       <ApiErrorBanner message={apiError} />

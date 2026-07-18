@@ -7,6 +7,7 @@ import type { AuthApiErrorResponse, VerificationStatus } from '../types/auth.typ
 import { STORAGE_KEYS } from '../../../lib/storage/storage-keys';
 import { safeLocalStorage } from '../../../lib/storage/safe-storage';
 import { ROUTES } from '../../../routes/config/route-paths';
+import ImminiqWordmark from '../../../components/ui/ImminiqWordmark';
 
 export default function VerifyEmailChangePage() {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ export default function VerifyEmailChangePage() {
 
   const description =
     status === 'loading'
-      ? 'Please wait while Imminiq verifies your new email address.'
+      ? 'Please wait while imminiq verifies your new email address.'
       : status === 'success'
         ? 'Your email address was updated. For security, please sign in again.'
         : status === 'missing-token'
@@ -81,9 +82,10 @@ export default function VerifyEmailChangePage() {
 
         <div className="px-6 py-8 text-center sm:px-10 sm:py-10">
           <div className="mb-7">
-            <div className="text-[30px] font-black tracking-[-0.8px] text-(--text-primary) dark:text-(--text-primary)">
-              immin<span className="text-(--brand-500) dark:text-(--brand-500)">iq</span>
-            </div>
+            <ImminiqWordmark
+              lowercase
+              className="text-[30px] font-black tracking-[-0.8px]"
+            />
           </div>
 
           <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">

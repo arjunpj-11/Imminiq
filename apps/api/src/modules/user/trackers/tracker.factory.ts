@@ -57,6 +57,7 @@ import { mongoTrackerTopicContributionRepository } from './infrastructure/reposi
 import { TrackerContributionNotificationGateway } from './infrastructure/gateways/tracker-contribution-notification.gateway';
 import { trackerClanChallengeGateway } from './infrastructure/gateways/tracker-clan-challenge.gateway';
 import { trackerClanChallengeQuestionGateway } from './infrastructure/gateways/tracker-clan-challenge-question.gateway';
+import { TrackerClanNotificationGateway } from './infrastructure/gateways/tracker-clan-notification.gateway';
 import { mongoTrackerClanRepository } from './infrastructure/repositories/mongo-tracker-clan.repository';
 
 export type TrackerListInput = Parameters<ListTrackersUseCase['execute']>[0];
@@ -142,6 +143,7 @@ export const createTrackerComposition = (
 
   const trackerQuestionHasher = cryptoQuestionHasher;
   const contributionNotifier = new TrackerContributionNotificationGateway(notificationCreator);
+  const trackerClanNotifications = new TrackerClanNotificationGateway(notificationCreator);
 
   const _trackerMapper = new TrackerMapper();
   const missingEvaluationTopicPlacement = new MissingEvaluationTopicPlacementService(
@@ -174,12 +176,13 @@ export const createTrackerComposition = (
 
       reportTracker: new ReportTrackerUseCase(trackerRepository),
 
-      trackerClan: new TrackerClanUseCase(mongoTrackerClanRepository),
+      trackerClan: new TrackerClanUseCase(mongoTrackerClanRepository, trackerClanNotifications),
 
       trackerClanChallenges: new TrackerClanChallengeUseCase(
         mongoTrackerClanRepository,
         trackerClanChallengeQuestionGateway,
-        trackerClanChallengeGateway
+        trackerClanChallengeGateway,
+        trackerClanNotifications
       ),
 
       getTrackerRoadmap: new GetTrackerRoadmapUseCase(trackerRepository, _trackerMapper),
