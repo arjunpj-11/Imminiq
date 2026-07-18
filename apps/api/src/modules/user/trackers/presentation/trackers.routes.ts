@@ -43,6 +43,7 @@ import {
   submitClanChallengeSchema,
   chooseClanChallengeCheckpointSchema,
   answerClanChallengeNodeSchema,
+  respondClanRoleInvitationSchema,
 } from './trackers.schema';
 
 export const createTrackerRoutes = (useCases: TrackerUseCases) => {
@@ -60,6 +61,7 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
   router.param('requestId', validateIdentifierParam);
   router.param('memberId', validateIdentifierParam);
   router.param('challengeId', validateIdentifierParam);
+  router.param('invitationId', validateIdentifierParam);
 
   const validateQuery =
     (localKey: string, schema: ZodTypeAny) => (req: Request, res: Response, next: NextFunction) => {
@@ -148,6 +150,12 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
     validate(transferClanOwnershipSchema),
     clanController.transferOwnership
   );
+  router.patch(
+    TRACKER_ROUTE_PATHS.CLAN_ROLE_INVITATION,
+    validate(respondClanRoleInvitationSchema),
+    clanController.respondToRoleInvitation
+  );
+  router.post(TRACKER_ROUTE_PATHS.CLAN_SYNC_CLONE, clanController.syncPersonalClone);
   router.get(TRACKER_ROUTE_PATHS.CLAN_CHALLENGES, clanChallengesController.list);
   router.post(
     TRACKER_ROUTE_PATHS.CLAN_CHALLENGES,

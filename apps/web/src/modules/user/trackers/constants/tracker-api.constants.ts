@@ -12,6 +12,9 @@ export const TRACKER_API_PATHS = {
     `/trackers/${trackerId}/clan/members/${memberId}`,
   clanLeave: (trackerId: string) => `/trackers/${trackerId}/clan/leave`,
   clanTransfer: (trackerId: string) => `/trackers/${trackerId}/clan/transfer-ownership`,
+  clanRoleInvitation: (trackerId: string, invitationId: string) =>
+    `/trackers/${trackerId}/clan/role-invitations/${invitationId}`,
+  clanFetchChanges: (trackerId: string) => `/trackers/${trackerId}/clan/fetch-changes`,
   clanMessages: (trackerId: string) => `/trackers/${trackerId}/clan/messages`,
   clanChallenges: (trackerId: string) => `/trackers/${trackerId}/clan/challenges`,
   clanChallengeAccept: (trackerId: string, challengeId: string) =>

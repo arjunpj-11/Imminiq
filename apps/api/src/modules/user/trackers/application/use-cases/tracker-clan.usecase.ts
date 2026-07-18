@@ -2,6 +2,7 @@ import type {
   ITrackerClanRepository,
   TrackerClanOverview,
   TrackerClanMessage,
+  TrackerCloneSyncResult,
 } from '../../domain';
 import { TrackerApplicationError } from '../tracker-application.error';
 
@@ -31,6 +32,16 @@ export interface ITrackerClanUseCase {
     userId: string;
     newOwnerId: string;
   }): Promise<TrackerClanOverview>;
+  respondToRoleInvitation(input: {
+    trackerId: string;
+    userId: string;
+    invitationId: string;
+    action: 'accept' | 'decline';
+  }): Promise<TrackerClanOverview>;
+  syncPersonalClone(input: {
+    trackerId: string;
+    userId: string;
+  }): Promise<TrackerCloneSyncResult>;
   updateTopic(input: {
     trackerId: string;
     userId: string;
@@ -134,8 +145,30 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
         ownerId: input.userId,
         newOwnerId: input.newOwnerId,
       }),
-      'Ownership can only be transferred by the owner to an existing clan member'
+      'An ownership invitation can only be sent by the owner to an existing clan member'
     );
+  }
+
+  async respondToRoleInvitation(input: {
+    trackerId: string;
+    userId: string;
+    invitationId: string;
+    action: 'accept' | 'decline';
+  }) {
+    return this.requireOverview(
+      await this.clans.respondToRoleInvitation(input),
+      'This role invitation is invalid or no longer pending'
+    );
+  }
+
+  async syncPersonalClone(input: { trackerId: string; userId: string }) {
+    const result = await this.clans.syncPersonalClone(input);
+    if (!result) {
+      throw TrackerApplicationError.forbidden(
+        'A personal clone is required before guild changes can be fetched'
+      );
+    }
+    return result;
   }
 
   async updateTopic(input: {

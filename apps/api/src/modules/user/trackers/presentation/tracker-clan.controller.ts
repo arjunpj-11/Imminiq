@@ -8,6 +8,7 @@ import type { TrackerUseCases } from '../application/tracker-use-cases.contract'
 type TrackerParams = { trackerId: string };
 type ClanRequestParams = { trackerId: string; requestId: string };
 type ClanMemberParams = { trackerId: string; memberId: string };
+type ClanRoleInvitationParams = { trackerId: string; invitationId: string };
 
 export class TrackerClanController {
   constructor(private readonly useCases: TrackerUseCases) {}
@@ -96,7 +97,42 @@ export class TrackerClanController {
         newOwnerId: req.body.newOwnerId,
         userId: getAuthUser(req).userId,
       });
-      res.json(new ApiResponse('Clan ownership transferred', result));
+      res.json(new ApiResponse('Ownership invitation sent', result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  respondToRoleInvitation = async (
+    req: Request<ClanRoleInvitationParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const result = await this.useCases.trackerClan.respondToRoleInvitation({
+        trackerId: req.params.trackerId,
+        invitationId: req.params.invitationId,
+        userId: getAuthUser(req).userId,
+        action: req.body.action,
+      });
+      res.json(
+        new ApiResponse(
+          req.body.action === 'accept' ? 'Role invitation accepted' : 'Role invitation declined',
+          result
+        )
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  syncPersonalClone = async (req: Request<TrackerParams>, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.useCases.trackerClan.syncPersonalClone({
+        trackerId: req.params.trackerId,
+        userId: getAuthUser(req).userId,
+      });
+      res.json(new ApiResponse('Latest guild changes fetched without removing personal topics', result));
     } catch (error) {
       next(error);
     }

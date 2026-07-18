@@ -117,6 +117,10 @@ export const transferClanOwnershipSchema = z.object({
   newOwnerId: z.string().trim().min(1),
 });
 
+export const respondClanRoleInvitationSchema = z.object({
+  action: z.enum(['accept', 'decline']),
+});
+
 export const createClanChallengeSchema = z.object({
   opponentId: z.string().trim().min(1).optional(),
   durationMinutes: z.coerce.number().int().min(5).max(30).default(10),

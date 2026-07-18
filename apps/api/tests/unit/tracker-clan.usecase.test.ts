@@ -20,6 +20,8 @@ const repository = () =>
     removeMember: vi.fn(),
     leaveClan: vi.fn(),
     transferOwnership: vi.fn(),
+    respondToRoleInvitation: vi.fn(),
+    syncPersonalClone: vi.fn(),
     updateTopic: vi.fn(),
     deleteTopic: vi.fn(),
     deleteSubtopic: vi.fn(),
@@ -50,8 +52,10 @@ describe('TrackerClanUseCase', () => {
       canManage: false,
       canTransferOwnership: false,
       hasPendingJoinRequest: false,
+      personalCloneTrackerId: 'clone-1',
       members: [],
       joinRequests: [],
+      roleInvitations: [],
     });
     const useCase = new TrackerClanUseCase(clans);
     await expect(

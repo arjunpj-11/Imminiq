@@ -7,6 +7,7 @@ import { LessonQuestionSolutionDoubt } from '../../../../../../infrastructure/da
 import { LessonVisualization } from '../../../../../../infrastructure/database/models/lesson-visualization.model';
 import { Tracker } from '../../../../../../infrastructure/database/models/tracker.model';
 import { TrackerLesson } from '../../../../../../infrastructure/database/models/tracker-lesson.model';
+import { TrackerSubtopic } from '../../../../../../infrastructure/database/models/tracker-subtopic.model';
 import type {
   LessonAnswerAttemptRecord,
   LessonChatMessageRecord,
@@ -30,17 +31,38 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
   async findLessonBySubtopicId({
     trackerId,
     subtopicId,
-    userId,
+    userId: _userId,
   }: Parameters<ITrackerRepository['findLessonBySubtopicId']>[0]) {
     return this.execute('LESSON_READ_FAILED', 'Failed to read lesson by subtopic', async () => {
-      const lesson = await TrackerLesson.findOne(
-        this.mapper.asMongoFilter({
-          trackerId: this.mapper.toObjectId(trackerId),
-          subtopicId: this.mapper.toObjectId(subtopicId),
-          userId: this.mapper.toObjectId(userId),
+      const contentKey = await this.resolveLessonContentKey(trackerId, subtopicId);
+      let lesson = await TrackerLesson.findOne({ contentKey, deletedAt: null });
+      if (!lesson) {
+        const [canonicalTrackerId, canonicalSubtopicId] = contentKey.split(':');
+        lesson = await TrackerLesson.findOne({
+          $or: [
+            {
+              trackerId: this.mapper.toObjectId(canonicalTrackerId ?? trackerId),
+              subtopicId: this.mapper.toObjectId(canonicalSubtopicId ?? subtopicId),
+            },
+            {
+              trackerId: this.mapper.toObjectId(trackerId),
+              subtopicId: this.mapper.toObjectId(subtopicId),
+            },
+          ],
           deletedAt: null,
-        })
-      );
+        }).sort({ createdAt: 1 });
+        if (lesson && !lesson.contentKey) {
+          try {
+            lesson = await TrackerLesson.findOneAndUpdate(
+              { _id: lesson._id, contentKey: null },
+              { $set: { contentKey } },
+              { returnDocument: 'after' }
+            );
+          } catch {
+            lesson = await TrackerLesson.findOne({ contentKey, deletedAt: null });
+          }
+        }
+      }
 
       return lesson ? this.mapper.toDomainRecord<GeneratedTrackerLessonRecord>(lesson) : null;
     });
@@ -51,30 +73,56 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
       'LESSON_CREATE_FAILED',
       'Failed to create lesson',
       async () => {
-        const lesson = await TrackerLesson.create(
-          this.mapper.asMongoCreatePayload({
-            trackerId: this.mapper.toObjectId(data.trackerId),
-            subtopicId: this.mapper.toObjectId(data.subtopicId),
-            userId: this.mapper.toObjectId(data.userId),
-            title: data.title,
-            summary: data.summary,
-            explanation: data.explanation,
-            insight: data.insight,
-            lessonType: data.lessonType,
-            compilerRuntime: data.compilerRuntime ?? null,
-            codeExample: data.codeExample,
-            practiceTask: data.practiceTask,
-            tags: data.tags,
-            difficulty: data.difficulty,
-            estimatedMinutes: data.estimatedMinutes,
-            deletedAt: null,
-          })
+        const contentKey = await this.resolveLessonContentKey(data.trackerId, data.subtopicId);
+        const lesson = await TrackerLesson.findOneAndUpdate(
+          { contentKey },
+          {
+            $setOnInsert: this.mapper.asMongoCreatePayload({
+              trackerId: this.mapper.toObjectId(data.trackerId),
+              subtopicId: this.mapper.toObjectId(data.subtopicId),
+              userId: this.mapper.toObjectId(data.userId),
+              contentKey,
+              title: data.title,
+              summary: data.summary,
+              explanation: data.explanation,
+              insight: data.insight,
+              lessonType: data.lessonType,
+              compilerRuntime: data.compilerRuntime ?? null,
+              codeExample: data.codeExample,
+              practiceTask: data.practiceTask,
+              tags: data.tags,
+              difficulty: data.difficulty,
+              estimatedMinutes: data.estimatedMinutes,
+              deletedAt: null,
+            }),
+          },
+          { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
         );
 
         return this.mapper.toDomainRecord<GeneratedTrackerLessonRecord>(lesson);
       },
       MongoTrackerErrorMapper.mapDuplicateTrackerRecordError
     );
+  }
+
+  private async resolveLessonContentKey(trackerId: string, subtopicId: string) {
+    const trackerObjectId = this.mapper.toObjectId(trackerId);
+    const subtopicObjectId = this.mapper.toObjectId(subtopicId);
+    const [tracker, subtopic] = await Promise.all([
+      Tracker.findOne({ _id: trackerObjectId, deletedAt: null })
+        .select('_id sourceTrackerId')
+        .lean<{ _id: unknown; sourceTrackerId?: unknown | null }>(),
+      TrackerSubtopic.findOne({
+        _id: subtopicObjectId,
+        trackerId: trackerObjectId,
+        deletedAt: null,
+      })
+        .select('_id sourceSubtopicId')
+        .lean<{ _id: unknown; sourceSubtopicId?: unknown | null }>(),
+    ]);
+    const canonicalTrackerId = tracker?.sourceTrackerId ?? tracker?._id ?? trackerObjectId;
+    const canonicalSubtopicId = subtopic?.sourceSubtopicId ?? subtopic?._id ?? subtopicObjectId;
+    return `${String(canonicalTrackerId)}:${String(canonicalSubtopicId)}`;
   }
 
   async getLessonChatMessages({

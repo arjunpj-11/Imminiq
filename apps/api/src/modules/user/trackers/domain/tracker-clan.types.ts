@@ -19,6 +19,23 @@ export type TrackerClanJoinRequest = {
   createdAt: Date;
 };
 
+export type TrackerClanRoleInvitation = {
+  id: string;
+  userId: string;
+  role: 'co_owner' | 'owner';
+  status: 'pending' | 'accepted' | 'declined';
+  createdAt: Date;
+  invitedBy: Omit<TrackerClanPerson, 'role' | 'joinedAt'>;
+};
+
+export type TrackerCloneSyncResult = {
+  cloneTrackerId: string;
+  addedTopics: number;
+  updatedTopics: number;
+  addedSubtopics: number;
+  updatedSubtopics: number;
+};
+
 export type TrackerClanOverview = {
   trackerId: string;
   trackerTitle: string;
@@ -30,8 +47,10 @@ export type TrackerClanOverview = {
   canManage: boolean;
   canTransferOwnership: boolean;
   hasPendingJoinRequest: boolean;
+  personalCloneTrackerId: string | null;
   members: TrackerClanPerson[];
   joinRequests: TrackerClanJoinRequest[];
+  roleInvitations: TrackerClanRoleInvitation[];
 };
 
 export type TrackerClanMessage = {

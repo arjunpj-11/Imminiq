@@ -15,6 +15,7 @@ import type {
   IUpdateTrackerPayload,
   ITrackerClanOverview,
   ITrackerClanChallenge,
+  ITrackerCloneSyncResult,
   ITrackerListResponse,
 } from '../types/tracker.types';
 import { trackerKeys } from './trackers.query-keys';
@@ -368,6 +369,30 @@ export const useTransferTrackerClanOwnership = () =>
       )).data,
     ({ trackerId }) => trackerId
   );
+
+export const useRespondTrackerClanRoleInvitation = () =>
+  useClanMutation(
+    async ({ trackerId, invitationId, action }: { trackerId: string; invitationId: string; action: 'accept' | 'decline' }) =>
+      (await api.patch<IApiResponse<ITrackerClanOverview>>(
+        TRACKER_API_PATHS.clanRoleInvitation(trackerId, invitationId),
+        { action }
+      )).data,
+    ({ trackerId }) => trackerId
+  );
+
+export const useFetchTrackerClanChanges = () => {
+  const queryClient = useQueryClient();
+  return useMutation<IApiResponse<ITrackerCloneSyncResult>, Error, { trackerId: string }>({
+    mutationFn: async ({ trackerId }) =>
+      (await api.post<IApiResponse<ITrackerCloneSyncResult>>(
+        TRACKER_API_PATHS.clanFetchChanges(trackerId)
+      )).data,
+    onSuccess: (_response, { trackerId }) => {
+      queryClient.invalidateQueries({ queryKey: trackerKeys.all });
+      queryClient.invalidateQueries({ queryKey: trackerKeys.clan(trackerId) });
+    },
+  });
+};
 
 const useClanChallengeMutation = <TVariables>(
   operation: (variables: TVariables) => Promise<IApiResponse<ITrackerClanChallenge>>,
