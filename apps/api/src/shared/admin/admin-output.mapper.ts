@@ -22,6 +22,12 @@ export class AdminOutputMapper implements IAdminOutputMapper {
   }
 
   toResponseDTO<T extends object>(output: T): AdminOutputDTO<T> {
+    if (Array.isArray(output)) {
+      return output.map((item) =>
+        typeof item === 'object' && item !== null ? this.toDTO(item) : item
+      ) as unknown as AdminOutputDTO<T>;
+    }
+
     if (
       'items' in output &&
       Array.isArray(output.items) &&
