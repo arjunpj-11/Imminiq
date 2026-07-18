@@ -38,5 +38,20 @@ describe('canonical OAuth origin middleware', () => {
     expect(res.redirectedTo).toBeNull();
     expect(next).toHaveBeenCalledOnce();
   });
-});
 
+  it('redirects any non-canonical public host and preserves the request query', () => {
+    const req = createMockRequest({
+      originalUrl: '/api/auth/oauth/github?source=login',
+      headers: { host: 'unexpected-public-host.example' },
+    });
+    const res = createMockResponse();
+    const next = createNext();
+
+    useCanonicalOAuthOrigin(req, res as never, next);
+
+    expect(res.redirectedTo).toBe(
+      'http://localhost:5009/api/auth/oauth/github?source=login'
+    );
+    expect(next).not.toHaveBeenCalled();
+  });
+});

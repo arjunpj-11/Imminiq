@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ChangeEvent, FocusEvent, FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 
 import { useLogin } from '../hooks/useLogin';
@@ -13,6 +13,7 @@ import { authInputClass, authLabelClass, cn } from '../utils/auth-ui';
 import { validateIdentifier } from '../utils/auth-validation';
 import { ROUTES } from '../../../routes/config/route-paths';
 import ImminiqWordmark from '../../../components/ui/ImminiqWordmark';
+import { getOAuthErrorMessage } from '../utils/oauth-error';
 
 interface IFormState {
   identifier: string;
@@ -38,12 +39,14 @@ const validateField = (name: keyof IFormState, value: string): string | undefine
 
 export default function LoginForm() {
   const { mutate: login, isPending, error } = useLogin();
+  const [searchParams] = useSearchParams();
 
   const apiError = axios.isAxiosError<{ message?: string }>(error)
     ? error.response?.data?.message
     : undefined;
 
   const tooManyAttempts = axios.isAxiosError(error) ? error.response?.status === 429 : false;
+  const oauthError = getOAuthErrorMessage(searchParams.get('error'));
 
   const [form, setForm] = useState<IFormState>({
     identifier: '',
@@ -109,7 +112,7 @@ export default function LoginForm() {
       }
       subtitle="Continue your personalized learning journey."
     >
-      <ApiErrorBanner message={apiError} warning={tooManyAttempts} />
+      <ApiErrorBanner message={apiError ?? oauthError} warning={tooManyAttempts} />
 
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <AuthIdentifierField

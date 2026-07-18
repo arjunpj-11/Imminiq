@@ -1,16 +1,28 @@
+import { useRef, useState } from 'react';
+
 import { webEnvironment } from '../../../config/env';
 import { AUTH_API_PATHS } from '../constants/auth.constants';
 
 export default function AuthSocialButtons() {
+  const navigationStarted = useRef(false);
+  const [pendingProvider, setPendingProvider] = useState<'google' | 'github' | null>(null);
+
+  const beginOAuth = (provider: 'google' | 'github', path: string) => {
+    if (navigationStarted.current) return;
+    navigationStarted.current = true;
+    setPendingProvider(provider);
+    window.location.assign(`${webEnvironment.apiUrl}${path}`);
+  };
+
   return (
     <div className="grid grid-cols-2 gap-2.5">
       <button
-        className="flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-md border-[1.5px] border-(--border-subtle) bg-white px-2 py-2.75 text-[13px] font-medium text-(--text-primary) transition hover:-translate-y-px hover:border-(--brand-500) hover:shadow-[0_2px_10px_rgba(184,76,43,0.08)] active:translate-y-0 dark:border-white/15 dark:bg-(--surface-elevated) dark:text-(--text-primary)"
+        className="flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-md border-[1.5px] border-(--border-subtle) bg-white px-2 py-2.75 text-[13px] font-medium text-(--text-primary) transition hover:-translate-y-px hover:border-(--brand-500) hover:shadow-[0_2px_10px_rgba(184,76,43,0.08)] active:translate-y-0 disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:border-white/15 dark:bg-(--surface-elevated) dark:text-(--text-primary)"
         type="button"
         aria-label="Continue with Google"
-        onClick={() => {
-          window.location.href = `${webEnvironment.apiUrl}${AUTH_API_PATHS.oauthGoogle}`;
-        }}
+        aria-busy={pendingProvider === 'google'}
+        disabled={pendingProvider !== null}
+        onClick={() => beginOAuth('google', AUTH_API_PATHS.oauthGoogle)}
       >
         <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true">
           <path
@@ -34,12 +46,12 @@ export default function AuthSocialButtons() {
       </button>
 
       <button
-        className="flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-md border-[1.5px] border-(--border-subtle) bg-white px-2 py-2.75 text-[13px] font-medium text-(--text-primary) transition hover:-translate-y-px hover:border-(--brand-500) hover:shadow-[0_2px_10px_rgba(184,76,43,0.08)] active:translate-y-0 dark:border-white/15 dark:bg-(--surface-elevated) dark:text-(--text-primary)"
+        className="flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-md border-[1.5px] border-(--border-subtle) bg-white px-2 py-2.75 text-[13px] font-medium text-(--text-primary) transition hover:-translate-y-px hover:border-(--brand-500) hover:shadow-[0_2px_10px_rgba(184,76,43,0.08)] active:translate-y-0 disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:border-white/15 dark:bg-(--surface-elevated) dark:text-(--text-primary)"
         type="button"
         aria-label="Continue with GitHub"
-        onClick={() => {
-          window.location.href = `${webEnvironment.apiUrl}${AUTH_API_PATHS.oauthGithub}`;
-        }}
+        aria-busy={pendingProvider === 'github'}
+        disabled={pendingProvider !== null}
+        onClick={() => beginOAuth('github', AUTH_API_PATHS.oauthGithub)}
       >
         <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M12 2C6.477 2 2 6.486 2 12.021c0 4.428 2.865 8.184 6.839 9.511.5.092.682-.217.682-.483 0-.238-.009-.868-.014-1.704-2.782.605-3.369-1.343-3.369-1.343-.455-1.158-1.11-1.466-1.11-1.466-.908-.621.069-.609.069-.609 1.004.071 1.532 1.033 1.532 1.033.892 1.531 2.341 1.089 2.91.833.091-.647.349-1.089.635-1.34-2.221-.253-4.555-1.113-4.555-4.953 0-1.094.39-1.989 1.029-2.689-.103-.253-.446-1.272.098-2.652 0 0 .84-.27 2.75 1.027A9.567 9.567 0 0 1 12 6.844c.85.004 1.705.115 2.504.338 1.909-1.297 2.747-1.027 2.747-1.027.546 1.38.202 2.399.1 2.652.64.7 1.028 1.595 1.028 2.689 0 3.85-2.337 4.697-4.566 4.946.359.31.678.921.678 1.857 0 1.34-.012 2.421-.012 2.75 0 .268.18.58.688.482A10.025 10.025 0 0 0 22 12.021C22 6.486 17.523 2 12 2Z" />
