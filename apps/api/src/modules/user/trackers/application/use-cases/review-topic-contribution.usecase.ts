@@ -4,15 +4,10 @@ import type {
   TrackerTopicContributionRecord,
 } from '../../domain';
 import { TrackerApplicationError } from '../tracker-application.error';
+import type { ReviewTopicContributionPayloadDTO } from '../tracker.dto';
 
 export interface IReviewTopicContributionUseCase {
-  execute(input: {
-    trackerId: string;
-    contributionId: string;
-    userId: string;
-    action: 'approve' | 'reject';
-    reviewNote?: string;
-  }): Promise<TrackerTopicContributionRecord>;
+  execute(input: ReviewTopicContributionPayloadDTO): Promise<TrackerTopicContributionRecord>;
 }
 
 export class ReviewTopicContributionUseCase implements IReviewTopicContributionUseCase {
@@ -21,13 +16,7 @@ export class ReviewTopicContributionUseCase implements IReviewTopicContributionU
     private readonly _notifier: ITrackerContributionNotifier
   ) {}
 
-  async execute(input: {
-    trackerId: string;
-    contributionId: string;
-    userId: string;
-    action: 'approve' | 'reject';
-    reviewNote?: string;
-  }) {
+  async execute(input: ReviewTopicContributionPayloadDTO) {
     const result = await this._repository.review({
       sourceTrackerId: input.trackerId,
       contributionId: input.contributionId,

@@ -9,7 +9,10 @@ export interface IGetVerificationSubmissionUseCase {
 
 export class GetVerificationSubmissionUseCase implements IGetVerificationSubmissionUseCase {
   constructor(
-    private readonly _repository: ICommunityVerificationRepository,
+    private readonly _repository: Pick<
+      ICommunityVerificationRepository,
+      'findVerificationSubmissionById'
+    >,
     private readonly _mapper: ICommunityMapper
   ) {}
 

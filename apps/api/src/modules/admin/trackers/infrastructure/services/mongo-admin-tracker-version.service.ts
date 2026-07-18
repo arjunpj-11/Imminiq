@@ -4,7 +4,10 @@ import { TrackerVersion } from '../../../../../infrastructure/database/models/tr
 import { ServiceError } from '../../../../../shared/errors/service.error';
 import type { AdminActor } from '../../../../../shared/admin';
 import { recordAdminAction } from '../../../../../infrastructure/admin';
-import type { IAdminTrackerVersionService } from '../../application/admin-tracker-version.service';
+import type {
+  AdminTrackerVersionRestoreResultDTO,
+  IAdminTrackerVersionService,
+} from '../../application/admin-tracker-version.service';
 
 const restorable = ['title', 'description', 'category', 'field', 'goal', 'level', 'tags', 'allowClone', 'visibility', 'status', 'coverImageUrl'] as const;
 export class AdminTrackerVersionService implements IAdminTrackerVersionService {
@@ -15,7 +18,7 @@ export class AdminTrackerVersionService implements IAdminTrackerVersionService {
   async restore(trackerId: string, version: number, reason: string, actor: AdminActor) {
     const session = await mongoose.startSession();
     try {
-      let output: object = {};
+      let output: AdminTrackerVersionRestoreResultDTO | undefined;
       await session.withTransaction(async () => {
         const [target, current] = await Promise.all([TrackerVersion.findOne({ trackerId, version }).session(session).lean(), Tracker.findById(trackerId).session(session)]);
         if (!target || !current) throw new ServiceError('missing-resource', 'TRACKER_VERSION_NOT_FOUND', 'Tracker version not found');
@@ -29,6 +32,13 @@ export class AdminTrackerVersionService implements IAdminTrackerVersionService {
         await recordAdminAction(actor, 'tracker.version_restored', 'trackers', { trackerId, restoredVersion: version, newVersion: current.version, reason }, session);
         output = { trackerId, restoredVersion: version, newVersion: current.version, updatedAt: current.updatedAt };
       });
+      if (!output) {
+        throw new ServiceError(
+          'internal',
+          'TRACKER_VERSION_RESTORE_FAILED',
+          'Tracker version restore did not produce a result'
+        );
+      }
       return output;
     } finally { await session.endSession(); }
   }

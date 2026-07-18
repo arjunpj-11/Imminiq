@@ -18,6 +18,23 @@ import type {
 } from './community.dto';
 import type { IClock } from '../../../../shared/time/clock.interface';
 
+export type CommunityVoteView = {
+  _id: string;
+  submissionId: string;
+  choice: CommunityReviewVoteEntity['choice'];
+  rewardCoins: number;
+};
+
+export type CommunityVerificationStatsInput = {
+  awaiting: number;
+  reviewed: number;
+  totalEarnedCoins: number;
+  coinBalance: number;
+  queueCount: number;
+  rewardCoins: number;
+  activeReviewersThisWeek: number;
+};
+
 export interface ICommunityMapper {
   toTrackerView(entity: CommunityTrackerEntity): CommunityTrackerViewDTO;
   toTrackerListView(page: CommunityTrackerPageResult): CommunityTrackerListViewDTO;
@@ -28,21 +45,10 @@ export interface ICommunityMapper {
   ): CommunityVerificationSubmissionViewDTO;
   toVerificationQueueView(page: VerificationQueueResult): CommunityVerificationQueueViewDTO;
   toLeaderboardEntryView(entity: CommunityLeaderboardEntryEntity): CommunityLeaderboardEntryViewDTO;
-  toVoteView(entity: CommunityReviewVoteEntity): {
-    _id: string;
-    submissionId: string;
-    choice: CommunityReviewVoteEntity['choice'];
-    rewardCoins: number;
-  };
-  toVerificationStatsView(input: {
-    awaiting: number;
-    reviewed: number;
-    totalEarnedCoins: number;
-    coinBalance: number;
-    queueCount: number;
-    rewardCoins: number;
-    activeReviewersThisWeek: number;
-  }): CommunityVerificationStatsViewDTO;
+  toVoteView(entity: CommunityReviewVoteEntity): CommunityVoteView;
+  toVerificationStatsView(
+    input: CommunityVerificationStatsInput
+  ): CommunityVerificationStatsViewDTO;
 }
 
 export class CommunityMapper implements ICommunityMapper {
@@ -152,15 +158,9 @@ export class CommunityMapper implements ICommunityMapper {
     };
   }
 
-  toVerificationStatsView(input: {
-    awaiting: number;
-    reviewed: number;
-    totalEarnedCoins: number;
-    coinBalance: number;
-    queueCount: number;
-    rewardCoins: number;
-    activeReviewersThisWeek: number;
-  }): CommunityVerificationStatsViewDTO {
+  toVerificationStatsView(
+    input: CommunityVerificationStatsInput
+  ): CommunityVerificationStatsViewDTO {
     return {
       awaiting: this.formatCompactNumber(input.awaiting),
       reviewed: this.formatCompactNumber(input.reviewed),

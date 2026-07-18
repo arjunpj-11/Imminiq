@@ -47,6 +47,11 @@ export interface GenerateRoadmapResultDTO {
   jobId: string;
 }
 
+export interface ActiveRoadmapJobDTO {
+  jobId: string;
+  status: 'pending' | 'processing';
+}
+
 export interface AIGenerationStepResultDTO {
   stepNumber: number;
   stepLabel: string;

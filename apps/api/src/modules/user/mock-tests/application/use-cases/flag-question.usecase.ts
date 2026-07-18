@@ -1,11 +1,12 @@
 import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-test-answer.repository.interface';
 import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
+import type { FlagQuestionResultDTO } from '../mock-tests.dto';
 
 type FlagQuestionRepository = IMockTestAttemptRepository & IMockTestAnswerRepository;
 
 export interface IFlagQuestionUseCase {
-  execute(attemptId: string, userId: string, questionId: string): Promise<{ flagged: boolean }>;
+  execute(attemptId: string, userId: string, questionId: string): Promise<FlagQuestionResultDTO>;
 }
 
 export class FlagQuestionUseCase implements IFlagQuestionUseCase {

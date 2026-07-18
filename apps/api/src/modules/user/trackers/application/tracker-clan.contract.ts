@@ -3,59 +3,33 @@ import type {
   TrackerClanOverview,
   TrackerCloneSyncResult,
 } from '../domain';
+import type {
+  DeleteClanSubtopicPayloadDTO,
+  DeleteClanTopicPayloadDTO,
+  ListClanMessagesPayloadDTO,
+  RemoveClanMemberPayloadDTO,
+  RespondToClanRoleInvitationPayloadDTO,
+  ReviewClanJoinPayloadDTO,
+  TrackerAccessPayloadDTO,
+  TransferClanOwnershipPayloadDTO,
+  UpdateClanMemberRolePayloadDTO,
+  UpdateClanTopicPayloadDTO,
+} from './tracker.dto';
 
-export interface ITrackerClanUseCaseContract {
-  getOverview(input: { trackerId: string; userId: string }): Promise<TrackerClanOverview>;
-  requestJoin(input: { trackerId: string; userId: string }): Promise<TrackerClanOverview>;
-  reviewJoin(input: {
-    trackerId: string;
-    userId: string;
-    requestId: string;
-    action: 'approve' | 'reject';
-  }): Promise<TrackerClanOverview>;
-  updateMemberRole(input: {
-    trackerId: string;
-    userId: string;
-    memberId: string;
-    role: 'co_owner' | 'member';
-  }): Promise<TrackerClanOverview>;
-  removeMember(input: {
-    trackerId: string;
-    userId: string;
-    memberId: string;
-  }): Promise<TrackerClanOverview>;
-  leaveClan(input: { trackerId: string; userId: string }): Promise<TrackerClanOverview>;
-  transferOwnership(input: {
-    trackerId: string;
-    userId: string;
-    newOwnerId: string;
-  }): Promise<TrackerClanOverview>;
-  respondToRoleInvitation(input: {
-    trackerId: string;
-    userId: string;
-    invitationId: string;
-    action: 'accept' | 'decline';
-  }): Promise<TrackerClanOverview>;
-  syncPersonalClone(input: {
-    trackerId: string;
-    userId: string;
-  }): Promise<TrackerCloneSyncResult>;
-  updateTopic(input: {
-    trackerId: string;
-    userId: string;
-    topicId: string;
-    title: string;
-    description: string;
-  }): Promise<void>;
-  deleteTopic(input: { trackerId: string; userId: string; topicId: string }): Promise<void>;
-  deleteSubtopic(input: {
-    trackerId: string;
-    userId: string;
-    subtopicId: string;
-  }): Promise<void>;
-  listMessages(input: {
-    trackerId: string;
-    userId: string;
-    limit?: number;
-  }): Promise<TrackerClanMessage[]>;
+export interface ITrackerClanServiceContract {
+  getOverview(input: TrackerAccessPayloadDTO): Promise<TrackerClanOverview>;
+  requestJoin(input: TrackerAccessPayloadDTO): Promise<TrackerClanOverview>;
+  reviewJoin(input: ReviewClanJoinPayloadDTO): Promise<TrackerClanOverview>;
+  updateMemberRole(input: UpdateClanMemberRolePayloadDTO): Promise<TrackerClanOverview>;
+  removeMember(input: RemoveClanMemberPayloadDTO): Promise<TrackerClanOverview>;
+  leaveClan(input: TrackerAccessPayloadDTO): Promise<TrackerClanOverview>;
+  transferOwnership(input: TransferClanOwnershipPayloadDTO): Promise<TrackerClanOverview>;
+  respondToRoleInvitation(
+    input: RespondToClanRoleInvitationPayloadDTO
+  ): Promise<TrackerClanOverview>;
+  syncPersonalClone(input: TrackerAccessPayloadDTO): Promise<TrackerCloneSyncResult>;
+  updateTopic(input: UpdateClanTopicPayloadDTO): Promise<void>;
+  deleteTopic(input: DeleteClanTopicPayloadDTO): Promise<void>;
+  deleteSubtopic(input: DeleteClanSubtopicPayloadDTO): Promise<void>;
+  listMessages(input: ListClanMessagesPayloadDTO): Promise<TrackerClanMessage[]>;
 }

@@ -1,20 +1,31 @@
 import type { AdminSubscriptionsUseCases } from './application/admin-subscriptions-use-cases.contract';
 import { GetAdminSubscriptionOverviewUseCase } from './application/use-cases/get-admin-subscription-overview.usecase';
 import { UpdateAdminPlanUseCase } from './application/use-cases/update-admin-plan.usecase';
-import { mongoAdminSubscriptionsRepository } from './infrastructure/repositories/mongo-admin-subscriptions.repository';
+import { MongoAdminSubscriptionsRepository } from './infrastructure/repositories/mongo-admin-subscriptions.repository';
 import { AdminSubscriptionsMapper } from './application/admin-subscriptions.mapper';
+import type {
+  AdminSubscriptionPlan,
+  AdminSubscriptionPlanInput,
+} from './domain/entities/admin-subscription.entity';
 
 export type AdminSubscriptionsComposition = { useCases: AdminSubscriptionsUseCases };
 
-export const createAdminSubscriptionsComposition = (): AdminSubscriptionsComposition => {
+export type AdminDefaultSubscriptionPlanResolver = (
+  planId: AdminSubscriptionPlan['planId']
+) => AdminSubscriptionPlanInput;
+
+export const createAdminSubscriptionsComposition = (
+  resolveDefaultPlan: AdminDefaultSubscriptionPlanResolver
+): AdminSubscriptionsComposition => {
   const mapper = new AdminSubscriptionsMapper();
+  const repository = new MongoAdminSubscriptionsRepository(resolveDefaultPlan);
   return {
     useCases: {
       getOverview: new GetAdminSubscriptionOverviewUseCase(
-        mongoAdminSubscriptionsRepository,
+        repository,
         mapper
       ),
-      updatePlan: new UpdateAdminPlanUseCase(mongoAdminSubscriptionsRepository, mapper),
+      updatePlan: new UpdateAdminPlanUseCase(repository, mapper),
     },
   };
 };

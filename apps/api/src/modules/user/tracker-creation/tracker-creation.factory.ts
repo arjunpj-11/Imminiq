@@ -21,6 +21,10 @@ import { mongoTrackerCreationRepository } from './infrastructure/repositories/mo
 import { mongoCloneFreshnessAnalysisRepository } from './infrastructure/repositories/mongo-clone-freshness-analysis.repository';
 import { redisAIJobQuotaStore } from './infrastructure/stores/redis-ai-job-quota.store';
 import { langChainTrackerIntakeAgent } from './infrastructure/services/langchain-tracker-intake-agent.service';
+import { TrackerCreationAIJobProcessor } from './infrastructure/services/tracker-creation-ai-job.processor';
+import type { ICreateNotificationUseCase } from '../../notifications';
+import type { ISubscriptionLimitEnforcer } from '../subscriptions';
+import type { ITrackerCreationAIJobProcessor } from './application/ports/tracker-creation-ai-job-processor.interface';
 
 export type TrackerCreationServiceHelpers = {
   trackerCreationAIJobQueueGateway: IAIJobQueueGateway;
@@ -33,6 +37,27 @@ export type TrackerCreationComposition = {
   useCases: TrackerCreationUseCases;
   helpers: TrackerCreationServiceHelpers;
 };
+
+export const createTrackerCreationAIJobProcessor = (
+  limitEnforcer: ISubscriptionLimitEnforcer,
+  notificationCreator: ICreateNotificationUseCase
+): ITrackerCreationAIJobProcessor =>
+  new TrackerCreationAIJobProcessor(
+    {
+      enforceTrackerCapacity: (userId) =>
+        limitEnforcer.enforce(userId, 'tracker_capacity'),
+    },
+    {
+      notifyTrackerGenerated: ({ userId, jobId, trackerId, trackerTitle }) =>
+        notificationCreator.execute({
+          userId,
+          type: 'tracker_generation_completed',
+          message: `Your tracker “${trackerTitle}” is ready. Go and check it out.`,
+          deepLink: `/trackers/create/ready/${jobId}`,
+          metadata: { jobId, trackerId },
+        }),
+    }
+  );
 
 export const createTrackerCreationComposition = (): TrackerCreationComposition => {
   const trackerCreationRepository = mongoTrackerCreationRepository;

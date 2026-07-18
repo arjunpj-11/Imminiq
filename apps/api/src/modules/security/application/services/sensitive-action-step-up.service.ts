@@ -7,12 +7,21 @@ import type { SensitiveSecurityAction } from '../../domain/security.types';
 import type { SensitiveActionStepUpPayloadDTO } from '../security.dto';
 import { SecurityApplicationError } from '../security-application.error';
 
+export type SensitiveActionAuthorizationInput = {
+  user: SecurityUserEntity;
+  payload: SensitiveActionStepUpPayloadDTO;
+  action: SensitiveSecurityAction;
+};
+
+type TwoFactorStepInput = {
+  userId: string;
+  encryptedSecret: string | null;
+  payload: SensitiveActionStepUpPayloadDTO;
+  action: SensitiveSecurityAction;
+};
+
 export interface ISensitiveActionAuthorizer {
-  assertSatisfied(input: {
-    user: SecurityUserEntity;
-    payload: SensitiveActionStepUpPayloadDTO;
-    action: SensitiveSecurityAction;
-  }): Promise<void>;
+  assertSatisfied(input: SensitiveActionAuthorizationInput): Promise<void>;
 }
 
 export class SensitiveActionAuthorizer implements ISensitiveActionAuthorizer {
@@ -23,11 +32,7 @@ export class SensitiveActionAuthorizer implements ISensitiveActionAuthorizer {
     private readonly _accountSecurityAuditLogger: IAccountSecurityAuditLogger
   ) {}
 
-  async assertSatisfied(input: {
-    user: SecurityUserEntity;
-    payload: SensitiveActionStepUpPayloadDTO;
-    action: SensitiveSecurityAction;
-  }): Promise<void> {
+  async assertSatisfied(input: SensitiveActionAuthorizationInput): Promise<void> {
     const twoFactor = await this._twoFactorRepository.findTwoFactorWithSecret(input.user.id);
 
     if (input.user.provider === 'local') {
@@ -46,11 +51,9 @@ export class SensitiveActionAuthorizer implements ISensitiveActionAuthorizer {
     }
   }
 
-  private async assertPasswordStepSatisfied(input: {
-    user: SecurityUserEntity;
-    payload: SensitiveActionStepUpPayloadDTO;
-    action: SensitiveSecurityAction;
-  }): Promise<void> {
+  private async assertPasswordStepSatisfied(
+    input: SensitiveActionAuthorizationInput
+  ): Promise<void> {
     if (!input.payload.currentPassword) {
       throw SecurityApplicationError.stepUpPasswordRequired();
     }
@@ -78,12 +81,7 @@ export class SensitiveActionAuthorizer implements ISensitiveActionAuthorizer {
     throw SecurityApplicationError.stepUpPasswordInvalid();
   }
 
-  private async assertTwoFactorStepSatisfied(input: {
-    userId: string;
-    encryptedSecret: string | null;
-    payload: SensitiveActionStepUpPayloadDTO;
-    action: SensitiveSecurityAction;
-  }): Promise<void> {
+  private async assertTwoFactorStepSatisfied(input: TwoFactorStepInput): Promise<void> {
     if (!input.payload.twoFactorCode) {
       throw SecurityApplicationError.stepUpTwoFactorRequired();
     }

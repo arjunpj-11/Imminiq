@@ -7,6 +7,7 @@ import type {
   SubtopicWithProgressRecord,
   TopicWithProgressRecord,
 } from '../../domain/trackers.types';
+import type { TrackerAccessPayloadDTO, TrackerRoadmapResultDTO } from '../tracker.dto';
 
 const buildRoadmapTree = ({
   topics,
@@ -76,10 +77,7 @@ const buildRoadmapTree = ({
 };
 
 export interface IGetTrackerRoadmapUseCase {
-  execute(input: { trackerId: string; userId: string }): Promise<{
-    tracker: import('../../domain/value-objects/tracker-record.vo').TrackerRecord;
-    roadmap: RoadmapTopicNode[];
-  }>;
+  execute(input: TrackerAccessPayloadDTO): Promise<TrackerRoadmapResultDTO>;
 }
 
 export class GetTrackerRoadmapUseCase implements IGetTrackerRoadmapUseCase {
@@ -94,7 +92,7 @@ export class GetTrackerRoadmapUseCase implements IGetTrackerRoadmapUseCase {
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: { trackerId: string; userId: string }) {
+  async execute(input: TrackerAccessPayloadDTO) {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

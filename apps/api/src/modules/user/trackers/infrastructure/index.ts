@@ -13,7 +13,6 @@ export {
 } from './services/crypto-question-hasher.service';
 export {
   MongoTrackerClanRepository,
-  mongoTrackerClanRepository,
 } from './repositories/mongo-tracker-clan.repository';
 export {
   TrackerClanChallengeGateway,

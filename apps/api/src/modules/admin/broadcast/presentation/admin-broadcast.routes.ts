@@ -1,10 +1,14 @@
 import { Router } from 'express';
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
-import { requireAdmin, requirePrivilegedMfa } from '../../../../shared/middlewares/admin.middleware';
+import { requireAdmin } from '../../../../shared/middlewares/admin.middleware';
+import type { PrivilegedAdminMiddleware } from '../../../../shared/middlewares/admin.middleware';
 import type { AdminBroadcastUseCases } from '../application/admin-broadcast-use-cases.contract';
 import { AdminBroadcastController } from './admin-broadcast.controller';
 import { ADMIN_BROADCAST_ROUTE_PATHS } from './admin-broadcast.route.constants';
-export const createAdminBroadcastRoutes = (useCases: AdminBroadcastUseCases) => {
+export const createAdminBroadcastRoutes = (
+  useCases: AdminBroadcastUseCases,
+  requirePrivilegedMfa: PrivilegedAdminMiddleware
+) => {
   const router = Router();
   const controller = new AdminBroadcastController(useCases);
   router.use(authenticate, requireAdmin);

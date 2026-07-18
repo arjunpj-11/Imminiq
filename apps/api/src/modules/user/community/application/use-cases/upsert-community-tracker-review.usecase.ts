@@ -14,7 +14,10 @@ export interface IUpsertCommunityTrackerReviewUseCase {
 
 export class UpsertCommunityTrackerReviewUseCase implements IUpsertCommunityTrackerReviewUseCase {
   constructor(
-    private readonly _repository: ICommunityReviewRepository,
+    private readonly _repository: Pick<
+      ICommunityReviewRepository,
+      'upsertTrackerReview' | 'findPublicTrackerDetail'
+    >,
     private readonly _mapper: ICommunityReviewMapper
   ) {}
 

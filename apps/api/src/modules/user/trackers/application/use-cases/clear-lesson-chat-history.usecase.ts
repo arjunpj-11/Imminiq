@@ -3,15 +3,12 @@
 import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
+import type { TrackerLessonAccessPayloadDTO } from '../tracker.dto';
 
 type ClearLessonChatHistoryResultDTO = ReturnType<ITrackerMapper['toClearLessonHistoryResultDto']>;
 
 export interface IClearLessonChatHistoryUseCase {
-  execute(input: {
-    trackerId: string;
-    subtopicId: string;
-    userId: string;
-  }): Promise<ClearLessonChatHistoryResultDTO>;
+  execute(input: TrackerLessonAccessPayloadDTO): Promise<ClearLessonChatHistoryResultDTO>;
 }
 
 export class ClearLessonChatHistoryUseCase implements IClearLessonChatHistoryUseCase {
@@ -23,11 +20,7 @@ export class ClearLessonChatHistoryUseCase implements IClearLessonChatHistoryUse
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: {
-    trackerId: string;
-    subtopicId: string;
-    userId: string;
-  }): Promise<ClearLessonChatHistoryResultDTO> {
+  async execute(input: TrackerLessonAccessPayloadDTO): Promise<ClearLessonChatHistoryResultDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

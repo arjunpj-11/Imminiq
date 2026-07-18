@@ -11,7 +11,10 @@ export interface IGenerateAdaptiveAssessmentUseCase {
 
 export class GenerateAdaptiveAssessmentUseCase implements IGenerateAdaptiveAssessmentUseCase {
   constructor(
-    private readonly _repository: IAdaptiveLearningRepository,
+    private readonly _repository: Pick<
+      IAdaptiveLearningRepository,
+      'getLearnerSnapshot' | 'getOrCreateProfile'
+    >,
     private readonly _agent: IAdaptiveLearningAgent,
     private readonly _testGenerator: IAdaptiveTestGenerator,
     private readonly _mapper: IAdaptiveLearningMapper

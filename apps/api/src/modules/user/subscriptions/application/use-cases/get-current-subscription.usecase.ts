@@ -9,7 +9,7 @@ export interface IGetCurrentSubscriptionUseCase {
 
 export class GetCurrentSubscriptionUseCase implements IGetCurrentSubscriptionUseCase {
   constructor(
-    private readonly repository: ISubscriptionRepository,
+    private readonly repository: Pick<ISubscriptionRepository, 'expireEnded' | 'findCurrent'>,
     private readonly mapper: ISubscriptionsMapper,
     private readonly clock: IClock
   ) {}

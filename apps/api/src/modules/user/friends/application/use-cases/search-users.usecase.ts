@@ -1,12 +1,12 @@
 import type { IFriendQueryRepository } from '../../domain/repositories/friend-query.repository.interface';
-import type { SearchUsersPayloadDTO } from '../friends.dto';
+import type { FriendUsersPageViewDTO, SearchUsersPayloadDTO } from '../friends.dto';
 import type { IFriendsMapper } from '../friends.mapper';
 
 export interface ISearchUsersUseCase {
   execute(
     viewerUserId: string,
     payload: SearchUsersPayloadDTO
-  ): Promise<import('../friends.dto').FriendUsersPageViewDTO>;
+  ): Promise<FriendUsersPageViewDTO>;
 }
 
 export class SearchUsersUseCase implements ISearchUsersUseCase {

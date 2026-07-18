@@ -11,6 +11,11 @@ export interface IScoreResult {
   passed: boolean;
 }
 
+export type TopicPerformanceResult = {
+  strongTopics: string[];
+  weakTopics: string[];
+};
+
 export interface IMockTestScorer {
   calculateTestScore(
     questions: MockTestQuestionEntity[],
@@ -21,7 +26,7 @@ export interface IMockTestScorer {
   identifyWeakAndStrongTopics(
     questions: MockTestQuestionEntity[],
     answers: MockTestAnswerEntity[]
-  ): { strongTopics: string[]; weakTopics: string[] };
+  ): TopicPerformanceResult;
   generateRecommendations(scorePercentage: number, weakTopics: string[], passed: boolean): string[];
 }
 
@@ -74,7 +79,7 @@ export class MockTestScorer implements IMockTestScorer {
   identifyWeakAndStrongTopics(
     questions: MockTestQuestionEntity[],
     answers: MockTestAnswerEntity[]
-  ): { strongTopics: string[]; weakTopics: string[] } {
+  ): TopicPerformanceResult {
     const answerMap = new Map(answers.map((answer) => [answer.questionId, answer]));
     const difficultyPerformance: Record<string, { correct: number; total: number }> = {};
 

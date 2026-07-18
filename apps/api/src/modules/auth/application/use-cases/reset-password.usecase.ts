@@ -6,7 +6,8 @@ import type { IPasswordResetSessionStore } from '../../domain/services/password-
 import type { IPasswordResetToken } from '../../domain/services/password-reset-token.interface';
 import type { IAuthSecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
 
-type ResetPasswordRepository = IAuthUserRepository & IAuthSessionRepository;
+type ResetPasswordRepository = Pick<IAuthUserRepository, 'findById' | 'updatePasswordHash'> &
+  Pick<IAuthSessionRepository, 'revokeAllUserSessions'>;
 
 export interface IResetPasswordUseCase {
   execute(resetToken: string, newPassword: string): Promise<void>;

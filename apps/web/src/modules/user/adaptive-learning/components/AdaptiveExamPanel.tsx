@@ -5,7 +5,7 @@ import {
   useAdaptiveLearningDashboard,
   useGenerateAdaptiveAssessment,
 } from '../hooks/useAdaptiveLearning';
-import { useActiveMockTestGeneration } from '../../mock-tests/hooks/useMockTests';
+import { useActiveMockTestGeneration } from '../../mock-tests';
 import { ROUTES } from '../../../../routes/config/route-paths';
 
 export default function AdaptiveExamPanel() {

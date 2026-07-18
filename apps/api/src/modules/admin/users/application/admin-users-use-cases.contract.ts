@@ -7,11 +7,14 @@ import type { IUpdateAdminUserAppealUseCase } from './use-cases/update-admin-use
 import type { IRevokeAdminUserSessionUseCase } from './use-cases/revoke-admin-user-session.usecase';
 import type { IUpdateAdminUserRoleUseCase } from './use-cases/update-admin-user-role.usecase';
 import type { ISetAdminActionPasswordUseCase } from './use-cases/set-admin-action-password.usecase';
+import type { IAdminUserNotesService } from './admin-user-notes.service';
+import type { IAdminDataPrivacyRequestService } from './admin-data-privacy-request.service';
+import type { IAdminExportService } from '../../../../shared/admin';
 
 export type AdminUsersUseCases = {
-  notes: import('./admin-user-notes.service').IAdminUserNotesService;
-  exports: import('../../../../shared/admin').IAdminExportService;
-  privacyRequests: import('./admin-data-privacy-request.service').IAdminDataPrivacyRequestService;
+  notes: IAdminUserNotesService;
+  exports: IAdminExportService;
+  privacyRequests: IAdminDataPrivacyRequestService;
   list: IListAdminUsersUseCase;
   getDetail: IGetAdminUserDetailUseCase;
   setStatus: ISetAdminUserStatusUseCase;

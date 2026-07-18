@@ -9,7 +9,7 @@ export interface IListAdminMockTestsUseCase {
 
 export class ListAdminMockTestsUseCase implements IListAdminMockTestsUseCase {
   constructor(
-    private readonly repository: IAdminMockTestsRepository,
+    private readonly repository: Pick<IAdminMockTestsRepository, 'list'>,
     private readonly mapper: IAdminMockTestsMapper
   ) {}
 

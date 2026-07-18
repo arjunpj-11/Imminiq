@@ -4,16 +4,21 @@ import type { IAdminMockTestsRepository } from '../../domain/repositories/admin-
 import type { IAdminMockTestEmailProvider } from '../../domain/services/admin-mock-test-email-provider.interface';
 import { AdminMockTestsApplicationError } from '../admin-mock-tests-application.error';
 import type { IAdminMockTestsMapper } from '../admin-mock-tests.mapper';
+import type { AdminMockTestQuestionIssueDTO } from '../admin-mock-tests.dto';
 
 export interface IUpdateAdminMockTestQuestionIssueUseCase {
-  execute(id: string, input: AdminMockTestIssueUpdateInput, actor: AdminActor): Promise<object>;
+  execute(
+    id: string,
+    input: AdminMockTestIssueUpdateInput,
+    actor: AdminActor
+  ): Promise<AdminMockTestQuestionIssueDTO>;
 }
 
 export class UpdateAdminMockTestQuestionIssueUseCase
   implements IUpdateAdminMockTestQuestionIssueUseCase
 {
   constructor(
-    private readonly repository: IAdminMockTestsRepository,
+    private readonly repository: Pick<IAdminMockTestsRepository, 'updateQuestionIssue'>,
     private readonly mapper: IAdminMockTestsMapper,
     private readonly emailProvider: IAdminMockTestEmailProvider
   ) {}

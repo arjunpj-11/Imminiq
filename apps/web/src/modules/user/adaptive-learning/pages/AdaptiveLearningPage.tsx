@@ -9,7 +9,7 @@ import { useVoiceInput } from '../../../../hooks/useVoiceInput';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import AdaptiveMasteryGraph from '../components/AdaptiveMasteryGraph';
 import { useGenerateRoadmap, useOnboardingStore } from '../../tracker-creation';
-import { useGenerateMockTest } from '../../mock-tests/hooks/useMockTests';
+import { useGenerateMockTest } from '../../mock-tests';
 import type { AdaptiveAdvisorAction } from '../types/adaptive-learning.types';
 import {
   useAdaptiveAdvisorChat,

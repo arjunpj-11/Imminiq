@@ -50,9 +50,9 @@ export interface AdminTrackerDetailDTO extends AdminTrackerDTO {
   }>;
 }
 
-export type AdminTrackerReportDTO = import('../domain/entities/admin-tracker.entity').AdminTrackerReport;
+export type AdminTrackerReportDTO = AdminTrackerReport;
 export type AdminTrackerLifecycleResultDTO = Omit<
-  import('../domain/entities/admin-tracker.entity').AdminTrackerLifecycleResult,
+  AdminTrackerLifecycleResult,
   'owner' | 'ownerEmail'
 > & { notificationQueued: boolean };
 
@@ -80,3 +80,7 @@ export interface AdminPublishedTrackerEngagementResultDTO {
   adminLiked: boolean;
   adminRating: number | null;
 }
+import type {
+  AdminTrackerLifecycleResult,
+  AdminTrackerReport,
+} from '../domain/entities/admin-tracker.entity';

@@ -2,15 +2,12 @@ import type { IMockTestSharingRepository } from '../../domain/repositories/mock-
 import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface';
 import type { IShareTokenGenerator } from '../../domain/services/share-token-generator.interface';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
+import type { ShareMockTestPayloadDTO, ShareMockTestResultDTO } from '../mock-tests.dto';
 
 type ShareMockTestRepository = IMockTestRepository & IMockTestSharingRepository;
 
 export interface IShareMockTestUseCase {
-  execute(input: {
-    userId: string;
-    testId: string;
-    origin: string;
-  }): Promise<{ shareToken: string; shareUrl: string }>;
+  execute(input: ShareMockTestPayloadDTO): Promise<ShareMockTestResultDTO>;
 }
 
 export class ShareMockTestUseCase implements IShareMockTestUseCase {
@@ -19,7 +16,7 @@ export class ShareMockTestUseCase implements IShareMockTestUseCase {
     private readonly _shareTokenGenerator: IShareTokenGenerator
   ) {}
 
-  async execute(input: { userId: string; testId: string; origin: string }) {
+  async execute(input: ShareMockTestPayloadDTO) {
     const test = await this._repository.findTestById(input.testId);
 
     if (!test || test.ownerId !== input.userId) {

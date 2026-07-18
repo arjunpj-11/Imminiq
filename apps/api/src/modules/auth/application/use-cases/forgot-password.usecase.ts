@@ -8,7 +8,7 @@ export interface IForgotPasswordUseCase {
 
 export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
   constructor(
-    private readonly _authRepository: IAuthUserRepository,
+    private readonly _authRepository: Pick<IAuthUserRepository, 'findByIdentifier'>,
     private readonly _authNotification: IAuthNotification,
     private readonly _identifierNormalizer: IIdentifierNormalizer
   ) {}

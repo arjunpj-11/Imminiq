@@ -18,7 +18,10 @@ export interface IGetVerificationDashboardUseCase {
 
 export class GetVerificationDashboardUseCase implements IGetVerificationDashboardUseCase {
   constructor(
-    private readonly _repository: ICommunityVerificationRepository,
+    private readonly _repository: Pick<
+      ICommunityVerificationRepository,
+      'getVerificationStats' | 'findVerificationQueue' | 'findVerificationLeaderboard'
+    >,
     private readonly _mapper: ICommunityMapper,
     private readonly _policyReader: ICommunityPolicyReader
   ) {}

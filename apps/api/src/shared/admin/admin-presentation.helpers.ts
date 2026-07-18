@@ -10,9 +10,9 @@ export const getAdminActor = (req: Request): AdminActor => ({
   userAgent: req.get('user-agent') ?? '',
 });
 
-export const sendAdminResult = (
+export const sendAdminResult = <Result extends object>(
   next: NextFunction,
-  task: () => Promise<object>,
+  task: () => Promise<Result>,
   res: Response,
   message: string
 ) =>

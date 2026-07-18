@@ -7,10 +7,6 @@ import {
   recordAdminAction,
 } from '../../../../../infrastructure/admin';
 import type { AdminActor } from '../../../../../shared/admin';
-import {
-  getDefaultSubscriptionPlan,
-  type SubscriptionPlanId,
-} from '../../../../user/subscriptions';
 import type {
   AdminSubscriptionPlan,
   AdminPlanLimitField,
@@ -22,7 +18,7 @@ import type {
 import type { IAdminSubscriptionsRepository } from '../../domain/repositories/admin-subscriptions.repository.interface';
 
 const successfulStatuses = ['active', 'canceled', 'expired', 'replaced'];
-const findPlan = async (planId: SubscriptionPlanId) => {
+const findPlan = async (planId: AdminSubscriptionPlan['planId']) => {
   return SubscriptionPlanModel.findOne({
     $or: [{ planId }, { code: planId }],
   })
@@ -31,6 +27,12 @@ const findPlan = async (planId: SubscriptionPlanId) => {
 };
 
 export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRepository {
+  constructor(
+    private readonly resolveDefaultPlan: (
+      planId: AdminSubscriptionPlan['planId']
+    ) => AdminSubscriptionPlanInput
+  ) {}
+
   async getOverview(query: AdminSubscriptionQuery): Promise<AdminSubscriptionOverview> {
     const filter: Record<string, unknown> = {};
     if (query.status && query.status !== 'all') filter.status = query.status;
@@ -142,7 +144,7 @@ export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRep
       subscriptions: createAdminPage(items, query, total),
       plans: planRows.map((row, index) => {
         const planId = (['free', 'pro', 'premium'] as const)[index];
-        const fallback = getDefaultSubscriptionPlan(planId);
+        const fallback = this.resolveDefaultPlan(planId);
         return {
           planId,
           name: row?.name ?? fallback.name,
@@ -167,7 +169,7 @@ export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRep
   ): Promise<AdminSubscriptionPlan> {
     const existing = await findPlan(planId);
     const filter = existing?._id ? { _id: existing._id } : { planId };
-    const fallback = getDefaultSubscriptionPlan(planId as SubscriptionPlanId);
+    const fallback = this.resolveDefaultPlan(planId);
     if (existing?._id) {
       await SubscriptionPlanModel.deleteMany({
         _id: { $ne: existing._id },
@@ -217,5 +219,3 @@ export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRep
     };
   }
 }
-
-export const mongoAdminSubscriptionsRepository = new MongoAdminSubscriptionsRepository();

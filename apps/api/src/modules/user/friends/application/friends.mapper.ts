@@ -7,6 +7,7 @@ import type {
   FriendUserViewDTO,
   FriendUsersPageViewDTO,
   PaginationViewDTO,
+  SendFriendRequestViewDTO,
 } from './friends.dto';
 import type { PaginatedResult } from '../domain/friends.types';
 
@@ -15,13 +16,7 @@ export interface IFriendsMapper {
   toFriendRequestView(summary: FriendRequestSummaryEntity): FriendRequestViewDTO;
   toFriendUsersPageView(page: PaginatedResult<FriendUserEntity>): FriendUsersPageViewDTO;
   toPaginationView<T>(page: PaginatedResult<T>): PaginationViewDTO;
-  toRequestActionView(request: FriendRequestEntity): {
-    id: string;
-    receiverUserId: string;
-    status: 'pending';
-    message: string;
-    createdAt: Date;
-  };
+  toRequestActionView(request: FriendRequestEntity): SendFriendRequestViewDTO['request'];
 }
 
 export class FriendsMapper implements IFriendsMapper {

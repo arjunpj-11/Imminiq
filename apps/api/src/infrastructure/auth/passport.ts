@@ -1,6 +1,7 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { Strategy as GitHubStrategy, Profile as GitHubProfile } from 'passport-github2';
+import type { Profile as GitHubProfile } from 'passport-github2';
+import { Strategy as GitHubStrategy } from 'passport-github2';
 import type { VerifyCallback } from 'passport-oauth2';
 import { env } from '../../config/env';
 import type { IAuthRepository } from '../../modules/auth';

@@ -4,7 +4,7 @@ import type { IActivityQueryRepository } from '../../domain/repositories/activit
 import type { RecordUserActivityPayloadDTO, RecordUserActivityResponseDTO } from '../activity.dto';
 import { ActivityApplicationError } from '../activity-application.error';
 import type { ActivityMapperContract } from '../activity.mapper';
-import { ActivityEventPolicy } from '../activity-event.policy';
+import type { ActivityEventPolicy } from '../activity-event.policy';
 import type { ActivityDateRangeContract } from '../services/activity-date-range.service';
 import type { IClock } from '../../../../../shared/time/clock.interface';
 import type { IActivityPolicyReader } from '../../../../../shared/platform-policy';

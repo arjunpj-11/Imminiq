@@ -12,7 +12,7 @@ import { TrackerClanChallengesController } from './tracker-clan-challenges.contr
 import { TrackerClanController } from './tracker-clan.controller';
 import type { TrackerUseCases } from '../application/tracker-use-cases.contract';
 import { TRACKER_ROUTE_PATHS } from './trackers.route.constants';
-import { enforcePlanLimit } from '../../subscriptions';
+import type { PlanLimitMiddleware } from '../../subscriptions';
 import {
   trackerListQuerySchema,
   trackerDomainsQuerySchema,
@@ -46,7 +46,10 @@ import {
   respondClanRoleInvitationSchema,
 } from './trackers.schema';
 
-export const createTrackerRoutes = (useCases: TrackerUseCases) => {
+export const createTrackerRoutes = (
+  useCases: TrackerUseCases,
+  enforcePlanLimit: PlanLimitMiddleware
+) => {
   const managementController = new TrackerManagementController(useCases);
   const roadmapController = new TrackerRoadmapController(useCases);
   const lessonsController = new TrackerLessonsController(useCases);

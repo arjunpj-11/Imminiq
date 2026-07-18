@@ -1,26 +1,20 @@
 import type { ITrackerQueryRepository } from '../../domain/repositories/tracker-query.repository.interface';
 import { TrackerApplicationError } from '../tracker-application.error';
-
-export type ReportTrackerInput = {
-  trackerId: string;
-  userId: string;
-  reason: string;
-  details?: string;
-};
+import type { ReportTrackerPayloadDTO, ReportTrackerResultDTO } from '../tracker.dto';
 
 export interface IReportTrackerUseCase {
-  execute(input: ReportTrackerInput): Promise<{
-    id: string;
-    status: string;
-    createdAt: Date;
-    updatedAt: Date;
-  }>;
+  execute(input: ReportTrackerPayloadDTO): Promise<ReportTrackerResultDTO>;
 }
 
 export class ReportTrackerUseCase implements IReportTrackerUseCase {
-  constructor(private readonly repository: ITrackerQueryRepository) {}
+  constructor(
+    private readonly repository: Pick<
+      ITrackerQueryRepository,
+      'findReportableTrackerById' | 'createOrReopenTrackerReport'
+    >
+  ) {}
 
-  async execute(input: ReportTrackerInput) {
+  async execute(input: ReportTrackerPayloadDTO) {
     const tracker = await this.repository.findReportableTrackerById(input.trackerId);
     if (!tracker) throw TrackerApplicationError.trackerNotFound();
     if (String(tracker.ownerId) === input.userId) {

@@ -2,6 +2,11 @@ import type { AdminActor } from '../../../../shared/admin';
 import type { IAdminMockTestsRepository } from '../domain/repositories/admin-mock-tests.repository.interface';
 import { AdminMockTestsApplicationError } from './admin-mock-tests-application.error';
 
+export type AdminMockTestQuestionVersionRestoreResultDTO = {
+  questionId: string;
+  version: number;
+};
+
 export interface IAdminMockTestQuestionVersionService {
   list(questionId: string): ReturnType<IAdminMockTestsRepository['listQuestionVersions']>;
   restore(
@@ -9,7 +14,7 @@ export interface IAdminMockTestQuestionVersionService {
     version: number,
     reason: string,
     actor: AdminActor
-  ): Promise<{ questionId: string; version: number }>;
+  ): Promise<AdminMockTestQuestionVersionRestoreResultDTO>;
 }
 
 export class AdminMockTestQuestionVersionService

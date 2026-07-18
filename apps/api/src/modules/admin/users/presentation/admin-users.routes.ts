@@ -2,15 +2,18 @@ import { Router } from 'express';
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import {
   requireAdminPermission,
-  requirePrivilegedMfa,
   requireSuperAdmin,
 } from '../../../../shared/middlewares/admin.middleware';
+import type { PrivilegedAdminMiddleware } from '../../../../shared/middlewares/admin.middleware';
 import type { AdminUsersUseCases } from '../application/admin-users-use-cases.contract';
 import { AdminUsersController } from './admin-users.controller';
 import { ADMIN_USERS_ROUTE_PATHS } from './admin-users.route.constants';
 import { validateIdentifierParam } from '../../../../shared/middlewares/validate';
 
-export const createAdminUsersRoutes = (useCases: AdminUsersUseCases) => {
+export const createAdminUsersRoutes = (
+  useCases: AdminUsersUseCases,
+  requirePrivilegedMfa: PrivilegedAdminMiddleware
+) => {
   const router = Router();
   const controller = new AdminUsersController(useCases);
   router.use(authenticate, requireAdminPermission('users:manage'));

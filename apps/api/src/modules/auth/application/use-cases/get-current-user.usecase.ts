@@ -10,7 +10,7 @@ export interface IGetCurrentUserUseCase {
 
 export class GetCurrentUserUseCase implements IGetCurrentUserUseCase {
   constructor(
-    private readonly _authRepository: IAuthUserRepository,
+    private readonly _authRepository: Pick<IAuthUserRepository, 'findById'>,
     private readonly _authAccountPolicy: IAuthAccountPolicy,
     private readonly _authUserMapper: IAuthUserMapper
   ) {}

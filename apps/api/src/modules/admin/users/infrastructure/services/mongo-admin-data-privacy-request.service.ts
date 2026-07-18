@@ -3,14 +3,15 @@ import { DataPrivacyRequest } from '../../../../../infrastructure/database/model
 import { ServiceError } from '../../../../../shared/errors/service.error';
 import { recordAdminAction } from '../../../../../infrastructure/admin';
 import type { AdminActor } from '../../../../../shared/admin';
-
-export interface IAdminDataPrivacyRequestService {
-  list(query: { search: string; status: string; type: string; page: number; limit: number }): Promise<object>;
-  update(id: string, input: { status: 'in_progress' | 'completed' | 'rejected'; resolutionNote: string; downloadUrl?: string }, actor: AdminActor): Promise<object>;
-}
+import type {
+  AdminPrivacyRequestListQuery,
+  AdminPrivacyRequestUpdateInput,
+  AdminPrivacyRequestUpdateResult,
+  IAdminDataPrivacyRequestService,
+} from '../../application/admin-data-privacy-request.service';
 
 export class AdminDataPrivacyRequestService implements IAdminDataPrivacyRequestService {
-  async list(query: { search: string; status: string; type: string; page: number; limit: number }) {
+  async list(query: AdminPrivacyRequestListQuery) {
     const filter: Record<string, unknown> = {};
     if (query.status !== 'all') filter.status = query.status;
     if (query.type !== 'all') filter.type = query.type;
@@ -62,12 +63,12 @@ export class AdminDataPrivacyRequestService implements IAdminDataPrivacyRequestS
 
   async update(
     id: string,
-    input: { status: 'in_progress' | 'completed' | 'rejected'; resolutionNote: string; downloadUrl?: string },
+    input: AdminPrivacyRequestUpdateInput,
     actor: AdminActor
   ) {
     const session = await mongoose.startSession();
     try {
-      let result: unknown;
+      let result: AdminPrivacyRequestUpdateResult | undefined;
       await session.withTransaction(async () => {
         const row = await DataPrivacyRequest.findById(id).session(session);
         if (!row) throw new ServiceError('missing-resource', 'PRIVACY_REQUEST_NOT_FOUND', 'Privacy request not found');
@@ -85,7 +86,14 @@ export class AdminDataPrivacyRequestService implements IAdminDataPrivacyRequestS
         }, session);
         result = { id: String(row._id), status: row.status, updatedAt: row.updatedAt };
       });
-      return result as object;
+      if (!result) {
+        throw new ServiceError(
+          'internal',
+          'PRIVACY_REQUEST_UPDATE_FAILED',
+          'Privacy request update did not produce a result'
+        );
+      }
+      return result;
     } finally { await session.endSession(); }
   }
 }

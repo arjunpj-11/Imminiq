@@ -2,7 +2,10 @@ import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-t
 import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface';
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface';
 import type { IMockTestCodeRunner } from '../../domain/services/mock-test-code-runner.interface';
-import type { SubmitMockTestCodePayloadDTO } from '../mock-tests.dto';
+import type {
+  SubmitMockTestCodePayloadDTO,
+  SubmitMockTestCodeResultDTO,
+} from '../mock-tests.dto';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
 import { attemptQuestionSnapshotService } from '../services/attempt-question-snapshot.service';
 
@@ -16,21 +19,7 @@ export interface ISubmitMockTestCodeUseCase {
     userId: string,
     questionId: string,
     payload: SubmitMockTestCodePayloadDTO
-  ): Promise<{
-    answer: import('../../domain').MockTestAnswerEntity;
-    isCorrect: boolean;
-    pointsEarned: number;
-    maxPoints: number;
-    passedCount: number;
-    totalCount: number;
-    testCases: import('../../domain/services/mock-test-code-runner.interface').MockTestCodeTestCaseResult[];
-    stdout: string;
-    stderr: string;
-    compileOutput: string;
-    message: string;
-    status: { id: number; description: string };
-    feedback: string;
-  }>;
+  ): Promise<SubmitMockTestCodeResultDTO>;
 }
 
 export class SubmitMockTestCodeUseCase implements ISubmitMockTestCodeUseCase {

@@ -3,7 +3,7 @@ import type {
   ListNotificationsPayloadDTO,
   ListNotificationsResponseDTO,
 } from '../notifications.dto';
-import { NotificationsMapper } from '../notifications.mapper';
+import type { NotificationsMapper } from '../notifications.mapper';
 
 export interface IListNotificationsUseCase {
   execute(

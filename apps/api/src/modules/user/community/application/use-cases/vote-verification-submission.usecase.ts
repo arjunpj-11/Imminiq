@@ -12,6 +12,22 @@ import type {
   ICommunityPolicyReader,
 } from '../../../../../shared/platform-policy';
 
+type ConsensusRewardInput = {
+  submissionId: string;
+  currentUserId: string;
+  consensusChoice: 'pass' | 'fail' | null;
+  trackerId: string;
+  ownerId: string;
+  trackerTitle: string;
+  policy: CommunityPolicy;
+};
+
+type ConsensusRewardResult = {
+  currentUserAwarded: boolean;
+  currentUserRewardCoins: number;
+  currentUserBalance: number;
+};
+
 export interface IVoteVerificationSubmissionUseCase {
   execute(
     payload: VoteVerificationSubmissionPayloadDTO
@@ -20,7 +36,15 @@ export interface IVoteVerificationSubmissionUseCase {
 
 export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmissionUseCase {
   constructor(
-    private readonly _repository: ICommunityVerificationRepository,
+    private readonly _repository: Pick<
+      ICommunityVerificationRepository,
+      | 'createVerificationVote'
+      | 'findUnrewardedMajorityVotes'
+      | 'findVerificationSubmissionById'
+      | 'findVoteBySubmissionAndUser'
+      | 'getUserCoinBalance'
+      | 'markVerificationVoteRewarded'
+    >,
     private readonly _policy: ICommunityVerificationPolicy,
     private readonly _activityRecorder: ICommunityActivityRecorder,
     private readonly _mapper: ICommunityMapper,
@@ -131,19 +155,9 @@ export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmi
     };
   }
 
-  private async awardConsensusRewards(data: {
-    submissionId: string;
-    currentUserId: string;
-    consensusChoice: 'pass' | 'fail' | null;
-    trackerId: string;
-    ownerId: string;
-    trackerTitle: string;
-    policy: CommunityPolicy;
-  }): Promise<{
-    currentUserAwarded: boolean;
-    currentUserRewardCoins: number;
-    currentUserBalance: number;
-  }> {
+  private async awardConsensusRewards(
+    data: ConsensusRewardInput
+  ): Promise<ConsensusRewardResult> {
     if (data.consensusChoice) {
       const rewardableVotes = await this._repository.findUnrewardedMajorityVotes(
         data.submissionId,

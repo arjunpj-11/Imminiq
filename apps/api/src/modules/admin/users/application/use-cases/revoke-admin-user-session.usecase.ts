@@ -1,24 +1,28 @@
 import type { AdminActor } from '../../../../../shared/admin';
 import type { IAdminUsersRepository } from '../../domain/repositories/admin-users.repository.interface';
 import { AdminUsersApplicationError } from '../admin-users-application.error';
+import type {
+  AdminRequestContextDTO,
+  RevokeAdminUserSessionResultDTO,
+} from '../admin-users.dto';
 
 export interface IRevokeAdminUserSessionUseCase {
   execute(
     userId: string,
     sessionId: string,
     actor: AdminActor,
-    context: { ipAddress: string; userAgent: string }
-  ): Promise<{ userId: string; sessionId: string; revoked: true }>;
+    context: AdminRequestContextDTO
+  ): Promise<RevokeAdminUserSessionResultDTO>;
 }
 
 export class RevokeAdminUserSessionUseCase implements IRevokeAdminUserSessionUseCase {
-  constructor(private readonly repository: IAdminUsersRepository) {}
+  constructor(private readonly repository: Pick<IAdminUsersRepository, 'revokeSession'>) {}
 
   async execute(
     userId: string,
     sessionId: string,
     actor: AdminActor,
-    context: { ipAddress: string; userAgent: string }
+    context: AdminRequestContextDTO
   ) {
     const revoked = await this.repository.revokeSession(userId, sessionId, {
       actorId: actor.userId,

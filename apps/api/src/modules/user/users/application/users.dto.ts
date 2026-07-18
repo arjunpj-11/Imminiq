@@ -36,6 +36,11 @@ export interface CurrentUserViewDTO {
   updatedAt?: Date;
 }
 
+export interface MyProfileViewDTO {
+  user: CurrentUserViewDTO;
+  profile: EditableProfileViewDTO;
+}
+
 export interface EditableProfileViewDTO {
   _id?: string;
   userId: string;
@@ -153,6 +158,20 @@ export interface PaginationViewDTO {
   limit: number;
   total: number;
   totalPages: number;
+}
+
+export interface PublishedTrackersPageDTO {
+  items: PublishedTrackerViewDTO[];
+  pagination: PaginationViewDTO;
+}
+
+export interface EarnedBadgesPageDTO {
+  items: EarnedBadgeViewDTO[];
+  pagination: PaginationViewDTO;
+}
+
+export interface RecentActivityPageDTO {
+  items: ActivityFeedItemViewDTO[];
 }
 
 export interface PublicProfilePageViewDTO {

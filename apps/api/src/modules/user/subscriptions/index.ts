@@ -1,9 +1,7 @@
-export {
-  createSubscriptionsComposition,
-  enforcePlanLimit,
-  subscriptionLimitService,
-} from './subscriptions.factory';
+export { createSubscriptionsComposition } from './subscriptions.factory';
 export { createSubscriptionsRoutes } from './presentation/subscriptions.routes';
+export type { PlanLimitMiddleware } from './presentation/plan-limit.middleware';
+export type { ISubscriptionLimitEnforcer } from './application/subscription-limit.contract';
 export {
   getDefaultPlanLimits,
   getDefaultSubscriptionPlan,

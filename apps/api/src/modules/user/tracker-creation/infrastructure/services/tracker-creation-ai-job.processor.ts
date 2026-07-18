@@ -1,5 +1,7 @@
 import type {
   ITrackerCreationAIJobProcessor,
+  ITrackerCreationCapacityEnforcer,
+  ITrackerCreationJobNotifier,
   RoadmapEvaluationJobPayload,
   RoadmapGenerationJobPayload,
 } from '../../application/ports/tracker-creation-ai-job-processor.interface';
@@ -11,19 +13,19 @@ import { AIGenerationStep } from '../../../../../infrastructure/database/models/
 import { Tracker } from '../../../../../infrastructure/database/models/tracker.model';
 import { TrackerTopic } from '../../../../../infrastructure/database/models/tracker-topic.model';
 import { TrackerSubtopic } from '../../../../../infrastructure/database/models/tracker-subtopic.model';
-import { createNotificationsComposition } from '../../../../notifications';
-import { subscriptionLimitService } from '../../../subscriptions';
 
+import type {
+  RoadmapNestedNode} from '../../../../../infrastructure/ai/ai.service';
 import {
   generateRoadmapStructure,
   evaluateRoadmap,
-  evaluateCloneFreshness,
-  RoadmapNestedNode,
+  evaluateCloneFreshness
 } from '../../../../../infrastructure/ai/ai.service';
+import type {
+  LearningVideoRecommendation} from '../../../../../infrastructure/youtube/youtube-learning-video.service';
 import {
   findTrackerSubtopicLearningVideos,
-  findTrackerTopicLearningVideos,
-  LearningVideoRecommendation,
+  findTrackerTopicLearningVideos
 } from '../../../../../infrastructure/youtube/youtube-learning-video.service';
 
 // ============================================================
@@ -239,7 +241,9 @@ const processRoadmapGeneration = async (
   topic: string,
   goal: string | undefined,
   level: 'beginner' | 'intermediate' | 'advanced',
-  preferredLanguage: string
+  preferredLanguage: string,
+  capacityEnforcer: ITrackerCreationCapacityEnforcer,
+  notifier: ITrackerCreationJobNotifier
 ) => {
   // Step 1 — Analyse goal
   await startStep(jobId, 1);
@@ -293,7 +297,7 @@ const processRoadmapGeneration = async (
   // Step 4 — Save tracker tree to MongoDB
   await startStep(jobId, 4);
 
-  await subscriptionLimitService.enforce(userId, 'tracker_capacity');
+  await capacityEnforcer.enforceTrackerCapacity(userId);
 
   const session = await mongoose.startSession();
 
@@ -412,12 +416,11 @@ const processRoadmapGeneration = async (
 
   await completeStep(jobId, 5);
 
-  await createNotificationsComposition().useCases.createNotification.execute({
+  await notifier.notifyTrackerGenerated({
     userId,
-    type: 'tracker_generation_completed',
-    message: `Your tracker “${roadmap.title}” is ready. Go and check it out.`,
-    deepLink: `/trackers/create/ready/${jobId}`,
-    metadata: { jobId, trackerId: trackerId.toString() },
+    jobId,
+    trackerId: trackerId.toString(),
+    trackerTitle: roadmap.title,
   });
 };
 
@@ -508,6 +511,11 @@ const processRoadmapEvaluation = async (
 
 
 export class TrackerCreationAIJobProcessor implements ITrackerCreationAIJobProcessor {
+  constructor(
+    private readonly capacityEnforcer: ITrackerCreationCapacityEnforcer,
+    private readonly notifier: ITrackerCreationJobNotifier
+  ) {}
+
   processRoadmapGeneration(payload: RoadmapGenerationJobPayload): Promise<void> {
     return processRoadmapGeneration(
       payload.jobId,
@@ -515,7 +523,9 @@ export class TrackerCreationAIJobProcessor implements ITrackerCreationAIJobProce
       payload.topic,
       payload.goal,
       payload.level,
-      payload.preferredLanguage
+      payload.preferredLanguage,
+      this.capacityEnforcer,
+      this.notifier
     );
   }
 
@@ -524,5 +534,3 @@ export class TrackerCreationAIJobProcessor implements ITrackerCreationAIJobProce
     return processRoadmapEvaluation(jobId, trackerId, options);
   }
 }
-
-export const trackerCreationAIJobProcessor = new TrackerCreationAIJobProcessor();

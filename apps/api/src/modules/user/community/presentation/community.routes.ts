@@ -10,7 +10,7 @@ import {
 import { CommunityController } from './community.controller';
 import type { CommunityUseCases } from '../application/community-use-cases.contract';
 import { COMMUNITY_ROUTE_PATHS } from './community.route.constants';
-import { enforcePlanLimit } from '../../subscriptions';
+import type { PlanLimitMiddleware } from '../../subscriptions';
 import {
   sendTrackerForVerificationSchema,
   upsertCommunityTrackerReviewSchema,
@@ -19,7 +19,10 @@ import {
   communityPaginationQuerySchema,
 } from './community.schema';
 
-export const createCommunityRoutes = (useCases: CommunityUseCases) => {
+export const createCommunityRoutes = (
+  useCases: CommunityUseCases,
+  enforcePlanLimit: PlanLimitMiddleware
+) => {
   const communityController = new CommunityController(useCases);
   const router = Router();
   router.param('trackerId', validateIdentifierParam);

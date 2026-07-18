@@ -3,19 +3,19 @@ import type { AdminTrackerLifecycleInput } from '../../domain/entities/admin-tra
 import type { IAdminTrackerEmailProvider } from '../../domain/services/admin-tracker-email-provider.interface';
 import type { IAdminTrackersRepository } from '../../domain/repositories/admin-trackers.repository.interface';
 import { AdminTrackersApplicationError } from '../admin-trackers-application.error';
-import type { AdminTrackerLifecycleResult } from '../../domain/entities/admin-tracker.entity';
+import type { AdminTrackerLifecycleResultDTO } from '../admin-trackers.dto';
 
 export interface IUpdateAdminTrackerLifecycleUseCase {
   execute(
     id: string,
     input: AdminTrackerLifecycleInput,
     actor: AdminActor
-  ): Promise<AdminTrackerLifecycleResult & { notificationQueued: boolean }>;
+  ): Promise<AdminTrackerLifecycleResultDTO>;
 }
 
 export class UpdateAdminTrackerLifecycleUseCase implements IUpdateAdminTrackerLifecycleUseCase {
   constructor(
-    private readonly repository: IAdminTrackersRepository,
+    private readonly repository: Pick<IAdminTrackersRepository, 'updateLifecycle'>,
     private readonly emailProvider: IAdminTrackerEmailProvider
   ) {}
   async execute(id: string, input: AdminTrackerLifecycleInput, actor: AdminActor) {
@@ -41,6 +41,13 @@ export class UpdateAdminTrackerLifecycleUseCase implements IUpdateAdminTrackerLi
         // The database decision and in-app notification remain authoritative.
       }
     }
-    return { ...result, notificationQueued };
+    return {
+      id: result.id,
+      title: result.title,
+      moderationStatus: result.moderationStatus,
+      reason: result.reason,
+      updatedAt: result.updatedAt,
+      notificationQueued,
+    };
   }
 }

@@ -1,14 +1,10 @@
 import { TrackerApplicationError } from '../tracker-application.error';
-import type { LessonChatHistoryDTO } from '../tracker.dto';
+import type { LessonChatHistoryDTO, TrackerLessonAccessPayloadDTO } from '../tracker.dto';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 
 export interface IGetLessonChatHistoryUseCase {
-  execute(input: {
-    trackerId: string;
-    subtopicId: string;
-    userId: string;
-  }): Promise<LessonChatHistoryDTO>;
+  execute(input: TrackerLessonAccessPayloadDTO): Promise<LessonChatHistoryDTO>;
 }
 
 export class GetLessonChatHistoryUseCase implements IGetLessonChatHistoryUseCase {
@@ -20,7 +16,7 @@ export class GetLessonChatHistoryUseCase implements IGetLessonChatHistoryUseCase
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: { trackerId: string; subtopicId: string; userId: string }) {
+  async execute(input: TrackerLessonAccessPayloadDTO) {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

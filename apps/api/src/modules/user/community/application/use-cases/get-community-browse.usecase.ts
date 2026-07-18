@@ -13,7 +13,10 @@ export interface IGetCommunityBrowseUseCase {
   execute(payload: CommunityTrackerListPayloadDTO): Promise<CommunityBrowseViewDTO>;
 }
 
-type CommunityBrowseRepository = ICommunityTrackerRepository &
+type CommunityBrowseRepository = Pick<
+  ICommunityTrackerRepository,
+  'findPublicTrackers' | 'getPersonalStats' | 'findAvailableTopics'
+> &
   Pick<ICommunityVerificationRepository, 'getVerificationStats'>;
 
 export class GetCommunityBrowseUseCase implements IGetCommunityBrowseUseCase {

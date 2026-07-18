@@ -1,5 +1,5 @@
 import type { IUserBadgeRepository } from '../../domain/repositories/user-badge.repository.interface';
-import type { EarnedBadgeViewDTO } from '../users.dto';
+import type { EarnedBadgesPageDTO } from '../users.dto';
 import type { IUsersMapper } from '../users.mapper';
 
 export interface IGetMyBadgesUseCase {
@@ -7,15 +7,7 @@ export interface IGetMyBadgesUseCase {
     userId: string,
     page: number,
     limit: number
-  ): Promise<{
-    items: EarnedBadgeViewDTO[];
-    pagination: {
-      page: number;
-      limit: number;
-      total: number;
-      totalPages: number;
-    };
-  }>;
+  ): Promise<EarnedBadgesPageDTO>;
 }
 
 export class GetMyBadgesUseCase implements IGetMyBadgesUseCase {

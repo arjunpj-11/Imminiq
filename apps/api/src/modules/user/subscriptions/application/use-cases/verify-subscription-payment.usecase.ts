@@ -12,7 +12,7 @@ export interface IVerifySubscriptionPaymentUseCase {
 
 export class VerifySubscriptionPaymentUseCase implements IVerifySubscriptionPaymentUseCase {
   constructor(
-    private readonly repository: ISubscriptionRepository,
+    private readonly repository: Pick<ISubscriptionRepository, 'activate' | 'findByOrderId'>,
     private readonly paymentGateway: ISubscriptionPaymentGateway,
     private readonly mapper: ISubscriptionsMapper,
     private readonly clock: IClock

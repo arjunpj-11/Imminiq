@@ -1,28 +1,33 @@
 import type { IAdminUserEmailProvider } from '../../domain/services/admin-user-email-provider.interface';
 import type { IAdminUsersRepository } from '../../domain/repositories/admin-users.repository.interface';
-import type { AdminUserAppealUpdateResultDTO } from '../admin-users.dto';
+import type {
+  AdminUserAppealActorDTO,
+  AdminUserAppealUpdateInputDTO,
+  AdminUserAppealUpdateMetaDTO,
+  AdminUserAppealUpdateResultDTO,
+} from '../admin-users.dto';
 import { AdminUsersApplicationError } from '../admin-users-application.error';
 
 export interface IUpdateAdminUserAppealUseCase {
   execute(
     appealId: string,
-    input: { status: 'under_review' | 'approved' | 'rejected'; reviewNote: string },
-    actor: { userId: string },
-    meta: { ipAddress: string; userAgent: string; notifyEmail: boolean }
+    input: AdminUserAppealUpdateInputDTO,
+    actor: AdminUserAppealActorDTO,
+    meta: AdminUserAppealUpdateMetaDTO
   ): Promise<AdminUserAppealUpdateResultDTO>;
 }
 
 export class UpdateAdminUserAppealUseCase implements IUpdateAdminUserAppealUseCase {
   constructor(
-    private readonly _repository: IAdminUsersRepository,
+    private readonly _repository: Pick<IAdminUsersRepository, 'updateAppeal'>,
     private readonly _emailProvider: IAdminUserEmailProvider
   ) {}
 
   async execute(
     appealId: string,
-    input: { status: 'under_review' | 'approved' | 'rejected'; reviewNote: string },
-    actor: { userId: string },
-    meta: { ipAddress: string; userAgent: string; notifyEmail: boolean }
+    input: AdminUserAppealUpdateInputDTO,
+    actor: AdminUserAppealActorDTO,
+    meta: AdminUserAppealUpdateMetaDTO
   ) {
     const appeal = await this._repository.updateAppeal(appealId, {
       ...input,

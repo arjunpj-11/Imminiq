@@ -9,9 +9,13 @@ export default defineConfig({
     clearMocks: true,
     restoreMocks: true,
     mockReset: true,
-    maxWorkers: 8,
+    // Integration suites share process-level Mongo/Redis clients through the application
+    // composition root. Running files serially prevents one suite from clearing or closing
+    // another suite's singleton-backed test state.
+    fileParallelism: false,
     unstubEnvs: true,
     unstubGlobals: true,
-    testTimeout: 10_000,
+    hookTimeout: 30_000,
+    testTimeout: 20_000,
   },
 });

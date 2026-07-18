@@ -20,6 +20,38 @@ const rootModuleServiceFiles = sourceFiles.filter((path) =>
   /[/\\]modules[/\\][^/\\]+[/\\][^/\\]+\.service\.ts$/.test(path)
 );
 
+const applicationContractFiles = sourceFiles.filter(
+  (path) =>
+    /[/\\]application[/\\]/.test(path) &&
+    (path.endsWith('.usecase.ts') ||
+      path.endsWith('.service.ts') ||
+      path.endsWith('.contract.ts'))
+);
+const applicationFiles = sourceFiles.filter((path) => /[/\\]application[/\\]/.test(path));
+
+const exportedInterfaceBodies = (source: string) => {
+  const bodies: Array<{ name: string; body: string }> = [];
+  const declarations = source.matchAll(/export\s+interface\s+(I\w+)\b[^{]*{/g);
+
+  for (const declaration of declarations) {
+    const openingBrace = (declaration.index ?? 0) + declaration[0].lastIndexOf('{');
+    let depth = 0;
+    for (let index = openingBrace; index < source.length; index += 1) {
+      if (source[index] === '{') depth += 1;
+      if (source[index] === '}') depth -= 1;
+      if (depth === 0) {
+        bodies.push({
+          name: declaration[1],
+          body: source.slice(openingBrace + 1, index),
+        });
+        break;
+      }
+    }
+  }
+
+  return bodies;
+};
+
 describe('use-case input ports', () => {
   it('requires every concrete use case to implement an exported interface', () => {
     expect(useCaseFiles.length).toBeGreaterThan(0);
@@ -61,5 +93,43 @@ describe('use-case input ports', () => {
 
   it('prevents root module service facades from wrapping use cases', () => {
     expect(rootModuleServiceFiles).toEqual([]);
+  });
+
+  it('requires named use-case inputs and outputs', () => {
+    for (const path of useCaseFiles) {
+      const source = readFileSync(path, 'utf8');
+      const inputPort = source.match(
+        /export\s+interface\s+I\w+UseCase\s*\{([\s\S]*?)\n\}/
+      )?.[1];
+
+      expect(inputPort, `Missing use-case input port body in ${path}`).toBeDefined();
+      expect(inputPort, `Anonymous execute parameter in ${path}`).not.toMatch(/:\s*\{/);
+      expect(inputPort, `Anonymous Promise result in ${path}`).not.toMatch(/Promise<\s*\{/);
+    }
+  });
+
+  it('keeps application contracts free of erased object and any results', () => {
+    for (const path of applicationContractFiles) {
+      const source = readFileSync(path, 'utf8');
+      expect(source, path).not.toMatch(/Promise<\s*(?:object|any)\s*>/);
+    }
+  });
+
+  it('uses named object contracts in every exported application port', () => {
+    const violations: string[] = [];
+
+    for (const path of applicationFiles) {
+      const sourceText = readFileSync(path, 'utf8');
+      for (const contract of exportedInterfaceBodies(sourceText)) {
+        const methods = contract.body.matchAll(/\b(\w+)\s*\(([\s\S]*?)\)\s*:\s*([\s\S]*?);/g);
+        for (const method of methods) {
+          if (/:\s*\{/.test(method[2]) || /\{/.test(method[3])) {
+            violations.push(`${path} ${contract.name}.${method[1]}`);
+          }
+        }
+      }
+    }
+
+    expect(violations).toEqual([]);
   });
 });

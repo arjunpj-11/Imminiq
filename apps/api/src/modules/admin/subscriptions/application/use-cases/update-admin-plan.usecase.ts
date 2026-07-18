@@ -23,7 +23,7 @@ export type AdminSubscriptionPlanUpdateInput = {
 
 export class UpdateAdminPlanUseCase implements IUpdateAdminPlanUseCase {
   constructor(
-    private readonly repository: IAdminSubscriptionsRepository,
+    private readonly repository: Pick<IAdminSubscriptionsRepository, 'updatePlan'>,
     private readonly mapper: IAdminSubscriptionsMapper
   ) {}
 

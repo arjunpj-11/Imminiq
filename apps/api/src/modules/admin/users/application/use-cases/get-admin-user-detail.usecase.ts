@@ -9,7 +9,7 @@ export interface IGetAdminUserDetailUseCase {
 }
 export class GetAdminUserDetailUseCase implements IGetAdminUserDetailUseCase {
   constructor(
-    private readonly _repository: IAdminUsersRepository,
+    private readonly _repository: Pick<IAdminUsersRepository, 'findDetailById'>,
     private readonly _mapper: IAdminUsersMapper
   ) {}
   async execute(userId: string) {

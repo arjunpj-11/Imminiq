@@ -8,7 +8,7 @@ export interface IListSubscriptionPlansUseCase {
 
 export class ListSubscriptionPlansUseCase implements IListSubscriptionPlansUseCase {
   constructor(
-    private readonly repository: ISubscriptionRepository,
+    private readonly repository: Pick<ISubscriptionRepository, 'getPlans'>,
     private readonly mapper: ISubscriptionsMapper
   ) {}
 

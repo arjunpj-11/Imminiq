@@ -41,8 +41,8 @@ export type TrackerUseCases = {
   clearLessonChatHistory: Application.IClearLessonChatHistoryUseCase;
   clearLessonQuestionSolutionDoubts: Application.IClearLessonQuestionSolutionDoubtsUseCase;
   reportTracker: Application.IReportTrackerUseCase;
-  trackerClan: Application.ITrackerClanUseCase;
-  trackerClanChallenges: Application.ITrackerClanChallengeUseCase;
+  trackerClan: Application.ITrackerClanServiceContract;
+  trackerClanChallenges: Application.ITrackerClanChallengeServiceContract;
 };
 
 export type TrackerManagementUseCases = Pick<

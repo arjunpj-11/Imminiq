@@ -1,10 +1,8 @@
 import type { IMockTestGenerationJobGateway } from '../services/mock-test-generation-job.interface';
+import type { ActiveMockTestGenerationJobDTO } from '../mock-tests.dto';
 
 export interface IGetActiveMockTestGenerationUseCase {
-  execute(userId: string): Promise<{
-    jobId: string;
-    status: 'pending' | 'processing';
-  } | null>;
+  execute(userId: string): Promise<ActiveMockTestGenerationJobDTO | null>;
 }
 
 export class GetActiveMockTestGenerationUseCase implements IGetActiveMockTestGenerationUseCase {

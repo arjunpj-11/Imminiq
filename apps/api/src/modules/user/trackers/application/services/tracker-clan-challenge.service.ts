@@ -5,32 +5,18 @@ import type {
   ITrackerClanChallengeRepository,
   TrackerClanChallenge,
 } from '../../domain';
+import type { ITrackerClanChallengeServiceContract } from '../tracker-clan-challenge.contract';
+import type {
+  AnswerTrackerClanNodePayloadDTO,
+  ChooseTrackerClanCheckpointPayloadDTO,
+  CreateTrackerClanChallengePayloadDTO,
+  SubmitTrackerClanChallengePayloadDTO,
+  TrackerAccessPayloadDTO,
+  TrackerClanChallengeAccessPayloadDTO,
+} from '../tracker.dto';
 import { TrackerApplicationError } from '../tracker-application.error';
 
-export interface ITrackerClanChallengeUseCase {
-  list(input: { trackerId: string; userId: string }): Promise<TrackerClanChallenge[]>;
-  create(input: {
-    trackerId: string;
-    userId: string;
-    opponentId?: string;
-    durationMinutes: number;
-    questionCount: number;
-  }): Promise<TrackerClanChallenge>;
-  accept(input: { trackerId: string; challengeId: string; userId: string }): Promise<TrackerClanChallenge>;
-  decline(input: { trackerId: string; challengeId: string; userId: string }): Promise<TrackerClanChallenge>;
-  cancel(input: { trackerId: string; challengeId: string; userId: string }): Promise<TrackerClanChallenge>;
-  submit(input: {
-    trackerId: string;
-    challengeId: string;
-    userId: string;
-    answers: Array<{ questionId: string; answer: string }>;
-  }): Promise<TrackerClanChallenge>;
-  chooseCheckpoint(input: { trackerId: string; challengeId: string; userId: string; decision: 'attempt' | 'skip' }): Promise<TrackerClanChallenge>;
-  answerNode(input: { trackerId: string; challengeId: string; userId: string; answer: string }): Promise<TrackerClanChallenge>;
-  usePower(input: { trackerId: string; challengeId: string; userId: string }): Promise<TrackerClanChallenge>;
-}
-
-export class TrackerClanChallengeUseCase implements ITrackerClanChallengeUseCase {
+export class TrackerClanChallengeService implements ITrackerClanChallengeServiceContract {
   constructor(
     private readonly clans: ITrackerClanChallengeRepository,
     private readonly questionGenerator: ITrackerClanChallengeQuestionGenerator,
@@ -38,19 +24,13 @@ export class TrackerClanChallengeUseCase implements ITrackerClanChallengeUseCase
     private readonly notifications?: ITrackerClanNotificationNotifier
   ) {}
 
-  async list(input: { trackerId: string; userId: string }) {
+  async list(input: TrackerAccessPayloadDTO) {
     const challenges = await this.clans.listChallenges(input);
     if (!challenges) throw TrackerApplicationError.forbidden('Join this guild to view battles');
     return challenges;
   }
 
-  async create(input: {
-    trackerId: string;
-    userId: string;
-    opponentId?: string;
-    durationMinutes: number;
-    questionCount: number;
-  }) {
+  async create(input: CreateTrackerClanChallengePayloadDTO) {
     const context = await this.clans.getChallengeQuestionContext({
       trackerId: input.trackerId,
       challengerId: input.userId,
@@ -92,7 +72,7 @@ export class TrackerClanChallengeUseCase implements ITrackerClanChallengeUseCase
     return announced;
   }
 
-  async accept(input: { trackerId: string; challengeId: string; userId: string }) {
+  async accept(input: TrackerClanChallengeAccessPayloadDTO) {
     const challenge = this.announce(
       input.trackerId,
       await this.clans.acceptChallenge(input),
@@ -109,7 +89,7 @@ export class TrackerClanChallengeUseCase implements ITrackerClanChallengeUseCase
     return challenge;
   }
 
-  async decline(input: { trackerId: string; challengeId: string; userId: string }) {
+  async decline(input: TrackerClanChallengeAccessPayloadDTO) {
     const challenge = this.announce(
       input.trackerId,
       await this.clans.declineChallenge(input),
@@ -126,7 +106,7 @@ export class TrackerClanChallengeUseCase implements ITrackerClanChallengeUseCase
     return challenge;
   }
 
-  async cancel(input: { trackerId: string; challengeId: string; userId: string }) {
+  async cancel(input: TrackerClanChallengeAccessPayloadDTO) {
     const challenge = this.announce(
       input.trackerId,
       await this.clans.cancelChallenge(input),
@@ -145,12 +125,7 @@ export class TrackerClanChallengeUseCase implements ITrackerClanChallengeUseCase
     return challenge;
   }
 
-  async submit(input: {
-    trackerId: string;
-    challengeId: string;
-    userId: string;
-    answers: Array<{ questionId: string; answer: string }>;
-  }) {
+  async submit(input: SubmitTrackerClanChallengePayloadDTO) {
     const challenge = this.announce(
       input.trackerId,
       await this.clans.submitChallenge(input),
@@ -160,19 +135,19 @@ export class TrackerClanChallengeUseCase implements ITrackerClanChallengeUseCase
     return challenge;
   }
 
-  async chooseCheckpoint(input: { trackerId: string; challengeId: string; userId: string; decision: 'attempt' | 'skip' }) {
+  async chooseCheckpoint(input: ChooseTrackerClanCheckpointPayloadDTO) {
     const challenge = this.announce(input.trackerId, await this.clans.chooseChallengeCheckpoint(input), 'This checkpoint decision is no longer available');
     await this.notifyCompletion(challenge);
     return challenge;
   }
 
-  async answerNode(input: { trackerId: string; challengeId: string; userId: string; answer: string }) {
+  async answerNode(input: AnswerTrackerClanNodePayloadDTO) {
     const challenge = this.announce(input.trackerId, await this.clans.answerChallengeNode(input), 'This battle cannot accept that answer');
     await this.notifyCompletion(challenge);
     return challenge;
   }
 
-  async usePower(input: { trackerId: string; challengeId: string; userId: string }) {
+  async usePower(input: TrackerClanChallengeAccessPayloadDTO) {
     return this.announce(input.trackerId, await this.clans.useChallengePower(input), 'No push-back power is available');
   }
 

@@ -3,6 +3,7 @@ import type { IMockTestQuestionRepository } from '../../domain/repositories/mock
 import type { IMockTestQuestionIssueRepository } from '../../domain/repositories/mock-test-question-issue.repository.interface';
 import type { MockTestQuestionIssueReason } from '../../domain/repositories/mock-test-question-issue.repository.interface';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
+import type { ReportQuestionIssueResultDTO } from '../mock-tests.dto';
 
 export type ReportQuestionIssueInput = {
   reason: MockTestQuestionIssueReason;
@@ -15,7 +16,7 @@ export interface IReportQuestionIssueUseCase {
     questionId: string,
     userId: string,
     input: ReportQuestionIssueInput
-  ): Promise<{ id: string; status: string; reason: string; createdAt: Date; updatedAt: Date }>;
+  ): Promise<ReportQuestionIssueResultDTO>;
 }
 
 type ReportQuestionIssueRepository = Pick<IMockTestAttemptRepository, 'findAttemptById'> &

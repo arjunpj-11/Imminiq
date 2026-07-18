@@ -19,7 +19,7 @@ export interface ICreateSubscriptionOrderUseCase {
 
 export class CreateSubscriptionOrderUseCase implements ICreateSubscriptionOrderUseCase {
   constructor(
-    private readonly repository: ISubscriptionRepository,
+    private readonly repository: Pick<ISubscriptionRepository, 'createPending' | 'getPlan'>,
     private readonly paymentGateway: ISubscriptionPaymentGateway,
     private readonly mapper: ISubscriptionsMapper,
     private readonly clock: IClock

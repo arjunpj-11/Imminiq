@@ -19,7 +19,10 @@ export interface ISetAdminUserStatusUseCase {
 }
 export class SetAdminUserStatusUseCase implements ISetAdminUserStatusUseCase {
   constructor(
-    private readonly _repository: IAdminUsersRepository,
+    private readonly _repository: Pick<
+      IAdminUsersRepository,
+      'findById' | 'recordStatusChange' | 'revokeSessions' | 'updateStatus'
+    >,
     private readonly _emailProvider: IAdminUserEmailProvider
   ) {}
   async execute(

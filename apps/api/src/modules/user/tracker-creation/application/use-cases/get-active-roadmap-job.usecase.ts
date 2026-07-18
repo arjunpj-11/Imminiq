@@ -1,10 +1,8 @@
 import type { ITrackerCreationAIJobQueryRepository } from '../../domain/repositories/tracker-creation-ai-job-query.repository.interface';
+import type { ActiveRoadmapJobDTO } from '../tracker-creation.dto';
 
 export interface IGetActiveRoadmapJobUseCase {
-  execute(userId: string): Promise<{
-    jobId: string;
-    status: 'pending' | 'processing';
-  } | null>;
+  execute(userId: string): Promise<ActiveRoadmapJobDTO | null>;
 }
 
 export class GetActiveRoadmapJobUseCase implements IGetActiveRoadmapJobUseCase {

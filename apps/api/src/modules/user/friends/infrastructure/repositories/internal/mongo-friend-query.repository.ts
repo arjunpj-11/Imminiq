@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import type mongoose from 'mongoose';
 
 import { Friend } from '../../../../../../infrastructure/database/models/friend.model';
 import { FriendRequest } from '../../../../../../infrastructure/database/models/friend-request.model';

@@ -9,7 +9,7 @@ export interface IListAdminUserAppealsUseCase {
 }
 
 export class ListAdminUserAppealsUseCase implements IListAdminUserAppealsUseCase {
-  constructor(private readonly _repository: IAdminUsersRepository) {}
+  constructor(private readonly _repository: Pick<IAdminUsersRepository, 'listAppeals'>) {}
 
   execute(input: ListAdminUserAppealsInput) {
     return this._repository.listAppeals(input);

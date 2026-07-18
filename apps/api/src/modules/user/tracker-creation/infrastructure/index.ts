@@ -15,7 +15,4 @@ export {
   LangChainTrackerIntakeAgent,
   langChainTrackerIntakeAgent,
 } from './services/langchain-tracker-intake-agent.service';
-export {
-  TrackerCreationAIJobProcessor,
-  trackerCreationAIJobProcessor,
-} from './services/tracker-creation-ai-job.processor';
+export { TrackerCreationAIJobProcessor } from './services/tracker-creation-ai-job.processor';

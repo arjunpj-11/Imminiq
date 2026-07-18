@@ -21,7 +21,7 @@ import {
   MongoAuthUserRepository,
   mongoAuthUserRepository,
 } from './internal/mongo-auth-user.repository';
-import { MongoAuthMapper } from './shared/mongo-auth.mapper';
+import type { MongoAuthMapper } from './shared/mongo-auth.mapper';
 
 type MongoAuthRepositoryDependencies = {
   userRepository: MongoAuthUserRepository;

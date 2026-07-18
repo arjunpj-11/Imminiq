@@ -3,21 +3,17 @@ import type { IAuthUserRepository } from '../../domain/repositories/auth-user.re
 import type { IAuthNotification } from '../../domain/services/auth-notification.interface';
 import type { IPasswordHasher } from '../../domain/services/password-hasher.interface';
 import type { IPendingRegistrationStore } from '../../domain/services/pending-registration-store.interface';
-import type { VerificationMethod } from '../../domain/value-objects/verification-method.vo';
-import type { RegisterPayloadDTO } from '../auth.dto';
+import type { RegisterPayloadDTO, RegisterResultDTO } from '../auth.dto';
 import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface';
 import type { AuthRuntimePolicy } from '../../domain/auth-runtime-policy';
 
 export interface IRegisterUserUseCase {
-  execute(payload: RegisterPayloadDTO): Promise<{
-    verificationTarget: string;
-    verificationMethod: VerificationMethod;
-  }>;
+  execute(payload: RegisterPayloadDTO): Promise<RegisterResultDTO>;
 }
 
 export class RegisterUserUseCase implements IRegisterUserUseCase {
   constructor(
-    private readonly _authRepository: IAuthUserRepository,
+    private readonly _authRepository: Pick<IAuthUserRepository, 'findByEmail' | 'findByPhone'>,
     private readonly _authNotification: IAuthNotification,
     private readonly _identifierNormalizer: IIdentifierNormalizer,
     private readonly _passwordHasher: IPasswordHasher,
@@ -25,10 +21,7 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
     private readonly _runtimePolicy: Pick<AuthRuntimePolicy, 'pendingRegistrationTtlSeconds'>
   ) {}
 
-  async execute(payload: RegisterPayloadDTO): Promise<{
-    verificationTarget: string;
-    verificationMethod: VerificationMethod;
-  }> {
+  async execute(payload: RegisterPayloadDTO): Promise<RegisterResultDTO> {
     const { fullName, identifier, password } = payload;
 
     const parsedIdentifier = this._identifierNormalizer.normalize(identifier);

@@ -38,7 +38,7 @@ import { useAuthStore } from '../../../../store/useAuthStore';
 import {
   useRequestTrackerClanJoin,
   useTrackerClan,
-} from '../../trackers/hooks/useTrackers';
+} from '../../trackers';
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 

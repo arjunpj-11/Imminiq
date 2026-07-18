@@ -24,7 +24,7 @@ import {
 } from '../hooks/useMockTests';
 
 import type { IMockTest } from '../types/mock-tests.types';
-import AdaptiveExamPanel from '../../adaptive-learning/components/AdaptiveExamPanel';
+import { AdaptiveExamPanel } from '../../adaptive-learning';
 
 const EMPTY_TESTS: IMockTest[] = [];
 const TESTS_PER_PAGE = 6;

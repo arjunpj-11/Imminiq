@@ -10,8 +10,9 @@ import { MongoAuthErrorMapper } from '../shared/mongo-auth-error.mapper';
 import { MongoAuthMapper } from '../shared/mongo-auth.mapper';
 import { MongoAuthNormalizer } from '../shared/mongo-auth-normalizer';
 import type { MongoAuthUserRecord, MongoOAuthAuthUserRecord } from '../shared/mongo-auth.types';
+import type {
+  MongoAuthProfileProvisioner} from './mongo-auth-profile.provisioner';
 import {
-  MongoAuthProfileProvisioner,
   mongoAuthProfileProvisioner,
 } from './mongo-auth-profile.provisioner';
 

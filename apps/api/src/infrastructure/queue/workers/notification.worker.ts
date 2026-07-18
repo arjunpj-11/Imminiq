@@ -1,5 +1,5 @@
 import { Worker } from 'bullmq';
-import { Types } from 'mongoose';
+import type { Types } from 'mongoose';
 import { redis } from '../../cache/redis.client';
 import { AdminBroadcast } from '../../database/models/admin-broadcast.model';
 import { Notification } from '../../database/models/notification.model';

@@ -10,7 +10,7 @@ export interface ILikeAdminPublishedTrackerUseCase {
 
 export class LikeAdminPublishedTrackerUseCase implements ILikeAdminPublishedTrackerUseCase {
   constructor(
-    private readonly repository: IAdminTrackersRepository,
+    private readonly repository: Pick<IAdminTrackersRepository, 'likePublished'>,
     private readonly mapper: IAdminTrackersMapper
   ) {}
 

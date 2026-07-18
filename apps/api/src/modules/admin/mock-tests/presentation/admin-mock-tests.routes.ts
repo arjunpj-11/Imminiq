@@ -2,13 +2,16 @@ import { Router } from 'express';
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import {
   requireAdminPermission,
-  requirePrivilegedMfa,
 } from '../../../../shared/middlewares/admin.middleware';
+import type { PrivilegedAdminMiddleware } from '../../../../shared/middlewares/admin.middleware';
 import { validateIdentifierParam } from '../../../../shared/middlewares/validate';
 import type { AdminMockTestsUseCases } from '../application/admin-mock-tests-use-cases.contract';
 import { AdminMockTestsController } from './admin-mock-tests.controller';
 import { ADMIN_MOCK_TESTS_ROUTE_PATHS } from './admin-mock-tests.route.constants';
-export const createAdminMockTestsRoutes = (useCases: AdminMockTestsUseCases) => {
+export const createAdminMockTestsRoutes = (
+  useCases: AdminMockTestsUseCases,
+  requirePrivilegedMfa: PrivilegedAdminMiddleware
+) => {
   const router = Router();
   const controller = new AdminMockTestsController(useCases);
   router.use(authenticate, requireAdminPermission('content:read'));

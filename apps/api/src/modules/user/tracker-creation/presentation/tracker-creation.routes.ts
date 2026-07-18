@@ -6,7 +6,7 @@ import { validate, validateIdentifierParam } from '../../../../shared/middleware
 import { TrackerCreationController } from './tracker-creation.controller';
 import type { TrackerCreationUseCases } from '../application/tracker-creation-use-cases.contract';
 import { TRACKER_CREATION_ROUTE_PATHS } from './tracker-creation.route.constants';
-import { enforcePlanLimit } from '../../subscriptions';
+import type { PlanLimitMiddleware } from '../../subscriptions';
 import {
   generateRoadmapSchema,
   step1Schema,
@@ -14,7 +14,10 @@ import {
   trackerIntakeSchema,
 } from './tracker-creation.schema';
 
-export const createTrackerCreationRoutes = (useCases: TrackerCreationUseCases) => {
+export const createTrackerCreationRoutes = (
+  useCases: TrackerCreationUseCases,
+  enforcePlanLimit: PlanLimitMiddleware
+) => {
   const trackerCreationController = new TrackerCreationController(useCases);
   const router = Router();
   router.param('jobId', validateIdentifierParam);

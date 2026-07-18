@@ -1,12 +1,11 @@
 import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
+import type { TrackerRecord } from '../../domain';
+import type { TrackerAccessPayloadDTO } from '../tracker.dto';
 
 export interface IGetTrackerDetailsUseCase {
-  execute(input: {
-    trackerId: string;
-    userId: string;
-  }): Promise<import('../../domain').TrackerRecord>;
+  execute(input: TrackerAccessPayloadDTO): Promise<TrackerRecord>;
 }
 
 export class GetTrackerDetailsUseCase implements IGetTrackerDetailsUseCase {
@@ -15,7 +14,7 @@ export class GetTrackerDetailsUseCase implements IGetTrackerDetailsUseCase {
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: { trackerId: string; userId: string }) {
+  async execute(input: TrackerAccessPayloadDTO) {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

@@ -1,7 +1,8 @@
 // The TypeScript name follows the tracker-creation module. The persisted model
 // name intentionally remains `OnboardingResponse` for backwards compatibility.
 
-import mongoose, { Document, Schema } from 'mongoose';
+import type { Document} from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 export interface ITrackerCreationResponseDocument extends Document {
   userId: mongoose.Types.ObjectId;

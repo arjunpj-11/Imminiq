@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import { Server as HttpServer } from 'http';
+import type { Server as HttpServer } from 'http';
 import { env } from '../../config/env';
 import jwt from 'jsonwebtoken';
 import { Types } from 'mongoose';

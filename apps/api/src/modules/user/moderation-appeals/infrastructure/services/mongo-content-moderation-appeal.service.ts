@@ -2,19 +2,10 @@ import { ContentModerationAppeal } from '../../../../../infrastructure/database/
 import { MockTestModel } from '../../../../../infrastructure/database/models/mock-test.model';
 import { Tracker } from '../../../../../infrastructure/database/models/tracker.model';
 import { ServiceError } from '../../../../../shared/errors/service.error';
-
-export type ContentAppealTargetType = 'tracker' | 'mock_test';
-
-export interface IContentModerationAppealService {
-  list(userId: string): Promise<object[]>;
-  submit(input: {
-    userId: string;
-    targetType: ContentAppealTargetType;
-    targetId: string;
-    reason: string;
-    evidenceUrls: string[];
-  }): Promise<object>;
-}
+import type {
+  IContentModerationAppealService,
+  SubmitContentModerationAppealInput,
+} from '../../application/content-moderation-appeal.service';
 
 export class ContentModerationAppealService implements IContentModerationAppealService {
   async list(userId: string) {
@@ -35,13 +26,7 @@ export class ContentModerationAppealService implements IContentModerationAppealS
     }));
   }
 
-  async submit(input: {
-    userId: string;
-    targetType: ContentAppealTargetType;
-    targetId: string;
-    reason: string;
-    evidenceUrls: string[];
-  }) {
+  async submit(input: SubmitContentModerationAppealInput) {
     const target =
       input.targetType === 'tracker'
         ? await Tracker.findById(input.targetId).select('ownerId moderationStatus title').lean()

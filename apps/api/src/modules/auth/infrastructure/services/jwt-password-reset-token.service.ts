@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
-import jwt, { SignOptions } from 'jsonwebtoken';
+import type { SignOptions } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 import { env } from '../../../../config/env';
 import { AuthDomainError } from '../../domain/auth-domain.error';

@@ -1,15 +1,14 @@
 import { LeaderboardDomainError } from '../../domain/leaderboard-domain.error';
-import type { ILeaderboardActivityRepository } from '../../domain/repositories/leaderboard-activity.repository.interface';
+import type {
+  ILeaderboardActivityRepository,
+  RecordLeaderboardXpActivityResult,
+} from '../../domain/repositories/leaderboard-activity.repository.interface';
 import type { RecordLeaderboardXpPayloadDTO } from '../leaderboard.dto';
 import { LeaderboardApplicationError } from '../leaderboard-application.error';
 import type { IClock } from '../../../../../shared/time/clock.interface';
 
 export interface IRecordLeaderboardXpUseCase {
-  execute(
-    payload: RecordLeaderboardXpPayloadDTO
-  ): Promise<
-    import('../../domain/repositories/leaderboard-activity.repository.interface').RecordLeaderboardXpActivityResult
-  >;
+  execute(payload: RecordLeaderboardXpPayloadDTO): Promise<RecordLeaderboardXpActivityResult>;
 }
 
 export class RecordLeaderboardXpUseCase implements IRecordLeaderboardXpUseCase {
