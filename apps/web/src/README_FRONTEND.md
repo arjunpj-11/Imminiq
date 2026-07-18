@@ -174,7 +174,6 @@ components/
 │   ├── AppNoiseOverlay.tsx
 │   ├── AppShell.tsx
 │   ├── AuthenticatedAppLayout.tsx
-│   ├── BottomNav.tsx
 │   ├── Footer.tsx
 │   ├── PageContainer.tsx
 │   ├── PageHeader.tsx

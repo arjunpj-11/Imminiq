@@ -119,7 +119,6 @@ export default function TrackerLessonPage() {
       showSidebar={false}
       withTopBar={false}
       withFooter={false}
-      withBottomNav={false}
       className="bg-(--surface-sunken)"
     >
       {isMainLoading ? (
