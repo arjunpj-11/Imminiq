@@ -199,7 +199,6 @@ components/
 │   ├── ToastProvider.tsx
 │   └── WidgetErrorBoundary.tsx
 └── ui/
-    ├── AuthLoadingScreen.tsx
     ├── Button.tsx
     ├── IconButton.tsx
     ├── ImminiqLogo.tsx
