@@ -186,8 +186,8 @@ Development happens on feature branches or `sub-main`, then merges into `main` a
 ### Prerequisites
 
 - Node.js and npm (the repository uses npm `10.9.0`)
-- Docker with Docker Compose for the local Piston service
-- MongoDB and Redis instances, either local or hosted
+- Docker with Docker Compose for the local Piston and Redis services
+- A MongoDB instance, either local or hosted
 
 ### Installation
 
@@ -199,7 +199,7 @@ npm install
 cp apps/api/.env.example apps/api/.env
 cp apps/web/.env.example apps/web/.env.development
 
-# Start the API, web app, and Piston
+# Start the API, web app, Piston, and local Redis
 npm run dev
 ```
 
@@ -209,7 +209,7 @@ Fill in the required values in the copied environment files before starting the 
 
 | Command | Purpose |
 |---|---|
-| `npm run dev` | Start all workspaces in development mode and launch Piston |
+| `npm run dev` | Start all workspaces with local Piston and Redis |
 | `npm run dev:web` | Start only the frontend |
 | `npm run dev:api` | Start the API and Piston |
 | `npm run build` | Build all workspaces |
@@ -218,8 +218,10 @@ Fill in the required values in the copied environment files before starting the 
 | `npm run check` | Run linting, tests, and production builds |
 | `npm run piston:up` | Start the local Piston service |
 | `npm run piston:down` | Stop the local Piston service |
+| `npm run services:up` | Start the local Piston and Redis services |
+| `npm run services:down` | Stop the local Docker services |
 
-> Redis and Piston must be available when running features that depend on sessions, queues, real-time updates, or code execution.
+> `npm run dev` and `npm run dev:api` use the local Docker Redis instance even when `apps/api/.env` contains a hosted `REDIS_URL`. Production continues to use its configured managed Redis service.
 
 ### Workspace Layout
 
