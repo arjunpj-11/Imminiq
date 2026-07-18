@@ -129,25 +129,29 @@ export default function AdaptiveLearningPage() {
   return (
     <AppShellBoundary>
       <main className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full flex-col gap-6 pb-24 max-[640px]:w-[calc(100%-20px)]">
-        <header className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <header className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-(--brand-500)">
-              Immi adaptive agent
+            <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
+              <span className="h-1.25 w-1.25 rounded-full bg-(--success) dark:bg-(--success)" />
+              Adaptive Learning
             </div>
-            <h1 className="mt-2 font-ui text-[38px] font-black leading-tight text-(--text-primary)">
-              Your learning navigator
+            <h1 className="font-ui text-[clamp(26px,3.5vw,38px)] font-extrabold leading-[1.15] tracking-[-0.8px] text-(--text-primary) dark:text-(--text-primary)">
+              Your learning{' '}
+              <span className="text-(--brand-500) dark:text-(--brand-500)">navigator</span>
             </h1>
-            <p className="mt-2 max-w-2xl text-[13px] leading-6 text-(--text-secondary)">
+            <p className="mt-2 max-w-125 text-[13px] italic leading-[1.55] text-(--text-secondary) opacity-80 dark:text-(--text-secondary)">
               Ask what to study next, which tracker to continue, or which mock test will expose your
               current weak areas.
             </p>
           </div>
-          <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) px-5 py-3 text-right shadow-(--shadow-1)">
-            <div className="text-[11px] text-(--text-secondary)">Adaptive level</div>
-            <div className="font-ui text-[22px] font-black capitalize text-(--brand-500)">
+          <div className="min-w-47.5 rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-5 py-4 text-right shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) max-[560px]:w-full">
+            <div className="font-mono text-[7.5px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-55">
+              Adaptive level
+            </div>
+            <div className="mt-1 font-ui text-[24px] font-extrabold leading-none capitalize text-(--brand-500)">
               {data?.profile.level ?? 'Loading'}
             </div>
-            <div className="text-[11px] text-(--text-secondary)">
+            <div className="mt-1.5 text-[11px] text-(--text-secondary)">
               {data?.profile.masteryScore ?? 0}% mastery
             </div>
           </div>

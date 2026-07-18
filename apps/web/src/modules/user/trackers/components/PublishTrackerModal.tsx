@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import Modal from '../../../../components/overlays/Modal';
-import { cn } from '../../../../lib/cn';
-import type { ITracker } from '../types/tracker.types';
-import { useTrackerDomains } from '../hooks/useTrackerQueries';
+import Modal from "../../../../components/overlays/Modal";
+import { cn } from "../../../../lib/cn";
+import type { ITracker } from "../types/tracker.types";
+import { useTrackerDomains } from "../hooks/useTrackerQueries";
 
 const CloseIcon = () => (
   <svg
@@ -24,9 +24,25 @@ const CloseIcon = () => (
 );
 
 const SpinnerIcon = () => (
-  <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z" />
+  <svg
+    className="h-3.5 w-3.5 animate-spin"
+    viewBox="0 0 24 24"
+    fill="none"
+    aria-hidden="true"
+  >
+    <circle
+      className="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="4"
+    />
+    <path
+      className="opacity-75"
+      fill="currentColor"
+      d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z"
+    />
   </svg>
 );
 
@@ -54,7 +70,12 @@ type ToggleSwitchProps = {
   id?: string;
 };
 
-function ToggleSwitch({ checked, disabled = false, onChange, id }: ToggleSwitchProps) {
+function ToggleSwitch({
+  checked,
+  disabled = false,
+  onChange,
+  id,
+}: ToggleSwitchProps) {
   return (
     <button
       type="button"
@@ -66,34 +87,36 @@ function ToggleSwitch({ checked, disabled = false, onChange, id }: ToggleSwitchP
         if (!disabled) onChange(!checked);
       }}
       style={{
-        display: 'inline-flex',
-        alignItems: 'center',
+        display: "inline-flex",
+        alignItems: "center",
         flexShrink: 0,
-        width: '44px',
-        height: '24px',
-        borderRadius: '9999px',
-        border: 'none',
-        padding: '0',
-        cursor: disabled ? 'not-allowed' : 'pointer',
+        width: "44px",
+        height: "24px",
+        borderRadius: "9999px",
+        border: "none",
+        padding: "0",
+        cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.6 : 1,
-        outline: 'none',
-        transition: 'background-color 0.2s ease',
-        backgroundColor: checked ? 'var(--brand-500)' : 'rgba(26,23,20,0.15)',
-        boxShadow: checked ? '0 0 0 3px rgba(184,76,43,0.18)' : '0 0 0 0px transparent',
-        position: 'relative',
+        outline: "none",
+        transition: "background-color 0.2s ease",
+        backgroundColor: checked ? "var(--brand-500)" : "rgba(26,23,20,0.15)",
+        boxShadow: checked
+          ? "0 0 0 3px rgba(184,76,43,0.18)"
+          : "0 0 0 0px transparent",
+        position: "relative",
       }}
     >
       <span
         style={{
-          display: 'block',
-          width: '18px',
-          height: '18px',
-          borderRadius: '9999px',
-          backgroundColor: '#ffffff',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.20)',
-          transform: checked ? 'translateX(23px)' : 'translateX(3px)',
-          transition: 'transform 0.2s ease',
-          pointerEvents: 'none',
+          display: "block",
+          width: "18px",
+          height: "18px",
+          borderRadius: "9999px",
+          backgroundColor: "#ffffff",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.20)",
+          transform: checked ? "translateX(23px)" : "translateX(3px)",
+          transition: "transform 0.2s ease",
+          pointerEvents: "none",
         }}
       />
     </button>
@@ -101,15 +124,15 @@ function ToggleSwitch({ checked, disabled = false, onChange, id }: ToggleSwitchP
 }
 
 const fieldLabel =
-  'mb-1.5 block font-mono text-[9.5px] uppercase tracking-[0.13em] text-[var(--text-secondary)] dark:text-[var(--text-secondary)]';
+  "mb-1.5 block text-[11px] font-extrabold text-[var(--text-primary)] dark:text-[var(--text-primary)]";
 
 const fieldInput =
-  'w-full rounded-[var(--radius-md)] border-[1.5px] border-[var(--border-subtle)] bg-white px-3.5 py-2.5 text-[13px] text-[var(--text-primary)] placeholder:text-[#c0b8b0] transition-all duration-150 focus:border-[var(--brand-500)] focus:outline-none focus:ring-2 focus:ring-[rgba(184,76,43,0.14)] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[var(--border-subtle)] dark:bg-[#26231f] dark:text-[var(--text-primary)] dark:placeholder:text-[#504840] dark:focus:border-[var(--brand-500)] dark:focus:ring-[rgba(232,129,106,0.16)]';
+  "w-full rounded-xl border-[1.5px] border-[var(--border-subtle)] bg-white px-3.5 py-3 text-[13.5px] text-[var(--text-primary)] placeholder:text-[#c0b8b0] transition-all duration-150 focus:border-[var(--brand-500)] focus:outline-none focus:ring-2 focus:ring-[rgba(184,76,43,0.14)] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[var(--border-subtle)] dark:bg-[#26231f] dark:text-[var(--text-primary)] dark:placeholder:text-[#504840] dark:focus:border-[var(--brand-500)] dark:focus:ring-[rgba(232,129,106,0.16)]";
 
 const DIFFICULTIES = [
-  { value: 'beginner', label: 'Beginner' },
-  { value: 'intermediate', label: 'Intermediate' },
-  { value: 'advanced', label: 'Advanced' },
+  { value: "beginner", label: "Beginner" },
+  { value: "intermediate", label: "Intermediate" },
+  { value: "advanced", label: "Advanced" },
 ];
 
 type DifficultyPickerProps = {
@@ -118,7 +141,11 @@ type DifficultyPickerProps = {
   onChange: (v: string) => void;
 };
 
-function DifficultyPicker({ value, disabled = false, onChange }: DifficultyPickerProps) {
+function DifficultyPicker({
+  value,
+  disabled = false,
+  onChange,
+}: DifficultyPickerProps) {
   return (
     <div className="flex gap-2">
       {DIFFICULTIES.map((d) => (
@@ -128,10 +155,10 @@ function DifficultyPicker({ value, disabled = false, onChange }: DifficultyPicke
           disabled={disabled}
           onClick={() => onChange(d.value)}
           className={cn(
-            'flex-1 rounded-lg border-[1.5px] py-2 text-[11px] font-semibold transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-60',
+            "flex-1 rounded-xl border-[1.5px] py-2.5 text-[12px] font-bold transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-60",
             value === d.value
-              ? 'border-(--brand-500) bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-(--brand-500) dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)'
-              : 'border-(--border-subtle) bg-transparent text-(--text-secondary) hover:border-[rgba(184,76,43,0.30)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:border-[rgba(232,129,106,0.30)] dark:hover:text-(--brand-500)'
+              ? "border-(--brand-500) bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-(--brand-500) dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)"
+              : "border-(--border-subtle) bg-transparent text-(--text-secondary) hover:border-[rgba(184,76,43,0.30)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:border-[rgba(232,129,106,0.30)] dark:hover:text-(--brand-500)",
           )}
         >
           {d.label}
@@ -165,7 +192,7 @@ function DomainCombobox({ value, disabled, onChange }: DomainComboboxProps) {
   const domainsQuery = useTrackerDomains(debouncedSearch);
   const domains = domainsQuery.data ?? [];
   const hasExactMatch = domains.some(
-    (domain) => domain.toLocaleLowerCase() === value.trim().toLocaleLowerCase()
+    (domain) => domain.toLocaleLowerCase() === value.trim().toLocaleLowerCase(),
   );
   const showCustomOption = Boolean(value.trim()) && !hasExactMatch;
   const optionCount = domains.length + (showCustomOption ? 1 : 0);
@@ -177,30 +204,31 @@ function DomainCombobox({ value, disabled, onChange }: DomainComboboxProps) {
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'ArrowDown') {
+    if (event.key === "ArrowDown") {
       event.preventDefault();
       setOpen(true);
       setActiveIndex((index) => Math.min(index + 1, optionCount - 1));
       return;
     }
-    if (event.key === 'ArrowUp') {
+    if (event.key === "ArrowUp") {
       event.preventDefault();
       setActiveIndex((index) => Math.max(index - 1, 0));
       return;
     }
-    if (event.key === 'Escape') {
+    if (event.key === "Escape") {
       setOpen(false);
       setActiveIndex(-1);
       return;
     }
-    if (event.key === 'Enter' && open) {
+    if (event.key === "Enter" && open) {
       event.preventDefault();
       if (showCustomOption && activeIndex === 0) {
         selectDomain(value.trim());
         return;
       }
       const domainIndex = activeIndex - (showCustomOption ? 1 : 0);
-      if (domainIndex >= 0 && domains[domainIndex]) selectDomain(domains[domainIndex]);
+      if (domainIndex >= 0 && domains[domainIndex])
+        selectDomain(domains[domainIndex]);
       else if (value.trim()) selectDomain(value.trim());
     }
   };
@@ -227,7 +255,7 @@ function DomainCombobox({ value, disabled, onChange }: DomainComboboxProps) {
         }}
         onKeyDown={handleKeyDown}
         placeholder="Search or type a domain, e.g. English"
-        className={cn(fieldInput, 'pr-9')}
+        className={cn(fieldInput, "pr-9")}
       />
       <svg
         className="pointer-events-none absolute right-3 top-[21px] -translate-y-1/2 text-(--text-secondary)"
@@ -238,7 +266,12 @@ function DomainCombobox({ value, disabled, onChange }: DomainComboboxProps) {
         aria-hidden="true"
       >
         <circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.4" />
-        <path d="m9 9 3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+        <path
+          d="m9 9 3 3"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+        />
       </svg>
 
       {open && (
@@ -255,10 +288,10 @@ function DomainCombobox({ value, disabled, onChange }: DomainComboboxProps) {
               aria-selected={activeIndex === 0}
               onClick={() => selectDomain(value.trim())}
               className={cn(
-                'flex w-full items-center justify-between rounded-sm px-3 py-2 text-left text-[12.5px] transition',
+                "flex w-full items-center justify-between rounded-sm px-3 py-2 text-left text-[13px] transition",
                 activeIndex === 0
-                  ? 'bg-[rgba(184,76,43,0.10)] text-(--brand-500)'
-                  : 'text-(--text-primary) hover:bg-[rgba(184,76,43,0.07)]'
+                  ? "bg-[rgba(184,76,43,0.10)] text-(--brand-500)"
+                  : "text-(--text-primary) hover:bg-[rgba(184,76,43,0.07)]",
               )}
             >
               <span className="truncate">Use “{value.trim()}”</span>
@@ -279,10 +312,10 @@ function DomainCombobox({ value, disabled, onChange }: DomainComboboxProps) {
                 onMouseEnter={() => setActiveIndex(optionIndex)}
                 onClick={() => selectDomain(domain)}
                 className={cn(
-                  'w-full truncate rounded-sm px-3 py-2 text-left text-[12.5px] transition',
+                  "w-full truncate rounded-sm px-3 py-2 text-left text-[13px] transition",
                   activeIndex === optionIndex
-                    ? 'bg-[rgba(184,76,43,0.10)] text-(--brand-500)'
-                    : 'text-(--text-primary) hover:bg-[rgba(184,76,43,0.07)]'
+                    ? "bg-[rgba(184,76,43,0.10)] text-(--brand-500)"
+                    : "text-(--text-primary) hover:bg-[rgba(184,76,43,0.07)]",
                 )}
               >
                 {domain}
@@ -291,17 +324,20 @@ function DomainCombobox({ value, disabled, onChange }: DomainComboboxProps) {
           })}
 
           {domainsQuery.isFetching && (
-            <div className="px-3 py-2 text-[11px] text-(--text-secondary)">Searching domains…</div>
+            <div className="px-3 py-2.5 text-[12px] text-(--text-secondary)">
+              Searching domains…
+            </div>
           )}
           {!domainsQuery.isFetching && !domains.length && !showCustomOption && (
-            <div className="px-3 py-2 text-[11px] text-(--text-secondary)">
+            <div className="px-3 py-2.5 text-[12px] text-(--text-secondary)">
               Start typing to add a domain.
             </div>
           )}
         </div>
       )}
-      <p className="mt-1.5 text-[10.5px] text-(--text-secondary)">
-        Choose a saved domain or type a new one. Up to 10 matching domains are shown.
+      <p className="mt-1.5 text-[11px] leading-[1.45] text-(--text-secondary)">
+        Choose a saved domain or type a new one. Up to 10 matching domains are
+        shown.
       </p>
     </div>
   );
@@ -315,11 +351,11 @@ export default function PublishTrackerModal({
   onConfirm,
 }: PublishModalProps) {
   const [form, setForm] = useState<PublishFormData>({
-    name: tracker.title ?? '',
-    description: tracker.description ?? tracker.goal ?? '',
-    domain: tracker.domain ?? '',
-    difficulty: 'intermediate',
-    tags: '',
+    name: tracker.title ?? "",
+    description: tracker.description ?? tracker.goal ?? "",
+    domain: tracker.domain ?? "",
+    difficulty: tracker.level ?? "intermediate",
+    tags: "",
     allowClone: true,
   });
 
@@ -351,32 +387,39 @@ export default function PublishTrackerModal({
       ariaLabel="Publish tracker"
       preventClose={isPublishing}
       overlayClassName="items-end p-0 sm:items-center sm:p-4"
-      contentClassName="flex max-h-[calc(100dvh-0.75rem)] w-full !max-w-[500px] flex-col overflow-hidden rounded-t-3xl border-t border-x border-[var(--border-subtle)] bg-[var(--surface-card)] p-0 shadow-[0_-8px_48px_rgba(26,23,20,0.18)] sm:max-h-[calc(100dvh-2rem)] sm:rounded-[var(--radius-xl)] sm:border-[1.5px] sm:shadow-[0_24px_72px_rgba(26,23,20,0.24)] dark:border-[var(--border-subtle)] dark:bg-[var(--surface-card)]"
+      contentClassName="flex max-h-[calc(100dvh-0.75rem)] w-full !max-w-[540px] flex-col overflow-hidden rounded-t-3xl border-t border-x border-[var(--border-subtle)] bg-[var(--surface-card)] p-0 shadow-[0_-8px_48px_rgba(26,23,20,0.18)] sm:max-h-[calc(100dvh-2rem)] sm:rounded-[var(--radius-xl)] sm:border-[1.5px] sm:shadow-[0_24px_72px_rgba(26,23,20,0.24)] dark:border-[var(--border-subtle)] dark:bg-[var(--surface-card)]"
     >
       <div className="flex shrink-0 justify-center pb-1 pt-3 sm:hidden">
         <div className="h-1 w-10 rounded-full bg-(--border-subtle) dark:bg-white/15" />
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 sm:p-7">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 sm:p-7">
         <div className="mb-6 flex items-start justify-between gap-3">
           <div>
-            <div className="mb-1 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.14em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
-              <svg width="6" height="6" viewBox="0 0 6 6" fill="currentColor" aria-hidden="true">
+            <div className="mb-1 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-0.5 text-[10px] font-extrabold text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
+              <svg
+                width="6"
+                height="6"
+                viewBox="0 0 6 6"
+                fill="currentColor"
+                aria-hidden="true"
+              >
                 <circle cx="3" cy="3" r="3" />
               </svg>
               Publishing
             </div>
             <h2
               id="publish-modal-title"
-              className="font-ui text-[22px] font-extrabold leading-[1.15] tracking-[-0.4px] text-(--text-primary) dark:text-(--text-primary)"
+              className="font-ui text-[25px] font-extrabold leading-[1.15] tracking-[-0.4px] text-(--text-primary) dark:text-(--text-primary)"
             >
               Share your tracker
             </h2>
             <p
               id="publish-modal-description"
-              className="mt-1 text-[12px] leading-normal text-(--text-secondary) dark:text-(--text-secondary)"
+              className="mt-1.5 text-[13px] leading-[1.55] text-(--text-secondary) dark:text-(--text-secondary)"
             >
-              Fill in the details so others can discover and learn from your roadmap.
+              Fill in the details so others can discover and learn from your
+              roadmap.
             </p>
           </div>
           <button
@@ -391,10 +434,10 @@ export default function PublishTrackerModal({
         </div>
 
         <div className="mb-1 flex items-center gap-2">
-          <span className="font-mono text-[8.5px] uppercase tracking-[0.16em] text-(--brand-500) dark:text-(--brand-500)">
+          <span className="text-[10.5px] font-extrabold uppercase tracking-[0.11em] text-(--brand-500) dark:text-(--brand-500)">
             01
           </span>
-          <span className="font-mono text-[8.5px] uppercase tracking-[0.16em] text-(--text-secondary) dark:text-(--text-secondary)">
+          <span className="text-[10.5px] font-extrabold uppercase tracking-[0.11em] text-(--text-secondary) dark:text-(--text-secondary)">
             Basic info
           </span>
           <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/9" />
@@ -410,7 +453,7 @@ export default function PublishTrackerModal({
               type="text"
               value={form.name}
               disabled={isPublishing}
-              onChange={setField('name')}
+              onChange={setField("name")}
               placeholder="e.g. DSA Mastery — Striver Sheet"
               required
               className={fieldInput}
@@ -424,19 +467,19 @@ export default function PublishTrackerModal({
               id="publish-description"
               value={form.description}
               disabled={isPublishing}
-              onChange={setField('description')}
+              onChange={setField("description")}
               rows={3}
               placeholder="What will learners gain from this tracker?"
-              className={cn(fieldInput, 'resize-none leading-relaxed')}
+              className={cn(fieldInput, "resize-none leading-relaxed")}
             />
           </div>
         </div>
 
         <div className="mb-1 flex items-center gap-2">
-          <span className="font-mono text-[8.5px] uppercase tracking-[0.16em] text-(--brand-500) dark:text-(--brand-500)">
+          <span className="text-[10.5px] font-extrabold uppercase tracking-[0.11em] text-(--brand-500) dark:text-(--brand-500)">
             02
           </span>
-          <span className="font-mono text-[8.5px] uppercase tracking-[0.16em] text-(--text-secondary) dark:text-(--text-secondary)">
+          <span className="text-[10.5px] font-extrabold uppercase tracking-[0.11em] text-(--text-secondary) dark:text-(--text-secondary)">
             Categorise
           </span>
           <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/9" />
@@ -450,11 +493,13 @@ export default function PublishTrackerModal({
             <DomainCombobox
               value={form.domain}
               disabled={isPublishing}
-              onChange={(domain) => setForm((previous) => ({ ...previous, domain }))}
+              onChange={(domain) =>
+                setForm((previous) => ({ ...previous, domain }))
+              }
             />
           </div>
           <div>
-            <p className={cn(fieldLabel, 'mb-2')}>Difficulty level</p>
+            <p className={cn(fieldLabel, "mb-2")}>Difficulty level</p>
             <DifficultyPicker
               value={form.difficulty}
               disabled={isPublishing}
@@ -463,7 +508,7 @@ export default function PublishTrackerModal({
           </div>
           <div>
             <label htmlFor="publish-tags" className={fieldLabel}>
-              Tags{' '}
+              Tags{" "}
               <span className="normal-case font-normal tracking-normal opacity-60">
                 — comma separated
               </span>
@@ -473,7 +518,7 @@ export default function PublishTrackerModal({
               type="text"
               value={form.tags}
               disabled={isPublishing}
-              onChange={setField('tags')}
+              onChange={setField("tags")}
               placeholder="algorithms, coding, interview-prep"
               className={fieldInput}
             />
@@ -481,23 +526,24 @@ export default function PublishTrackerModal({
         </div>
 
         <div className="mb-1 flex items-center gap-2">
-          <span className="font-mono text-[8.5px] uppercase tracking-[0.16em] text-(--brand-500) dark:text-(--brand-500)">
+          <span className="text-[10.5px] font-extrabold uppercase tracking-[0.11em] text-(--brand-500) dark:text-(--brand-500)">
             03
           </span>
-          <span className="font-mono text-[8.5px] uppercase tracking-[0.16em] text-(--text-secondary) dark:text-(--text-secondary)">
+          <span className="text-[10.5px] font-extrabold uppercase tracking-[0.11em] text-(--text-secondary) dark:text-(--text-secondary)">
             Visibility
           </span>
           <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/9" />
         </div>
 
-        <div className="mt-3 mb-4 rounded-md border-[1.5px] border-(--border-subtle) bg-white/60 p-4 dark:border-(--border-subtle) dark:bg-white/3">
+        <div className="mt-3 mb-4 rounded-xl border-[1.5px] border-(--border-subtle) bg-white/60 p-4 dark:border-(--border-subtle) dark:bg-white/3">
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-[13px] font-semibold leading-tight text-(--text-primary) dark:text-(--text-primary)">
+              <p className="text-[13.5px] font-bold leading-tight text-(--text-primary) dark:text-(--text-primary)">
                 Allow others to clone
               </p>
-              <p className="mt-1 text-[11.5px] leading-normal text-(--text-secondary) dark:text-(--text-secondary)">
-                Learners can copy this tracker to their own account and customise it.
+              <p className="mt-1 text-[12px] leading-[1.5] text-(--text-secondary) dark:text-(--text-secondary)">
+                Learners can copy this tracker to their own account and
+                customise it.
               </p>
             </div>
             <ToggleSwitch
@@ -508,7 +554,8 @@ export default function PublishTrackerModal({
           </div>
           {!form.allowClone && (
             <p className="mt-3 rounded-lg border border-[rgba(138,98,0,0.22)] bg-[rgba(138,98,0,0.06)] px-3 py-2 text-[11px] leading-normal text-[#8a6200] dark:border-[rgba(240,168,66,0.20)] dark:bg-[rgba(240,168,66,0.06)] dark:text-(--warning)">
-              Your tracker will be public but read-only — learners can view it but not clone it.
+              Your tracker will be public but read-only — learners can view it
+              but not clone it.
             </p>
           )}
         </div>
@@ -519,16 +566,16 @@ export default function PublishTrackerModal({
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-3 border-t border-(--border-subtle) pt-5 dark:border-(--border-subtle)">
+        <div className="flex items-center justify-between gap-3 border-t max-[460px]:flex-col-reverse max-[460px]:items-stretch border-(--border-subtle) pt-5 dark:border-(--border-subtle)">
           <p className="text-[11px] text-(--text-secondary) opacity-70 dark:text-(--text-secondary)">
             <span className="text-(--brand-500)">*</span> required fields
           </p>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 max-[460px]:w-full">
             <button
               type="button"
               disabled={isPublishing}
               onClick={onClose}
-              className="rounded-md border-[1.5px] border-(--border-subtle) px-4 py-2.5 text-[12.5px] font-semibold text-(--text-secondary) transition hover:bg-[rgba(26,23,20,0.05)] disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:bg-white/5"
+              className="rounded-xl border-[1.5px] border-(--border-subtle) px-4 py-2.5 text-[13px] font-semibold text-(--text-secondary) transition hover:bg-[rgba(26,23,20,0.05)] disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:bg-white/5"
             >
               Cancel
             </button>
@@ -536,7 +583,7 @@ export default function PublishTrackerModal({
               type="button"
               disabled={!isValid || isPublishing}
               onClick={handleSubmit}
-              className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[12.5px] font-bold text-white transition hover:bg-[#9a3e23] hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)] disabled:cursor-not-allowed disabled:opacity-40 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-white transition hover:bg-[#9a3e23] hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)] disabled:cursor-not-allowed disabled:opacity-40 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
             >
               {isPublishing ? (
                 <>
@@ -545,7 +592,13 @@ export default function PublishTrackerModal({
                 </>
               ) : (
                 <>
-                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 13 13"
+                    fill="none"
+                    aria-hidden="true"
+                  >
                     <path
                       d="M6.5 1L11.5 6.5L6.5 12"
                       stroke="currentColor"
