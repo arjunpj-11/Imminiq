@@ -6,16 +6,17 @@ import type { IPhoneOtpSessionStore } from '../../domain/services/phone-otp-sess
 import type { ISecurityAttemptStore } from '../../domain/services/security-attempt-store.interface';
 import type { IOtpStore } from '../../domain/services/otp-store.interface';
 import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface';
+import type { VerifyResetCodeResultDTO } from '../auth.dto';
 
 const VERIFY_RESET_SCOPE = 'auth_verify_reset_otp' as const;
 
 export interface IVerifyResetCodeUseCase {
-  execute(identifier: string, otp: string): Promise<{ resetToken: string }>;
+  execute(identifier: string, otp: string): Promise<VerifyResetCodeResultDTO>;
 }
 
 export class VerifyResetCodeUseCase implements IVerifyResetCodeUseCase {
   constructor(
-    private readonly _authRepository: IAuthUserRepository,
+    private readonly _authRepository: Pick<IAuthUserRepository, 'findByIdentifier'>,
     private readonly _identifierNormalizer: IIdentifierNormalizer,
     private readonly _securityAttemptStore: ISecurityAttemptStore,
     private readonly _phoneOtpProvider: IPhoneOtpProvider,
@@ -24,7 +25,7 @@ export class VerifyResetCodeUseCase implements IVerifyResetCodeUseCase {
     private readonly _otpStore: IOtpStore
   ) {}
 
-  async execute(identifier: string, otp: string): Promise<{ resetToken: string }> {
+  async execute(identifier: string, otp: string): Promise<VerifyResetCodeResultDTO> {
     const parsedIdentifier = this._identifierNormalizer.normalize(identifier);
 
     await this.assertResetOtpAllowed(parsedIdentifier.value);

@@ -10,7 +10,10 @@ export interface IChatWithAdaptiveAdvisorUseCase {
 
 export class ChatWithAdaptiveAdvisorUseCase implements IChatWithAdaptiveAdvisorUseCase {
   constructor(
-    private readonly _repository: IAdaptiveLearningRepository,
+    private readonly _repository: Pick<
+      IAdaptiveLearningRepository,
+      'addAdvisorMessage' | 'getLearnerSnapshot' | 'getOrCreateProfile' | 'listAdvisorMessages'
+    >,
     private readonly _agent: IAdaptiveLearningAgent,
     private readonly _mapper: IAdaptiveLearningMapper
   ) {}

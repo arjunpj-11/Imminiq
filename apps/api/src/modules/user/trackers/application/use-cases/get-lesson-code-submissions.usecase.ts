@@ -1,15 +1,13 @@
 import { TrackerApplicationError } from '../tracker-application.error';
-import type { LessonCodeSubmissionsDTO } from '../tracker.dto';
+import type {
+  GetLessonCodeSubmissionsPayloadDTO,
+  LessonCodeSubmissionsDTO,
+} from '../tracker.dto';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 
 export interface IGetLessonCodeSubmissionsUseCase {
-  execute(input: {
-    trackerId: string;
-    subtopicId: string;
-    userId: string;
-    action?: 'run' | 'submit';
-  }): Promise<LessonCodeSubmissionsDTO>;
+  execute(input: GetLessonCodeSubmissionsPayloadDTO): Promise<LessonCodeSubmissionsDTO>;
 }
 
 export class GetLessonCodeSubmissionsUseCase implements IGetLessonCodeSubmissionsUseCase {
@@ -21,12 +19,7 @@ export class GetLessonCodeSubmissionsUseCase implements IGetLessonCodeSubmission
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: {
-    trackerId: string;
-    subtopicId: string;
-    userId: string;
-    action?: 'run' | 'submit';
-  }) {
+  async execute(input: GetLessonCodeSubmissionsPayloadDTO) {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

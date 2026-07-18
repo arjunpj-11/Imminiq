@@ -9,7 +9,7 @@ export interface IListAdminPublishedTrackersUseCase {
 
 export class ListAdminPublishedTrackersUseCase implements IListAdminPublishedTrackersUseCase {
   constructor(
-    private readonly repository: IAdminTrackersRepository,
+    private readonly repository: Pick<IAdminTrackersRepository, 'listPublished'>,
     private readonly mapper: IAdminTrackersMapper
   ) {}
 

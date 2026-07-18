@@ -5,7 +5,9 @@ export interface IClearAdaptiveAdvisorChatUseCase {
 }
 
 export class ClearAdaptiveAdvisorChatUseCase implements IClearAdaptiveAdvisorChatUseCase {
-  constructor(private readonly _repository: IAdaptiveLearningRepository) {}
+  constructor(
+    private readonly _repository: Pick<IAdaptiveLearningRepository, 'clearAdvisorMessages'>
+  ) {}
 
   execute(userId: string): Promise<void> {
     return this._repository.clearAdvisorMessages(userId);

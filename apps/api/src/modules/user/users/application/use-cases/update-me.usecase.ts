@@ -1,7 +1,10 @@
 import type { IUserProfileRepository } from '../../domain/repositories/user-profile.repository.interface';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import type { UserProfileUpdate } from '../../domain/value-objects/user-profile-update.vo';
-import type { UpdateMyProfileInputDTO } from '../users.dto';
+import type {
+  MyProfileViewDTO,
+  UpdateMyProfileInputDTO,
+} from '../users.dto';
 import { UsersApplicationError } from '../users-application.error';
 import type { IUsersMapper } from '../users.mapper';
 
@@ -11,10 +14,7 @@ export interface IUpdateMeUseCase {
   execute(
     userId: string,
     payload: UpdateMyProfileInputDTO
-  ): Promise<{
-    user: import('../users.dto').CurrentUserViewDTO;
-    profile: import('../users.dto').EditableProfileViewDTO;
-  }>;
+  ): Promise<MyProfileViewDTO>;
 }
 
 export class UpdateMeUseCase implements IUpdateMeUseCase {

@@ -17,7 +17,7 @@ export class UpdateAdminMockTestLifecycleUseCase
   implements IUpdateAdminMockTestLifecycleUseCase
 {
   constructor(
-    private readonly repository: IAdminMockTestsRepository,
+    private readonly repository: Pick<IAdminMockTestsRepository, 'updateLifecycle'>,
     private readonly emailProvider: IAdminMockTestEmailProvider
   ) {}
 

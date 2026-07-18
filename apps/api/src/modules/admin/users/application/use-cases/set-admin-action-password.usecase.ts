@@ -1,27 +1,34 @@
-import type { ISecurityPasswordHasher } from '../../../../security';
+import type { IAdminPasswordHasher } from '../../domain/services/admin-password-hasher.interface';
 import type { IAdminUsersRepository } from '../../domain/repositories/admin-users.repository.interface';
 import { AdminUsersApplicationError } from '../admin-users-application.error';
+import type {
+  AdminRequestContextDTO,
+  SetAdminActionPasswordResultDTO,
+} from '../admin-users.dto';
 
 export interface ISetAdminActionPasswordUseCase {
   execute(
     userId: string,
     password: string,
     actorId: string,
-    context: { ipAddress: string; userAgent: string }
-  ): Promise<{ userId: string; configured: true; setAt?: Date }>;
+    context: AdminRequestContextDTO
+  ): Promise<SetAdminActionPasswordResultDTO>;
 }
 
 export class SetAdminActionPasswordUseCase implements ISetAdminActionPasswordUseCase {
   constructor(
-    private readonly repository: IAdminUsersRepository,
-    private readonly passwordHasher: ISecurityPasswordHasher
+    private readonly repository: Pick<
+      IAdminUsersRepository,
+      'findById' | 'setAdminActionPassword'
+    >,
+    private readonly passwordHasher: IAdminPasswordHasher
   ) {}
 
   async execute(
     userId: string,
     password: string,
     actorId: string,
-    context: { ipAddress: string; userAgent: string }
+    context: AdminRequestContextDTO
   ) {
     if (userId === actorId) {
       throw AdminUsersApplicationError.protectedAdmin(

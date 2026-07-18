@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import type mongoose from 'mongoose';
 
 import type { ActivityTimeRange } from '../../../domain/activity.types';
 import type { ActivityCategory } from '../../../domain/value-objects/activity-category.vo';

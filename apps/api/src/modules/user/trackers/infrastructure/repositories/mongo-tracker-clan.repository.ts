@@ -21,7 +21,6 @@ import { TrackerTopic } from '../../../../../infrastructure/database/models/trac
 import { User } from '../../../../../infrastructure/database/models/user.model';
 import { UserSubtopicProgress } from '../../../../../infrastructure/database/models/user-subtopic-progress.model';
 import { UserTopicProgress } from '../../../../../infrastructure/database/models/user-topic-progress.model';
-import { mongoCommunityRepository, type ICommunityTrackerRepository } from '../../../community';
 import type {
   ITrackerClanRepository,
   ITrackerClanChallengeRepository,
@@ -31,6 +30,7 @@ import type {
   TrackerClanChallengeQuestionContext,
   TrackerClanRole,
   TrackerClanMessage as TrackerClanMessageRecord,
+  ITrackerPersonalCloneProvisioner,
 } from '../../domain';
 
 type ClanLean = {
@@ -124,8 +124,7 @@ export class MongoTrackerClanRepository
   implements ITrackerClanRepository, ITrackerClanChallengeRepository
 {
   constructor(
-    private readonly personalClones: Pick<ICommunityTrackerRepository, 'cloneTrackerForUser'> =
-      mongoCommunityRepository
+    private readonly personalClones: ITrackerPersonalCloneProvisioner
   ) {}
 
   async getRole(input: { trackerId: string; userId: string }): Promise<TrackerClanRole | null> {
@@ -279,12 +278,12 @@ export class MongoTrackerClanRepository
       return this.getOverview({ trackerId: input.trackerId, userId: input.ownerId });
     }
     if (target.role === 'co_owner' && input.role === 'member') {
-      const clone = await this.personalClones.cloneTrackerForUser(
-        input.trackerId,
-        input.memberId,
-        { bypassClonePermission: true }
-      );
-      if (!clone) return null;
+      const cloneReady = await this.personalClones.ensureClone({
+        trackerId: input.trackerId,
+        userId: input.memberId,
+        bypassClonePermission: true,
+      });
+      if (!cloneReady) return null;
     }
     const updated = await TrackerClan.updateOne(
       { trackerId, 'members.userId': memberId },
@@ -1496,5 +1495,3 @@ export class MongoTrackerClanRepository
     };
   }
 }
-
-export const mongoTrackerClanRepository = new MongoTrackerClanRepository();

@@ -19,7 +19,10 @@ export interface ISubmitTrackerForVerificationUseCase {
 
 export class SubmitTrackerForVerificationUseCase implements ISubmitTrackerForVerificationUseCase {
   constructor(
-    private readonly _repository: ICommunityVerificationRepository,
+    private readonly _repository: Pick<
+      ICommunityVerificationRepository,
+      'submitTrackerForVerification'
+    >,
     private readonly _mapper: ICommunityMapper,
     private readonly _policyReader: ICommunityPolicyReader
   ) {}

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { TrackerClanUseCase } from '../../src/modules/user/trackers/application/use-cases/tracker-clan.usecase';
-import { TrackerClanChallengeUseCase } from '../../src/modules/user/trackers/application/use-cases/tracker-clan-challenge.usecase';
+import { TrackerClanService } from '../../src/modules/user/trackers/application/services/tracker-clan.service';
+import { TrackerClanChallengeService } from '../../src/modules/user/trackers/application/services/tracker-clan-challenge.service';
 import type {
   ITrackerClanChallengeNotifier,
   ITrackerClanNotificationNotifier,
@@ -40,7 +40,7 @@ const repository = () =>
     useChallengePower: vi.fn(),
   }) as unknown as ITrackerClanRepository & ITrackerClanChallengeRepository;
 
-describe('TrackerClanUseCase', () => {
+describe('TrackerClanService', () => {
   it('joins a public guild immediately using the repository result', async () => {
     const clans = repository();
     vi.mocked(clans.requestJoin).mockResolvedValue({
@@ -59,7 +59,7 @@ describe('TrackerClanUseCase', () => {
       joinRequests: [],
       roleInvitations: [],
     });
-    const useCase = new TrackerClanUseCase(clans);
+    const useCase = new TrackerClanService(clans);
     await expect(
       useCase.requestJoin({ trackerId: 'tracker-1', userId: 'member-1' })
     ).resolves.toMatchObject({ role: 'member', trackerTitle: 'MERN Stack' });
@@ -68,7 +68,7 @@ describe('TrackerClanUseCase', () => {
   it('rejects unauthorized role changes', async () => {
     const clans = repository();
     vi.mocked(clans.updateMemberRole).mockResolvedValue(null);
-    const useCase = new TrackerClanUseCase(clans);
+    const useCase = new TrackerClanService(clans);
     await expect(
       useCase.updateMemberRole({
         trackerId: 'tracker-1',
@@ -106,7 +106,7 @@ describe('TrackerClanUseCase', () => {
       roleInvitations: [invitation],
     } satisfies TrackerClanOverview);
     const notifications: ITrackerClanNotificationNotifier = { notify: vi.fn() };
-    const useCase = new TrackerClanUseCase(clans, notifications);
+    const useCase = new TrackerClanService(clans, notifications);
 
     await useCase.updateMemberRole({
       trackerId: 'tracker-1',
@@ -132,7 +132,7 @@ describe('TrackerClanUseCase', () => {
   it('allows only guild members to load chat history', async () => {
     const clans = repository();
     vi.mocked(clans.listMessages).mockResolvedValue(null);
-    const useCase = new TrackerClanUseCase(clans);
+    const useCase = new TrackerClanService(clans);
     await expect(
       useCase.listMessages({ trackerId: 'tracker-1', userId: 'outsider' })
     ).rejects.toMatchObject({ code: 'FORBIDDEN' });
@@ -141,7 +141,7 @@ describe('TrackerClanUseCase', () => {
   it('requires the owner to transfer ownership before leaving', async () => {
     const clans = repository();
     vi.mocked(clans.getRole).mockResolvedValue('owner');
-    const useCase = new TrackerClanUseCase(clans);
+    const useCase = new TrackerClanService(clans);
 
     await expect(
       useCase.leaveClan({ trackerId: 'tracker-1', userId: 'owner-1' })
@@ -193,7 +193,7 @@ describe('TrackerClanUseCase', () => {
     vi.mocked(questionGenerator.generate).mockResolvedValue(questions);
     const notifier: ITrackerClanChallengeNotifier = { notify: vi.fn() };
     const notifications: ITrackerClanNotificationNotifier = { notify: vi.fn() };
-    const useCase = new TrackerClanChallengeUseCase(
+    const useCase = new TrackerClanChallengeService(
       clans,
       questionGenerator,
       notifier,
@@ -246,7 +246,7 @@ describe('TrackerClanUseCase', () => {
     vi.mocked(clans.acceptChallenge).mockResolvedValue(challenge);
     const notifier: ITrackerClanChallengeNotifier = { notify: vi.fn() };
     const notifications: ITrackerClanNotificationNotifier = { notify: vi.fn() };
-    const useCase = new TrackerClanChallengeUseCase(
+    const useCase = new TrackerClanChallengeService(
       clans,
       { generate: vi.fn() },
       notifier,
@@ -280,7 +280,7 @@ describe('TrackerClanUseCase', () => {
     } as TrackerClanChallenge;
     vi.mocked(clans.answerChallengeNode).mockResolvedValue(challenge);
     const notifier: ITrackerClanChallengeNotifier = { notify: vi.fn() };
-    const useCase = new TrackerClanChallengeUseCase(
+    const useCase = new TrackerClanChallengeService(
       clans,
       { generate: vi.fn() },
       notifier

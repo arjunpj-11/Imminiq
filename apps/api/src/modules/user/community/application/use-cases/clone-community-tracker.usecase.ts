@@ -4,16 +4,19 @@
 import type { ICommunityTrackerRepository } from '../../domain/repositories/community-tracker.repository.interface';
 import type { ICommunityActivityRecorder } from '../../domain/services/community-activity.interface';
 import { CommunityApplicationError } from '../community-application.error';
-import type { CommunityTrackerViewDTO } from '../community.dto';
+import type { CloneCommunityTrackerResultDTO } from '../community.dto';
 import type { ICommunityMapper } from '../community.mapper';
 
 export interface ICloneCommunityTrackerUseCase {
-  execute(trackerId: string, userId: string): Promise<{ tracker: CommunityTrackerViewDTO }>;
+  execute(trackerId: string, userId: string): Promise<CloneCommunityTrackerResultDTO>;
 }
 
 export class CloneCommunityTrackerUseCase implements ICloneCommunityTrackerUseCase {
   constructor(
-    private readonly _repository: ICommunityTrackerRepository,
+    private readonly _repository: Pick<
+      ICommunityTrackerRepository,
+      'findCommunityTrackerById' | 'cloneTrackerForUser'
+    >,
     private readonly _activityRecorder: ICommunityActivityRecorder,
     private readonly _mapper: ICommunityMapper
   ) {}

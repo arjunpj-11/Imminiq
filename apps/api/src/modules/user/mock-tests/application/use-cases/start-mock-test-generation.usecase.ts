@@ -1,12 +1,15 @@
 import type { IMockTestGenerationJobGateway } from '../services/mock-test-generation-job.interface';
-import type { GenerateMockTestPayloadDTO } from '../mock-tests.dto';
+import type {
+  GenerateMockTestPayloadDTO,
+  PendingMockTestGenerationJobDTO,
+} from '../mock-tests.dto';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
 
 export interface IStartMockTestGenerationUseCase {
   execute(
     userId: string,
     payload: GenerateMockTestPayloadDTO
-  ): Promise<{ jobId: string; status: 'pending' }>;
+  ): Promise<PendingMockTestGenerationJobDTO>;
 }
 
 export class StartMockTestGenerationUseCase implements IStartMockTestGenerationUseCase {

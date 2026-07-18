@@ -2,8 +2,10 @@ import { AuthApplicationError } from '../auth-application.error';
 import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface';
 import type { IRandomNumberGenerator } from '../../domain/services/random-number-generator.interface';
 
+export type RegistrationUsernameInput = { email?: string; fullName: string };
+
 export interface IUsernameGenerator {
-  generateRegistrationUsername(data: { email?: string; fullName: string }): Promise<string>;
+  generateRegistrationUsername(data: RegistrationUsernameInput): Promise<string>;
   generateUsername(fullName: string): Promise<string>;
   generateUniqueUsernameFromSource(source: string): Promise<string>;
 }
@@ -14,7 +16,7 @@ export class UsernameGenerator implements IUsernameGenerator {
     private readonly _randomNumberGenerator: IRandomNumberGenerator
   ) {}
 
-  async generateRegistrationUsername(data: { email?: string; fullName: string }): Promise<string> {
+  async generateRegistrationUsername(data: RegistrationUsernameInput): Promise<string> {
     const source = data.email ? data.email.split('@')[0] : data.fullName;
 
     return this.generateUniqueUsernameFromSource(source);

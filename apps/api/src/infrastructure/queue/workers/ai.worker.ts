@@ -6,10 +6,11 @@ import { createNotificationsComposition } from '../../../modules/notifications';
 import { createActivityComposition } from '../../../modules/user/activity';
 import { createMockTestsComposition } from '../../../modules/user/mock-tests';
 import {
-  trackerCreationAIJobProcessor,
+  createTrackerCreationAIJobProcessor,
   type RoadmapEvaluationJobPayload,
   type RoadmapGenerationJobPayload,
 } from '../../../modules/user/tracker-creation';
+import { createSubscriptionsComposition } from '../../../modules/user/subscriptions';
 import { getAIUserMessage } from '../../ai/ai.service';
 import { AdaptiveAssessmentModel } from '../../database/models/adaptive-assessment.model';
 import { AIGenerationJob } from '../../database/models/ai-generation-job.model';
@@ -17,6 +18,17 @@ import { AIGenerationStep } from '../../database/models/ai-generation-step.model
 import { Tracker } from '../../database/models/tracker.model';
 
 const ONE_MINUTE_MS = 60_000;
+
+const notificationsComposition = createNotificationsComposition();
+const activityComposition = createActivityComposition();
+const mockTestsComposition = createMockTestsComposition(
+  activityComposition.useCases.recordActivity
+);
+const subscriptionsComposition = createSubscriptionsComposition();
+const trackerCreationAIJobProcessor = createTrackerCreationAIJobProcessor(
+  subscriptionsComposition.helpers.limitEnforcer,
+  notificationsComposition.useCases.createNotification
+);
 
 type MockTestJobPayload = {
   jobId: string;
@@ -91,9 +103,7 @@ const processMockTest = async ({ jobId, userId, payload, adaptiveContext }: Mock
     startedAt: new Date(),
   });
 
-  const activity = createActivityComposition();
-  const mockTests = createMockTestsComposition(activity.useCases.recordActivity);
-  const test = await mockTests.useCases.generateMockTest.execute(userId, payload);
+  const test = await mockTestsComposition.useCases.generateMockTest.execute(userId, payload);
 
   if (adaptiveContext) {
     await AdaptiveAssessmentModel.create({
@@ -116,7 +126,7 @@ const processMockTest = async ({ jobId, userId, payload, adaptiveContext }: Mock
     completedAt: new Date(),
     outputData: { testId: test._id },
   });
-  await createNotificationsComposition().useCases.createNotification.execute({
+  await notificationsComposition.useCases.createNotification.execute({
     userId,
     type: 'mock_test_generation_completed',
     message: adaptiveContext
@@ -182,7 +192,7 @@ const handleFailedJob = async (job: Job, error: unknown) => {
 
   const failedJob = await AIGenerationJob.findById(jobId).lean();
   if (failedJob?.jobType === 'mock_test') {
-    await createNotificationsComposition().useCases.createNotification.execute({
+    await notificationsComposition.useCases.createNotification.execute({
       userId: failedJob.userId.toString(),
       type: 'mock_test_generation_failed',
       message: errorMessage,

@@ -9,7 +9,7 @@ export interface IGetAdminSubscriptionOverviewUseCase {
 
 export class GetAdminSubscriptionOverviewUseCase implements IGetAdminSubscriptionOverviewUseCase {
   constructor(
-    private readonly repository: IAdminSubscriptionsRepository,
+    private readonly repository: Pick<IAdminSubscriptionsRepository, 'getOverview'>,
     private readonly mapper: IAdminSubscriptionsMapper
   ) {}
 

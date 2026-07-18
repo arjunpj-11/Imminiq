@@ -1,7 +1,7 @@
 /// <reference types="node" />
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const modulesRoot = join(process.cwd(), 'src', 'modules');
@@ -38,6 +38,32 @@ const collectFiles = (directory: string): string[] =>
     const path = join(directory, entry.name);
     return entry.isDirectory() ? collectFiles(path) : [path];
   });
+
+const portable = (path: string) => path.split(sep).join('/');
+
+const resolveImport = (sourcePath: string, specifier: string): string | null => {
+  if (specifier.startsWith('@/')) return join(sourceRoot, specifier.slice(2));
+  if (specifier.startsWith('.')) return resolve(dirname(sourcePath), specifier);
+  return null;
+};
+
+const moduleImports = (sourcePath: string): string[] => {
+  const source = readFileSync(sourcePath, 'utf8');
+  return [...source.matchAll(/(?:from\s+|import\s*\(\s*)['"]([^'"]+)['"]/g)]
+    .map((match) => resolveImport(sourcePath, match[1]))
+    .filter((path): path is string => path !== null);
+};
+
+const moduleLocation = (path: string) => {
+  if (!path.startsWith(`${modulesRoot}${sep}`)) return null;
+  const parts = portable(relative(modulesRoot, path)).split('/');
+  const scoped = parts[0] === 'admin' || parts[0] === 'user';
+  const modulePartCount = scoped ? 2 : 1;
+  return {
+    id: parts.slice(0, modulePartCount).join('/'),
+    parts: parts.slice(modulePartCount),
+  };
+};
 
 const containsInlineApiPath = (_file: string, source: string): boolean => {
   const apiCall = /\bapi\.(?:get|post|put|patch|delete)\b/g;
@@ -87,6 +113,29 @@ describe('frontend feature-module architecture', () => {
       .map((moduleRoot) => moduleRoot.replace(`${modulesRoot}/`, ''));
 
     expect(missingPublicApis).toEqual([]);
+  });
+
+  it('allows cross-feature imports only through public APIs', () => {
+    const violations = featureModuleRoots().flatMap((moduleRoot) =>
+      collectFiles(moduleRoot).flatMap((source) => {
+        const sourceModule = moduleLocation(source)?.id;
+        return moduleImports(source)
+          .filter((target) => {
+            const targetLocation = moduleLocation(target);
+            return (
+              targetLocation !== null &&
+              targetLocation.id !== sourceModule &&
+              targetLocation.parts.length > 0
+            );
+          })
+          .map(
+            (target) =>
+              `${portable(relative(sourceRoot, source))} -> ${portable(relative(sourceRoot, target))}`
+          );
+      })
+    );
+
+    expect(violations).toEqual([]);
   });
 
   it('centralizes every admin feature query key', () => {

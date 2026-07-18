@@ -4,11 +4,17 @@ import { MockTestModel } from '../database/models/mock-test.model';
 import { Tracker } from '../database/models/tracker.model';
 import { ServiceError } from '../../shared/errors/service.error';
 import type { AdminActor } from '../../shared/admin/admin.types';
-import type { IAdminContentAppealService } from '../../shared/admin/admin-content-appeal.service';
+import type {
+  AdminContentAppealListQuery,
+  AdminContentAppealTargetType,
+  AdminContentAppealUpdateInput,
+  AdminContentAppealUpdateResult,
+  IAdminContentAppealService,
+} from '../../shared/admin/admin-content-appeal.service';
 import { recordAdminAction } from './admin-audit.helper';
 
 export class AdminContentAppealService implements IAdminContentAppealService {
-  async list(targetType: 'tracker' | 'mock_test', query: { status: string; page: number; limit: number }) {
+  async list(targetType: AdminContentAppealTargetType, query: AdminContentAppealListQuery) {
     const filter: Record<string, unknown> = { targetType, deletedAt: null };
     if (query.status !== 'all') filter.status = query.status;
     const [rows, total, stats] = await Promise.all([
@@ -34,10 +40,15 @@ export class AdminContentAppealService implements IAdminContentAppealService {
     };
   }
 
-  async update(targetType: 'tracker' | 'mock_test', id: string, input: { status: 'under_review' | 'approved' | 'rejected'; decisionNote: string }, actor: AdminActor) {
+  async update(
+    targetType: AdminContentAppealTargetType,
+    id: string,
+    input: AdminContentAppealUpdateInput,
+    actor: AdminActor
+  ) {
     const session = await mongoose.startSession();
     try {
-      let result: object = {};
+      let result: AdminContentAppealUpdateResult | undefined;
       await session.withTransaction(async () => {
         const row = await ContentModerationAppeal.findOne({ _id: id, targetType, deletedAt: null }).session(session);
         if (!row) throw new ServiceError('missing-resource', 'CONTENT_APPEAL_NOT_FOUND', 'Content appeal not found');
@@ -68,6 +79,13 @@ export class AdminContentAppealService implements IAdminContentAppealService {
         await recordAdminAction(actor, 'content_appeal.updated', targetType === 'tracker' ? 'trackers' : 'mock-tests', { appealId: id, targetId: String(row.targetId), status: input.status }, session);
         result = { id, status: row.status, targetId: String(row.targetId), updatedAt: row.updatedAt };
       });
+      if (!result) {
+        throw new ServiceError(
+          'internal',
+          'CONTENT_APPEAL_UPDATE_FAILED',
+          'Content appeal update did not produce a result'
+        );
+      }
       return result;
     } finally { await session.endSession(); }
   }

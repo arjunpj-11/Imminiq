@@ -3,13 +3,10 @@ import { MockTestAttemptModel } from '../../../../../infrastructure/database/mod
 import { MockTestModel } from '../../../../../infrastructure/database/models/mock-test.model';
 import { Tracker } from '../../../../../infrastructure/database/models/tracker.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
+import type { AdminAnalyticsRange } from '../../domain/entities/admin-analytics.entity';
 import type { IAdminAnalyticsRepository } from '../../domain/repositories/admin-analytics.repository.interface';
 export class MongoAdminAnalyticsRepository implements IAdminAnalyticsRepository {
-  async get({
-    from,
-    to,
-    days,
-  }: import('../../domain/entities/admin-analytics.entity').AdminAnalyticsRange) {
+  async get({ from, to, days }: AdminAnalyticsRange) {
     const createdAt = { $gte: from, $lte: to };
     const registered = { deletedAt: null };
     const [users, activeUsers, trackers, tests, attempts, dailyUsers, dailyActivity] =

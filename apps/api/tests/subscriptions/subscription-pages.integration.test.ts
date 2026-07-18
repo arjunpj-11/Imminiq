@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { mongoAdminSubscriptionsRepository } from '../../src/modules/admin/subscriptions/infrastructure/repositories/mongo-admin-subscriptions.repository';
+import { MongoAdminSubscriptionsRepository } from '../../src/modules/admin/subscriptions/infrastructure/repositories/mongo-admin-subscriptions.repository';
 import {
   getDefaultSubscriptionPlan,
   SUBSCRIPTION_PLANS,
@@ -11,6 +11,10 @@ import { SubscriptionLimitService } from '../../src/modules/user/subscriptions/i
 import { SubscriptionPlan as SubscriptionPlanModel } from '../../src/infrastructure/database/models/subscription-plan.model';
 import { Subscription } from '../../src/infrastructure/database/models/subscription.model';
 import { Tracker } from '../../src/infrastructure/database/models/tracker.model';
+
+const mongoAdminSubscriptionsRepository = new MongoAdminSubscriptionsRepository(
+  getDefaultSubscriptionPlan
+);
 
 const toAdminInput = (plan: ReturnType<typeof getDefaultSubscriptionPlan>) => ({
   name: plan.name,

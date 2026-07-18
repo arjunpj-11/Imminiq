@@ -2,14 +2,12 @@ import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface';
+import type { GenerateLessonVisualizationPayloadDTO } from '../tracker.dto';
 
 export interface IGenerateLessonVisualizationUseCase {
-  execute(input: {
-    trackerId: string;
-    subtopicId: string;
-    userId: string;
-    regenerate?: boolean;
-  }): Promise<ReturnType<ITrackerMapper['toLessonVisualizationDto']>>;
+  execute(
+    input: GenerateLessonVisualizationPayloadDTO
+  ): Promise<ReturnType<ITrackerMapper['toLessonVisualizationDto']>>;
 }
 
 export class GenerateLessonVisualizationUseCase implements IGenerateLessonVisualizationUseCase {
@@ -25,12 +23,7 @@ export class GenerateLessonVisualizationUseCase implements IGenerateLessonVisual
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: {
-    trackerId: string;
-    subtopicId: string;
-    userId: string;
-    regenerate?: boolean;
-  }) {
+  async execute(input: GenerateLessonVisualizationPayloadDTO) {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

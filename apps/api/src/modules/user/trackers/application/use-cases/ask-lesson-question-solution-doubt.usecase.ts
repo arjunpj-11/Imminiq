@@ -5,19 +5,16 @@ import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface';
 import type { IQuestionHasher } from '../../domain/services/question-hasher.interface';
+import type { AskLessonQuestionSolutionDoubtPayloadDTO } from '../tracker.dto';
 
 type AskLessonQuestionSolutionDoubtResultDTO = ReturnType<
   ITrackerMapper['toLessonQuestionSolutionDoubtAnswerDto']
 >;
 
 export interface IAskLessonQuestionSolutionDoubtUseCase {
-  execute(input: {
-    trackerId: string;
-    subtopicId: string;
-    userId: string;
-    question: string;
-    message: string;
-  }): Promise<AskLessonQuestionSolutionDoubtResultDTO>;
+  execute(
+    input: AskLessonQuestionSolutionDoubtPayloadDTO
+  ): Promise<AskLessonQuestionSolutionDoubtResultDTO>;
 }
 
 export class AskLessonQuestionSolutionDoubtUseCase implements IAskLessonQuestionSolutionDoubtUseCase {
@@ -35,13 +32,9 @@ export class AskLessonQuestionSolutionDoubtUseCase implements IAskLessonQuestion
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: {
-    trackerId: string;
-    subtopicId: string;
-    userId: string;
-    question: string;
-    message: string;
-  }): Promise<AskLessonQuestionSolutionDoubtResultDTO> {
+  async execute(
+    input: AskLessonQuestionSolutionDoubtPayloadDTO
+  ): Promise<AskLessonQuestionSolutionDoubtResultDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

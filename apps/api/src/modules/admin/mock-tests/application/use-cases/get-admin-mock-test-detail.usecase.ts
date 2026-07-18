@@ -9,7 +9,7 @@ export interface IGetAdminMockTestDetailUseCase {
 
 export class GetAdminMockTestDetailUseCase implements IGetAdminMockTestDetailUseCase {
   constructor(
-    private readonly repository: IAdminMockTestsRepository,
+    private readonly repository: Pick<IAdminMockTestsRepository, 'getDetail'>,
     private readonly mapper: IAdminMockTestsMapper
   ) {}
 

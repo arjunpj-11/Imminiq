@@ -54,6 +54,13 @@ const importSpecifiers = (sourcePath: string): string[] => {
   );
 };
 
+const runtimeModuleImports = (sourcePath: string): string[] => {
+  const source = readFileSync(sourcePath, 'utf8');
+  return [...source.matchAll(/^import(?!\s+type\b)[\s\S]*?from\s+['"]([^'"]+)['"];?/gm)]
+    .map((match) => resolveImport(sourcePath, match[1]))
+    .filter((path): path is string => path !== null);
+};
+
 const portable = (path: string) => path.split(sep).join('/');
 
 const moduleRoots = () =>
@@ -130,6 +137,18 @@ describe('clean architecture boundaries', () => {
 
       return issues;
     });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('keeps concrete infrastructure out of feature public APIs', () => {
+    const violations = moduleRoots()
+      .filter((moduleRoot) =>
+        /(?:from|export\s+\*)\s+['"][^'"]*infrastructure(?:\/|['"])/.test(
+          readFileSync(join(moduleRoot, 'index.ts'), 'utf8')
+        )
+      )
+      .map((moduleRoot) => portable(relative(modulesRoot, join(moduleRoot, 'index.ts'))));
 
     expect(violations).toEqual([]);
   });
@@ -416,6 +435,37 @@ describe('clean architecture boundaries', () => {
     expect(violations).toEqual([]);
   });
 
+  it('keeps every cross-feature dependency type-only inside feature modules', () => {
+    const violations = collectFiles(modulesRoot)
+      .flatMap((source) => {
+        const sourceModule = moduleLocation(source)?.id;
+        return runtimeModuleImports(source)
+          .filter((target) => {
+            const targetModule = moduleLocation(target)?.id;
+            return targetModule !== undefined && targetModule !== sourceModule;
+          })
+          .map(
+            (target) =>
+              `${portable(relative(sourceRoot, source))} -> ${portable(relative(sourceRoot, target))}`
+          );
+      });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('defines inward ports outside infrastructure adapters', () => {
+    const violations = collectFiles(modulesRoot)
+      .filter((path) => portable(path).includes('/infrastructure/'))
+      .filter((path) =>
+        /export\s+interface\s+I\w+(?:Repository|Service|Gateway|Provider|Store)\b/.test(
+          readFileSync(path, 'utf8')
+        )
+      )
+      .map((path) => portable(relative(sourceRoot, path)));
+
+    expect(violations).toEqual([]);
+  });
+
   it('keeps application bootstrap and infrastructure imports behind module public APIs', () => {
     const violations = collectFiles(sourceRoot)
       .filter((source) => !source.startsWith(`${modulesRoot}${sep}`))
@@ -480,11 +530,26 @@ describe('clean architecture boundaries', () => {
   });
 
   it('keeps all use cases independent of aggregate repository interfaces', () => {
+    const aggregateRepositories = [
+      'IAuthUserRepository',
+      'IAdminUsersRepository',
+      'IAdminTrackersRepository',
+      'IAdminMockTestsRepository',
+      'IAdminSubscriptionsRepository',
+      'ICommunityRepository',
+      'ICommunityTrackerRepository',
+      'ICommunityReviewRepository',
+      'ICommunityVerificationRepository',
+      'IMockTestsRepository',
+      'ISubscriptionRepository',
+      'IAdaptiveLearningRepository',
+    ];
+    const aggregateDependency = new RegExp(
+      `:\\s*(?:${aggregateRepositories.join('|')})\\b`
+    );
     const violations = collectFiles(modulesRoot)
       .filter((path) => path.endsWith('.usecase.ts'))
-      .filter((path) =>
-        /:\s*(?:ICommunityRepository|IMockTestsRepository)\b/.test(readFileSync(path, 'utf8'))
-      )
+      .filter((path) => aggregateDependency.test(readFileSync(path, 'utf8')))
       .map((path) => portable(relative(sourceRoot, path)));
 
     expect(violations).toEqual([]);

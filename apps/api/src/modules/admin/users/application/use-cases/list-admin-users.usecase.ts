@@ -10,7 +10,7 @@ export interface IListAdminUsersUseCase {
 }
 export class ListAdminUsersUseCase implements IListAdminUsersUseCase {
   constructor(
-    private readonly _repository: IAdminUsersRepository,
+    private readonly _repository: Pick<IAdminUsersRepository, 'list'>,
     private readonly _mapper: IAdminUsersMapper
   ) {}
   async execute(input: ListAdminUsersInput) {

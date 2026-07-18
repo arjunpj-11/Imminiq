@@ -8,7 +8,11 @@ import type { RequestMetaDTO, TokenPairDTO } from '../auth.dto';
 import type { IAuthAccountPolicy } from '../auth-account-policy.policy';
 import type { IRefreshTokenHasher } from '../../../../shared/security/refresh-token-hasher.interface';
 
-type RefreshTokensRepository = IAuthUserRepository & IAuthSessionRepository;
+type RefreshTokensRepository = Pick<IAuthUserRepository, 'findById'> &
+  Pick<
+    IAuthSessionRepository,
+    'findSessionByRefreshTokenHash' | 'revokeAllUserSessions' | 'rotateRefreshTokenInSameSession'
+  >;
 
 export interface IRefreshAuthTokensUseCase {
   execute(refreshToken: string, meta?: RequestMetaDTO): Promise<TokenPairDTO>;

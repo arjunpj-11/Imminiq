@@ -4,13 +4,10 @@ import type {
   TrackerTopicContributionRecord,
 } from '../../domain';
 import { TrackerApplicationError } from '../tracker-application.error';
+import type { CreateTopicContributionPayloadDTO } from '../tracker.dto';
 
 export interface ICreateTopicContributionUseCase {
-  execute(input: {
-    trackerId: string;
-    topicId: string;
-    userId: string;
-  }): Promise<TrackerTopicContributionRecord>;
+  execute(input: CreateTopicContributionPayloadDTO): Promise<TrackerTopicContributionRecord>;
 }
 
 export class CreateTopicContributionUseCase implements ICreateTopicContributionUseCase {
@@ -19,7 +16,7 @@ export class CreateTopicContributionUseCase implements ICreateTopicContributionU
     private readonly _notifier: ITrackerContributionNotifier
   ) {}
 
-  async execute(input: { trackerId: string; topicId: string; userId: string }) {
+  async execute(input: CreateTopicContributionPayloadDTO) {
     const result = await this._repository.create({
       cloneTrackerId: input.trackerId,
       cloneTopicId: input.topicId,

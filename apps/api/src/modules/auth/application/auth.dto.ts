@@ -9,6 +9,15 @@ export interface RegisterPayloadDTO {
   password: string;
 }
 
+export interface RegisterResultDTO {
+  verificationTarget: string;
+  verificationMethod: VerificationMethod;
+}
+
+export interface VerifyResetCodeResultDTO {
+  resetToken: string;
+}
+
 export interface LoginPayloadDTO {
   identifier: string;
   password: string;

@@ -19,7 +19,14 @@ import type { IAuthAccountPolicy } from '../auth-account-policy.policy';
 import type { IAuthSessionIssuer } from '../services/auth-session.service';
 import type { IBackupCodeNormalizer } from '../services/backup-code-normalizer.service';
 
-type TwoFactorLoginRepository = IAuthUserRepository & IAuthTwoFactorRepository;
+type TwoFactorLoginRepository = Pick<
+  IAuthUserRepository,
+  'findById' | 'cancelScheduledDeletionIfRecoverable' | 'updateLastActive'
+> &
+  Pick<
+    IAuthTwoFactorRepository,
+    'findActiveTwoFactorForLogin' | 'touchTwoFactorLastUsed' | 'markBackupCodeUsed'
+  >;
 
 type BackupCodeRecord = {
   usedAt?: Date | null;

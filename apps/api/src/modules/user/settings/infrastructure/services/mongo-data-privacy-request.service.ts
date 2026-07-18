@@ -1,23 +1,22 @@
 import { DataPrivacyRequest } from '../../../../../infrastructure/database/models/data-privacy-request.model';
 import { ServiceError } from '../../../../../shared/errors/service.error';
+import type {
+  DataPrivacyRequestDTO,
+  DataPrivacyRequestInput,
+  IDataPrivacyRequestService,
+} from '../../application/data-privacy-request.service';
 
-export interface IDataPrivacyRequestService {
-  list(userId: string): Promise<object[]>;
-  submit(userId: string, input: { type: 'access' | 'export' | 'delete' | 'correction'; details: string }): Promise<object>;
-  cancel(userId: string, requestId: string): Promise<object>;
-}
-
-const output = (row: Record<string, unknown>) => ({
+const output = (row: Record<string, unknown>): DataPrivacyRequestDTO => ({
   id: String(row._id),
-  type: row.type,
-  details: row.details,
-  status: row.status,
-  resolutionNote: row.resolutionNote,
-  downloadUrl: row.downloadUrl,
-  dueAt: row.dueAt,
-  completedAt: row.completedAt,
-  createdAt: row.createdAt,
-  updatedAt: row.updatedAt,
+  type: row.type as DataPrivacyRequestDTO['type'],
+  details: String(row.details ?? ''),
+  status: String(row.status ?? ''),
+  resolutionNote: row.resolutionNote as string | null | undefined,
+  downloadUrl: row.downloadUrl as string | null | undefined,
+  dueAt: row.dueAt as Date,
+  completedAt: row.completedAt as Date | null | undefined,
+  createdAt: row.createdAt as Date,
+  updatedAt: row.updatedAt as Date,
 });
 
 export class DataPrivacyRequestService implements IDataPrivacyRequestService {
@@ -28,7 +27,7 @@ export class DataPrivacyRequestService implements IDataPrivacyRequestService {
 
   async submit(
     userId: string,
-    input: { type: 'access' | 'export' | 'delete' | 'correction'; details: string }
+    input: DataPrivacyRequestInput
   ) {
     const duplicate = await DataPrivacyRequest.findOne({
       userId,

@@ -9,14 +9,22 @@ import { razorpaySubscriptionPaymentGateway } from './infrastructure/providers/r
 import { SubscriptionLimitService } from './infrastructure/services/subscription-limit.service';
 import { createPlanLimitMiddleware } from './presentation/plan-limit.middleware';
 import { systemClock } from '../../../infrastructure/time/system-clock';
+import type { ISubscriptionLimitEnforcer } from './application/subscription-limit.contract';
+import type { PlanLimitMiddleware } from './presentation/plan-limit.middleware';
+import { getDefaultSubscriptionPlan } from './domain/entities/subscription.entity';
 
-export type SubscriptionsComposition = { useCases: SubscriptionsUseCases };
-
-export const subscriptionLimitService = new SubscriptionLimitService();
-export const enforcePlanLimit = createPlanLimitMiddleware(subscriptionLimitService);
+export type SubscriptionsComposition = {
+  useCases: SubscriptionsUseCases;
+  helpers: {
+    limitEnforcer: ISubscriptionLimitEnforcer;
+    enforcePlanLimit: PlanLimitMiddleware;
+    getDefaultSubscriptionPlan: typeof getDefaultSubscriptionPlan;
+  };
+};
 
 export const createSubscriptionsComposition = (): SubscriptionsComposition => {
   const mapper = new SubscriptionsMapper();
+  const limitEnforcer = new SubscriptionLimitService();
 
   return {
     useCases: {
@@ -34,6 +42,11 @@ export const createSubscriptionsComposition = (): SubscriptionsComposition => {
         mapper,
         systemClock
       ),
+    },
+    helpers: {
+      limitEnforcer,
+      enforcePlanLimit: createPlanLimitMiddleware(limitEnforcer),
+      getDefaultSubscriptionPlan,
     },
   };
 };

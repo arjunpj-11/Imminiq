@@ -3,15 +3,23 @@ import type {
   ITrackerClanNotificationNotifier,
   TrackerClanOverview,
 } from '../../domain';
-import type { ITrackerClanUseCaseContract } from '../tracker-clan.contract';
+import type { ITrackerClanServiceContract } from '../tracker-clan.contract';
+import type {
+  DeleteClanSubtopicPayloadDTO,
+  DeleteClanTopicPayloadDTO,
+  ListClanMessagesPayloadDTO,
+  RemoveClanMemberPayloadDTO,
+  RespondToClanRoleInvitationPayloadDTO,
+  ReviewClanJoinPayloadDTO,
+  TrackerAccessPayloadDTO,
+  TransferClanOwnershipPayloadDTO,
+  UpdateClanMemberRolePayloadDTO,
+  UpdateClanTopicPayloadDTO,
+} from '../tracker.dto';
 import { TrackerApplicationError } from '../tracker-application.error';
-import { TrackerClanNotificationService } from '../services/tracker-clan-notification.service';
+import { TrackerClanNotificationService } from './tracker-clan-notification.service';
 
-export interface ITrackerClanUseCase extends ITrackerClanUseCaseContract {
-  getOverview(input: { trackerId: string; userId: string }): Promise<TrackerClanOverview>;
-}
-
-export class TrackerClanUseCase implements ITrackerClanUseCase {
+export class TrackerClanService implements ITrackerClanServiceContract {
   private readonly notificationService: TrackerClanNotificationService;
 
   constructor(
@@ -21,23 +29,18 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
     this.notificationService = new TrackerClanNotificationService(notifications);
   }
 
-  async getOverview(input: { trackerId: string; userId: string }) {
+  async getOverview(input: TrackerAccessPayloadDTO) {
     return this.requireOverview(await this.clans.getOverview(input));
   }
 
-  async requestJoin(input: { trackerId: string; userId: string }) {
+  async requestJoin(input: TrackerAccessPayloadDTO) {
     return this.requireOverview(
       await this.clans.requestJoin(input),
       'Clone this tracker into your dashboard before joining its clan'
     );
   }
 
-  async reviewJoin(input: {
-    trackerId: string;
-    userId: string;
-    requestId: string;
-    action: 'approve' | 'reject';
-  }) {
+  async reviewJoin(input: ReviewClanJoinPayloadDTO) {
     const beforeReview = await this.clans.getOverview({
       trackerId: input.trackerId,
       userId: input.userId,
@@ -61,12 +64,7 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
     return overview;
   }
 
-  async updateMemberRole(input: {
-    trackerId: string;
-    userId: string;
-    memberId: string;
-    role: 'co_owner' | 'member';
-  }) {
+  async updateMemberRole(input: UpdateClanMemberRolePayloadDTO) {
     const overview = this.requireOverview(
       await this.clans.updateMemberRole({
         trackerId: input.trackerId,
@@ -86,7 +84,7 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
     return overview;
   }
 
-  async removeMember(input: { trackerId: string; userId: string; memberId: string }) {
+  async removeMember(input: RemoveClanMemberPayloadDTO) {
     return this.requireOverview(
       await this.clans.removeMember({
         trackerId: input.trackerId,
@@ -97,7 +95,7 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
     );
   }
 
-  async leaveClan(input: { trackerId: string; userId: string }) {
+  async leaveClan(input: TrackerAccessPayloadDTO) {
     const role = await this.clans.getRole(input);
     if (role === 'owner') {
       throw TrackerApplicationError.forbidden(
@@ -110,7 +108,7 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
     );
   }
 
-  async transferOwnership(input: { trackerId: string; userId: string; newOwnerId: string }) {
+  async transferOwnership(input: TransferClanOwnershipPayloadDTO) {
     const overview = this.requireOverview(
       await this.clans.transferOwnership({
         trackerId: input.trackerId,
@@ -128,12 +126,7 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
     return overview;
   }
 
-  async respondToRoleInvitation(input: {
-    trackerId: string;
-    userId: string;
-    invitationId: string;
-    action: 'accept' | 'decline';
-  }) {
+  async respondToRoleInvitation(input: RespondToClanRoleInvitationPayloadDTO) {
     const beforeResponse = await this.clans.getOverview({
       trackerId: input.trackerId,
       userId: input.userId,
@@ -155,7 +148,7 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
     return overview;
   }
 
-  async syncPersonalClone(input: { trackerId: string; userId: string }) {
+  async syncPersonalClone(input: TrackerAccessPayloadDTO) {
     const result = await this.clans.syncPersonalClone(input);
     if (!result) {
       throw TrackerApplicationError.forbidden(
@@ -165,13 +158,7 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
     return result;
   }
 
-  async updateTopic(input: {
-    trackerId: string;
-    userId: string;
-    topicId: string;
-    title: string;
-    description: string;
-  }) {
+  async updateTopic(input: UpdateClanTopicPayloadDTO) {
     const updated = await this.clans.updateTopic({
       trackerId: input.trackerId,
       actorId: input.userId,
@@ -182,7 +169,7 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
     if (!updated) throw TrackerApplicationError.forbidden('Only clan managers can edit topics');
   }
 
-  async deleteTopic(input: { trackerId: string; userId: string; topicId: string }) {
+  async deleteTopic(input: DeleteClanTopicPayloadDTO) {
     const deleted = await this.clans.deleteTopic({
       trackerId: input.trackerId,
       actorId: input.userId,
@@ -191,7 +178,7 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
     if (!deleted) throw TrackerApplicationError.forbidden('Only clan managers can delete topics');
   }
 
-  async deleteSubtopic(input: { trackerId: string; userId: string; subtopicId: string }) {
+  async deleteSubtopic(input: DeleteClanSubtopicPayloadDTO) {
     const deleted = await this.clans.deleteSubtopic({
       trackerId: input.trackerId,
       actorId: input.userId,
@@ -200,7 +187,7 @@ export class TrackerClanUseCase implements ITrackerClanUseCase {
     if (!deleted) throw TrackerApplicationError.forbidden('Only clan managers can delete subtopics');
   }
 
-  async listMessages(input: { trackerId: string; userId: string; limit?: number }) {
+  async listMessages(input: ListClanMessagesPayloadDTO) {
     const messages = await this.clans.listMessages({
       trackerId: input.trackerId,
       userId: input.userId,

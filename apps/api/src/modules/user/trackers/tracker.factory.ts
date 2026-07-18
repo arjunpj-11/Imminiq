@@ -42,8 +42,8 @@ import { UpdateTrackerUseCase } from './application/use-cases/update-tracker.use
 import { VerifyLessonAnswerUseCase } from './application/use-cases/verify-lesson-answer.usecase';
 import { VerifyTrackerSubtopicUseCase } from './application/use-cases/verify-tracker-subtopic.usecase';
 import { VerifyTrackerTopicUseCase } from './application/use-cases/verify-tracker-topic.usecase';
-import { TrackerClanUseCase } from './application/use-cases/tracker-clan.usecase';
-import { TrackerClanChallengeUseCase } from './application/use-cases/tracker-clan-challenge.usecase';
+import { TrackerClanService } from './application/services/tracker-clan.service';
+import { TrackerClanChallengeService } from './application/services/tracker-clan-challenge.service';
 import type { ITrackerRepository } from './domain/repositories/tracker.repository.interface';
 import { mongoPlatformPolicyReader } from '../../../infrastructure/mongo-platform-policy.reader';
 import { ActivityTrackerGateway } from './infrastructure/gateways/activity-tracker.gateway';
@@ -58,7 +58,8 @@ import { TrackerContributionNotificationGateway } from './infrastructure/gateway
 import { trackerClanChallengeGateway } from './infrastructure/gateways/tracker-clan-challenge.gateway';
 import { trackerClanChallengeQuestionGateway } from './infrastructure/gateways/tracker-clan-challenge-question.gateway';
 import { TrackerClanNotificationGateway } from './infrastructure/gateways/tracker-clan-notification.gateway';
-import { mongoTrackerClanRepository } from './infrastructure/repositories/mongo-tracker-clan.repository';
+import { MongoTrackerClanRepository } from './infrastructure/repositories/mongo-tracker-clan.repository';
+import type { ITrackerPersonalCloneProvisioner } from './domain/services/tracker-personal-clone-provisioner.interface';
 
 export type TrackerListInput = Parameters<ListTrackersUseCase['execute']>[0];
 
@@ -131,7 +132,8 @@ export type TrackerComposition = {
 
 export const createTrackerComposition = (
   activityRecorder: IRecordUserActivityUseCase,
-  notificationCreator: ICreateNotificationUseCase
+  notificationCreator: ICreateNotificationUseCase,
+  personalCloneProvisioner: ITrackerPersonalCloneProvisioner
 ): TrackerComposition => {
   const trackerRepository = mongoTrackerRepository;
 
@@ -144,6 +146,7 @@ export const createTrackerComposition = (
   const trackerQuestionHasher = cryptoQuestionHasher;
   const contributionNotifier = new TrackerContributionNotificationGateway(notificationCreator);
   const trackerClanNotifications = new TrackerClanNotificationGateway(notificationCreator);
+  const trackerClanRepository = new MongoTrackerClanRepository(personalCloneProvisioner);
 
   const _trackerMapper = new TrackerMapper();
   const missingEvaluationTopicPlacement = new MissingEvaluationTopicPlacementService(
@@ -176,10 +179,10 @@ export const createTrackerComposition = (
 
       reportTracker: new ReportTrackerUseCase(trackerRepository),
 
-      trackerClan: new TrackerClanUseCase(mongoTrackerClanRepository, trackerClanNotifications),
+      trackerClan: new TrackerClanService(trackerClanRepository, trackerClanNotifications),
 
-      trackerClanChallenges: new TrackerClanChallengeUseCase(
-        mongoTrackerClanRepository,
+      trackerClanChallenges: new TrackerClanChallengeService(
+        trackerClanRepository,
         trackerClanChallengeQuestionGateway,
         trackerClanChallengeGateway,
         trackerClanNotifications

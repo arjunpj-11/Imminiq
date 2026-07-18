@@ -39,6 +39,13 @@ export type CommunityServiceHelpers = {
    * Verification rewards no longer use this helper directly.
    */
   coinLedger: ICommunityCoinLedger;
+  personalCloneProvisioner: {
+    ensureClone(input: {
+      trackerId: string;
+      userId: string;
+      bypassClonePermission?: boolean;
+    }): Promise<boolean>;
+  };
 };
 
 export type CommunityComposition = {
@@ -62,6 +69,15 @@ export const createCommunityComposition = (
   const reviewMapper = new CommunityReviewMapper();
 
   const verificationPolicy = new CommunityVerificationPolicy(systemClock);
+
+  const personalCloneProvisioner: CommunityServiceHelpers['personalCloneProvisioner'] = {
+    ensureClone: async ({ trackerId, userId, bypassClonePermission }) =>
+      Boolean(
+        await communityRepository.cloneTrackerForUser(trackerId, userId, {
+          bypassClonePermission,
+        })
+      ),
+  };
 
   return {
     useCases: {
@@ -122,6 +138,7 @@ export const createCommunityComposition = (
       reviewMapper,
       verificationPolicy,
       coinLedger,
+      personalCloneProvisioner,
     },
   };
 };

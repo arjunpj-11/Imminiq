@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import type { z } from 'zod';
 
 import { dependencyFailure } from '../../shared/errors/service.error';
 

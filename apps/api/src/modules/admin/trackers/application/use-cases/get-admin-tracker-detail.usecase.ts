@@ -9,7 +9,7 @@ export interface IGetAdminTrackerDetailUseCase {
 
 export class GetAdminTrackerDetailUseCase implements IGetAdminTrackerDetailUseCase {
   constructor(
-    private readonly repository: IAdminTrackersRepository,
+    private readonly repository: Pick<IAdminTrackersRepository, 'getDetail'>,
     private readonly mapper: IAdminTrackersMapper
   ) {}
 

@@ -4,19 +4,12 @@ import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface';
+import type { ChatWithLessonTutorPayloadDTO } from '../tracker.dto';
 
 type ChatWithLessonTutorResultDTO = ReturnType<ITrackerMapper['toLessonTutorChatResponseDto']>;
 
 export interface IChatWithLessonTutorUseCase {
-  execute(input: {
-    trackerId: string;
-    subtopicId: string;
-    userId: string;
-    messages: {
-      role: 'user' | 'assistant';
-      content: string;
-    }[];
-  }): Promise<ChatWithLessonTutorResultDTO>;
+  execute(input: ChatWithLessonTutorPayloadDTO): Promise<ChatWithLessonTutorResultDTO>;
 }
 
 export class ChatWithLessonTutorUseCase implements IChatWithLessonTutorUseCase {
@@ -29,15 +22,7 @@ export class ChatWithLessonTutorUseCase implements IChatWithLessonTutorUseCase {
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: {
-    trackerId: string;
-    subtopicId: string;
-    userId: string;
-    messages: {
-      role: 'user' | 'assistant';
-      content: string;
-    }[];
-  }): Promise<ChatWithLessonTutorResultDTO> {
+  async execute(input: ChatWithLessonTutorPayloadDTO): Promise<ChatWithLessonTutorResultDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

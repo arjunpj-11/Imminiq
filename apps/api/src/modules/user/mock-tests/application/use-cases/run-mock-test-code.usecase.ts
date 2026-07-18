@@ -1,6 +1,9 @@
 import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface';
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface';
-import type { IMockTestCodeRunner } from '../../domain/services/mock-test-code-runner.interface';
+import type {
+  IMockTestCodeRunner,
+  MockTestCodeRunResult,
+} from '../../domain/services/mock-test-code-runner.interface';
 import type { RunMockTestCodePayloadDTO } from '../mock-tests.dto';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
 
@@ -12,7 +15,7 @@ export interface IRunMockTestCodeUseCase {
     userId: string,
     questionId: string,
     payload: RunMockTestCodePayloadDTO
-  ): Promise<import('../../domain/services/mock-test-code-runner.interface').MockTestCodeRunResult>;
+  ): Promise<MockTestCodeRunResult>;
 }
 
 export class RunMockTestCodeUseCase implements IRunMockTestCodeUseCase {

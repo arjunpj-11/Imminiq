@@ -22,7 +22,7 @@ import {
   MongoFriendRequestRepository,
   mongoFriendRequestRepository,
 } from './internal/mongo-friend-request.repository';
-import { MongoFriendsMapper } from './shared/mongo-friends.mapper';
+import type { MongoFriendsMapper } from './shared/mongo-friends.mapper';
 
 type MongoFriendsRepositoryDependencies = {
   queryRepository: IFriendQueryRepository;

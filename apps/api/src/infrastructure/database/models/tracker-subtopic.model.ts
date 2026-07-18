@@ -1,6 +1,7 @@
 // apps/api/src/infrastructure/database/models/tracker-subtopic.model.ts
 
-import mongoose, { Document, Schema } from 'mongoose';
+import type { Document} from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 export interface ITrackerSubtopicDocument extends Document {
   trackerId: mongoose.Types.ObjectId;

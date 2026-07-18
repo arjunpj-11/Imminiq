@@ -9,7 +9,7 @@ export interface IGetCommunityPublicTrackerUseCase {
 
 export class GetCommunityPublicTrackerUseCase implements IGetCommunityPublicTrackerUseCase {
   constructor(
-    private readonly _repository: ICommunityReviewRepository,
+    private readonly _repository: Pick<ICommunityReviewRepository, 'findPublicTrackerDetail'>,
     private readonly _mapper: ICommunityReviewMapper
   ) {}
 

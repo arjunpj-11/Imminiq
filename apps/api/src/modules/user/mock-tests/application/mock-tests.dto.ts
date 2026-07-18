@@ -6,6 +6,7 @@ import type { MockTestCodingDetails } from '../domain/value-objects/mock-test-co
 import type { MockTestCreationDraft } from '../domain/value-objects/mock-test-creation-draft.vo';
 import type { MockTestCodingLanguage } from '../domain/value-objects/coding-language.vo';
 import type { QuestionType } from '../domain/value-objects/question-type.vo';
+import type { MockTestCodeTestCaseResult } from '../domain/services/mock-test-code-runner.interface';
 
 export type {
   DifficultyLevel,
@@ -162,6 +163,16 @@ export interface MockTestGenerationJobDTO {
   status: 'pending' | 'processing' | 'completed' | 'failed';
 }
 
+export type PendingMockTestGenerationJobDTO = Pick<
+  MockTestGenerationJobDTO,
+  'jobId' | 'status'
+> & { status: 'pending' };
+
+export type ActiveMockTestGenerationJobDTO = Pick<
+  MockTestGenerationJobDTO,
+  'jobId' | 'status'
+> & { status: 'pending' | 'processing' };
+
 export interface SubmitAnswerPayloadDTO {
   questionId: string;
   answer: string;
@@ -259,6 +270,60 @@ export interface ImportSharedMockTestDTO {
   alreadyImported: boolean;
 }
 
+export interface ImportSharedMockTestPayloadDTO {
+  userId: string;
+  shareToken: string;
+}
+
+export interface ShareMockTestPayloadDTO {
+  userId: string;
+  testId: string;
+  origin: string;
+}
+
+export interface ShareMockTestResultDTO {
+  shareToken: string;
+  shareUrl: string;
+}
+
 export interface MockTestAttemptHistoryDTO extends MockTestAttemptDTO {
   test: MockTestDTO | null;
+}
+
+export interface MockTestAIInsightDTO {
+  insight: string;
+}
+
+export interface FlagQuestionResultDTO {
+  flagged: boolean;
+}
+
+export interface ReportQuestionIssueResultDTO {
+  id: string;
+  status: string;
+  reason: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface TopicBreakdownItemDTO {
+  topic: string;
+  averageScore: number;
+  totalAttempts: number;
+}
+
+export interface SubmitMockTestCodeResultDTO {
+  answer: MockTestAnswerDTO;
+  isCorrect: boolean;
+  pointsEarned: number;
+  maxPoints: number;
+  passedCount: number;
+  totalCount: number;
+  testCases: MockTestCodeTestCaseResult[];
+  stdout: string;
+  stderr: string;
+  compileOutput: string;
+  message: string;
+  status: { id: number; description: string };
+  feedback: string;
 }

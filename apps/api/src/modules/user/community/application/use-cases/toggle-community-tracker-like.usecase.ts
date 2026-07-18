@@ -1,19 +1,25 @@
 import { CommunityApplicationError } from '../community-application.error';
 import type { ICommunityReviewRepository } from '../../domain/repositories/community-review.repository.interface';
-
-export type ToggleCommunityTrackerLikeInput = {
-  trackerId: string;
-  userId: string;
-};
+import type {
+  ToggleCommunityTrackerLikePayloadDTO,
+  ToggleCommunityTrackerLikeOutputDTO,
+} from '../community-review.dto';
 
 export interface IToggleCommunityTrackerLikeUseCase {
-  execute(input: ToggleCommunityTrackerLikeInput): Promise<{ liked: boolean; likes: number }>;
+  execute(
+    input: ToggleCommunityTrackerLikePayloadDTO
+  ): Promise<ToggleCommunityTrackerLikeOutputDTO>;
 }
 
 export class ToggleCommunityTrackerLikeUseCase implements IToggleCommunityTrackerLikeUseCase {
-  constructor(private readonly _communityReviewRepository: ICommunityReviewRepository) {}
+  constructor(
+    private readonly _communityReviewRepository: Pick<
+      ICommunityReviewRepository,
+      'toggleTrackerLike'
+    >
+  ) {}
 
-  async execute(input: ToggleCommunityTrackerLikeInput) {
+  async execute(input: ToggleCommunityTrackerLikePayloadDTO) {
     const result = await this._communityReviewRepository.toggleTrackerLike(
       input.trackerId,
       input.userId

@@ -12,7 +12,7 @@ export class ListAdminMockTestQuestionIssuesUseCase
   implements IListAdminMockTestQuestionIssuesUseCase
 {
   constructor(
-    private readonly repository: IAdminMockTestsRepository,
+    private readonly repository: Pick<IAdminMockTestsRepository, 'listQuestionIssues'>,
     private readonly mapper: IAdminMockTestsMapper
   ) {}
 

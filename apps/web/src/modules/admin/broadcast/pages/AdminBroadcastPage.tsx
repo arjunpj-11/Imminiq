@@ -23,7 +23,7 @@ import { getUserFacingError } from "../../../../lib/user-facing-error";
 import ConfirmDialog from "../../../../components/admin/AdminConfirmDialog";
 import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
 import { AdminSearch } from "../../../../components/admin";
-import { useAdminUsers } from "../../users/hooks/useAdminUsers";
+import { useAdminUsers } from '../../users';
 import type {
   AdminBroadcastAudience,
   AdminBroadcastPoll,

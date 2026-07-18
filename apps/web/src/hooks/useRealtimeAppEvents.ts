@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import type { Socket } from 'socket.io-client';
 
 import { notificationKeys } from '../modules/notifications';
 import { friendsQueryKeys } from '../modules/user/friends';
@@ -27,7 +28,7 @@ export const useRealtimeAppEvents = (accessToken: string | null, enabled: boolea
     };
     const refreshAfterReconnect = () => refreshNotifications();
     let active = true;
-    let realtimeSocket: (typeof import('../lib/socket'))['socket'] | undefined;
+    let realtimeSocket: Socket | undefined;
 
     void import('../lib/socket').then(({ socket }) => {
       if (!active) return;

@@ -4,11 +4,9 @@ import { User } from '../../src/infrastructure/database/models/user.model';
 import { SetAdminActionPasswordUseCase } from '../../src/modules/admin/users/application/use-cases/set-admin-action-password.usecase';
 import type { AdminUserEntity } from '../../src/modules/admin/users/domain/entities/admin-user.entity';
 import type { IAdminUsersRepository } from '../../src/modules/admin/users/domain/repositories/admin-users.repository.interface';
-import {
-  bcryptSecurityPasswordHasher,
-  type ISecurityPasswordHasher,
-} from '../../src/modules/security';
-import { requirePrivilegedMfa } from '../../src/shared/middlewares/admin.middleware';
+import type { IAdminPasswordHasher } from '../../src/modules/admin/users/domain/services/admin-password-hasher.interface';
+import { bcryptSecurityPasswordHasher } from '../../src/modules/security/infrastructure/services/bcrypt-security-password-hasher.service';
+import { createRequirePrivilegedMfa } from '../../src/shared/middlewares/admin.middleware';
 import { securityAttemptCache } from '../../src/infrastructure/cache/security-attempt.cache';
 import { securityAuditLogger } from '../../src/infrastructure/security/security-audit-logger';
 import {
@@ -20,6 +18,7 @@ import {
 
 const adminId = '64b000000000000000000001';
 const superAdminId = '64b000000000000000000002';
+const requirePrivilegedMfa = createRequirePrivilegedMfa(bcryptSecurityPasswordHasher);
 
 const admin = (overrides: Partial<AdminUserEntity> = {}): AdminUserEntity => ({
   id: adminId,
@@ -143,7 +142,7 @@ describe('SetAdminActionPasswordUseCase', () => {
     const hasher = {
       hash: vi.fn().mockResolvedValue('bcrypt-hash'),
       compare: vi.fn(),
-    } as ISecurityPasswordHasher;
+    } as IAdminPasswordHasher;
     const useCase = new SetAdminActionPasswordUseCase(repository, hasher);
 
     await expect(
@@ -164,7 +163,7 @@ describe('SetAdminActionPasswordUseCase', () => {
     const repository = {
       findById: vi.fn().mockResolvedValue(admin({ role: 'user' })),
     } as unknown as IAdminUsersRepository;
-    const hasher = { hash: vi.fn(), compare: vi.fn() } as ISecurityPasswordHasher;
+    const hasher = { hash: vi.fn(), compare: vi.fn() } as IAdminPasswordHasher;
 
     await expect(
       new SetAdminActionPasswordUseCase(repository, hasher).execute(

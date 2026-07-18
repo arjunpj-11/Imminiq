@@ -25,9 +25,11 @@ import { systemClock } from '../../infrastructure/time/system-clock';
 import { sha256RefreshTokenHasher } from '../../infrastructure/security/sha256-refresh-token-hasher';
 import { mongoPlatformPolicyReader } from '../../infrastructure/mongo-platform-policy.reader';
 import { env } from '../../config/env';
+import type { ISecurityPasswordHasher } from './domain/services/security-password-hasher.interface';
 
 export type SecurityServiceHelpers = {
   securityMapper: ISecurityMapper;
+  passwordHasher: ISecurityPasswordHasher;
 };
 
 export type SecurityComposition = {
@@ -122,6 +124,7 @@ export const createSecurityComposition = (): SecurityComposition => {
 
     helpers: {
       securityMapper,
+      passwordHasher: securityPasswordHasher,
     },
   };
 };

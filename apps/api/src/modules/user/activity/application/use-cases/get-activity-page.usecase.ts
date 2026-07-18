@@ -4,7 +4,7 @@ import { ActivityApplicationError } from '../activity-application.error';
 import type { ActivityMapperContract } from '../activity.mapper';
 import type { ActivityAnalyticsContract } from '../services/activity-analytics.service';
 import type { ActivityDateRangeContract } from '../services/activity-date-range.service';
-import { GetActivityFeedUseCase } from './get-activity-feed.usecase';
+import type { GetActivityFeedUseCase } from './get-activity-feed.usecase';
 import type { IClock } from '../../../../../shared/time/clock.interface';
 import type { IActivityPolicyReader } from '../../../../../shared/platform-policy';
 

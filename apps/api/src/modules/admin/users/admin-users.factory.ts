@@ -14,10 +14,12 @@ import { AdminDataPrivacyRequestService } from './infrastructure/services/mongo-
 import { AdminExportService } from './infrastructure';
 import { AdminUserNotesService } from './infrastructure/services/mongo-admin-user-notes.service';
 import { SetAdminActionPasswordUseCase } from './application/use-cases/set-admin-action-password.usecase';
-import { bcryptSecurityPasswordHasher } from '../../security';
+import type { IAdminPasswordHasher } from './domain/services/admin-password-hasher.interface';
 
 export type AdminUsersComposition = { useCases: AdminUsersUseCases };
-export const createAdminUsersComposition = (): AdminUsersComposition => {
+export const createAdminUsersComposition = (
+  passwordHasher: IAdminPasswordHasher
+): AdminUsersComposition => {
   const mapper = new AdminUsersMapper();
   return {
     useCases: {
@@ -43,7 +45,7 @@ export const createAdminUsersComposition = (): AdminUsersComposition => {
       updateRole: new UpdateAdminUserRoleUseCase(mongoAdminUsersRepository, mapper),
       setActionPassword: new SetAdminActionPasswordUseCase(
         mongoAdminUsersRepository,
-        bcryptSecurityPasswordHasher
+        passwordHasher
       ),
     },
   };

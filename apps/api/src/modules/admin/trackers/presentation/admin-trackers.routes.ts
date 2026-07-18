@@ -2,13 +2,16 @@ import { Router } from 'express';
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import {
   requireAdminPermission,
-  requirePrivilegedMfa,
 } from '../../../../shared/middlewares/admin.middleware';
+import type { PrivilegedAdminMiddleware } from '../../../../shared/middlewares/admin.middleware';
 import type { AdminTrackersUseCases } from '../application/admin-trackers-use-cases.contract';
 import { AdminTrackersController } from './admin-trackers.controller';
 import { ADMIN_TRACKERS_ROUTE_PATHS } from './admin-trackers.route.constants';
 import { validateIdentifierParam } from '../../../../shared/middlewares/validate';
-export const createAdminTrackersRoutes = (useCases: AdminTrackersUseCases) => {
+export const createAdminTrackersRoutes = (
+  useCases: AdminTrackersUseCases,
+  requirePrivilegedMfa: PrivilegedAdminMiddleware
+) => {
   const router = Router();
   const controller = new AdminTrackersController(useCases);
   router.use(authenticate, requireAdminPermission('content:read'));

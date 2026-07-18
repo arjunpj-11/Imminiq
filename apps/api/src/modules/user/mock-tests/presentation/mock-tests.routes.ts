@@ -10,7 +10,7 @@ import {
 import { MockTestsController } from './mock-tests.controller';
 import type { MockTestsUseCases } from '../application/mock-tests-use-cases.contract';
 import { MOCK_TEST_ROUTE_PATHS } from './mock-tests.route.constants';
-import { enforcePlanLimit } from '../../subscriptions';
+import type { PlanLimitMiddleware } from '../../subscriptions';
 import {
   createMockTestSchema,
   flagQuestionSchema,
@@ -22,7 +22,10 @@ import {
   mockTestListQuerySchema,
 } from './mock-tests.schema';
 
-export const createMockTestsRoutes = (useCases: MockTestsUseCases) => {
+export const createMockTestsRoutes = (
+  useCases: MockTestsUseCases,
+  enforcePlanLimit: PlanLimitMiddleware
+) => {
   const mockTestsController = new MockTestsController(useCases);
   const router = Router();
   router.param('attemptId', validateIdentifierParam);

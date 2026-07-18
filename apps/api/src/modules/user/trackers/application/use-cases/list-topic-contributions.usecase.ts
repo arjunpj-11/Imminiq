@@ -3,15 +3,16 @@ import type {
   TrackerTopicContributionRecord,
 } from '../../domain';
 import { TrackerApplicationError } from '../tracker-application.error';
+import type { TrackerAccessPayloadDTO } from '../tracker.dto';
 
 export interface IListTopicContributionsUseCase {
-  execute(input: { trackerId: string; userId: string }): Promise<TrackerTopicContributionRecord[]>;
+  execute(input: TrackerAccessPayloadDTO): Promise<TrackerTopicContributionRecord[]>;
 }
 
 export class ListTopicContributionsUseCase implements IListTopicContributionsUseCase {
   constructor(private readonly _repository: ITrackerTopicContributionRepository) {}
 
-  async execute(input: { trackerId: string; userId: string }) {
+  async execute(input: TrackerAccessPayloadDTO) {
     const result = await this._repository.listForOwner({
       sourceTrackerId: input.trackerId,
       ownerId: input.userId,

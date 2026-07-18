@@ -12,7 +12,7 @@ export interface IResendOtpUseCase {
 
 export class ResendOtpUseCase implements IResendOtpUseCase {
   constructor(
-    private readonly _authRepository: IAuthUserRepository,
+    private readonly _authRepository: Pick<IAuthUserRepository, 'findByIdentifier'>,
     private readonly _authNotification: IAuthNotification,
     private readonly _identifierNormalizer: IIdentifierNormalizer,
     private readonly _pendingRegistrationStore: IPendingRegistrationStore,

@@ -1,16 +1,14 @@
 import { TrackerApplicationError } from '../tracker-application.error';
-import type { LessonQuestionSolutionDoubtsDTO } from '../tracker.dto';
+import type {
+  LessonQuestionPayloadDTO,
+  LessonQuestionSolutionDoubtsDTO,
+} from '../tracker.dto';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { IQuestionHasher } from '../../domain/services/question-hasher.interface';
 
 export interface IGetLessonQuestionSolutionDoubtsUseCase {
-  execute(input: {
-    trackerId: string;
-    subtopicId: string;
-    userId: string;
-    question: string;
-  }): Promise<LessonQuestionSolutionDoubtsDTO>;
+  execute(input: LessonQuestionPayloadDTO): Promise<LessonQuestionSolutionDoubtsDTO>;
 }
 
 export class GetLessonQuestionSolutionDoubtsUseCase implements IGetLessonQuestionSolutionDoubtsUseCase {
@@ -23,12 +21,7 @@ export class GetLessonQuestionSolutionDoubtsUseCase implements IGetLessonQuestio
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: {
-    trackerId: string;
-    subtopicId: string;
-    userId: string;
-    question: string;
-  }) {
+  async execute(input: LessonQuestionPayloadDTO) {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

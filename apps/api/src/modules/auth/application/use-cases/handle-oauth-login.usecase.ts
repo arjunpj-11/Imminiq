@@ -9,7 +9,11 @@ import type { IAuthUserMapper } from '../auth-user.mapper';
 import type { IAuthAccountPolicy } from '../auth-account-policy.policy';
 import type { IAuthSessionIssuer } from '../services/auth-session.service';
 
-type OAuthLoginRepository = IAuthUserRepository & IAuthTwoFactorRepository;
+type OAuthLoginRepository = Pick<
+  IAuthUserRepository,
+  'findById' | 'cancelScheduledDeletionIfRecoverable' | 'updateLastActive'
+> &
+  Pick<IAuthTwoFactorRepository, 'hasActiveTwoFactor'>;
 
 export interface IHandleOAuthLoginUseCase {
   execute(user: OAuthLoginUserDTO, meta?: RequestMetaDTO): Promise<AuthLoginResultDTO>;

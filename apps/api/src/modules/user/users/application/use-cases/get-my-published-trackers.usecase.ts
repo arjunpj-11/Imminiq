@@ -1,15 +1,12 @@
 import type { IUserTrackerRepository } from '../../domain/repositories/user-tracker.repository.interface';
-import type { PaginationQueryDTO } from '../users.dto';
+import type { PaginationQueryDTO, PublishedTrackersPageDTO } from '../users.dto';
 import type { IUsersMapper } from '../users.mapper';
 
 export interface IGetMyPublishedTrackersUseCase {
   execute(
     userId: string,
     query: PaginationQueryDTO
-  ): Promise<{
-    items: import('../users.dto').PublishedTrackerViewDTO[];
-    pagination: { page: number; limit: number; total: number; totalPages: number };
-  }>;
+  ): Promise<PublishedTrackersPageDTO>;
 }
 
 export class GetMyPublishedTrackersUseCase implements IGetMyPublishedTrackersUseCase {

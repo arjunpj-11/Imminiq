@@ -16,6 +16,7 @@ import { MongoTrackerProgressRepository } from '../../src/modules/user/trackers/
 import { PublishTrackerUseCase } from '../../src/modules/user/trackers/application/use-cases/publish-tracker.usecase';
 import { TrackerMapper } from '../../src/modules/user/trackers/application/tracker.mapper';
 import { MongoTrackerClanRepository } from '../../src/modules/user/trackers/infrastructure/repositories/mongo-tracker-clan.repository';
+import { MongoCommunityRepository } from '../../src/modules/user/community/infrastructure/repositories/mongo-community.repository';
 
 describe('tracker topic contributions', () => {
   let mongo: MongoMemoryReplSet;
@@ -273,7 +274,15 @@ describe('tracker topic contributions', () => {
       topicsCount: 0,
       subtopicsCount: 0,
     });
-    const clans = new MongoTrackerClanRepository();
+    const communityRepository = new MongoCommunityRepository();
+    const clans = new MongoTrackerClanRepository({
+      ensureClone: async ({ trackerId, userId, bypassClonePermission }) =>
+        Boolean(
+          await communityRepository.cloneTrackerForUser(trackerId, userId, {
+            bypassClonePermission,
+          })
+        ),
+    });
     const managementRepository = new MongoTrackerManagementRepository();
     await expect(
       clans.getOverview({

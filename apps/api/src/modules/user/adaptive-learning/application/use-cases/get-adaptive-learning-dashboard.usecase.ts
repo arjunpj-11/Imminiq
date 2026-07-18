@@ -8,7 +8,10 @@ export interface IGetAdaptiveLearningDashboardUseCase {
 
 export class GetAdaptiveLearningDashboardUseCase implements IGetAdaptiveLearningDashboardUseCase {
   constructor(
-    private readonly _repository: IAdaptiveLearningRepository,
+    private readonly _repository: Pick<
+      IAdaptiveLearningRepository,
+      'getLearnerSnapshot' | 'getOrCreateProfile' | 'listAdvisorMessages' | 'listAssessments'
+    >,
     private readonly _mapper: IAdaptiveLearningMapper
   ) {}
 

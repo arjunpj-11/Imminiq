@@ -7,10 +7,12 @@ import type { IListAdminTrackerReportsUseCase } from './use-cases/list-admin-tra
 import type { IUpdateAdminTrackerReportUseCase } from './use-cases/update-admin-tracker-report.usecase';
 import type { IUpdateAdminTrackerLifecycleUseCase } from './use-cases/update-admin-tracker-lifecycle.usecase';
 import type { AdminTrackerReviewsUseCases } from './admin-tracker-reviews';
+import type { IAdminTrackerVersionService } from './admin-tracker-version.service';
+import type { IAdminContentAppealService, IAdminExportService } from '../../../../shared/admin';
 
 export type AdminTrackersUseCases = {
-  exports: import('../../../../shared/admin').IAdminExportService;
-  contentAppeals: import('../../../../shared/admin').IAdminContentAppealService;
+  exports: IAdminExportService;
+  contentAppeals: IAdminContentAppealService;
   list: IListAdminTrackersUseCase;
   listPublished: IListAdminPublishedTrackersUseCase;
   likePublished: ILikeAdminPublishedTrackerUseCase;
@@ -20,5 +22,5 @@ export type AdminTrackersUseCases = {
   updateReport: IUpdateAdminTrackerReportUseCase;
   updateLifecycle: IUpdateAdminTrackerLifecycleUseCase;
   reviews: AdminTrackerReviewsUseCases;
-  versions: import('./admin-tracker-version.service').IAdminTrackerVersionService;
+  versions: IAdminTrackerVersionService;
 };

@@ -3,7 +3,7 @@ import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-t
 import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface';
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface';
 import type { IMockTestAIGateway } from '../../domain/services/mock-test-ai.interface';
-import type { SubmitAnswerPayloadDTO } from '../mock-tests.dto';
+import type { MockTestAnswerDTO, SubmitAnswerPayloadDTO } from '../mock-tests.dto';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
 import type { IMockTestScorer } from '../services/test-scorer.service';
 import type { IMockTestsMapper } from '../mock-tests.mapper';
@@ -19,7 +19,7 @@ export interface ISubmitAnswerUseCase {
     attemptId: string,
     userId: string,
     payload: SubmitAnswerPayloadDTO
-  ): Promise<import('../mock-tests.dto').MockTestAnswerDTO>;
+  ): Promise<MockTestAnswerDTO>;
 }
 
 export class SubmitAnswerUseCase implements ISubmitAnswerUseCase {

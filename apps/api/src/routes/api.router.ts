@@ -86,6 +86,7 @@ import {
 import { createUsersComposition, createUsersRoutes } from '../modules/user/users';
 import { createSecurityComposition, createSecurityRoutes } from '../modules/security';
 import { API_ROUTE_PATHS } from '../shared/constants/api-route-paths';
+import { createRequirePrivilegedMfa } from '../shared/middlewares/admin.middleware';
 
 export const createApiRouter = () => {
   const router = Router();
@@ -97,6 +98,9 @@ export const createApiRouter = () => {
   const trackerCreationComposition = createTrackerCreationComposition();
   const settingsComposition = createSettingsComposition();
   const securityComposition = createSecurityComposition();
+  const requirePrivilegedMfa = createRequirePrivilegedMfa(
+    securityComposition.helpers.passwordHasher
+  );
   const dashboardComposition = createDashboardComposition();
   const friendsComposition = createFriendsComposition();
   const leaderboardComposition = createLeaderboardComposition();
@@ -109,22 +113,26 @@ export const createApiRouter = () => {
 
   // 🔹 Feature compositions
   const uploadsComposition = createUploadsComposition(usersComposition.useCases.getMe);
+  const communityComposition = createCommunityComposition(activityRecorder);
   const trackerComposition = createTrackerComposition(
     activityRecorder,
-    notificationsComposition.useCases.createNotification
+    notificationsComposition.useCases.createNotification,
+    communityComposition.helpers.personalCloneProvisioner
   );
-  const communityComposition = createCommunityComposition(activityRecorder);
   const mockTestsComposition = createMockTestsComposition(
     activityRecorder,
     adaptiveCompletionObserver
   );
   const adaptiveLearningComposition = createAdaptiveLearningComposition();
   const subscriptionsComposition = createSubscriptionsComposition();
+  const { enforcePlanLimit } = subscriptionsComposition.helpers;
   const supportTicketsComposition = createSupportTicketsComposition();
 
   // 🔹 Admin compositions
   const adminDashboardComposition = createAdminDashboardComposition();
-  const adminUsersComposition = createAdminUsersComposition();
+  const adminUsersComposition = createAdminUsersComposition(
+    securityComposition.helpers.passwordHasher
+  );
   const adminTrackersComposition = createAdminTrackersComposition();
   const adminMockTestsComposition = createAdminMockTestsComposition();
   const adminAnalyticsComposition = createAdminAnalyticsComposition();
@@ -133,19 +141,27 @@ export const createApiRouter = () => {
   const adminSystemHealthComposition = createAdminSystemHealthComposition();
   const adminSupportTicketsComposition = createAdminSupportTicketsComposition();
   const adminSettingsComposition = createAdminSettingsComposition();
-  const adminSubscriptionsComposition = createAdminSubscriptionsComposition();
+  const adminSubscriptionsComposition = createAdminSubscriptionsComposition(
+    subscriptionsComposition.helpers.getDefaultSubscriptionPlan
+  );
   const adminAITokenSpendComposition = createAdminAITokenSpendComposition();
 
   // 🔹 Routers
   router.use(API_ROUTE_PATHS.auth, createAuthRoutes(authComposition.useCases));
-  const trackerCreationRoutes = createTrackerCreationRoutes(trackerCreationComposition.useCases);
+  const trackerCreationRoutes = createTrackerCreationRoutes(
+    trackerCreationComposition.useCases,
+    enforcePlanLimit
+  );
   router.use(`${API_ROUTE_PATHS.trackers}/create`, trackerCreationRoutes);
   // Compatibility for already released clients. The feature now belongs to trackers.
   router.use(
     API_ROUTE_PATHS.legacyOnboarding,
-    createTrackerCreationRoutes(trackerCreationComposition.useCases)
+    createTrackerCreationRoutes(trackerCreationComposition.useCases, enforcePlanLimit)
   );
-  router.use(API_ROUTE_PATHS.trackers, createTrackerRoutes(trackerComposition.useCases));
+  router.use(
+    API_ROUTE_PATHS.trackers,
+    createTrackerRoutes(trackerComposition.useCases, enforcePlanLimit)
+  );
   router.use(API_ROUTE_PATHS.users, createUsersRoutes(usersComposition.useCases));
   router.use(API_ROUTE_PATHS.uploads, createUploadsRoutes(uploadsComposition.useCases));
   router.use(API_ROUTE_PATHS.settings, createSettingsRoutes(settingsComposition.useCases));
@@ -160,14 +176,17 @@ export const createApiRouter = () => {
     API_ROUTE_PATHS.admin.dashboard,
     createAdminDashboardRoutes(adminDashboardComposition.useCases)
   );
-  router.use(API_ROUTE_PATHS.admin.users, createAdminUsersRoutes(adminUsersComposition.useCases));
+  router.use(
+    API_ROUTE_PATHS.admin.users,
+    createAdminUsersRoutes(adminUsersComposition.useCases, requirePrivilegedMfa)
+  );
   router.use(
     API_ROUTE_PATHS.admin.trackers,
-    createAdminTrackersRoutes(adminTrackersComposition.useCases)
+    createAdminTrackersRoutes(adminTrackersComposition.useCases, requirePrivilegedMfa)
   );
   router.use(
     API_ROUTE_PATHS.admin.mockTests,
-    createAdminMockTestsRoutes(adminMockTestsComposition.useCases)
+    createAdminMockTestsRoutes(adminMockTestsComposition.useCases, requirePrivilegedMfa)
   );
   router.use(
     API_ROUTE_PATHS.admin.analytics,
@@ -175,7 +194,7 @@ export const createApiRouter = () => {
   );
   router.use(
     API_ROUTE_PATHS.admin.broadcasts,
-    createAdminBroadcastRoutes(adminBroadcastComposition.useCases)
+    createAdminBroadcastRoutes(adminBroadcastComposition.useCases, requirePrivilegedMfa)
   );
   router.use(
     API_ROUTE_PATHS.admin.auditLogs,
@@ -187,15 +206,18 @@ export const createApiRouter = () => {
   );
   router.use(
     API_ROUTE_PATHS.admin.supportTickets,
-    createAdminSupportTicketsRoutes(adminSupportTicketsComposition.useCases)
+    createAdminSupportTicketsRoutes(
+      adminSupportTicketsComposition.useCases,
+      requirePrivilegedMfa
+    )
   );
   router.use(
     API_ROUTE_PATHS.admin.settings,
-    createAdminSettingsRoutes(adminSettingsComposition.useCases)
+    createAdminSettingsRoutes(adminSettingsComposition.useCases, requirePrivilegedMfa)
   );
   router.use(
     API_ROUTE_PATHS.admin.subscriptions,
-    createAdminSubscriptionsRoutes(adminSubscriptionsComposition.useCases)
+    createAdminSubscriptionsRoutes(adminSubscriptionsComposition.useCases, requirePrivilegedMfa)
   );
   router.use(
     API_ROUTE_PATHS.admin.aiTokenSpend,
@@ -208,12 +230,18 @@ export const createApiRouter = () => {
     createSupportTicketsRoutes(supportTicketsComposition.useCases)
   );
   router.use(API_ROUTE_PATHS.security, createSecurityRoutes(securityComposition.useCases));
-  router.use(API_ROUTE_PATHS.mockTests, createMockTestsRoutes(mockTestsComposition.useCases));
+  router.use(
+    API_ROUTE_PATHS.mockTests,
+    createMockTestsRoutes(mockTestsComposition.useCases, enforcePlanLimit)
+  );
   router.use(
     API_ROUTE_PATHS.adaptiveLearning,
     createAdaptiveLearningRoutes(adaptiveLearningComposition.useCases)
   );
-  router.use(API_ROUTE_PATHS.community, createCommunityRoutes(communityComposition.useCases));
+  router.use(
+    API_ROUTE_PATHS.community,
+    createCommunityRoutes(communityComposition.useCases, enforcePlanLimit)
+  );
   router.use(
     API_ROUTE_PATHS.moderationAppeals,
     createModerationAppealRoutes(moderationAppealComposition.useCases)

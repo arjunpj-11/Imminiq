@@ -28,9 +28,7 @@ import type {
   AddMissingEvaluationTopicResult,
   CreatedTrackerSubtopicRecord,
   CreatedTrackerTopicRecord,
-  SubtopicWithProgressRecord,
   TrackerListResult,
-  TrackerProgressRecord,
   TrackerRecord,
   TrackerSummaryRecord,
   TrackerSummaryResult,
@@ -45,13 +43,12 @@ export interface ITrackerMapper {
   toTrackerRoadmapDto<T>(roadmap: T): T;
   toTrackerTopicDto(topic: CreatedTrackerTopicRecord): TrackerTopicDTO;
   toTrackerSubtopicDto(subtopic: CreatedTrackerSubtopicRecord): TrackerSubtopicDTO;
-  toSubtopicProgressResultDto(result: {
-    subtopic: SubtopicWithProgressRecord;
-    progress: TrackerProgressRecord | null;
-  }): UpdateSubtopicProgressResultDTO;
+  toSubtopicProgressResultDto(
+    result: UpdateSubtopicProgressResultDTO
+  ): UpdateSubtopicProgressResultDTO;
   toGeneratedLessonDto<T>(lesson: T): T;
   toLessonChatHistoryDto(history: LessonChatHistoryDTO): LessonChatHistoryDTO;
-  toLessonTutorChatResponseDto(response: { answer: string }): LessonTutorChatResponseDTO;
+  toLessonTutorChatResponseDto(response: LessonTutorChatResponseDTO): LessonTutorChatResponseDTO;
   toLessonGeneratedQuestionsDto(result: LessonGeneratedQuestionsDTO): LessonGeneratedQuestionsDTO;
   toLessonQuestionSolutionDto(result: LessonQuestionSolutionDTO): LessonQuestionSolutionDTO;
   toLessonQuestionSolutionDoubtsDto(
@@ -104,10 +101,9 @@ export class TrackerMapper implements ITrackerMapper {
     return subtopic;
   }
 
-  toSubtopicProgressResultDto(result: {
-    subtopic: SubtopicWithProgressRecord;
-    progress: TrackerProgressRecord | null;
-  }): UpdateSubtopicProgressResultDTO {
+  toSubtopicProgressResultDto(
+    result: UpdateSubtopicProgressResultDTO
+  ): UpdateSubtopicProgressResultDTO {
     return result;
   }
 
@@ -119,7 +115,9 @@ export class TrackerMapper implements ITrackerMapper {
     return history;
   }
 
-  toLessonTutorChatResponseDto(response: { answer: string }): LessonTutorChatResponseDTO {
+  toLessonTutorChatResponseDto(
+    response: LessonTutorChatResponseDTO
+  ): LessonTutorChatResponseDTO {
     return response;
   }
 

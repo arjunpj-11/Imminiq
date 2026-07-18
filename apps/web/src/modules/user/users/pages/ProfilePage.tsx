@@ -14,7 +14,7 @@ import { useUploadAvatar } from '../hooks/mutations/useUploadAvatar';
 import { useUploadBanner } from '../hooks/mutations/useUploadBanner';
 import { useStreak } from '../../../../hooks/progress/useStreak';
 import { usePublicProfile } from '../hooks/public/usePublicProfile';
-import { useSendFriendRequest } from '../../friends/hooks/useSendFriendRequest';
+import { useSendFriendRequest } from '../../friends';
 import { useAuthStore } from '../../../../store/useAuthStore';
 import { useProfileStore } from '../store/useProfileStore';
 import type { IPublishedTracker } from '../types/profile.types';
@@ -44,8 +44,7 @@ import ProfileAboutCard from '../components/ProfileAboutCard';
 import PublishedTrackersSection, {
   type IPublishedTrackerCardViewModel,
 } from '../components/PublishedTrackersSection';
-import AdaptiveMasteryGraph from '../../adaptive-learning/components/AdaptiveMasteryGraph';
-import { useAdaptiveLearningDashboard } from '../../adaptive-learning/hooks/useAdaptiveLearning';
+import { AdaptiveMasteryGraph, useAdaptiveLearningDashboard } from '../../adaptive-learning';
 
 /* ─── Main ProfilePage ─── */
 export default function ProfilePage() {

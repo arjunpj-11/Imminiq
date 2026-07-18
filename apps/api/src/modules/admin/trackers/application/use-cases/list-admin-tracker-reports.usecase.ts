@@ -7,7 +7,7 @@ export interface IListAdminTrackerReportsUseCase {
 }
 
 export class ListAdminTrackerReportsUseCase implements IListAdminTrackerReportsUseCase {
-  constructor(private readonly repository: IAdminTrackersRepository) {}
+  constructor(private readonly repository: Pick<IAdminTrackersRepository, 'listReports'>) {}
   execute(query: AdminListQuery) {
     return this.repository.listReports(query);
   }

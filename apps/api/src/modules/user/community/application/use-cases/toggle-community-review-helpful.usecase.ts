@@ -14,7 +14,7 @@ export interface IToggleCommunityReviewHelpfulUseCase {
 
 export class ToggleCommunityReviewHelpfulUseCase implements IToggleCommunityReviewHelpfulUseCase {
   constructor(
-    private readonly _repository: ICommunityReviewRepository,
+    private readonly _repository: Pick<ICommunityReviewRepository, 'toggleReviewHelpful'>,
     private readonly _mapper: ICommunityReviewMapper
   ) {}
 

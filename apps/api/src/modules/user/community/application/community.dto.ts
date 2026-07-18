@@ -37,6 +37,10 @@ export interface CommunityTrackerViewDTO {
   topic: string;
 }
 
+export interface CloneCommunityTrackerResultDTO {
+  tracker: CommunityTrackerViewDTO;
+}
+
 export interface CommunityStatCardViewDTO {
   label: string;
   value: string;

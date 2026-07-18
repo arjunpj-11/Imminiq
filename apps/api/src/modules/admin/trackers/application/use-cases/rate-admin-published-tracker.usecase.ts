@@ -14,7 +14,7 @@ export interface IRateAdminPublishedTrackerUseCase {
 
 export class RateAdminPublishedTrackerUseCase implements IRateAdminPublishedTrackerUseCase {
   constructor(
-    private readonly repository: IAdminTrackersRepository,
+    private readonly repository: Pick<IAdminTrackersRepository, 'ratePublished'>,
     private readonly mapper: IAdminTrackersMapper
   ) {}
 

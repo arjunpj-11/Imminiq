@@ -22,3 +22,5 @@ export const createPlanLimitMiddleware =
       next(error);
     }
   };
+
+export type PlanLimitMiddleware = ReturnType<typeof createPlanLimitMiddleware>;

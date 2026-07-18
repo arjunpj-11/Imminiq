@@ -20,7 +20,10 @@ export interface IVerifyAccountUseCase {
 
 export class VerifyAccountUseCase implements IVerifyAccountUseCase {
   constructor(
-    private readonly _authRepository: IAuthUserRepository,
+    private readonly _authRepository: Pick<
+      IAuthUserRepository,
+      'findByIdentifier' | 'markEmailVerified' | 'markPhoneVerified' | 'createUser'
+    >,
     private readonly _identifierNormalizer: IIdentifierNormalizer,
     private readonly _securityAttemptStore: ISecurityAttemptStore,
     private readonly _phoneOtpProvider: IPhoneOtpProvider,

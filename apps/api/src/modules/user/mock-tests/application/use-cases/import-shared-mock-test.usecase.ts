@@ -2,7 +2,10 @@ import type { IMockTestQuestionRepository } from '../../domain/repositories/mock
 import type { IMockTestSharingRepository } from '../../domain/repositories/mock-test-sharing.repository.interface';
 import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
-import type { ImportSharedMockTestDTO } from '../mock-tests.dto';
+import type {
+  ImportSharedMockTestDTO,
+  ImportSharedMockTestPayloadDTO,
+} from '../mock-tests.dto';
 import type { IMockTestsMapper } from '../mock-tests.mapper';
 
 type ImportSharedMockTestRepository = IMockTestRepository &
@@ -12,7 +15,7 @@ type ImportSharedMockTestRepository = IMockTestRepository &
 const SAFE_SHARE_TOKEN_PATTERN = /^[a-zA-Z0-9_-]{16,100}$/;
 
 export interface IImportSharedMockTestUseCase {
-  execute(input: { userId: string; shareToken: string }): Promise<ImportSharedMockTestDTO>;
+  execute(input: ImportSharedMockTestPayloadDTO): Promise<ImportSharedMockTestDTO>;
 }
 
 export class ImportSharedMockTestUseCase implements IImportSharedMockTestUseCase {
@@ -21,7 +24,7 @@ export class ImportSharedMockTestUseCase implements IImportSharedMockTestUseCase
     private readonly _mapper: IMockTestsMapper
   ) {}
 
-  async execute(input: { userId: string; shareToken: string }) {
+  async execute(input: ImportSharedMockTestPayloadDTO) {
     const shareToken = input.shareToken.trim();
 
     if (!SAFE_SHARE_TOKEN_PATTERN.test(shareToken)) {
