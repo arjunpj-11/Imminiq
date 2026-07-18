@@ -348,7 +348,6 @@ export default function TrackerQuickRevisionPage() {
       showSidebar={false}
       withTopBar={false}
       withFooter={false}
-      withBottomNav={false}
       className="bg-(--surface-sunken)"
     >
       {isMainLoading ? (

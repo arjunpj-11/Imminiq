@@ -326,7 +326,6 @@ export default function MockTestAttemptPage() {
       showSidebar={false}
       withTopBar={false}
       withFooter={false}
-      withBottomNav={false}
       className="bg-(--surface-sunken)"
     >
       <div className="flex h-dvh min-h-0 flex-col overflow-hidden">

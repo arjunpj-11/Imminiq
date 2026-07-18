@@ -13,7 +13,6 @@ import {
   type IAppShellContextValue,
   type IAppShellViewer,
 } from './AppShellContext';
-import BottomNav from './BottomNav';
 import AppFooter from './Footer';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
@@ -37,7 +36,6 @@ interface IAppShellProps {
   isGuest?: boolean;
   withTopBar?: boolean;
   withFooter?: boolean;
-  withBottomNav?: boolean;
   className?: string;
 }
 
@@ -48,7 +46,6 @@ export function AppShell({
   isGuest = false,
   withTopBar = true,
   withFooter = true,
-  withBottomNav = true,
   className,
 }: IAppShellProps) {
   const authUser = useAuthStore((state) => state.user);
@@ -169,8 +166,6 @@ export function AppShell({
             </div>
           </main>
         </div>
-
-        {withBottomNav && showSidebar && !isGuest && <BottomNav />}
       </div>
     </AppShellContext.Provider>
   );
