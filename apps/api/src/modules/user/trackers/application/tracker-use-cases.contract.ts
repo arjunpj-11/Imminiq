@@ -41,6 +41,8 @@ export type TrackerUseCases = {
   clearLessonChatHistory: Application.IClearLessonChatHistoryUseCase;
   clearLessonQuestionSolutionDoubts: Application.IClearLessonQuestionSolutionDoubtsUseCase;
   reportTracker: Application.IReportTrackerUseCase;
+  trackerClan: Application.ITrackerClanUseCase;
+  trackerClanChallenges: Application.ITrackerClanChallengeUseCase;
 };
 
 export type TrackerManagementUseCases = Pick<
@@ -66,6 +68,8 @@ export type TrackerManagementUseCases = Pick<
   | 'verifyTrackerTopic'
   | 'verifyTrackerSubtopic'
   | 'addMissingEvaluationTopic'
+  | 'trackerClan'
+  | 'trackerClanChallenges'
 >;
 
 export type TrackerLessonUseCases = Pick<

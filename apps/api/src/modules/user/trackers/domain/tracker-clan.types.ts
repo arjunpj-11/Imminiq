@@ -1,0 +1,86 @@
+export type TrackerClanRole = 'owner' | 'co_owner' | 'member' | 'outsider';
+
+export type TrackerClanPerson = {
+  userId: string;
+  name: string;
+  username: string;
+  avatarUrl?: string | null;
+  role: Exclude<TrackerClanRole, 'outsider'>;
+  joinedAt?: Date;
+};
+
+export type TrackerClanJoinRequest = {
+  id: string;
+  userId: string;
+  name: string;
+  username: string;
+  avatarUrl?: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: Date;
+};
+
+export type TrackerClanOverview = {
+  trackerId: string;
+  trackerTitle: string;
+  trackerDescription: string;
+  topicsCount: number;
+  subtopicsCount: number;
+  visibility: 'private' | 'public';
+  role: TrackerClanRole;
+  canManage: boolean;
+  canTransferOwnership: boolean;
+  hasPendingJoinRequest: boolean;
+  members: TrackerClanPerson[];
+  joinRequests: TrackerClanJoinRequest[];
+};
+
+export type TrackerClanMessage = {
+  id: string;
+  trackerId: string;
+  text: string;
+  createdAt: Date;
+  user: { userId: string; name: string; username: string; avatarUrl?: string | null };
+};
+
+export type TrackerClanChallengeStatus =
+  | 'open'
+  | 'pending'
+  | 'active'
+  | 'completed'
+  | 'declined'
+  | 'cancelled'
+  | 'expired';
+
+export type TrackerClanChallenge = {
+  id: string;
+  trackerId: string;
+  challengeType: 'open' | 'direct';
+  status: TrackerClanChallengeStatus;
+  durationMinutes: number;
+  questionCount: number;
+  maxScore: number;
+  challenger: Omit<TrackerClanPerson, 'role' | 'joinedAt'>;
+  opponent: Omit<TrackerClanPerson, 'role' | 'joinedAt'> | null;
+  challengerScore: number | null;
+  opponentScore: number | null;
+  winnerId: string | null;
+  createdAt: Date;
+  acceptBy: Date;
+  startsAt: Date | null;
+  endsAt: Date | null;
+  completedAt: Date | null;
+  canAccept: boolean;
+  canDecline: boolean;
+  canCancel: boolean;
+  canSubmit: boolean;
+  submitted: boolean;
+  questions: Array<{ id: string; prompt: string; options: string[]; topicTitle: string; points: number }>;
+};
+
+export type TrackerClanChallengeEvent = {
+  id: string;
+  trackerId: string;
+  status: TrackerClanChallengeStatus;
+  challengerId: string;
+  opponentId: string | null;
+};

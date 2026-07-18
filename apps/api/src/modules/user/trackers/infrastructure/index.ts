@@ -11,3 +11,11 @@ export {
   CryptoQuestionHasher,
   cryptoQuestionHasher,
 } from './services/crypto-question-hasher.service';
+export {
+  MongoTrackerClanRepository,
+  mongoTrackerClanRepository,
+} from './repositories/mongo-tracker-clan.repository';
+export {
+  TrackerClanChallengeGateway,
+  trackerClanChallengeGateway,
+} from './gateways/tracker-clan-challenge.gateway';

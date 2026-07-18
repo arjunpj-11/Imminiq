@@ -8,6 +8,8 @@ import { validate, validateIdentifierParam } from '../../../../shared/middleware
 import { TrackerManagementController } from './tracker-management.controller';
 import { TrackerRoadmapController } from './tracker-roadmap.controller';
 import { TrackerLessonsController } from './tracker-lessons.controller';
+import { TrackerClanChallengesController } from './tracker-clan-challenges.controller';
+import { TrackerClanController } from './tracker-clan.controller';
 import type { TrackerUseCases } from '../application/tracker-use-cases.contract';
 import { TRACKER_ROUTE_PATHS } from './trackers.route.constants';
 import { enforcePlanLimit } from '../../subscriptions';
@@ -33,18 +35,29 @@ import {
   verifySubtopicSchema,
   reviewTopicContributionSchema,
   reportTrackerSchema,
+  reviewClanJoinSchema,
+  updateClanMemberSchema,
+  transferClanOwnershipSchema,
+  updateTrackerTopicSchema,
+  createClanChallengeSchema,
+  submitClanChallengeSchema,
 } from './trackers.schema';
 
 export const createTrackerRoutes = (useCases: TrackerUseCases) => {
   const managementController = new TrackerManagementController(useCases);
   const roadmapController = new TrackerRoadmapController(useCases);
   const lessonsController = new TrackerLessonsController(useCases);
+  const clanChallengesController = new TrackerClanChallengesController(useCases);
+  const clanController = new TrackerClanController(useCases);
   const router = Router();
   router.param('trackerId', validateIdentifierParam);
   router.param('topicId', validateIdentifierParam);
   router.param('subtopicId', validateIdentifierParam);
   router.param('evaluationJobId', validateIdentifierParam);
   router.param('contributionId', validateIdentifierParam);
+  router.param('requestId', validateIdentifierParam);
+  router.param('memberId', validateIdentifierParam);
+  router.param('challengeId', validateIdentifierParam);
 
   const validateQuery =
     (localKey: string, schema: ZodTypeAny) => (req: Request, res: Response, next: NextFunction) => {
@@ -113,6 +126,41 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
 
   router.get(TRACKER_ROUTE_PATHS.ROADMAP, roadmapController.getRoadmap);
 
+  router.get(TRACKER_ROUTE_PATHS.CLAN, clanController.getOverview);
+  router.get(TRACKER_ROUTE_PATHS.CLAN_MESSAGES, clanController.listMessages);
+  router.post(TRACKER_ROUTE_PATHS.CLAN_JOIN, clanController.join);
+  router.patch(
+    TRACKER_ROUTE_PATHS.CLAN_JOIN_REQUEST,
+    validate(reviewClanJoinSchema),
+    clanController.reviewJoin
+  );
+  router.patch(
+    TRACKER_ROUTE_PATHS.CLAN_MEMBER,
+    validate(updateClanMemberSchema),
+    clanController.updateMember
+  );
+  router.delete(TRACKER_ROUTE_PATHS.CLAN_MEMBER, clanController.removeMember);
+  router.delete(TRACKER_ROUTE_PATHS.CLAN_LEAVE, clanController.leave);
+  router.post(
+    TRACKER_ROUTE_PATHS.CLAN_TRANSFER,
+    validate(transferClanOwnershipSchema),
+    clanController.transferOwnership
+  );
+  router.get(TRACKER_ROUTE_PATHS.CLAN_CHALLENGES, clanChallengesController.list);
+  router.post(
+    TRACKER_ROUTE_PATHS.CLAN_CHALLENGES,
+    validate(createClanChallengeSchema),
+    clanChallengesController.create
+  );
+  router.post(TRACKER_ROUTE_PATHS.CLAN_CHALLENGE_ACCEPT, clanChallengesController.accept);
+  router.post(TRACKER_ROUTE_PATHS.CLAN_CHALLENGE_DECLINE, clanChallengesController.decline);
+  router.post(TRACKER_ROUTE_PATHS.CLAN_CHALLENGE_CANCEL, clanChallengesController.cancel);
+  router.post(
+    TRACKER_ROUTE_PATHS.CLAN_CHALLENGE_SUBMIT,
+    validate(submitClanChallengeSchema),
+    clanChallengesController.submit
+  );
+
   // ─── ROADMAP CONTENT ─────────────────────────────────────────────────────────
 
   router.post(
@@ -120,6 +168,14 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
     validate(createTopicSchema),
     roadmapController.createTopic
   );
+
+  router.patch(
+    TRACKER_ROUTE_PATHS.TOPIC_BY_ID,
+    validate(updateTrackerTopicSchema),
+    roadmapController.updateTopic
+  );
+  router.delete(TRACKER_ROUTE_PATHS.TOPIC_BY_ID, roadmapController.deleteTopic);
+  router.delete(TRACKER_ROUTE_PATHS.SUBTOPIC_BY_ID, roadmapController.deleteSubtopic);
 
   router.post(
     TRACKER_ROUTE_PATHS.SUBTOPICS,
@@ -275,4 +331,3 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
 
   return router;
 };
-

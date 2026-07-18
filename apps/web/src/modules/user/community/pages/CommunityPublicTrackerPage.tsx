@@ -35,6 +35,10 @@ import { cn, communityPageClass } from '../utils/community-ui';
 import Modal from '../../../../components/overlays/Modal';
 import { useReportCommunityTracker, type ReportTrackerReason } from '../hooks/useReportCommunityTracker';
 import { useAuthStore } from '../../../../store/useAuthStore';
+import {
+  useRequestTrackerClanJoin,
+  useTrackerClan,
+} from '../../trackers/hooks/useTrackers';
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -77,6 +81,7 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
   const toggleLike = useToggleCommunityTrackerLike();
   const reportTracker = useReportCommunityTracker();
   const currentUserId = useAuthStore((state) => state.user?._id);
+  const requestClanJoin = useRequestTrackerClanJoin();
 
   const [cloned, setCloned] = useState(false);
   const [cloneConfirmOpen, setCloneConfirmOpen] = useState(false);
@@ -111,6 +116,10 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
   }, [tracker.reviews, sortBy]);
 
   const isCloned = cloned || tracker.inDashboard;
+  const clanQuery = useTrackerClan(
+    tracker._id,
+    currentUserId === tracker.ownerId || isCloned
+  );
   const likeCount = tracker.likes;
   const cloneCount = tracker.clones + (cloned ? 1 : 0);
   const ratingSummary = tracker.ratingSummary;
@@ -262,6 +271,30 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
                     {toggleLike.isPending ? 'Saving...' : tracker.likedByMe ? 'Liked' : 'Like'}
                   </button>
 
+                  {currentUserId !== tracker.ownerId && isCloned && clanQuery.data?.role === 'outsider' && (
+                    <button
+                      type="button"
+                      onClick={() => requestClanJoin.mutate({ trackerId: tracker._id })}
+                      disabled={
+                        requestClanJoin.isPending
+                      }
+                      className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-[#d6ad47]/45 bg-[#f4c95d]/12 px-4 py-2.5 text-[13px] font-bold text-[#8a6509] transition hover:-translate-y-px hover:bg-[#f4c95d]/20 disabled:cursor-not-allowed disabled:opacity-65 dark:text-[#f4c95d]"
+                    >
+                      🛡{' '}
+                      {requestClanJoin.isPending ? 'Joining clan...' : 'Join tracker clan'}
+                    </button>
+                  )}
+
+                  {clanQuery.data && clanQuery.data.role !== 'outsider' && (
+                    <button
+                      type="button"
+                      onClick={() => navigate(ROUTES.trackerClan(tracker._id))}
+                      className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-[#d6ad47]/45 bg-[#f4c95d]/12 px-4 py-2.5 text-[13px] font-bold text-[#8a6509] transition hover:-translate-y-px hover:bg-[#f4c95d]/20 dark:text-[#f4c95d]"
+                    >
+                      🛡 Open tracker clan
+                    </button>
+                  )}
+
                   {currentUserId !== tracker.ownerId && (
                     <button
                       type="button"
@@ -302,6 +335,11 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
                       'Unable to clone tracker. Please try again.',
                       cloneTracker.error
                     )}
+                  </p>
+                )}
+                {requestClanJoin.isError && (
+                  <p className="mt-3 text-[12px] font-medium text-(--brand-500)">
+                    {getApiErrorMessage('Unable to send clan request.', requestClanJoin.error)}
                   </p>
                 )}
               </div>

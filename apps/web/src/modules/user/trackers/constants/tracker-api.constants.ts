@@ -4,11 +4,32 @@ export const TRACKER_API_PATHS = {
   domains: '/trackers/domains',
   detail: (trackerId: string) => `/trackers/${trackerId}`,
   roadmap: (trackerId: string) => `/trackers/${trackerId}/roadmap`,
+  clan: (trackerId: string) => `/trackers/${trackerId}/clan`,
+  clanJoin: (trackerId: string) => `/trackers/${trackerId}/clan/join`,
+  clanJoinRequest: (trackerId: string, requestId: string) =>
+    `/trackers/${trackerId}/clan/join-requests/${requestId}`,
+  clanMember: (trackerId: string, memberId: string) =>
+    `/trackers/${trackerId}/clan/members/${memberId}`,
+  clanLeave: (trackerId: string) => `/trackers/${trackerId}/clan/leave`,
+  clanTransfer: (trackerId: string) => `/trackers/${trackerId}/clan/transfer-ownership`,
+  clanMessages: (trackerId: string) => `/trackers/${trackerId}/clan/messages`,
+  clanChallenges: (trackerId: string) => `/trackers/${trackerId}/clan/challenges`,
+  clanChallengeAccept: (trackerId: string, challengeId: string) =>
+    `/trackers/${trackerId}/clan/challenges/${challengeId}/accept`,
+  clanChallengeDecline: (trackerId: string, challengeId: string) =>
+    `/trackers/${trackerId}/clan/challenges/${challengeId}/decline`,
+  clanChallengeCancel: (trackerId: string, challengeId: string) =>
+    `/trackers/${trackerId}/clan/challenges/${challengeId}/cancel`,
+  clanChallengeSubmit: (trackerId: string, challengeId: string) =>
+    `/trackers/${trackerId}/clan/challenges/${challengeId}/submit`,
   archive: (trackerId: string) => `/trackers/${trackerId}/archive`,
   restore: (trackerId: string) => `/trackers/${trackerId}/restore`,
   publish: (trackerId: string) => `/trackers/${trackerId}/publish`,
   unpublish: (trackerId: string) => `/trackers/${trackerId}/unpublish`,
   topics: (trackerId: string) => `/trackers/${trackerId}/topics`,
+  topic: (trackerId: string, topicId: string) => `/trackers/${trackerId}/topics/${topicId}`,
+  subtopic: (trackerId: string, subtopicId: string) =>
+    `/trackers/${trackerId}/subtopics/${subtopicId}`,
   subtopics: (trackerId: string, topicId: string) =>
     `/trackers/${trackerId}/topics/${topicId}/subtopics`,
   createTopicContribution: (trackerId: string, topicId: string) =>

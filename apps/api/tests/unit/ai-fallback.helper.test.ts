@@ -72,7 +72,7 @@ describe('AI model routing', () => {
         { role: 'system', content: 'return json' },
         { role: 'user', content: 'make tracker' },
       ],
-      'llama-3.3-70b-versatile',
+      'openai/gpt-oss-120b',
       'other',
       { maxTokens: undefined, temperature: undefined }
     );
@@ -86,13 +86,46 @@ describe('AI model routing', () => {
 
     const result = await economyAIChatWithFallback(
       [{ role: 'user', content: 'explain closures' }],
-      'llama-3.3-70b-versatile'
+      'quality'
     );
 
     expect(result).toBe('last provider response');
     expect(mocks.groqChat).toHaveBeenCalledTimes(2);
     expect(mocks.gemini31FlashLiteChat).toHaveBeenCalledTimes(1);
     expect(mocks.cerebrasChat).toHaveBeenCalledTimes(1);
+  });
+
+  it('continues to the next provider when a configured model no longer exists', async () => {
+    mocks.groqChat.mockRejectedValueOnce(
+      Object.assign(new Error('Model does not exist or you do not have access to it.'), {
+        status: 404,
+        code: 'model_not_found',
+      })
+    );
+    mocks.gemini31FlashLiteChat.mockResolvedValueOnce('fallback response');
+
+    const result = await economyAIChatWithFallback([{ role: 'user', content: 'hello' }]);
+
+    expect(result).toBe('fallback response');
+    expect(mocks.gemini31FlashLiteChat).toHaveBeenCalledTimes(1);
+    expect(mocks.cerebrasChat).not.toHaveBeenCalled();
+  });
+
+  it('continues to the next provider when Groq rejects a request above its TPM allowance', async () => {
+    mocks.groqChat.mockRejectedValueOnce(
+      Object.assign(
+        new Error(
+          'Request too large for model on tokens per minute (TPM): rate_limit_exceeded'
+        ),
+        { status: 413 }
+      )
+    );
+    mocks.gemini31FlashLiteChat.mockResolvedValueOnce('fallback response');
+
+    const result = await economyAIChatWithFallback([{ role: 'user', content: 'hello' }]);
+
+    expect(result).toBe('fallback response');
+    expect(mocks.gemini31FlashLiteChat).toHaveBeenCalledTimes(1);
   });
 
   it('falls back when a provider returns text that fails structured validation', async () => {

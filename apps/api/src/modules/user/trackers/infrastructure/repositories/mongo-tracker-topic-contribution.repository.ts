@@ -5,6 +5,7 @@ import { TrackerSubtopic } from '../../../../../infrastructure/database/models/t
 import { TrackerTopic } from '../../../../../infrastructure/database/models/tracker-topic.model';
 import { TrackerTopicContribution } from '../../../../../infrastructure/database/models/tracker-topic-contribution.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
+import { TrackerClan } from '../../../../../infrastructure/database/models/tracker-clan.model';
 import type {
   ITrackerTopicContributionRepository,
   TrackerTopicContributionRecord,
@@ -152,14 +153,20 @@ export class MongoTrackerTopicContributionRepository
       return { ok: false as const, reason: 'tracker-not-found' as const };
     }
 
-    const tracker = await Tracker.findOne({ _id: sourceTrackerId, ownerId, deletedAt: null })
-      .select('_id sourceTrackerId')
+    const tracker = await Tracker.findOne({ _id: sourceTrackerId, deletedAt: null })
+      .select('_id ownerId sourceTrackerId')
       .lean();
     if (!tracker) return { ok: false as const, reason: 'tracker-not-found' as const };
 
-    const contributionQuery = tracker.sourceTrackerId
+    const role = await this.getClanRole(sourceTrackerId, (tracker as { ownerId?: unknown }).ownerId, ownerId);
+    const ownsClone = Boolean(tracker.sourceTrackerId) && role === 'owner';
+    if (!ownsClone && role !== 'owner' && role !== 'co_owner') {
+      return { ok: false as const, reason: 'tracker-not-found' as const };
+    }
+
+    const contributionQuery = ownsClone
       ? { cloneTrackerId: sourceTrackerId, requesterId: ownerId }
-      : { sourceTrackerId, ownerId };
+      : { sourceTrackerId };
     const contributions = (await TrackerTopicContribution.find(contributionQuery)
       .sort({ status: 1, createdAt: -1 })
       .limit(100)
@@ -192,15 +199,16 @@ export class MongoTrackerTopicContributionRepository
       return { ok: false as const, reason: 'contribution-not-found' as const };
     }
 
-    const source = await Tracker.findOne({ _id: sourceTrackerId, ownerId, deletedAt: null }).lean();
+    const source = await Tracker.findOne({ _id: sourceTrackerId, deletedAt: null }).lean();
     if (!source) return { ok: false as const, reason: 'tracker-not-found' as const };
-    if (input.action === 'approve' && source.visibility !== 'public' && !source.publishedAt) {
-      return { ok: false as const, reason: 'source-unavailable' as const };
+    const role = await this.getClanRole(sourceTrackerId, source.ownerId, ownerId);
+    if (role !== 'owner' && role !== 'co_owner') {
+      return { ok: false as const, reason: 'tracker-not-found' as const };
     }
 
     if (input.action === 'reject') {
       const rejected = (await TrackerTopicContribution.findOneAndUpdate(
-        { _id: contributionId, sourceTrackerId, ownerId, status: 'pending' },
+        { _id: contributionId, sourceTrackerId, status: 'pending' },
         {
           $set: {
             status: 'rejected',
@@ -211,7 +219,7 @@ export class MongoTrackerTopicContributionRepository
         },
         { returnDocument: 'after' }
       ).lean()) as ContributionLeanRecord | null;
-      if (!rejected) return this.reviewFailure(contributionId, sourceTrackerId, ownerId);
+      if (!rejected) return this.reviewFailure(contributionId, sourceTrackerId);
       const requester = await this.findRequester(rejected.requesterId);
       return {
         ok: true as const,
@@ -221,11 +229,11 @@ export class MongoTrackerTopicContributionRepository
     }
 
     const claimed = (await TrackerTopicContribution.findOneAndUpdate(
-      { _id: contributionId, sourceTrackerId, ownerId, status: 'pending' },
+      { _id: contributionId, sourceTrackerId, status: 'pending' },
       { $set: { status: 'processing' } },
       { returnDocument: 'after' }
     ).lean()) as ContributionLeanRecord | null;
-    if (!claimed) return this.reviewFailure(contributionId, sourceTrackerId, ownerId);
+    if (!claimed) return this.reviewFailure(contributionId, sourceTrackerId);
 
     let mergedTopicId: Types.ObjectId | null = null;
     let mergedSubtopicsCount = 0;
@@ -270,7 +278,7 @@ export class MongoTrackerTopicContributionRepository
       }
 
       await Tracker.updateOne(
-        { _id: sourceTrackerId, ownerId, deletedAt: null },
+        { _id: sourceTrackerId, deletedAt: null },
         { $inc: { topicsCount: 1, subtopicsCount: mergedSubtopicsCount } }
       );
       countsIncremented = true;
@@ -302,7 +310,7 @@ export class MongoTrackerTopicContributionRepository
       }
       if (countsIncremented) {
         await Tracker.updateOne(
-          { _id: sourceTrackerId, ownerId, deletedAt: null },
+          { _id: sourceTrackerId, deletedAt: null },
           { $inc: { topicsCount: -1, subtopicsCount: -mergedSubtopicsCount } }
         );
       }
@@ -317,12 +325,10 @@ export class MongoTrackerTopicContributionRepository
   private async reviewFailure(
     contributionId: Types.ObjectId,
     sourceTrackerId: Types.ObjectId,
-    ownerId: Types.ObjectId
   ) {
     const existing = await TrackerTopicContribution.findOne({
       _id: contributionId,
       sourceTrackerId,
-      ownerId,
     })
       .select('status')
       .lean<{ status?: string }>();
@@ -370,6 +376,14 @@ export class MongoTrackerTopicContributionRepository
       reviewNote: value.reviewNote ?? value.rejectionReason ?? null,
       rejectionReason: value.rejectionReason ?? null,
     };
+  }
+
+  private async getClanRole(trackerId: Types.ObjectId, trackerOwnerId: unknown, userId: Types.ObjectId) {
+    if (String(trackerOwnerId) === String(userId)) return 'owner' as const;
+    const clan = await TrackerClan.findOne({ trackerId, 'members.userId': userId })
+      .select('members')
+      .lean<{ members?: Array<{ userId: unknown; role: 'co_owner' | 'member' }> }>();
+    return clan?.members?.find((member) => String(member.userId) === String(userId))?.role ?? 'outsider';
   }
 
   private topicSignature(title: string, description?: string | null) {

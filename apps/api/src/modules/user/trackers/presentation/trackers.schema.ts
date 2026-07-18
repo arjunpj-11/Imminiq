@@ -109,6 +109,36 @@ export const reviewTopicContributionSchema = z.object({
   reviewNote: optionalTrimmedStringSchema(500, 'Review note is too long'),
 });
 
+export const reviewClanJoinSchema = z.object({ action: z.enum(['approve', 'reject']) });
+
+export const updateClanMemberSchema = z.object({ role: z.enum(['co_owner', 'member']) });
+
+export const transferClanOwnershipSchema = z.object({
+  newOwnerId: z.string().trim().min(1),
+});
+
+export const createClanChallengeSchema = z.object({
+  opponentId: z.string().trim().min(1).optional(),
+  durationMinutes: z.coerce.number().int().min(5).max(30).default(10),
+  questionCount: z.coerce.number().int().min(3).max(15).default(10),
+});
+
+export const submitClanChallengeSchema = z.object({
+  answers: z
+    .array(
+      z.object({
+        questionId: z.string().trim().min(1),
+        answer: z.string().trim().min(1).max(500),
+      })
+    )
+    .max(15),
+});
+
+export const updateTrackerTopicSchema = z.object({
+  title: titleSchema,
+  description: defaultTrimmedStringSchema(500, 'Description is too long'),
+});
+
 export const updateSubtopicProgressSchema = z.object({
   status: z.enum(['in_progress', 'completed']),
 });

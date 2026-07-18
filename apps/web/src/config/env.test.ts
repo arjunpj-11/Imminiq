@@ -21,4 +21,22 @@ describe('parseWebEnvironment', () => {
       'VITE_API_URL must use HTTP or HTTPS'
     );
   });
+
+  it('supports a direct Socket.IO host for static frontend deployments', () => {
+    expect(
+      parseWebEnvironment({
+        VITE_API_URL: '/api',
+        VITE_SOCKET_URL: 'https://imminiq-api.onrender.com/',
+      })
+    ).toEqual({
+      apiUrl: '/api',
+      socketUrl: 'https://imminiq-api.onrender.com',
+    });
+  });
+
+  it('rejects unsupported Socket.IO URL protocols', () => {
+    expect(() =>
+      parseWebEnvironment({ VITE_API_URL: '/api', VITE_SOCKET_URL: 'javascript:alert(1)' })
+    ).toThrow('VITE_SOCKET_URL must use HTTP or HTTPS');
+  });
 });

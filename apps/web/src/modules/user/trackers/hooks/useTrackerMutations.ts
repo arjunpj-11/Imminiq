@@ -13,6 +13,9 @@ import type {
   ITrackerTopicContribution,
   IUpdateSubtopicProgressPayload,
   IUpdateTrackerPayload,
+  ITrackerClanOverview,
+  ITrackerClanChallenge,
+  ITrackerListResponse,
 } from '../types/tracker.types';
 import { trackerKeys } from './trackers.query-keys';
 
@@ -274,6 +277,190 @@ export const useReviewTopicContribution = () => {
       queryClient.invalidateQueries({ queryKey: trackerKeys.contributions(variables.trackerId) });
       queryClient.invalidateQueries({ queryKey: trackerKeys.roadmap(variables.trackerId) });
       queryClient.invalidateQueries({ queryKey: trackerKeys.detail(variables.trackerId) });
+      queryClient.invalidateQueries({ queryKey: trackerKeys.all });
+    },
+  });
+};
+
+const useClanMutation = <TVariables>(
+  operation: (variables: TVariables) => Promise<IApiResponse<ITrackerClanOverview>>,
+  trackerIdOf: (variables: TVariables) => string
+) => {
+  const queryClient = useQueryClient();
+  return useMutation<IApiResponse<ITrackerClanOverview>, Error, TVariables>({
+    mutationFn: operation,
+    onSuccess: (response, variables) => {
+      const trackerId = trackerIdOf(variables);
+      queryClient.setQueryData(trackerKeys.clan(trackerId), response.data);
+      queryClient.setQueriesData<ITrackerListResponse>(
+        { queryKey: trackerKeys.lists() },
+        (current) => current
+          ? {
+              ...current,
+              trackers: current.trackers.map((tracker) =>
+                tracker._id === trackerId || tracker.sourceTrackerId === trackerId || tracker.clonedFrom?.trackerId === trackerId
+                  ? {
+                      ...tracker,
+                      clanRole: response.data.role === 'outsider' ? undefined : response.data.role,
+                    }
+                  : tracker
+              ),
+            }
+          : current
+      );
+      queryClient.invalidateQueries({ queryKey: trackerKeys.clan(trackerId) });
+      queryClient.invalidateQueries({ queryKey: trackerKeys.all });
+    },
+  });
+};
+
+export const useRequestTrackerClanJoin = () =>
+  useClanMutation(
+    async ({ trackerId }: { trackerId: string }) =>
+      (await api.post<IApiResponse<ITrackerClanOverview>>(TRACKER_API_PATHS.clanJoin(trackerId))).data,
+    ({ trackerId }) => trackerId
+  );
+
+export const useReviewTrackerClanJoin = () =>
+  useClanMutation(
+    async ({ trackerId, requestId, action }: { trackerId: string; requestId: string; action: 'approve' | 'reject' }) =>
+      (await api.patch<IApiResponse<ITrackerClanOverview>>(
+        TRACKER_API_PATHS.clanJoinRequest(trackerId, requestId),
+        { action }
+      )).data,
+    ({ trackerId }) => trackerId
+  );
+
+export const useUpdateTrackerClanMember = () =>
+  useClanMutation(
+    async ({ trackerId, memberId, role }: { trackerId: string; memberId: string; role: 'co_owner' | 'member' }) =>
+      (await api.patch<IApiResponse<ITrackerClanOverview>>(
+        TRACKER_API_PATHS.clanMember(trackerId, memberId),
+        { role }
+      )).data,
+    ({ trackerId }) => trackerId
+  );
+
+export const useRemoveTrackerClanMember = () =>
+  useClanMutation(
+    async ({ trackerId, memberId }: { trackerId: string; memberId: string }) =>
+      (await api.delete<IApiResponse<ITrackerClanOverview>>(
+        TRACKER_API_PATHS.clanMember(trackerId, memberId)
+      )).data,
+    ({ trackerId }) => trackerId
+  );
+
+export const useLeaveTrackerClan = () =>
+  useClanMutation(
+    async ({ trackerId }: { trackerId: string }) =>
+      (await api.delete<IApiResponse<ITrackerClanOverview>>(
+        TRACKER_API_PATHS.clanLeave(trackerId)
+      )).data,
+    ({ trackerId }) => trackerId
+  );
+
+export const useTransferTrackerClanOwnership = () =>
+  useClanMutation(
+    async ({ trackerId, newOwnerId }: { trackerId: string; newOwnerId: string }) =>
+      (await api.post<IApiResponse<ITrackerClanOverview>>(
+        TRACKER_API_PATHS.clanTransfer(trackerId),
+        { newOwnerId }
+      )).data,
+    ({ trackerId }) => trackerId
+  );
+
+const useClanChallengeMutation = <TVariables>(
+  operation: (variables: TVariables) => Promise<IApiResponse<ITrackerClanChallenge>>,
+  trackerIdOf: (variables: TVariables) => string
+) => {
+  const queryClient = useQueryClient();
+  return useMutation<IApiResponse<ITrackerClanChallenge>, Error, TVariables>({
+    mutationFn: operation,
+    onSuccess: (_response, variables) => {
+      const trackerId = trackerIdOf(variables);
+      queryClient.invalidateQueries({ queryKey: trackerKeys.clanChallenges(trackerId) });
+    },
+  });
+};
+
+export const useCreateTrackerClanChallenge = () =>
+  useClanChallengeMutation(
+    async ({ trackerId, ...payload }: { trackerId: string; opponentId?: string; durationMinutes: number; questionCount: number }) =>
+      (await api.post<IApiResponse<ITrackerClanChallenge>>(
+        TRACKER_API_PATHS.clanChallenges(trackerId), payload
+      )).data,
+    ({ trackerId }) => trackerId
+  );
+
+export const useAcceptTrackerClanChallenge = () =>
+  useClanChallengeMutation(
+    async ({ trackerId, challengeId }: { trackerId: string; challengeId: string }) =>
+      (await api.post<IApiResponse<ITrackerClanChallenge>>(
+        TRACKER_API_PATHS.clanChallengeAccept(trackerId, challengeId)
+      )).data,
+    ({ trackerId }) => trackerId
+  );
+
+export const useDeclineTrackerClanChallenge = () =>
+  useClanChallengeMutation(
+    async ({ trackerId, challengeId }: { trackerId: string; challengeId: string }) =>
+      (await api.post<IApiResponse<ITrackerClanChallenge>>(
+        TRACKER_API_PATHS.clanChallengeDecline(trackerId, challengeId)
+      )).data,
+    ({ trackerId }) => trackerId
+  );
+
+export const useCancelTrackerClanChallenge = () =>
+  useClanChallengeMutation(
+    async ({ trackerId, challengeId }: { trackerId: string; challengeId: string }) =>
+      (await api.post<IApiResponse<ITrackerClanChallenge>>(
+        TRACKER_API_PATHS.clanChallengeCancel(trackerId, challengeId)
+      )).data,
+    ({ trackerId }) => trackerId
+  );
+
+export const useSubmitTrackerClanChallenge = () =>
+  useClanChallengeMutation(
+    async ({ trackerId, challengeId, answers }: { trackerId: string; challengeId: string; answers: Array<{ questionId: string; answer: string }> }) =>
+      (await api.post<IApiResponse<ITrackerClanChallenge>>(
+        TRACKER_API_PATHS.clanChallengeSubmit(trackerId, challengeId), { answers }
+      )).data,
+    ({ trackerId }) => trackerId
+  );
+
+export const useUpdateTrackerTopic = () => {
+  const queryClient = useQueryClient();
+  return useMutation<IApiResponse<null>, Error, { trackerId: string; topicId: string; title: string; description: string }>({
+    mutationFn: async ({ trackerId, topicId, ...payload }) =>
+      (await api.patch<IApiResponse<null>>(TRACKER_API_PATHS.topic(trackerId, topicId), payload)).data,
+    onSuccess: (_response, { trackerId }) => {
+      queryClient.invalidateQueries({ queryKey: trackerKeys.roadmap(trackerId) });
+      queryClient.invalidateQueries({ queryKey: trackerKeys.detail(trackerId) });
+    },
+  });
+};
+
+export const useDeleteTrackerTopic = () => {
+  const queryClient = useQueryClient();
+  return useMutation<IApiResponse<null>, Error, { trackerId: string; topicId: string }>({
+    mutationFn: async ({ trackerId, topicId }) =>
+      (await api.delete<IApiResponse<null>>(TRACKER_API_PATHS.topic(trackerId, topicId))).data,
+    onSuccess: (_response, { trackerId }) => {
+      queryClient.invalidateQueries({ queryKey: trackerKeys.roadmap(trackerId) });
+      queryClient.invalidateQueries({ queryKey: trackerKeys.detail(trackerId) });
+      queryClient.invalidateQueries({ queryKey: trackerKeys.all });
+    },
+  });
+};
+
+export const useDeleteTrackerSubtopic = () => {
+  const queryClient = useQueryClient();
+  return useMutation<IApiResponse<null>, Error, { trackerId: string; subtopicId: string }>({
+    mutationFn: async ({ trackerId, subtopicId }) =>
+      (await api.delete<IApiResponse<null>>(TRACKER_API_PATHS.subtopic(trackerId, subtopicId))).data,
+    onSuccess: (_response, { trackerId }) => {
+      queryClient.invalidateQueries({ queryKey: trackerKeys.roadmap(trackerId) });
+      queryClient.invalidateQueries({ queryKey: trackerKeys.detail(trackerId) });
       queryClient.invalidateQueries({ queryKey: trackerKeys.all });
     },
   });
