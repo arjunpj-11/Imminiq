@@ -1,10 +1,18 @@
 import { AIGenerationJob } from '../../../../../infrastructure/database/models/ai-generation-job.model';
 import { aiQueue } from '../../../../../infrastructure/queue/queues';
 import { env } from '../../../../../config/env';
+import {
+  enqueueAIJobOrMarkFailed,
+  findActiveAIJob,
+} from '../../../../../infrastructure/queue/ai-job-enqueue';
 import type { AdaptiveAssessmentPlan } from '../../domain/adaptive-learning.types';
 import type { IAdaptiveTestGenerator } from '../../domain/services/adaptive-test-generator.interface';
 
 export class AdaptiveTestGeneratorGateway implements IAdaptiveTestGenerator {
+  async findActive(userId: string) {
+    return findActiveAIJob({ userId, jobType: 'mock_test' });
+  }
+
   async generate(userId: string, plan: AdaptiveAssessmentPlan, baselineMasteryScore: number) {
     const payload = {
       topic: plan.topic,
@@ -26,15 +34,17 @@ export class AdaptiveTestGeneratorGateway implements IAdaptiveTestGenerator {
     });
     const jobId = job._id.toString();
 
-    await aiQueue.add(
-      'generate-mock-test',
-      { jobId, userId, payload, adaptiveContext },
-      {
-        attempts: env.QUEUE_JOB_ATTEMPTS,
-        backoff: { type: 'exponential', delay: env.QUEUE_JOB_BACKOFF_MS },
-        removeOnComplete: env.QUEUE_REMOVE_ON_COMPLETE,
-        removeOnFail: env.QUEUE_REMOVE_ON_FAIL,
-      }
+    await enqueueAIJobOrMarkFailed(jobId, () =>
+      aiQueue.add(
+        'generate-mock-test',
+        { jobId, userId, payload, adaptiveContext },
+        {
+          attempts: env.QUEUE_JOB_ATTEMPTS,
+          backoff: { type: 'exponential', delay: env.QUEUE_JOB_BACKOFF_MS },
+          removeOnComplete: env.QUEUE_REMOVE_ON_COMPLETE,
+          removeOnFail: env.QUEUE_REMOVE_ON_FAIL,
+        }
+      )
     );
 
     return { jobId, status: 'pending' as const };

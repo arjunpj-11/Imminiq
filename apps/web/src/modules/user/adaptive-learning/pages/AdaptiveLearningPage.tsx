@@ -7,9 +7,10 @@ import { MicButton } from '../../../../components/input/VoiceInputButton';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import { useVoiceInput } from '../../../../hooks/useVoiceInput';
 import { ROUTES } from '../../../../routes/config/route-paths';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
 import AdaptiveMasteryGraph from '../components/AdaptiveMasteryGraph';
 import { useGenerateRoadmap, useOnboardingStore } from '../../tracker-creation';
-import { useGenerateMockTest } from '../../mock-tests';
+import { useActiveMockTestGeneration, useGenerateMockTest } from '../../mock-tests';
 import type { AdaptiveAdvisorAction } from '../types/adaptive-learning.types';
 import {
   useAdaptiveAdvisorChat,
@@ -24,6 +25,7 @@ export default function AdaptiveLearningPage() {
   const chat = useAdaptiveAdvisorChat();
   const clearChat = useClearAdaptiveAdvisorChat();
   const generate = useGenerateAdaptiveAssessment();
+  const activeMockTestGeneration = useActiveMockTestGeneration();
   const generateRoadmap = useGenerateRoadmap();
   const generateMockTest = useGenerateMockTest();
   const saveStepOneDraft = useOnboardingStore((state) => state.saveStep1);
@@ -34,7 +36,6 @@ export default function AdaptiveLearningPage() {
   const [advisorAction, setAdvisorAction] = useState<AdaptiveAdvisorAction | null>(null);
   const [actionError, setActionError] = useState('');
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
-  const [assessmentGenerationStarted, setAssessmentGenerationStarted] = useState(false);
   const voice = useVoiceInput((transcript) =>
     setQuestion((current) => (current.trim() ? `${current.trim()} ${transcript}` : transcript))
   );
@@ -57,9 +58,10 @@ export default function AdaptiveLearningPage() {
     setAdvisorAction(result.action ?? null);
   };
 
-  const generateExam = async () => {
-    await generate.mutateAsync();
-    setAssessmentGenerationStarted(true);
+  const generateExam = () => {
+    generate.mutate(undefined, {
+      onSuccess: (job) => navigate(ROUTES.mockTestGenerating(job.jobId)),
+    });
   };
 
   const clearAdvisorConversation = async () => {
@@ -283,19 +285,28 @@ export default function AdaptiveLearningPage() {
                 <>
                   <button
                     type="button"
-                    disabled={generate.isPending || assessmentGenerationStarted}
-                    onClick={() => void generateExam()}
+                    disabled={generate.isPending}
+                    onClick={() =>
+                      activeMockTestGeneration.data
+                        ? navigate(
+                            ROUTES.mockTestGenerating(activeMockTestGeneration.data.jobId)
+                          )
+                        : generateExam()
+                    }
                     className="mt-4 w-full rounded-xl bg-(--brand-500) py-3 text-[12px] font-bold text-white disabled:opacity-60"
                   >
-                    {generate.isPending
+                    {activeMockTestGeneration.data
+                      ? 'View generating test'
+                      : generate.isPending
                       ? 'Starting background job…'
-                      : assessmentGenerationStarted
-                        ? 'Generating in background'
-                        : 'Generate adaptive exam'}
+                      : 'Generate adaptive exam'}
                   </button>
-                  {assessmentGenerationStarted ? (
-                    <p className="mt-3 text-[11.5px] leading-5 text-(--text-secondary)">
-                      You can continue using Imminiq. We’ll notify you when the assessment is ready.
+                  {generate.isError ? (
+                    <p className="mt-3 text-[11.5px] font-semibold leading-5 text-red-600">
+                      {getUserFacingError(
+                        generate.error,
+                        'The adaptive exam could not be generated.'
+                      )}
                     </p>
                   ) : null}
                 </>

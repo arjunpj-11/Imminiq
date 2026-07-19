@@ -144,6 +144,8 @@ export type TrackerRecord = {
   _id: ObjectIdLike;
   ownerId?: ObjectIdLike | string;
   sourceTrackerId?: ObjectIdLike | null;
+  cloneFreshnessAnalysisStatus?: 'pending' | 'completed' | 'failed' | null;
+  cloneFreshnessAnalysisAvailable?: boolean;
   clonedFrom?: {
     trackerId: ObjectIdLike;
     ownerId: ObjectIdLike;

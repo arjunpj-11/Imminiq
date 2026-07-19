@@ -24,6 +24,32 @@ export class MongoCloneFreshnessAnalysisRepository
       deletedAt: null,
     };
 
+    const ownedClone = await Tracker.findOne(ownershipQuery)
+      .select('_id sourceTrackerId cloneFreshnessAnalysisStatus')
+      .lean();
+
+    if (!ownedClone?.sourceTrackerId) {
+      return { status: 'not_found' };
+    }
+
+    if (
+      ownedClone.cloneFreshnessAnalysisStatus === 'pending' ||
+      ownedClone.cloneFreshnessAnalysisStatus === 'completed'
+    ) {
+      return { status: 'already_used' };
+    }
+
+    const priorUse = await Tracker.exists({
+      _id: { $ne: ownedClone._id },
+      ownerId: input.userId,
+      sourceTrackerId: ownedClone.sourceTrackerId,
+      cloneFreshnessAnalysisStatus: { $in: ['pending', 'completed'] },
+    });
+
+    if (priorUse) {
+      return { status: 'already_used' };
+    }
+
     const claimed = await Tracker.findOneAndUpdate(
       {
         ...ownershipQuery,
@@ -39,10 +65,7 @@ export class MongoCloneFreshnessAnalysisRepository
       .select('sourceTrackerId')
       .lean();
 
-    if (!claimed?.sourceTrackerId) {
-      const tracker = await Tracker.findOne(ownershipQuery).select('_id').lean();
-      return tracker ? { status: 'already_used' } : { status: 'not_found' };
-    }
+    if (!claimed?.sourceTrackerId) return { status: 'already_used' };
 
     const source = await Tracker.findById(claimed.sourceTrackerId).select('createdAt').lean();
     if (!source?.createdAt) {

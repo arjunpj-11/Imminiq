@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Flag } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ROUTES } from '../../../../routes/config/route-paths';
 
 import CommunityErrorState from '../components/shared/CommunityErrorState';
@@ -39,6 +39,13 @@ import {
   useRequestTrackerClanJoin,
   useTrackerClan,
 } from '../../trackers';
+import { useOnboardingStore } from '../../tracker-creation';
+
+type CommunityTrackerNavigationState = {
+  returnTo?: string;
+  returnLabel?: string;
+  finishTrackerCreationOnClone?: boolean;
+};
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -74,6 +81,9 @@ export default function CommunityPublicTrackerPage() {
 
 function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTrackerDetail }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const navigationState = location.state as CommunityTrackerNavigationState | null;
+  const clearTrackerCreation = useOnboardingStore((state) => state.reset);
 
   const cloneTracker = useCloneCommunityTracker();
   const upsertReview = useUpsertCommunityTrackerReview();
@@ -136,9 +146,17 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
   };
 
   const handleClone = () => {
-    if (isCloned || cloneTracker.isPending) {
+    if (cloneTracker.isPending) {
       return;
     }
+
+    if (isCloned && navigationState?.finishTrackerCreationOnClone) {
+      clearTrackerCreation();
+      navigate(ROUTES.trackers, { replace: true });
+      return;
+    }
+
+    if (isCloned) return;
 
     setCloneConfirmOpen(true);
   };
@@ -152,6 +170,10 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
         onSuccess: () => {
           setCloned(true);
           setCloneConfirmOpen(false);
+          if (navigationState?.finishTrackerCreationOnClone) {
+            clearTrackerCreation();
+            navigate(ROUTES.trackers, { replace: true });
+          }
         },
         onError: () => setCloneConfirmOpen(false),
       }
@@ -203,11 +225,13 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
       <div className={communityPageClass}>
         <button
           type="button"
-          onClick={() => navigate(ROUTES.community)}
+          onClick={() =>
+            navigate(navigationState?.returnTo ?? ROUTES.community, { replace: true })
+          }
           className="inline-flex w-fit items-center gap-2 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2.5 text-[12px] font-bold text-(--text-secondary) transition hover:border-[rgba(184,76,43,0.25)] hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
         >
           <BackIcon />
-          Back to community
+          {navigationState?.returnLabel ?? 'Back to community'}
         </button>
 
         <section className="overflow-hidden rounded-3xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-[0_2px_18px_rgba(26,23,20,0.07)] dark:border-(--border-subtle) dark:bg-(--surface-card)">
@@ -308,14 +332,19 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
                   <button
                     type="button"
                     onClick={handleClone}
-                    disabled={isCloned || cloneTracker.isPending}
+                    disabled={
+                      (isCloned && !navigationState?.finishTrackerCreationOnClone) ||
+                      cloneTracker.isPending
+                    }
                     className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-white transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-70 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
                   >
                     <CopyIcon />
                     {cloneTracker.isPending
                       ? 'Cloning...'
                       : isCloned
-                        ? 'In dashboard'
+                        ? navigationState?.finishTrackerCreationOnClone
+                          ? 'Use this tracker'
+                          : 'In dashboard'
                         : 'Clone tracker'}
                   </button>
                 </div>

@@ -6,7 +6,10 @@ export class AdaptiveLearningApplicationError extends AdaptiveLearningDomainErro
 
   private constructor(
     kind: ErrorKind,
-    code: 'ADAPTIVE_TRACKER_REQUIRED' | 'INVALID_ADVISOR_QUESTION',
+    code:
+      | 'ADAPTIVE_ASSESSMENT_GENERATION_ACTIVE'
+      | 'ADAPTIVE_TRACKER_REQUIRED'
+      | 'INVALID_ADVISOR_QUESTION',
     message: string
   ) {
     super(code, message);
@@ -19,6 +22,14 @@ export class AdaptiveLearningApplicationError extends AdaptiveLearningDomainErro
       'conflict',
       'ADAPTIVE_TRACKER_REQUIRED',
       'Create and study at least one tracker before requesting an adaptive exam'
+    );
+  }
+
+  static assessmentGenerationAlreadyActive(): AdaptiveLearningApplicationError {
+    return new AdaptiveLearningApplicationError(
+      'conflict',
+      'ADAPTIVE_ASSESSMENT_GENERATION_ACTIVE',
+      'Another mock test is already being generated. Wait for it to finish before creating an adaptive exam.'
     );
   }
 

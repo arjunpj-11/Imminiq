@@ -21,6 +21,10 @@ export class GenerateAdaptiveAssessmentUseCase implements IGenerateAdaptiveAsses
   ) {}
 
   async execute(userId: string): Promise<AdaptiveAssessmentGenerationDTO> {
+    if (await this._testGenerator.findActive(userId)) {
+      throw AdaptiveLearningApplicationError.assessmentGenerationAlreadyActive();
+    }
+
     const [snapshot, profile] = await Promise.all([
       this._repository.getLearnerSnapshot(userId),
       this._repository.getOrCreateProfile(userId),
