@@ -9,6 +9,7 @@ import type {
 } from '../../domain/services/mock-test-question-bank.interface';
 import type { GenerateMockTestPayloadDTO, MockTestDTO } from '../mock-tests.dto';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
+import type { QuestionType } from '../../domain/value-objects/question-type.vo';
 
 type GenerateMockTestRepository = IMockTestRepository & IMockTestQuestionRepository;
 
@@ -38,6 +39,9 @@ export class GenerateMockTestUseCase implements IGenerateMockTestUseCase {
     const difficulty = payload.difficulty || 'medium';
 
     const questionCount = payload.questionCount || 10;
+    const questionTypes: QuestionType[] = payload.questionTypes?.length
+      ? payload.questionTypes
+      : ['mcq'];
 
     const isAIGenerated = this._questionBank.shouldUseAI();
 
@@ -51,7 +55,7 @@ export class GenerateMockTestUseCase implements IGenerateMockTestUseCase {
         difficulty,
         questionCount,
 
-        questionTypes: payload.questionTypes?.length ? payload.questionTypes : ['mcq'],
+        questionTypes,
       });
 
       if (!generated.questions?.length) {
@@ -64,7 +68,12 @@ export class GenerateMockTestUseCase implements IGenerateMockTestUseCase {
 
       description = generated.description || `Practice test for ${topic}`;
     } else {
-      questions = await this._questionBank.sampleFromQuestionBank(topic, questionCount, difficulty);
+      questions = await this._questionBank.sampleFromQuestionBank(
+        topic,
+        questionCount,
+        difficulty,
+        questionTypes
+      );
 
       if (!questions.length) {
         throw MockTestsApplicationError.noQuestionsAvailable(topic);

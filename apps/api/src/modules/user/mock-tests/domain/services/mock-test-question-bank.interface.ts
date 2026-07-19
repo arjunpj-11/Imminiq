@@ -24,6 +24,7 @@ export interface IMockTestQuestionBank {
   sampleFromQuestionBank(
     topic: string,
     count: number,
-    difficulty?: DifficultyLevel
+    difficulty?: DifficultyLevel,
+    questionTypes?: QuestionType[]
   ): Promise<QuestionBankItem[]>;
 }

@@ -113,6 +113,12 @@ export const generateMockTestQuestionsAI = async (
             'AI_INVALID_JSON_STRUCTURE'
           );
         }
+        if (parsed.questions.some((question) => !input.questionTypes.includes(question.type))) {
+          throw dependencyFailure(
+            'AI returned a question type that was not selected',
+            'AI_INVALID_QUESTION_TYPE'
+          );
+        }
         return parsed;
       },
       'quality',

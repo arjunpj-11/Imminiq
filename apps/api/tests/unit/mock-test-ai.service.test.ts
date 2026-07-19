@@ -63,7 +63,7 @@ describe('mock test AI generation', () => {
       topic: 'Algorithms',
       difficulty: 'hard',
       questionCount: 5,
-      questionTypes: ['coding'],
+      questionTypes: ['mcq', 'coding'],
     });
 
     expect(result.questions).toHaveLength(5);
@@ -77,5 +77,46 @@ describe('mock test AI generation', () => {
         expect.stringContaining('Number of questions: 1'),
       ])
     );
+  });
+
+  it('rejects AI output that contains an unselected question type', async () => {
+    mocks.economyAIStructuredWithFallback.mockImplementationOnce(async (_messages, parseResponse) =>
+      parseResponse(
+        JSON.stringify({
+          title: 'JavaScript fundamentals',
+          description: 'Generated test',
+          questions: [
+            {
+              type: 'coding',
+              question: 'Write a function.',
+              options: [],
+              correctAnswer: '',
+              explanation: 'Practice coding.',
+              difficulty: 'medium',
+              points: 2,
+              coding: {
+                functionName: 'answer',
+                inputTypes: ['number'],
+                outputType: 'number',
+                starterCode: 'function answer(value) { return value; }',
+                templates: {
+                  javascript: '', typescript: '', python: '', java: '', cpp: '', c: '',
+                },
+                testCases: [{ input: [1], expectedOutput: 1 }],
+              },
+            },
+          ],
+        })
+      )
+    );
+
+    await expect(
+      generateMockTestQuestionsAI({
+        topic: 'JavaScript',
+        difficulty: 'medium',
+        questionCount: 1,
+        questionTypes: ['mcq'],
+      })
+    ).rejects.toThrow('AI returned a question type that was not selected');
   });
 });

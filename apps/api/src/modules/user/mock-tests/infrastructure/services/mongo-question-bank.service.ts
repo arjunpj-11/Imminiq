@@ -6,6 +6,7 @@ import type {
   QuestionBankItem,
 } from '../../domain/services/mock-test-question-bank.interface';
 import type { DifficultyLevel } from '../../domain/value-objects/difficulty-level.vo';
+import type { QuestionType } from '../../domain/value-objects/question-type.vo';
 
 import { env } from '../../../../../config/env';
 
@@ -38,7 +39,8 @@ export class MongoQuestionBank implements IMockTestQuestionBank {
   async sampleFromQuestionBank(
     topic: string,
     count: number,
-    difficulty?: DifficultyLevel
+    difficulty?: DifficultyLevel,
+    questionTypes?: QuestionType[]
   ): Promise<QuestionBankItem[]> {
     try {
       const normalizedTopic = topic.trim();
@@ -49,6 +51,10 @@ export class MongoQuestionBank implements IMockTestQuestionBank {
 
       if (difficulty) {
         match.difficulty = difficulty;
+      }
+
+      if (questionTypes?.length) {
+        match.type = { $in: questionTypes };
       }
 
       return QuestionBankModel.aggregate<QuestionBankItem>([
