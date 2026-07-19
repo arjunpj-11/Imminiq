@@ -18,7 +18,7 @@
   "dependencies": {
     "@cerebras/cerebras_cloud_sdk": "^1.91.0",
     "@google/generative-ai": "^0.24.1",
-    "@langchain/core": "^1.2.2",
+    "@langchain/core": "^1.2.3",
     "@langchain/google-genai": "^2.2.0",
     "@langchain/langgraph": "^1.4.8",
     "bcryptjs": "^3.0.3",
