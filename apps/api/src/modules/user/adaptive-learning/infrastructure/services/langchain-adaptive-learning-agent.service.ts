@@ -38,6 +38,11 @@ const advisorResponseSchema = z.preprocess(
           level: z.enum(['beginner', 'intermediate', 'advanced']),
         }),
         z.object({
+          type: z.literal('browse_community_trackers'),
+          label: z.string().min(2).max(80),
+          topic: z.string().min(2).max(200),
+        }),
+        z.object({
           type: z.literal('create_mock_test'),
           label: z.string().min(2).max(80),
           topic: z.string().min(2).max(200),
@@ -61,6 +66,10 @@ function normalizeAdvisorResponse(value: unknown): unknown {
 
   const actionRecord = action as Record<string, unknown>;
   if (actionRecord.type === 'create_tracker' || actionRecord.type === 'create_mock_test') {
+    return response;
+  }
+
+  if (actionRecord.type === 'browse_community_trackers') {
     return response;
   }
 
@@ -203,6 +212,8 @@ export class LangChainAdaptiveLearningAgent implements IAdaptiveLearningAgent {
             content: [
               'You are Immi, a concise adaptive learning advisor.',
               'Use the learner data to recommend a concrete next step.',
+              'When the learner explicitly asks for a community tracker, set action to {"type":"browse_community_trackers","label":string,"topic":string} so they can review matching community paths before creating anything.',
+              'Only recommend creating a new tracker when the learner has no tracker for that subject. If an existing tracker has a matching title, field, or goal, recommend continuing it and set action to null. If the learner already has three or more trackers, prioritize completing one of them and set action to null.',
               'If you explicitly recommend creating a new tracker, set action to {"type":"create_tracker","label":string,"topic":string,"goal":string,"level":"beginner"|"intermediate"|"advanced"}.',
               'If you explicitly recommend taking a new mock test, set action to {"type":"create_mock_test","label":string,"topic":string,"difficulty":"easy"|"medium"|"hard","questionCount":number,"trackerId":string|null}.',
               'Do not add an action when recommending continuing an existing tracker, opening an existing test, or when more clarification is needed.',
@@ -248,6 +259,22 @@ export class LangChainAdaptiveLearningAgent implements IAdaptiveLearningAgent {
 
     if (!response.action) return { content: response.content };
     if (response.action.type === 'create_tracker') {
+      const existingTracker = this.findMatchingTracker(input.snapshot, response.action.topic);
+      if (existingTracker) {
+        return {
+          content: `You already have “${existingTracker.title}”, which covers ${existingTracker.field}. Continue that tracker instead of creating another one for the same subject.`,
+        };
+      }
+      if (input.snapshot.trackers.length >= 3) {
+        const tracker = this.nextTrackerToContinue(input.snapshot);
+        return {
+          content: `You already have ${input.snapshot.trackers.length} trackers. Continue “${tracker?.title ?? 'one of your current trackers'}” before creating another learning path.`,
+        };
+      }
+      return { content: response.content, action: response.action };
+    }
+
+    if (response.action.type === 'browse_community_trackers') {
       return { content: response.content, action: response.action };
     }
 
@@ -312,6 +339,33 @@ export class LangChainAdaptiveLearningAgent implements IAdaptiveLearningAgent {
     return {
       content: `For “${question.slice(0, 120)}”, continue “${tracker.title}”, currently ${Math.round(tracker.progressPercent)}% complete, and finish one focused lesson${focus ? ` on ${focus}` : ''}.${scoreContext}`,
     };
+  }
+
+  private findMatchingTracker(snapshot: AdaptiveLearnerSnapshot, topic: string) {
+    const normalizedTopic = this.normalizeTopic(topic);
+    if (!normalizedTopic) return undefined;
+
+    return snapshot.trackers.find((tracker) =>
+      [tracker.title, tracker.field, tracker.goal].some((value) => {
+        const normalizedValue = this.normalizeTopic(value);
+        return (
+          normalizedValue === normalizedTopic ||
+          normalizedValue.includes(normalizedTopic) ||
+          normalizedTopic.includes(normalizedValue)
+        );
+      })
+    );
+  }
+
+  private nextTrackerToContinue(snapshot: AdaptiveLearnerSnapshot) {
+    return [...snapshot.trackers].sort((a, b) => a.progressPercent - b.progressPercent)[0];
+  }
+
+  private normalizeTopic(value: string): string {
+    return value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
   }
 
   private fallbackPlan(snapshot: AdaptiveLearnerSnapshot): AdaptiveAssessmentPlan {

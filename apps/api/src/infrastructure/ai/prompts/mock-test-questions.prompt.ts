@@ -75,6 +75,8 @@ Allowed coding inputTypes and outputType:
 
 Rules:
 - Return exactly ${input.questionCount} questions.
+- Every question's type MUST be one of the selected question types: ${input.questionTypes.join(', ')}.
+- Do not return any question type that was not selected. For example, when only MCQ is selected, return only "mcq" questions; never return "coding" or "short_answer".
 - MCQ must have exactly 4 options.
 - For coding questions, set correctAnswer to an empty string "".
 - correctAnswer for MCQ must be the exact option text.

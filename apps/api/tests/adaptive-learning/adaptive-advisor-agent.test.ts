@@ -96,4 +96,23 @@ describe('LangChainAdaptiveLearningAgent advisor recovery', () => {
     expect(nextStepAnswer.content).toContain('35% complete');
     expect(weakAreaAnswer.content).not.toBe(nextStepAnswer.content);
   });
+
+  it('does not offer a duplicate tracker when the learner already has one for that topic', async () => {
+    ai.economyAIStructuredWithFallback.mockResolvedValueOnce({
+      content: 'Create a data structures tracker.',
+      action: {
+        type: 'create_tracker',
+        label: 'Create Data Structures',
+        topic: 'Data Structures',
+        goal: 'Prepare for interviews',
+        level: 'intermediate',
+      },
+    });
+
+    await expect(new LangChainAdaptiveLearningAgent().answer(input('What should I create?'))).resolves
+      .toEqual({
+        content:
+          'You already have “Data Structures”, which covers Computer Science. Continue that tracker instead of creating another one for the same subject.',
+      });
+  });
 });
