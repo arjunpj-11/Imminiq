@@ -12,7 +12,8 @@
     "test:security": "vitest run tests/security",
     "test:security:integration": "vitest run tests/integration/security",
     "seed:test-admin": "tsx src/scripts/seed-test-admin.ts",
-    "migrate:admin-moderation": "tsx src/scripts/migrate-admin-moderation.ts"
+    "migrate:admin-moderation": "tsx src/scripts/migrate-admin-moderation.ts",
+    "migrate:adaptive-assessments": "tsx src/scripts/migrate-adaptive-assessments.ts"
   },
   "dependencies": {
     "@cerebras/cerebras_cloud_sdk": "^1.64.1",

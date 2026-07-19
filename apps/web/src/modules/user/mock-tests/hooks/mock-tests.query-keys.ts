@@ -12,6 +12,7 @@ export const mockTestKeys = {
   aiInsights: () => [...mockTestKeys.analytics(), 'ai-insights'] as const,
   topicBreakdown: () => [...mockTestKeys.analytics(), 'topic-breakdown'] as const,
   activeGeneration: () => [...mockTestKeys.all, 'active-generation'] as const,
+  generationStatus: (jobId: string) => [...mockTestKeys.all, 'generation-status', jobId] as const,
   attempts: () => [...mockTestKeys.all, 'attempts'] as const,
   attempt: (attemptId: string) => [...mockTestKeys.attempts(), attemptId] as const,
   attemptQuestions: (attemptId: string) =>

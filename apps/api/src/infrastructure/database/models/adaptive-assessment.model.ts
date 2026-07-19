@@ -41,8 +41,6 @@ const adaptiveAssessmentSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'MockTestAttempt',
       default: null,
-      unique: true,
-      sparse: true,
     },
     actualScore: { type: Number, default: null },
     masteryChange: { type: Number, default: null },
@@ -53,6 +51,13 @@ const adaptiveAssessmentSchema = new Schema(
 
 adaptiveAssessmentSchema.index({ userId: 1, createdAt: -1 });
 adaptiveAssessmentSchema.index({ userId: 1, status: 1 });
+adaptiveAssessmentSchema.index(
+  { attemptId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { attemptId: { $type: 'objectId' } },
+  }
+);
 
 export const AdaptiveAssessmentModel =
   mongoose.models.AdaptiveAssessment ||
