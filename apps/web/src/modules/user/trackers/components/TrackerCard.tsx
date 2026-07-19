@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { cn } from "../../../../lib/cn";
 import { getUserFacingError } from "../../../../lib/user-facing-error";
 import { ROUTES } from "../../../../routes/config/route-paths";
+import { useAnalyzeClonedTracker } from "../../tracker-creation";
 import type { ITracker } from "../types/tracker.types";
 import ConfirmDialog from "./ConfirmDialog";
 import PublishTrackerModal, {
@@ -162,6 +163,7 @@ export default function TrackerCard({
   onSendForVerification,
 }: TrackerCardProps) {
   const navigate = useNavigate();
+  const analyzeClone = useAnalyzeClonedTracker();
   const menuRef = useRef<HTMLDivElement | null>(null);
   const nudgeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -180,6 +182,7 @@ export default function TrackerCard({
   >(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   const progress = Math.min(
     100,
@@ -220,6 +223,7 @@ export default function TrackerCard({
     isVerificationPending ||
     isVerificationVerified ||
     isArchived;
+  const canAnalyzeClone = Boolean(tracker.cloneFreshnessAnalysisAvailable) && !isArchived;
 
   const statusLabel = getStatusLabel({
     tracker,
@@ -331,6 +335,20 @@ export default function TrackerCard({
   const openPublishModal = () => {
     setPublishError(null);
     setPublishModalOpen(true);
+  };
+
+  const handleAnalyzeClone = async () => {
+    if (!canAnalyzeClone || analyzeClone.isPending) return;
+
+    try {
+      setAnalysisError(null);
+      const result = await analyzeClone.mutateAsync(tracker._id);
+      navigate(ROUTES.trackerCreateEvaluation(result.data.jobId));
+    } catch (error) {
+      setAnalysisError(
+        getUserFacingError(error, "Unable to start the one-time tracker analysis."),
+      );
+    }
   };
 
   return (
@@ -506,6 +524,29 @@ export default function TrackerCard({
         )}
 
         <footer className="relative mt-auto pt-5">
+          {canAnalyzeClone && (
+            <div className="mb-3">
+              <button
+                type="button"
+                onClick={() => void handleAnalyzeClone()}
+                disabled={isUnavailable || analyzeClone.isPending}
+                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border-[1.5px] border-[rgba(184,76,43,0.24)] bg-[rgba(184,76,43,0.07)] px-4 text-[13px] font-extrabold text-(--brand-500) transition hover:-translate-y-px hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.12)] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <span aria-hidden="true">✦</span>
+                {analyzeClone.isPending ? "Starting analysis…" : "Analyze new topics (one time)"}
+              </button>
+              <p className="mt-1.5 text-center text-[10.5px] leading-4 text-(--text-secondary)">
+                Check for credible topics added since the original was published.
+              </p>
+            </div>
+          )}
+
+          {analysisError && (
+            <div className="mb-3 rounded-lg border border-[rgba(200,50,50,0.22)] bg-[rgba(200,50,50,0.08)] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#b83232] dark:text-[#ff8c8c]">
+              {analysisError}
+            </div>
+          )}
+
           <div className="flex gap-2.5">
             <button
               type="button"

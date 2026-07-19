@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
@@ -7,18 +6,19 @@ import {
 } from '../hooks/useAdaptiveLearning';
 import { useActiveMockTestGeneration } from '../../mock-tests';
 import { ROUTES } from '../../../../routes/config/route-paths';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
 
 export default function AdaptiveExamPanel() {
   const navigate = useNavigate();
   const dashboard = useAdaptiveLearningDashboard();
   const generate = useGenerateAdaptiveAssessment();
   const activeGeneration = useActiveMockTestGeneration();
-  const [generationStarted, setGenerationStarted] = useState(false);
   const assessment = dashboard.data?.latestAssessment;
 
-  const generateExam = async () => {
-    await generate.mutateAsync();
-    setGenerationStarted(true);
+  const generateExam = () => {
+    generate.mutate(undefined, {
+      onSuccess: (job) => navigate(ROUTES.mockTestGenerating(job.jobId)),
+    });
   };
 
   return (
@@ -66,24 +66,26 @@ export default function AdaptiveExamPanel() {
           ) : (
             <button
               type="button"
-              disabled={generate.isPending || generationStarted || Boolean(activeGeneration.data)}
-              onClick={() => void generateExam()}
+              disabled={generate.isPending}
+              onClick={() =>
+                activeGeneration.data
+                  ? navigate(ROUTES.mockTestGenerating(activeGeneration.data.jobId))
+                  : generateExam()
+              }
               className="rounded-xl bg-(--brand-500) px-4 py-2.5 text-[12px] font-bold text-white disabled:opacity-60"
             >
               {activeGeneration.data
-                ? 'Another test is generating'
+                ? 'View generating test'
                 : generate.isPending
                   ? 'Starting background job…'
-                  : generationStarted
-                    ? 'Generating in background'
-                    : 'Generate my exam'}
+                  : 'Generate my exam'}
             </button>
           )}
         </div>
       </div>
       {generate.isError ? (
         <p className="mt-3 text-[12px] font-semibold text-red-600">
-          The adaptive exam could not be generated. Make sure you have studied at least one tracker.
+          {getUserFacingError(generate.error, 'The adaptive exam could not be generated.')}
         </p>
       ) : null}
     </section>

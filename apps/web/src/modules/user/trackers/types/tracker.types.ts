@@ -55,6 +55,8 @@ export interface ITracker {
   createdAt?: string;
   updatedAt?: string;
   sourceTrackerId?: string | null;
+  cloneFreshnessAnalysisStatus?: 'pending' | 'completed' | 'failed' | null;
+  cloneFreshnessAnalysisAvailable?: boolean;
   clonedFrom?: {
     trackerId: string;
     ownerId: string;

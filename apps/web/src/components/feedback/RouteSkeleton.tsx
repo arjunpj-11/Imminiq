@@ -272,7 +272,7 @@ function WorkflowSkeleton() {
   );
 }
 
-export function getAppSkeletonKind(pathname: string): AppSkeletonKind {
+function getAppSkeletonKind(pathname: string): AppSkeletonKind {
   if (pathname.startsWith('/trackers/create')) return 'workflow';
   if (pathname.includes('/lessons/')) return 'lesson';
   if (pathname.includes('/revision')) return 'lesson';

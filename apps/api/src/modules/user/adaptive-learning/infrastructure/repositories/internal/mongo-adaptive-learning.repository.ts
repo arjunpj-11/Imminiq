@@ -109,24 +109,32 @@ export class MongoAdaptiveLearningRepository implements IAdaptiveLearningReposit
   }
 
   async getOrCreateProfile(userId: string): Promise<AdaptiveProfile> {
-    const existing = await AdaptiveLearningProfileModel.findOne({ userId }).lean();
-    if (existing) return this._mapper.toProfile(existing);
-
-    const created = await AdaptiveLearningProfileModel.create({
-      userId,
-      masteryScore: 40,
-      level: 'developing',
-      history: [
-        {
+    const profile = await AdaptiveLearningProfileModel.findOneAndUpdate(
+      { userId },
+      {
+        $setOnInsert: {
+          userId,
           masteryScore: 40,
           level: 'developing',
-          change: 0,
-          reason: 'Adaptive learning baseline created',
-          recordedAt: new Date(),
+          history: [
+            {
+              masteryScore: 40,
+              level: 'developing',
+              change: 0,
+              reason: 'Adaptive learning baseline created',
+              recordedAt: new Date(),
+            },
+          ],
         },
-      ],
-    });
-    return this._mapper.toProfile(created.toObject());
+      },
+      { upsert: true, returnDocument: 'after' }
+    ).lean();
+
+    if (!profile) {
+      throw new Error('Adaptive learning profile could not be initialized');
+    }
+
+    return this._mapper.toProfile(profile);
   }
 
   async listAssessments(userId: string, limit = 8): Promise<AdaptiveAssessment[]> {

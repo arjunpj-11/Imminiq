@@ -252,7 +252,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           Boolean(sourceTrackerId)
         );
 
-      const [sourceTrackers, sourceClans] = await Promise.all([
+      const [sourceTrackers, sourceClans, analysisUsedSourceIds] = await Promise.all([
         Tracker.find({ _id: { $in: sourceTrackerIds }, deletedAt: null })
           .select('_id ownerId')
           .lean<Array<{ _id: unknown; ownerId: unknown }>>(),
@@ -271,7 +271,13 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
               }>;
             }>
           >(),
+        Tracker.distinct('sourceTrackerId', {
+          ownerId: userObjId,
+          sourceTrackerId: { $in: sourceTrackerIds },
+          cloneFreshnessAnalysisStatus: { $in: ['pending', 'completed'] },
+        }).then((sourceIds) => sourceIds as Array<{ toString(): string }>),
       ]);
+      const analysisUsedSourceIdSet = new Set(analysisUsedSourceIds.map(String));
       const sourceOwnerMap = new Map(
         sourceTrackers.map((sourceTracker) => [String(sourceTracker._id), String(sourceTracker.ownerId)])
       );
@@ -341,6 +347,11 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
             tracker.lastActiveAt ??
             tracker.updatedAt ??
             tracker.createdAt,
+          cloneFreshnessAnalysisAvailable:
+            Boolean(tracker.sourceTrackerId) &&
+            !analysisUsedSourceIdSet.has(String(tracker.sourceTrackerId)) &&
+            (!tracker.cloneFreshnessAnalysisStatus ||
+              tracker.cloneFreshnessAnalysisStatus === 'failed'),
           clanRole: tracker.sourceTrackerId
             ? sourceOwnerMap.get(String(tracker.sourceTrackerId)) === userId
               ? ('owner' as const)

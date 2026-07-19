@@ -1,5 +1,7 @@
 export type AdaptiveLearningDomainErrorCode =
-  'ADAPTIVE_TRACKER_REQUIRED' | 'INVALID_ADVISOR_QUESTION';
+  | 'ADAPTIVE_ASSESSMENT_GENERATION_ACTIVE'
+  | 'ADAPTIVE_TRACKER_REQUIRED'
+  | 'INVALID_ADVISOR_QUESTION';
 
 export class AdaptiveLearningDomainError extends Error {
   constructor(

@@ -7,7 +7,6 @@ import { useVoiceInput } from '../../../../hooks/useVoiceInput';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import OnboardingBrandLink from '../components/OnboardingBrandLink';
 import { useActiveRoadmapJob } from '../hooks/useActiveRoadmapJob';
-import { useAnalyzeClonedTracker } from '../hooks/useAnalyzeClonedTracker';
 import { useGenerateRoadmap } from '../hooks/useGenerateRoadmap';
 import { useRoadmapJobStatus } from '../hooks/useRoadmapJobStatus';
 import { useSaveOnboardingStepOne } from '../hooks/useSaveOnboardingStepOne';
@@ -16,7 +15,6 @@ import { useTrackerIntake } from '../hooks/useTrackerIntake';
 import { useTrackerReuseSuggestions } from '../hooks/useTrackerReuseSuggestions';
 import { useOnboardingStore } from '../store/useOnboardingStore';
 import type { ITrackerIntakeMessage, ITrackerIntakeProfile } from '../types/onboarding.types';
-import { useCloneCommunityTracker, type ICommunityTracker } from '../../community';
 
 const INITIAL_MESSAGE: ITrackerIntakeMessage = {
   role: 'assistant',
@@ -50,12 +48,6 @@ const SendIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <line x1="22" y1="2" x2="11" y2="13" />
     <polygon points="22 2 15 22 11 13 2 9 22 2" />
-  </svg>
-);
-
-const CheckIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <polyline points="20 6 9 17 4 12" />
   </svg>
 );
 
@@ -178,8 +170,6 @@ export default function OnboardingStepOnePage() {
   const [answer, setAnswer] = useState('');
   const [generationError, setGenerationError] = useState('');
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
-  const [clonedTracker, setClonedTracker] = useState<ICommunityTracker | null>(null);
-  const [reuseError, setReuseError] = useState('');
   const conversationRef = useRef<HTMLDivElement>(null);
   const intake = useTrackerIntake();
   const saveStepOne = useSaveOnboardingStepOne();
@@ -192,8 +182,6 @@ export default function OnboardingStepOnePage() {
     setAnswer((current) => (current.trim() ? `${current.trim()} ${transcript}` : transcript))
   );
   const suggestions = useTrackerReuseSuggestions(profile?.topic);
-  const cloneTracker = useCloneCommunityTracker();
-  const analyzeClone = useAnalyzeClonedTracker();
 
   useEffect(() => {
     const conversation = conversationRef.current;
@@ -295,29 +283,6 @@ export default function OnboardingStepOnePage() {
   const isStartingGeneration =
     saveStepOne.isPending || saveStepTwo.isPending || generateRoadmap.isPending;
 
-  const reuseTracker = async (tracker: ICommunityTracker) => {
-    setReuseError('');
-    try {
-      const result = await cloneTracker.mutateAsync({ trackerId: tracker._id });
-      setClonedTracker(result.tracker);
-    } catch (error) {
-      const apiMessage = (error as { response?: { data?: { message?: string } } }).response?.data?.message;
-      setReuseError(apiMessage || 'Unable to add this tracker. Please try again.');
-    }
-  };
-
-  const analyzeNewTopics = async () => {
-    if (!clonedTracker) return;
-    setReuseError('');
-    try {
-      const result = await analyzeClone.mutateAsync(clonedTracker._id);
-      navigate(ROUTES.trackerCreateEvaluation(result.data.jobId));
-    } catch (error) {
-      const apiMessage = (error as { response?: { data?: { message?: string } } }).response?.data?.message;
-      setReuseError(apiMessage || 'Unable to start the new-topic analysis.');
-    }
-  };
-
   const startNewConversation = () => {
     if (voice.isListening) voice.toggle();
     setClearDialogOpen(false);
@@ -327,12 +292,9 @@ export default function OnboardingStepOnePage() {
     setProfile(null);
     setAnswer('');
     setGenerationError('');
-    setReuseError('');
-    setClonedTracker(null);
   };
 
   const errorMessage =
-    reuseError ||
     generationError ||
     (intake.isError ? 'Something went wrong. Your answer is still here—please try again.' : '');
 
@@ -450,24 +412,7 @@ export default function OnboardingStepOnePage() {
 
               {profile ? (
                 <div className="max-h-[46%] shrink-0 overflow-y-auto border-t border-(--border-subtle) bg-(--surface-card) p-4 dark:border-white/15 sm:p-5">
-                  {clonedTracker ? (
-                    <div className="rounded-2xl border border-[rgba(76,175,125,0.24)] bg-[rgba(76,175,125,0.07)] p-5">
-                      <div className="flex items-start gap-3">
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-(--success) text-white"><CheckIcon /></span>
-                        <div>
-                          <p className="text-[14px] font-black text-(--text-primary)">“{clonedTracker.title}” is in your dashboard</p>
-                          <p className="mt-1 text-[12px] leading-5 text-(--text-secondary)">Run one AI freshness check to find credible topics introduced after the community tracker was created.</p>
-                        </div>
-                      </div>
-                      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                        <button type="button" onClick={() => void analyzeNewTopics()} disabled={analyzeClone.isPending} className="rounded-xl bg-(--brand-500) px-5 py-3 text-[12px] font-bold text-white transition hover:bg-(--brand-600) disabled:opacity-60 dark:text-[#141412]">
-                          {analyzeClone.isPending ? 'Starting analysis…' : 'Analyse new topics'}
-                        </button>
-                        <button type="button" onClick={() => navigate(ROUTES.dashboard)} className="rounded-xl border border-(--border-subtle) px-5 py-3 text-[12px] font-bold transition hover:border-(--brand-500) dark:border-white/15">Open dashboard</button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div>
+                  <div>
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-500)">Recommended next step</p>
@@ -484,13 +429,26 @@ export default function OnboardingStepOnePage() {
                       ) : suggestions.data?.length ? (
                         <div className="mt-4 grid gap-3 sm:grid-cols-3">
                           {suggestions.data.map((tracker) => (
-                            <button key={tracker._id} type="button" onClick={() => void reuseTracker(tracker)} disabled={cloneTracker.isPending} className="group flex min-h-32 flex-col rounded-2xl border border-(--border-subtle) bg-(--surface-canvas)/55 p-4 text-left transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:shadow-[0_10px_28px_rgba(184,76,43,0.10)] disabled:opacity-60 dark:border-white/15 dark:bg-(--surface-canvas)/40">
+                            <button
+                              key={tracker._id}
+                              type="button"
+                              onClick={() =>
+                                navigate(ROUTES.communityTracker(tracker._id), {
+                                  state: {
+                                    returnTo: ROUTES.trackerCreate,
+                                    returnLabel: 'Back to recommendations',
+                                    finishTrackerCreationOnClone: true,
+                                  },
+                                })
+                              }
+                              className="group flex min-h-32 flex-col rounded-2xl border border-(--border-subtle) bg-(--surface-canvas)/55 p-4 text-left transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:shadow-[0_10px_28px_rgba(184,76,43,0.10)] dark:border-white/15 dark:bg-(--surface-canvas)/40"
+                            >
                               <div className="flex items-start justify-between gap-2">
                                 <span className="line-clamp-2 text-[13px] font-black text-(--text-primary)">{tracker.title}</span>
                                 <span className="shrink-0 text-[10px] font-bold text-(--warning)">★ {tracker.rating.toFixed(1)}</span>
                               </div>
                               <span className="mt-2 line-clamp-2 text-[11px] leading-5 text-(--text-secondary)">{tracker.description || tracker.topic}</span>
-                              <span className="mt-auto pt-3 text-[10px] font-black text-(--brand-500)">{tracker.inDashboard ? 'Open existing clone' : 'Clone tracker'} <span className="inline-block transition group-hover:translate-x-1">→</span></span>
+                              <span className="mt-auto pt-3 text-[10px] font-black text-(--brand-500)">View tracker, ratings & reviews <span className="inline-block transition group-hover:translate-x-1">→</span></span>
                             </button>
                           ))}
                         </div>
@@ -502,8 +460,7 @@ export default function OnboardingStepOnePage() {
                         {isStartingGeneration ? 'Starting generation…' : 'Create a new personalised tracker'}
                         {!isStartingGeneration ? <span>→</span> : null}
                       </button>
-                    </div>
-                  )}
+                  </div>
                 </div>
               ) : (
                 <div className="shrink-0 border-t border-(--border-subtle) bg-(--surface-card) p-4 dark:border-white/15 sm:p-5">
