@@ -80,6 +80,11 @@ export default function AdaptiveLearningPage() {
 
     setActionError('');
     try {
+      if (advisorAction.type === 'browse_community_trackers') {
+        navigate(`${ROUTES.community}?q=${encodeURIComponent(advisorAction.topic)}`);
+        return;
+      }
+
       if (advisorAction.type === 'create_tracker') {
         if (activeRoadmapJobId) {
           setActionError(
@@ -213,6 +218,8 @@ export default function AdaptiveLearningPage() {
                   <p className="mt-2 text-[12px] leading-5 text-(--text-secondary)">
                     {advisorAction.type === 'create_tracker'
                       ? `Generate a ${advisorAction.level} tracker for ${advisorAction.topic}.`
+                      : advisorAction.type === 'browse_community_trackers'
+                      ? `Browse community trackers matching ${advisorAction.topic}.`
                       : `Generate a ${advisorAction.difficulty} ${advisorAction.questionCount}-question mock test for ${advisorAction.topic}.`}
                   </p>
                   <button

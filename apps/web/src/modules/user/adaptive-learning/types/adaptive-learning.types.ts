@@ -43,6 +43,11 @@ export type AdaptiveAdvisorAction =
       level: 'beginner' | 'intermediate' | 'advanced';
     }
   | {
+      type: 'browse_community_trackers';
+      label: string;
+      topic: string;
+    }
+  | {
       type: 'create_mock_test';
       label: string;
       topic: string;
