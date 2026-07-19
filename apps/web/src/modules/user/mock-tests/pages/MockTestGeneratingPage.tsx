@@ -2,15 +2,15 @@ import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
-import { useRoadmapJobStatus } from '../../tracker-creation';
+import { useMockTestGenerationStatus } from '../hooks/useMockTests';
 import { ROUTES } from '../../../../routes/config/route-paths';
 
 export default function MockTestGeneratingPage() {
   const navigate = useNavigate();
   const { jobId } = useParams<{ jobId: string }>();
-  const job = useRoadmapJobStatus(jobId);
-  const status = (job.data?.data?.status || job.data?.data?.state || '').toLowerCase();
-  const testId = job.data?.data?.testId;
+  const job = useMockTestGenerationStatus(jobId);
+  const status = job.data?.status ?? '';
+  const testId = job.data?.testId;
 
   useEffect(() => {
     if (!['completed', 'success', 'done'].includes(status) || !testId) return;
@@ -42,7 +42,7 @@ export default function MockTestGeneratingPage() {
           </h1>
           <p className="mx-auto mt-3 max-w-xl text-[13px] leading-6 text-(--text-secondary)">
             {failed
-              ? job.data?.data?.errorMessage || 'Please return and try again.'
+              ? job.data?.errorMessage || 'Please return and try again.'
               : status === 'completed'
                 ? 'Opening the generated test now…'
                 : 'Immi is turning your learning data into a focused assessment. You can safely continue in the background.'}

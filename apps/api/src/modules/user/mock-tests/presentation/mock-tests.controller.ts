@@ -67,6 +67,18 @@ export class MockTestsController {
     }
   };
 
+  getGenerationStatus = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await this._useCases.getMockTestGenerationStatus.execute(
+        getAuthUser(req).userId,
+        this.getParam(req.params.jobId, 'jobId')
+      );
+      res.json(new ApiResponse('Mock-test generation status fetched', data));
+    } catch (error) {
+      next(error);
+    }
+  };
+
   getTest = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this._useCases.getMockTestDetails.execute(

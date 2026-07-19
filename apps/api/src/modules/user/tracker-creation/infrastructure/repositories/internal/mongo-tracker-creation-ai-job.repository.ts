@@ -165,6 +165,7 @@ export class MongoTrackerCreationAIJobRepository extends MongoTrackerCreationBas
     return this.execute('AI_JOB_QUERY_FAILED', 'Failed to read AI job', async () => {
       const job = await AIGenerationJob.findOne({
         _id: jobId,
+        jobType: { $in: ['roadmap', 'evaluation'] },
         deletedAt: null,
       }).lean<MongoAIGenerationJobRecord>();
 

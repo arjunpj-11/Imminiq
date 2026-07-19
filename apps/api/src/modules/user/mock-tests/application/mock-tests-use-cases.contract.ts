@@ -6,6 +6,7 @@ export type MockTestsUseCases = {
   generateMockTest: Application.IGenerateMockTestUseCase;
   startMockTestGeneration: Application.IStartMockTestGenerationUseCase;
   getActiveMockTestGeneration: Application.IGetActiveMockTestGenerationUseCase;
+  getMockTestGenerationStatus: Application.IGetMockTestGenerationStatusUseCase;
   startTestAttempt: Application.IStartTestAttemptUseCase;
   getAttemptQuestions: Application.IGetAttemptQuestionsUseCase;
   submitAnswer: Application.ISubmitAnswerUseCase;

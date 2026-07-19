@@ -4,6 +4,7 @@ export * from './use-cases/flag-question.usecase';
 export * from './use-cases/generate-mock-test.usecase';
 export * from './use-cases/get-ai-insights.usecase';
 export * from './use-cases/get-active-mock-test-generation.usecase';
+export * from './use-cases/get-mock-test-generation-status.usecase';
 export * from './use-cases/get-analytics.usecase';
 export * from './use-cases/get-attempt-analysis.usecase';
 export * from './use-cases/get-attempt-questions.usecase';

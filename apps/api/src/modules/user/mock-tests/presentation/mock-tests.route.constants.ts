@@ -3,6 +3,7 @@ export const MOCK_TEST_ROUTE_PATHS = {
 
   GENERATE: '/generate',
   ACTIVE_GENERATION: '/generation/active',
+  GENERATION_STATUS: '/generation/:jobId/status',
   IMPORT_SHARED: '/shared/:shareToken/import',
 
   RUN_CODE: '/attempts/:attemptId/questions/:questionId/run-code',

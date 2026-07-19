@@ -134,6 +134,28 @@ export const useActiveMockTestGeneration = () => {
   });
 };
 
+export const useMockTestGenerationStatus = (jobId?: string) => {
+  return useQuery({
+    queryKey: mockTestKeys.generationStatus(jobId || ''),
+    enabled: Boolean(jobId),
+    queryFn: async () => {
+      const response = await api.get<
+        IApiResponse<{
+          jobId: string;
+          status: 'pending' | 'processing' | 'completed' | 'failed';
+          testId?: string;
+          errorMessage?: string;
+        }>
+      >(MOCK_TEST_API_PATHS.generationStatus(jobId || ''));
+      return unwrap(response.data);
+    },
+    refetchInterval: (query) =>
+      ['completed', 'failed'].includes(query.state.data?.status ?? '') ? false : 1500,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+};
+
 export const useShareMockTest = () => {
   return useMutation<IApiResponse<IMockTestShareResponse>, Error, string>({
     mutationFn: async (testId) => {

@@ -7,6 +7,7 @@ import { FlagQuestionUseCase } from './application/use-cases/flag-question.useca
 import { GenerateMockTestUseCase } from './application/use-cases/generate-mock-test.usecase';
 import { GetAIInsightsUseCase } from './application/use-cases/get-ai-insights.usecase';
 import { GetActiveMockTestGenerationUseCase } from './application/use-cases/get-active-mock-test-generation.usecase';
+import { GetMockTestGenerationStatusUseCase } from './application/use-cases/get-mock-test-generation-status.usecase';
 import { GetAnalyticsUseCase } from './application/use-cases/get-analytics.usecase';
 import { GetAttemptAnalysisUseCase } from './application/use-cases/get-attempt-analysis.usecase';
 import { GetAttemptQuestionsUseCase } from './application/use-cases/get-attempt-questions.usecase';
@@ -106,6 +107,10 @@ export const createMockTestsComposition = (
       ),
 
       getActiveMockTestGeneration: new GetActiveMockTestGenerationUseCase(
+        bullMqMockTestGenerationJobGateway
+      ),
+
+      getMockTestGenerationStatus: new GetMockTestGenerationStatusUseCase(
         bullMqMockTestGenerationJobGateway
       ),
 

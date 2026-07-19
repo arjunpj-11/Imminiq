@@ -31,6 +31,7 @@ export const createMockTestsRoutes = (
   router.param('attemptId', validateIdentifierParam);
   router.param('questionId', validateIdentifierParam);
   router.param('testId', validateIdentifierParam);
+  router.param('jobId', validateIdentifierParam);
   router.param('shareToken', validateIdentifierParam);
 
   // ─── PROTECTED ───────────────────────────────────────────────
@@ -57,6 +58,7 @@ export const createMockTestsRoutes = (
   );
 
   router.get(MOCK_TEST_ROUTE_PATHS.ACTIVE_GENERATION, mockTestsController.getActiveGeneration);
+  router.get(MOCK_TEST_ROUTE_PATHS.GENERATION_STATUS, mockTestsController.getGenerationStatus);
 
   router.post(MOCK_TEST_ROUTE_PATHS.IMPORT_SHARED, mockTestsController.importSharedTest);
 

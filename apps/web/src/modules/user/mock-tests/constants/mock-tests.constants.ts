@@ -17,6 +17,7 @@ export const MOCK_TEST_API_PATHS = {
   root: '/mock-tests',
   generate: '/mock-tests/generate',
   activeGeneration: '/mock-tests/generation/active',
+  generationStatus: (jobId: string) => `/mock-tests/generation/${jobId}/status`,
   history: '/mock-tests/history',
   analyticsTrends: '/mock-tests/analytics/trends',
   analyticsAiInsights: '/mock-tests/analytics/ai-insights',

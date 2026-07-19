@@ -171,6 +171,14 @@ const handleFailedJob = async (job: Job, error: unknown) => {
     `[AI job failed] jobId=${jobId} jobName=${job.name} code=${internalCode} ` +
       `message="${error instanceof Error ? error.message : String(error)}"`
   );
+
+  const totalAttempts = job.opts.attempts ?? 1;
+  const isFinalAttempt = job.attemptsMade + 1 >= totalAttempts;
+
+  if (!isFinalAttempt) {
+    return;
+  }
+
   await failCurrentStep(jobId);
   await AIGenerationJob.findByIdAndUpdate(jobId, {
     status: 'failed',

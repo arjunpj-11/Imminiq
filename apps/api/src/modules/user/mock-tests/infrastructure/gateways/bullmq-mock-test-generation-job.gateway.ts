@@ -13,6 +13,29 @@ export class BullMqMockTestGenerationJobGateway implements IMockTestGenerationJo
     return findActiveAIJob({ userId, jobType: 'mock_test' });
   }
 
+  async getStatus(userId: string, jobId: string) {
+    const job = await AIGenerationJob.findOne({
+      _id: jobId,
+      userId,
+      jobType: 'mock_test',
+      deletedAt: null,
+    })
+      .select({ status: 1, outputData: 1, errorMessage: 1 })
+      .lean();
+
+    if (!job) return null;
+
+    const outputData = job.outputData as { testId?: unknown } | undefined;
+    const testId = typeof outputData?.testId === 'string' ? outputData.testId : undefined;
+
+    return {
+      jobId: job._id.toString(),
+      status: job.status,
+      ...(testId ? { testId } : {}),
+      ...(job.errorMessage ? { errorMessage: job.errorMessage } : {}),
+    };
+  }
+
   async enqueue(userId: string, payload: GenerateMockTestPayloadDTO) {
     const job = await AIGenerationJob.create({
       userId,

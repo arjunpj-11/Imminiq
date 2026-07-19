@@ -163,6 +163,11 @@ export interface MockTestGenerationJobDTO {
   status: 'pending' | 'processing' | 'completed' | 'failed';
 }
 
+export type MockTestGenerationStatusDTO = MockTestGenerationJobDTO & {
+  testId?: string;
+  errorMessage?: string;
+};
+
 export type PendingMockTestGenerationJobDTO = Pick<
   MockTestGenerationJobDTO,
   'jobId' | 'status'
