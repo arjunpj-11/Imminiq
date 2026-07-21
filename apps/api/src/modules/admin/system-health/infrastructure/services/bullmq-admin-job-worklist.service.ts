@@ -1,10 +1,16 @@
 import type { Job, JobState, Queue } from 'bullmq';
 import { AIGenerationJob } from '../../../../../infrastructure/database/models/ai-generation-job.model';
 import { recordAdminAction } from '../../../../../infrastructure/admin';
-import { aiQueue, analyticsQueue, emailQueue, notificationQueue, streakQueue } from '../../../../../infrastructure/queue/queues';
-import type { AdminActor } from '../../../../../shared/admin';
-import { ApiError } from '../../../../../shared/utils/ApiError';
+import {
+  aiQueue,
+  analyticsQueue,
+  emailQueue,
+  notificationQueue,
+  streakQueue,
+} from '../../../../../infrastructure/queue/queues';
+import { ServiceError } from '../../../../../shared/errors/service.error';
 import type {
+  AdminJobActionInput,
   AdminJobWorklistQuery,
   IAdminJobWorklistService,
 } from '../../application/admin-job-worklist.service';
@@ -47,38 +53,43 @@ export class BullMqAdminJobWorklistService implements IAdminJobWorklistService {
     };
   }
 
-  async act(
-    queueName: string,
-    jobId: string,
-    action: 'cancel' | 'retry' | 'remove',
-    actor: AdminActor
-  ) {
+  async act({ queueName, jobId, action, actor }: AdminJobActionInput) {
     const queue = this.requireQueue(queueName);
     const job = await queue.getJob(jobId);
-    if (!job) throw new ApiError(404, 'Queue job not found', 'QUEUE_JOB_NOT_FOUND');
+    if (!job) {
+      throw new ServiceError('missing-resource', 'QUEUE_JOB_NOT_FOUND', 'Queue job not found');
+    }
     const state = await job.getState();
 
     if (action === 'cancel') {
       if (!['waiting', 'delayed'].includes(state)) {
-        throw new ApiError(
-          409,
+        throw new ServiceError(
+          'conflict',
+          'QUEUE_JOB_NOT_CANCELLABLE',
           state === 'active'
             ? 'Active work cannot be force-removed safely. Let it finish, then remove it.'
-            : 'Only queued or delayed work can be cancelled',
-          'QUEUE_JOB_NOT_CANCELLABLE'
+            : 'Only queued or delayed work can be cancelled'
         );
       }
       await job.remove();
       await this.markAIJobCancelled(job);
     } else if (action === 'retry') {
       if (state !== 'failed') {
-        throw new ApiError(409, 'Only failed work can be retried', 'QUEUE_JOB_NOT_RETRYABLE');
+        throw new ServiceError(
+          'conflict',
+          'QUEUE_JOB_NOT_RETRYABLE',
+          'Only failed work can be retried'
+        );
       }
       await job.retry();
       await this.markAIJobPending(job);
     } else {
       if (!['completed', 'failed'].includes(state)) {
-        throw new ApiError(409, 'Only completed or failed work can be removed', 'QUEUE_JOB_NOT_REMOVABLE');
+        throw new ServiceError(
+          'conflict',
+          'QUEUE_JOB_NOT_REMOVABLE',
+          'Only completed or failed work can be removed'
+        );
       }
       await job.remove();
     }
@@ -94,7 +105,7 @@ export class BullMqAdminJobWorklistService implements IAdminJobWorklistService {
 
   private requireQueue(name: string) {
     const queue = queues.get(name);
-    if (!queue) throw new ApiError(404, 'Queue not found', 'QUEUE_NOT_FOUND');
+    if (!queue) throw new ServiceError('missing-resource', 'QUEUE_NOT_FOUND', 'Queue not found');
     return queue;
   }
 

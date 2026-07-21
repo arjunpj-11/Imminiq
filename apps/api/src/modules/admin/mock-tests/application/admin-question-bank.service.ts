@@ -34,17 +34,27 @@ export type AdminQuestionBankDetail = AdminQuestionBankItem & {
   flagCount: number;
 };
 
+export type AdminQuestionBankMutationInput = {
+  bankId: number;
+  reason: string;
+  actor: AdminActor;
+};
+
+export type AdminQuestionBankRemoveResult = {
+  bankId: number;
+  removedFromTests: number;
+  affectedTests: number;
+};
+
+export type AdminQuestionBankRestoreResult = {
+  bankId: number;
+  restoredInTests: number;
+  affectedTests: number;
+};
+
 export interface IAdminQuestionBankService {
   list(query: AdminQuestionBankQuery): Promise<AdminPage<AdminQuestionBankItem>>;
   get(bankId: number): Promise<AdminQuestionBankDetail>;
-  remove(
-    bankId: number,
-    reason: string,
-    actor: AdminActor
-  ): Promise<{ bankId: number; removedFromTests: number; affectedTests: number }>;
-  restore(
-    bankId: number,
-    reason: string,
-    actor: AdminActor
-  ): Promise<{ bankId: number; restoredInTests: number; affectedTests: number }>;
+  remove(input: AdminQuestionBankMutationInput): Promise<AdminQuestionBankRemoveResult>;
+  restore(input: AdminQuestionBankMutationInput): Promise<AdminQuestionBankRestoreResult>;
 }

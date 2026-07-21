@@ -46,6 +46,7 @@ import {
   answerClanChallengeNodeSchema,
   extendClanChallengeSchema,
   respondClanRoleInvitationSchema,
+  clanMessagesQuerySchema,
 } from './trackers.schema';
 
 export const createTrackerRoutes = (
@@ -137,7 +138,11 @@ export const createTrackerRoutes = (
 
   router.get(TRACKER_ROUTE_PATHS.ACTIVE_CLAN_CHALLENGE, clanChallengesController.active);
   router.get(TRACKER_ROUTE_PATHS.CLAN, clanController.getOverview);
-  router.get(TRACKER_ROUTE_PATHS.CLAN_MESSAGES, clanController.listMessages);
+  router.get(
+    TRACKER_ROUTE_PATHS.CLAN_MESSAGES,
+    validateQuery('clanMessagesQuery', clanMessagesQuerySchema),
+    clanController.listMessages
+  );
   router.post(TRACKER_ROUTE_PATHS.CLAN_JOIN, clanController.join);
   router.patch(
     TRACKER_ROUTE_PATHS.CLAN_JOIN_REQUEST,

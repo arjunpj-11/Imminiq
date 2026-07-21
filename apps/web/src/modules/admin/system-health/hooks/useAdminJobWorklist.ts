@@ -1,4 +1,4 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import api from "../../../../lib/axios";
 import type { ApiEnvelope } from "../../../../lib/api.types";
 import type { AdminPageData } from "../../../../components/admin";
@@ -21,27 +21,3 @@ export const useAdminJobWorklist = (query: AdminJobQuery) =>
     placeholderData: keepPreviousData,
     refetchInterval: 10_000,
   });
-
-export const useAdminJobAction = () => {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: (input: {
-      queue: string;
-      jobId: string;
-      action: "cancel" | "retry" | "remove";
-      actionPassword: string;
-    }) =>
-      api.patch(
-        ADMIN_SYSTEM_HEALTH_ENDPOINTS.job(input.queue, input.jobId),
-        { action: input.action },
-        {
-          headers: input.actionPassword
-            ? { "X-Admin-Action-Password": input.actionPassword }
-            : undefined,
-        },
-      ),
-    onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: adminSystemHealthKeys.all });
-    },
-  });
-};

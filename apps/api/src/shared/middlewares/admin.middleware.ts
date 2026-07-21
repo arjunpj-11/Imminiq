@@ -6,6 +6,7 @@ import {
   securityAttemptCache,
 } from '../../infrastructure/cache/security-attempt.cache';
 import { securityAuditLogger } from '../../infrastructure/security/security-audit-logger';
+import { TwoFactorAuth } from '../../infrastructure/database/models/two-factor-auth.model';
 
 export type AdminPermission =
   | 'content:read'
@@ -58,6 +59,32 @@ export const requireAdmin = (req: Request, _res: Response, next: NextFunction) =
 export const requireSuperAdmin = (req: Request, _res: Response, next: NextFunction) => {
   if (req.user?.role !== 'superadmin') {
     throw new ApiError(403, 'Superadmin access required', 'SUPERADMIN_REQUIRED');
+  }
+  next();
+};
+
+export const requireStaffTwoFactor = async (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+) => {
+  const role = req.user?.role;
+  if (!role || !['moderator', 'admin', 'superadmin'].includes(role)) {
+    next();
+    return;
+  }
+
+  const enabled = await TwoFactorAuth.exists({
+    userId: req.user!.userId,
+    status: 'active',
+    deletedAt: null,
+  });
+  if (!enabled) {
+    throw new ApiError(
+      403,
+      'Two-factor authentication is required for staff access. Enable it in Security settings.',
+      'STAFF_TWO_FACTOR_REQUIRED'
+    );
   }
   next();
 };

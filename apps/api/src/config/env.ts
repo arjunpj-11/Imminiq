@@ -9,6 +9,22 @@ const booleanFromString = z.preprocess(
   z.boolean()
 );
 
+const jwtDurationSchema = z
+  .string()
+  .trim()
+  .regex(/^\d+[smhd]$/, 'JWT_EXPIRES_IN must be a duration such as 15m or 1h');
+
+const isExactOriginUrl = (value: string) => {
+  const parsed = new URL(value);
+  return (
+    !parsed.username &&
+    !parsed.password &&
+    !parsed.search &&
+    !parsed.hash &&
+    (parsed.pathname === '' || parsed.pathname === '/')
+  );
+};
+
 const envSchema = z
   .object({
     PORT: z.coerce.number().int().min(1).max(65535).default(5000),
@@ -30,10 +46,19 @@ const envSchema = z
 
     JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
     JWT_REFRESH_SECRET: z.string().min(32, 'JWT_REFRESH_SECRET must be at least 32 characters'),
-    JWT_EXPIRES_IN: z.string().default('15m'),
+    JWT_EXPIRES_IN: jwtDurationSchema.default('15m'),
 
-    CLIENT_URL: z.string().url(),
-    SERVER_URL: z.string().url().default('http://localhost:5001'),
+    CLIENT_URL: z.string().url().refine(isExactOriginUrl, 'CLIENT_URL must be an origin only'),
+    SERVER_URL: z
+      .string()
+      .url()
+      .refine(isExactOriginUrl, 'SERVER_URL must be an origin only')
+      .default('http://localhost:5001'),
+    AUTH_COOKIE_DOMAIN: z
+      .string()
+      .trim()
+      .regex(/^\.?[a-z0-9](?:[a-z0-9.-]*[a-z0-9])$/i, 'AUTH_COOKIE_DOMAIN is invalid')
+      .optional(),
 
     CLOUDINARY_CLOUD_NAME: z.string().min(1),
     CLOUDINARY_API_KEY: z.string().min(1),
@@ -165,6 +190,17 @@ const envSchema = z
       .int()
       .positive()
       .default(RUNTIME_DEFAULTS.TWO_FACTOR_BLOCK_SECONDS),
+
+    RATE_LIMIT_GLOBAL_WINDOW_MS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_GLOBAL_WINDOW_MS),
+    RATE_LIMIT_GLOBAL_MAX: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_GLOBAL_MAX),
 
     RATE_LIMIT_AUTHENTICATED_API_WINDOW_MS: z.coerce
       .number()
@@ -351,6 +387,80 @@ const envSchema = z
   .refine((value) => value.JWT_SECRET !== value.JWT_REFRESH_SECRET, {
     message: 'JWT secrets must be different',
     path: ['JWT_REFRESH_SECRET'],
+  })
+  .superRefine((value, context) => {
+    if (value.NODE_ENV !== 'production') return;
+
+    for (const [field, url] of [
+      ['CLIENT_URL', value.CLIENT_URL],
+      ['SERVER_URL', value.SERVER_URL],
+    ] as const) {
+      if (new URL(url).protocol !== 'https:') {
+        context.addIssue({
+          code: 'custom',
+          path: [field],
+          message: `${field} must use HTTPS in production`,
+        });
+      }
+    }
+
+    const clientHost = new URL(value.CLIENT_URL).hostname.toLowerCase();
+    const serverHost = new URL(value.SERVER_URL).hostname.toLowerCase();
+    const cookieDomain = value.AUTH_COOKIE_DOMAIN?.replace(/^\./, '').toLowerCase();
+    const belongsToCookieDomain = (host: string) =>
+      Boolean(cookieDomain && (host === cookieDomain || host.endsWith(`.${cookieDomain}`)));
+
+    if (
+      cookieDomain &&
+      (!cookieDomain.includes('.') ||
+        !belongsToCookieDomain(clientHost) ||
+        !belongsToCookieDomain(serverHost))
+    ) {
+      context.addIssue({
+        code: 'custom',
+        path: ['AUTH_COOKIE_DOMAIN'],
+        message: 'AUTH_COOKIE_DOMAIN must be a shared parent of CLIENT_URL and SERVER_URL',
+      });
+    }
+
+    if (!value.REDIS_URL.startsWith('rediss://')) {
+      context.addIssue({
+        code: 'custom',
+        path: ['REDIS_URL'],
+        message: 'REDIS_URL must use TLS (rediss://) in production',
+      });
+    }
+
+    const mongoUsesTls =
+      value.MONGO_URI.startsWith('mongodb+srv://') ||
+      /[?&](?:tls|ssl)=true(?:&|$)/i.test(value.MONGO_URI);
+    if (!mongoUsesTls) {
+      context.addIssue({
+        code: 'custom',
+        path: ['MONGO_URI'],
+        message: 'MONGO_URI must enable TLS in production',
+      });
+    }
+
+    for (const field of ['JWT_SECRET', 'JWT_REFRESH_SECRET'] as const) {
+      if (/replace[-_ ]?with|change[-_ ]?me|example|default/i.test(value[field])) {
+        context.addIssue({
+          code: 'custom',
+          path: [field],
+          message: `${field} must not use an example or default value in production`,
+        });
+      }
+    }
+
+    if (value.BCRYPT_ROUNDS < 12) {
+      context.addIssue({
+        code: 'custom',
+        path: ['BCRYPT_ROUNDS'],
+        message: 'BCRYPT_ROUNDS must be at least 12 in production',
+      });
+    }
   });
 
-export const env = envSchema.parse(process.env);
+export const parseApiEnvironment = (source: Record<string, unknown>) => envSchema.parse(source);
+
+export const env = parseApiEnvironment(process.env);

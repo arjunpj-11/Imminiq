@@ -28,6 +28,8 @@ export const CSRF_COOKIE_OPTIONS = {
   httpOnly: false,
   secure: isProduction,
   sameSite: isProduction ? ('none' as const) : ('lax' as const),
+  ...(isProduction && env.AUTH_COOKIE_DOMAIN ? { domain: env.AUTH_COOKIE_DOMAIN } : {}),
+  priority: 'high' as const,
   maxAge: 7 * 24 * 60 * 60 * 1000,
   path: '/',
 };

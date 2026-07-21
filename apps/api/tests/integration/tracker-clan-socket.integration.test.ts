@@ -6,6 +6,7 @@ import { io as createClient, type Socket } from 'socket.io-client';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { env } from '../../src/config/env';
+import { AuthToken } from '../../src/infrastructure/database/models/auth-token.model';
 import { Tracker } from '../../src/infrastructure/database/models/tracker.model';
 import { TrackerClan } from '../../src/infrastructure/database/models/tracker-clan.model';
 import { TrackerClanMessage } from '../../src/infrastructure/database/models/tracker-clan-message.model';
@@ -56,8 +57,18 @@ describe('tracker guild Socket.IO chat', () => {
     await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
     const address = server.address();
     if (!address || typeof address === 'string') throw new Error('Expected TCP server address');
+    const session = await AuthToken.create({
+      userId: member._id,
+      refreshTokenHash: 'socket-test-refresh-token-hash',
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+    });
     const token = jwt.sign(
-      { userId: member._id.toString(), role: 'user', type: 'access' },
+      {
+        userId: member._id.toString(),
+        role: 'user',
+        type: 'access',
+        sessionId: session._id.toString(),
+      },
       env.JWT_SECRET,
       { algorithm: 'HS256', issuer: 'imminiq-api', audience: 'imminiq-web', expiresIn: '5m' }
     );

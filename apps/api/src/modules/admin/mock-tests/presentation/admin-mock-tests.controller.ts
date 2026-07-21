@@ -66,11 +66,11 @@ export class AdminMockTestsController {
     sendAdminResult(
       next,
       () =>
-        this.useCases.questionBank.remove(
-          adminQuestionBankIdSchema.parse(req.params.bankId),
-          adminQuestionBankDeleteSchema.parse(req.body).reason,
-          getAdminActor(req)
-        ),
+        this.useCases.questionBank.remove({
+          bankId: adminQuestionBankIdSchema.parse(req.params.bankId),
+          reason: adminQuestionBankDeleteSchema.parse(req.body).reason,
+          actor: getAdminActor(req),
+        }),
       res,
       'Question removed from the bank and active mock tests'
     );
@@ -79,11 +79,11 @@ export class AdminMockTestsController {
     sendAdminResult(
       next,
       () =>
-        this.useCases.questionBank.restore(
-          adminQuestionBankIdSchema.parse(req.params.bankId),
-          adminQuestionBankRestoreSchema.parse(req.body).reason,
-          getAdminActor(req)
-        ),
+        this.useCases.questionBank.restore({
+          bankId: adminQuestionBankIdSchema.parse(req.params.bankId),
+          reason: adminQuestionBankRestoreSchema.parse(req.body).reason,
+          actor: getAdminActor(req),
+        }),
       res,
       'Question restored in the bank and linked mock tests'
     );

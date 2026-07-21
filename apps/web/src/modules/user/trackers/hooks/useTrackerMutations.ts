@@ -19,6 +19,7 @@ import type {
   ITrackerListResponse,
 } from '../types/tracker.types';
 import { trackerKeys } from './trackers.query-keys';
+import { syncTrackerClanChallengeCache } from './syncTrackerClanChallengeCache';
 import type { TrackerOutlineNode, TrackerOutlineTopic } from '../utils/tracker-outline';
 
 export const useCreateTracker = () => {
@@ -433,26 +434,7 @@ const useClanChallengeMutation = <TVariables>(
     mutationFn: operation,
     onSuccess: (response, variables) => {
       const trackerId = trackerIdOf(variables);
-      queryClient.setQueryData<ITrackerClanChallenge[]>(
-        trackerKeys.clanChallenges(trackerId),
-        (current) => current
-          ? current.map((challenge) =>
-              challenge.id === response.data.id ? response.data : challenge
-            )
-          : current
-      );
-      queryClient.setQueryData(
-        trackerKeys.clanChallenge(trackerId, response.data.id),
-        response.data
-      );
-      queryClient.setQueryData<ITrackerClanChallenge | null>(
-        trackerKeys.activeClanChallenge(),
-        (current) => response.data.status === 'active'
-          ? response.data
-          : current?.id === response.data.id
-            ? null
-            : current
-      );
+      syncTrackerClanChallengeCache(queryClient, trackerId, response.data);
       queryClient.invalidateQueries({ queryKey: trackerKeys.clanChallenges(trackerId) });
       queryClient.invalidateQueries({ queryKey: trackerKeys.activeClanChallenge() });
     },

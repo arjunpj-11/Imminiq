@@ -143,6 +143,7 @@ export const useTrackerClanChallenges = (trackerId?: string, enabled = true) =>
     queryKey: trackerKeys.clanChallenges(trackerId || ''),
     enabled: Boolean(trackerId) && enabled,
     refetchInterval: 10_000,
+    refetchOnMount: 'always',
     queryFn: async () => {
       const response = await api.get<IApiResponse<ITrackerClanChallenge[]>>(
         TRACKER_API_PATHS.clanChallenges(trackerId || '')

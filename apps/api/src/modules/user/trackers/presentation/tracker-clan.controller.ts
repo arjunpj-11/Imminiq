@@ -140,10 +140,11 @@ export class TrackerClanController {
 
   listMessages = async (req: Request<TrackerParams>, res: Response, next: NextFunction) => {
     try {
+      const query = res.locals.clanMessagesQuery as { limit: number };
       const result = await this.useCases.trackerClan.listMessages({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
-        limit: Number(req.query.limit) || 60,
+        limit: query.limit,
       });
       res.json(new ApiResponse('Guild chat history fetched successfully', result));
     } catch (error) {

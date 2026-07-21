@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { createHttpUrlSchema } from '../../../../shared/validators/common.schemas';
 
 const appealReasonSchema = z
   .string()
@@ -16,7 +17,7 @@ export const submitContentModerationAppealSchema = z.object({
   targetType: z.enum(['tracker', 'mock_test']),
   targetId: z.string().trim().min(1).max(100),
   reason: z.string().trim().min(20).max(3000),
-  evidenceUrls: z.array(z.string().url().max(2000)).max(10).default([]),
+  evidenceUrls: z.array(createHttpUrlSchema(2_000)).max(10).default([]),
 });
 
 export type SubmitModerationAppealInput = z.infer<typeof submitModerationAppealSchema>;

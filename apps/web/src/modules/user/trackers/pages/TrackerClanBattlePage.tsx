@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import { AppPageSkeleton } from '../../../../components/feedback/RouteSkeleton';
@@ -21,6 +22,7 @@ import {
   useTrackerClanChallengeHistory,
 } from '../hooks/useTrackers';
 import { downloadBattleHistoryPdf, getBattleHistoryQuestions } from '../utils/downloadBattleHistoryPdf';
+import { syncTrackerClanChallengeCache } from '../hooks/syncTrackerClanChallengeCache';
 
 type ChallengeEvent = { id: string; trackerId: string };
 
@@ -37,6 +39,7 @@ const buildNodes = (count: number) => {
 export default function TrackerClanBattlePage() {
   const { trackerId = '', challengeId = '' } = useParams<{ trackerId: string; challengeId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const accessToken = useAuthStore((state) => state.accessToken);
   const currentUserId = useAuthStore((state) => state.user?._id);
   const challengeQuery = useTrackerClanChallenge(trackerId, challengeId, Boolean(trackerId && challengeId));
@@ -78,6 +81,11 @@ export default function TrackerClanBattlePage() {
     const interval = window.setInterval(() => setClock(Date.now()), 1000);
     return () => window.clearInterval(interval);
   }, [challenge?.status]);
+
+  useEffect(() => {
+    if (!trackerId || !challenge) return;
+    syncTrackerClanChallengeCache(queryClient, trackerId, challenge);
+  }, [challenge, queryClient, trackerId]);
 
   useEffect(() => {
     if (!trackerId || !accessToken) return;

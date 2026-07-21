@@ -39,4 +39,17 @@ describe('parseWebEnvironment', () => {
       parseWebEnvironment({ VITE_API_URL: '/api', VITE_SOCKET_URL: 'javascript:alert(1)' })
     ).toThrow('VITE_SOCKET_URL must use HTTP or HTTPS');
   });
+
+  it('rejects insecure absolute URLs in production', () => {
+    expect(() =>
+      parseWebEnvironment({ VITE_API_URL: 'http://api.imminiq.com/api', PROD: true })
+    ).toThrow('VITE_API_URL must use HTTPS in production');
+    expect(() =>
+      parseWebEnvironment({
+        VITE_API_URL: '/api',
+        VITE_SOCKET_URL: 'http://api.imminiq.com',
+        PROD: true,
+      })
+    ).toThrow('VITE_SOCKET_URL must use HTTPS in production');
+  });
 });

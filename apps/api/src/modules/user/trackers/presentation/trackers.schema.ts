@@ -39,7 +39,10 @@ const descriptionSchema = optionalTrimmedStringSchema(500, 'Description is too l
 
 const longDescriptionSchema = optionalTrimmedStringSchema(700, 'Description is too long');
 
-const sourceCodeSchema = z.string().min(1, 'Source code is required');
+const sourceCodeSchema = z
+  .string()
+  .min(1, 'Source code is required')
+  .max(50_000, 'Source code must not exceed 50,000 characters');
 
 const lessonLanguageSchema = optionalTrimmedStringSchema(40, 'Language is too long');
 
@@ -159,6 +162,10 @@ export const respondClanRoleInvitationSchema = z.object({
   action: z.enum(['accept', 'decline']),
 });
 
+export const clanMessagesQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).optional().default(60),
+});
+
 export const createClanChallengeSchema = z.object({
   opponentId: z.string().trim().min(1).optional(),
   durationMinutes: z.coerce.number().int().min(5).max(30).default(10),
@@ -248,6 +255,7 @@ export const verifyTopicSchema = z.object({
         description: defaultTrimmedStringSchema(500, 'Topic description is too long'),
       })
     )
+    .max(100)
     .optional()
     .default([]),
 });
@@ -268,6 +276,7 @@ export const verifySubtopicSchema = z.object({
         difficulty: defaultTrimmedStringSchema(40, 'Difficulty is too long'),
       })
     )
+    .max(100)
     .optional()
     .default([]),
 });

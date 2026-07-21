@@ -101,7 +101,11 @@ describe('admin question bank', () => {
     });
 
     await expect(
-      service.remove(701, 'The stored answer is not reliable.', actor)
+      service.remove({
+        bankId: 701,
+        reason: 'The stored answer is not reliable.',
+        actor,
+      })
     ).resolves.toEqual({ bankId: 701, removedFromTests: 1, affectedTests: 1 });
 
     expect((await QuestionBankModel.findOne({ bankId: 701 }).lean())?.deletedAt).toBeTruthy();
@@ -124,7 +128,11 @@ describe('admin question bank', () => {
     });
 
     await expect(
-      service.restore(701, 'The question and answer have been verified.', actor)
+      service.restore({
+        bankId: 701,
+        reason: 'The question and answer have been verified.',
+        actor,
+      })
     ).resolves.toEqual({ bankId: 701, restoredInTests: 1, affectedTests: 1 });
     expect((await QuestionBankModel.findOne({ bankId: 701 }).lean())?.deletedAt).toBeNull();
     await expect(MockTestQuestionModel.findById(testQuestion._id).lean()).resolves.toMatchObject({

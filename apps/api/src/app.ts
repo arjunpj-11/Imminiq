@@ -16,6 +16,7 @@ import { apiNotFoundHandler, errorHandler } from './shared/middlewares/errorHand
 import { verifyBrowserRequestOrigin } from './shared/middlewares/request-origin.middleware';
 import { validateCsrfToken } from './shared/middlewares/csrf-token.middleware';
 import { ApiError } from './shared/utils/ApiError';
+import { RedisRateLimitStore } from './infrastructure/cache/redis-rate-limit.store';
 
 const app = express();
 const { router: apiRouter, authRepository } = createApiRouter();
@@ -28,8 +29,9 @@ if (env.NODE_ENV === 'production') {
 }
 
 const globalApiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 1000,
+  windowMs: env.RATE_LIMIT_GLOBAL_WINDOW_MS,
+  limit: env.RATE_LIMIT_GLOBAL_MAX,
+  store: new RedisRateLimitStore(redis, 'global'),
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   handler: (_req, _res, next) => {
@@ -67,6 +69,15 @@ app.use(
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb', parameterLimit: 1_000 }));
 app.use(cookieParser());
+
+app.use((_req, res, next) => {
+  // API responses may contain account, billing, moderation, or session data.
+  // Keep browsers and intermediary caches from retaining them.
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  next();
+});
 
 app.use(globalApiLimiter);
 app.use(verifyBrowserRequestOrigin);

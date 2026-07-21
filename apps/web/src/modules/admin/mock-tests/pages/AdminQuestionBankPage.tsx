@@ -21,9 +21,9 @@ import { toast } from "../../../../lib/toast";
 import { ADMIN_MOCK_TESTS_ROUTES } from "../constants/admin-mock-tests.constants";
 import {
   useAdminQuestionBank,
-  useAdminQuestionBankItem,
-  useDeleteAdminQuestionBankItem,
 } from "../hooks/useAdminQuestionBank";
+import { useAdminQuestionBankItem } from "../hooks/useAdminQuestionBankItem";
+import { useDeleteAdminQuestionBankItem } from "../hooks/useDeleteAdminQuestionBankItem";
 import type {
   AdminQuestionBankDetail,
   AdminQuestionBankItem,

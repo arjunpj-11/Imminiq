@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { createHttpUrlSchema } from '../../../../shared/validators/common.schemas';
 
 export const adminUsersQuerySchema = z.object({
   search: z.string().trim().max(120).optional().default(''),
@@ -69,7 +70,7 @@ export const adminPrivacyRequestsQuerySchema = z.object({
 export const adminPrivacyRequestUpdateSchema = z.object({
   status: z.enum(['in_progress', 'completed', 'rejected']),
   resolutionNote: z.string().trim().min(10).max(3000),
-  downloadUrl: z.string().url().max(2048).optional(),
+  downloadUrl: createHttpUrlSchema().optional(),
 });
 export const adminUserNoteSchema = z.object({ note: z.string().trim().min(3).max(3000), tags: z.array(z.string().trim().min(1).max(40)).max(10).default([]) });
 export const adminUserTagsSchema = z.object({ tags: z.array(z.string().trim().toLowerCase().min(1).max(40)).max(20) });

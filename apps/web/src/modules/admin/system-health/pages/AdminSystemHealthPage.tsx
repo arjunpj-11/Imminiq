@@ -15,7 +15,8 @@ import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-p
 import { getUserFacingError } from "../../../../lib/user-facing-error";
 import { toast } from "../../../../lib/toast";
 import { useAdminSystemHealth } from "../hooks/useAdminSystemHealth";
-import { useAdminJobAction, useAdminJobWorklist } from "../hooks/useAdminJobWorklist";
+import { useAdminJobWorklist } from "../hooks/useAdminJobWorklist";
+import { useAdminJobAction } from "../hooks/useAdminJobAction";
 import type { AdminBackgroundJob } from "../types/admin-system-health.types";
 export default function AdminSystemHealthPage() {
   const { data, isLoading, isError, error, refetch, isFetching } =

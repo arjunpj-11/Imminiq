@@ -6,7 +6,7 @@
 
 ![Status](https://img.shields.io/badge/status-production%20baseline-brightgreen?style=flat-square)
 ![Started](https://img.shields.io/badge/started-May%206%2C%202026-blue?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-64%20passing-success?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-313%20passing-success?style=flat-square)
 ![License](https://img.shields.io/badge/license-private-lightgrey?style=flat-square)
 
 </div>
@@ -160,8 +160,8 @@ src/modules/<feature>/
 
 | Suite | Status |
 |---|---|
-| Backend architecture, security, and integration tests | ✅ 58 / 58 |
-| Frontend production configuration tests | ✅ 6 / 6 |
+| Backend architecture, security, unit, and integration tests | ✅ 270 / 270 |
+| Frontend architecture, production configuration, and utility tests | ✅ 43 / 43 |
 
 **Coverage includes:** auth flows, CSRF, refresh-token rotation, reuse detection, OAuth state protection, request-origin checks, password reset replay prevention, upload signature validation, and the 30-day account deletion recovery flow.
 

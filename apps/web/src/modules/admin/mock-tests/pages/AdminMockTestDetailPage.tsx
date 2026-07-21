@@ -19,7 +19,7 @@ import {
   AdminStatusBadge,
 } from "../../../../components/admin";
 import { useAdminMockTestDetail } from "../hooks/useAdminMockTestDetail";
-import { useRestoreAdminQuestionBankItem } from "../hooks/useAdminQuestionBank";
+import { useRestoreAdminQuestionBankItem } from "../hooks/useRestoreAdminQuestionBankItem";
 import { ADMIN_MOCK_TESTS_ROUTES } from "../constants/admin-mock-tests.constants";
 import AdminMockTestModerationDialog from "../components/AdminMockTestModerationDialog";
 import type { AdminMockTestLifecyclePayload } from "../types/admin-mock-tests.types";

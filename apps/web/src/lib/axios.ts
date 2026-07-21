@@ -23,6 +23,7 @@ interface IRetryableRequestConfig extends InternalAxiosRequestConfig {
 const api = axios.create({
   baseURL: webEnvironment.apiUrl,
   withCredentials: true,
+  timeout: 45_000,
 });
 
 const UNSAFE_METHODS = new Set(['post', 'put', 'patch', 'delete']);

@@ -17,12 +17,12 @@ export class AdminSystemHealthController {
     sendAdminResult(
       next,
       () =>
-        this.useCases.jobs.act(
-          String(req.params.queueName),
-          String(req.params.jobId),
-          adminJobActionSchema.parse(req.body).action,
-          getAdminActor(req)
-        ),
+        this.useCases.jobs.act({
+          queueName: String(req.params.queueName),
+          jobId: String(req.params.jobId),
+          action: adminJobActionSchema.parse(req.body).action,
+          actor: getAdminActor(req),
+        }),
       res,
       'Background job updated'
     );

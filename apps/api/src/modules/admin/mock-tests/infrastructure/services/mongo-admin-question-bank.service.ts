@@ -4,9 +4,9 @@ import { MockTestQuestionModel } from '../../../../../infrastructure/database/mo
 import { MockTestAnswerModel } from '../../../../../infrastructure/database/models/mock-test-answer.model';
 import { MockTestAttemptModel } from '../../../../../infrastructure/database/models/mock-test-attempt.model';
 import { createAdminPage, escapeAdminSearch, recordAdminAction } from '../../../../../infrastructure/admin';
-import type { AdminActor } from '../../../../../shared/admin';
-import { ApiError } from '../../../../../shared/utils/ApiError';
+import { ServiceError } from '../../../../../shared/errors/service.error';
 import type {
+  AdminQuestionBankMutationInput,
   AdminQuestionBankQuery,
   IAdminQuestionBankService,
 } from '../../application/admin-question-bank.service';
@@ -64,7 +64,9 @@ export class MongoAdminQuestionBankService implements IAdminQuestionBankService 
 
   async get(bankId: number) {
     const question = await QuestionBankModel.findOne({ bankId, deletedAt: null }).lean();
-    if (!question) throw new ApiError(404, 'Question bank item not found', 'QUESTION_NOT_FOUND');
+    if (!question) {
+      throw new ServiceError('missing-resource', 'QUESTION_NOT_FOUND', 'Question bank item not found');
+    }
 
     const linkedQuestions = await MockTestQuestionModel.find({
       $or: [
@@ -142,9 +144,11 @@ export class MongoAdminQuestionBankService implements IAdminQuestionBankService 
     };
   }
 
-  async remove(bankId: number, reason: string, actor: AdminActor) {
+  async remove({ bankId, reason, actor }: AdminQuestionBankMutationInput) {
     const question = await QuestionBankModel.findOne({ bankId, deletedAt: null }).lean();
-    if (!question) throw new ApiError(404, 'Question bank item not found', 'QUESTION_NOT_FOUND');
+    if (!question) {
+      throw new ServiceError('missing-resource', 'QUESTION_NOT_FOUND', 'Question bank item not found');
+    }
 
     const linkedQuestions = await MockTestQuestionModel.find({
       deletedAt: null,
@@ -217,10 +221,14 @@ export class MongoAdminQuestionBankService implements IAdminQuestionBankService 
     return { bankId, removedFromTests: linkedQuestions.length, affectedTests: testIds.length };
   }
 
-  async restore(bankId: number, reason: string, actor: AdminActor) {
+  async restore({ bankId, reason, actor }: AdminQuestionBankMutationInput) {
     const question = await QuestionBankModel.findOne({ bankId, deletedAt: { $ne: null } }).lean();
     if (!question) {
-      throw new ApiError(404, 'Disabled question bank item not found', 'QUESTION_NOT_FOUND');
+      throw new ServiceError(
+        'missing-resource',
+        'QUESTION_NOT_FOUND',
+        'Disabled question bank item not found'
+      );
     }
 
     const linkedQuestions = await MockTestQuestionModel.find({ bankId })

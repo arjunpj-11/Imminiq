@@ -19,22 +19,31 @@ const isUserRole = (role: unknown): role is UserRole => {
 };
 
 const assertAccountAndSessionActive = async (decoded: AuthTokenPayload) => {
+  if (!decoded.sessionId) {
+    throw new ApiError(401, 'Session is no longer active', 'UNAUTHORIZED');
+  }
+
   const [user, session] = await Promise.all([
     User.findOne({ _id: decoded.userId, deletedAt: null })
-      .select('status adminStatusReason')
-      .lean<{ status?: string; adminStatusReason?: string | null }>(),
-    decoded.sessionId
-      ? AuthToken.exists({
-          _id: decoded.sessionId,
-          userId: decoded.userId,
-          revokedAt: null,
-          deletedAt: null,
-          expiresAt: { $gt: new Date() },
-        })
-      : Promise.resolve(true),
+      .select('status role adminStatusReason')
+      .lean<{ status?: string; role?: UserRole; adminStatusReason?: string | null }>(),
+    AuthToken.exists({
+      _id: decoded.sessionId,
+      userId: decoded.userId,
+      revokedAt: null,
+      deletedAt: null,
+      expiresAt: { $gt: new Date() },
+    }),
   ]);
 
   if (!user || !session) throw new ApiError(401, 'Session is no longer active', 'UNAUTHORIZED');
+  if (!isUserRole(user.role) || user.role !== decoded.role) {
+    throw new ApiError(
+      401,
+      'Your access level changed. Please sign in again.',
+      'SESSION_ROLE_CHANGED'
+    );
+  }
   const reason = user.adminStatusReason ? ` Reason: ${user.adminStatusReason}` : '';
   if (user.status === 'paused') {
     throw new ApiError(403, `Account suspended.${reason}`, 'ACCOUNT_PAUSED');
@@ -65,21 +74,32 @@ const verifyAccessToken = (token: string): AuthTokenPayload => {
   return decoded as AuthTokenPayload;
 };
 
-export const authenticate = async (req: Request, _res: Response, next: NextFunction) => {
+export const verifyActiveAccessToken = async (token: string): Promise<AuthTokenPayload> => {
+  const decoded = verifyAccessToken(token);
+  await assertAccountAndSessionActive(decoded);
+  return decoded;
+};
+
+export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+  if (res.locals.authenticatedAccessToken === true && req.user) {
+    next();
+    return;
+  }
+
   const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
     throw new ApiError(401, 'No token provided', 'UNAUTHORIZED');
   }
 
-  const decoded = verifyAccessToken(token);
-  await assertAccountAndSessionActive(decoded);
+  const decoded = await verifyActiveAccessToken(token);
   req.user = {
     userId: decoded.userId,
     role: decoded.role,
     type: decoded.type,
     ...(typeof decoded.sessionId === 'string' ? { sessionId: decoded.sessionId } : {}),
   };
+  res.locals.authenticatedAccessToken = true;
   next();
 };
 
@@ -91,8 +111,7 @@ export const authenticateOptional = async (req: Request, _res: Response, next: N
     return;
   }
 
-  const decoded = verifyAccessToken(token);
-  await assertAccountAndSessionActive(decoded);
+  const decoded = await verifyActiveAccessToken(token);
   req.user = {
     userId: decoded.userId,
     role: decoded.role,

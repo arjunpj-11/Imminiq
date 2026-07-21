@@ -8,6 +8,11 @@ if (!webUrl || !apiUrl) {
 
 const checks = [
   { name: 'frontend', url: webUrl, contentType: 'text/html' },
+  {
+    name: 'frontend API proxy',
+    url: `${webUrl}/api/health/live`,
+    contentType: 'application/json',
+  },
   { name: 'API liveness', url: `${apiUrl}/api/health/live`, contentType: 'application/json' },
   { name: 'API readiness', url: `${apiUrl}/api/health/ready`, contentType: 'application/json' },
 ]
