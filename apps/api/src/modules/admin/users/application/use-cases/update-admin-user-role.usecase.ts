@@ -16,8 +16,8 @@ export interface IUpdateAdminUserRoleUseCase {
 
 export class UpdateAdminUserRoleUseCase implements IUpdateAdminUserRoleUseCase {
   constructor(
-    private readonly repository: Pick<IAdminUsersRepository, 'updateRole'>,
-    private readonly mapper: IAdminUsersMapper
+    private readonly _repository: Pick<IAdminUsersRepository, 'updateRole'>,
+    private readonly _mapper: IAdminUsersMapper
   ) {}
 
   async execute(
@@ -28,7 +28,7 @@ export class UpdateAdminUserRoleUseCase implements IUpdateAdminUserRoleUseCase {
     context: AdminRequestContextDTO
   ) {
     if (actor.userId === userId) throw AdminUsersApplicationError.selfStatusChange();
-    const user = await this.repository.updateRole(userId, role, {
+    const user = await this._repository.updateRole(userId, role, {
       actorId: actor.userId,
       reason,
       ...context,
@@ -36,6 +36,6 @@ export class UpdateAdminUserRoleUseCase implements IUpdateAdminUserRoleUseCase {
     if (!user) {
       throw AdminUsersApplicationError.protectedAdmin('Superadmin roles cannot be changed here');
     }
-    return this.mapper.toUserDTO(user);
+    return this._mapper.toUserDTO(user);
   }
 }

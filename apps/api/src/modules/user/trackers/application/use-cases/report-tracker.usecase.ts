@@ -8,19 +8,19 @@ export interface IReportTrackerUseCase {
 
 export class ReportTrackerUseCase implements IReportTrackerUseCase {
   constructor(
-    private readonly repository: Pick<
+    private readonly _repository: Pick<
       ITrackerQueryRepository,
       'findReportableTrackerById' | 'createOrReopenTrackerReport'
     >
   ) {}
 
   async execute(input: ReportTrackerPayloadDTO) {
-    const tracker = await this.repository.findReportableTrackerById(input.trackerId);
+    const tracker = await this._repository.findReportableTrackerById(input.trackerId);
     if (!tracker) throw TrackerApplicationError.trackerNotFound();
     if (String(tracker.ownerId) === input.userId) {
       throw TrackerApplicationError.forbidden('You cannot report your own tracker');
     }
-    return this.repository.createOrReopenTrackerReport({
+    return this._repository.createOrReopenTrackerReport({
       trackerId: input.trackerId,
       reporterId: input.userId,
       reason: input.reason,

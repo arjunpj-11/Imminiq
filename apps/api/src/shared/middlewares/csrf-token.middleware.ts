@@ -2,7 +2,7 @@ import { randomBytes, timingSafeEqual } from 'crypto';
 import type { NextFunction, Request, Response } from 'express';
 
 import { env } from '../../config/env';
-import { ApiError } from '../utils/ApiError';
+import { ApiError } from '../utils/api-error';
 
 export const CSRF_COOKIE_NAME = 'csrfToken';
 

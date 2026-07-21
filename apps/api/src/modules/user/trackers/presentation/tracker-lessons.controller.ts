@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 
-import { ApiResponse } from '../../../../shared/utils/ApiResponse';
-import { getAuthUser } from '../../../../shared/utils/getAuthUser';
+import { ApiResponse } from '../../../../shared/utils/api-response';
+import { getAuthUser } from '../../../../shared/utils/get-auth-user';
 import type { TrackerUseCases } from '../application/tracker-use-cases.contract';
 
 type LessonParams = { trackerId: string; subtopicId: string };

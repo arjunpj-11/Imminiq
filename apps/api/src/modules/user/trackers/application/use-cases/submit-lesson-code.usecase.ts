@@ -1,26 +1,18 @@
+import type {
+  LessonCodeSubmissionDTO,
+  SubmitLessonCodePayloadDTO,
+} from '../tracker.dto';
 import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { ICodeExecutor } from '../../domain/services/code-execution.interface';
-
-type SubmitLessonCodeInput = {
-  trackerId: string;
-  subtopicId: string;
-  userId: string;
-  sourceCode: string;
-  languageId: number;
-  language?: string;
-  stdin?: string;
-};
-
-type SubmitLessonCodeResultDTO = ReturnType<ITrackerMapper['toLessonCodeSubmissionDto']>;
 
 const normalizeOutput = (value: string) => {
   return value.replace(/\r\n/g, '\n').trim();
 };
 
 export interface ISubmitLessonCodeUseCase {
-  execute(input: SubmitLessonCodeInput): Promise<SubmitLessonCodeResultDTO>;
+  execute(input: SubmitLessonCodePayloadDTO): Promise<LessonCodeSubmissionDTO>;
 }
 
 export class SubmitLessonCodeUseCase implements ISubmitLessonCodeUseCase {
@@ -33,7 +25,7 @@ export class SubmitLessonCodeUseCase implements ISubmitLessonCodeUseCase {
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: SubmitLessonCodeInput): Promise<SubmitLessonCodeResultDTO> {
+  async execute(input: SubmitLessonCodePayloadDTO): Promise<LessonCodeSubmissionDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

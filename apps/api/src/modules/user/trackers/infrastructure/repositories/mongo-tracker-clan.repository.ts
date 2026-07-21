@@ -142,7 +142,7 @@ export class MongoTrackerClanRepository
   implements ITrackerClanRepository, ITrackerClanChallengeRepository
 {
   constructor(
-    private readonly personalClones: ITrackerPersonalCloneProvisioner
+    private readonly _personalClones: ITrackerPersonalCloneProvisioner
   ) {}
 
   async getRole(input: { trackerId: string; userId: string }): Promise<TrackerClanRole | null> {
@@ -290,7 +290,7 @@ export class MongoTrackerClanRepository
       return this.getOverview({ trackerId: input.trackerId, userId: input.ownerId });
     }
     if (target.role === 'co_owner' && input.role === 'member') {
-      const cloneReady = await this.personalClones.ensureClone({
+      const cloneReady = await this._personalClones.ensureClone({
         trackerId: input.trackerId,
         userId: input.memberId,
         bypassClonePermission: true,

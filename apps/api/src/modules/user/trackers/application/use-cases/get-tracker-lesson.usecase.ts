@@ -5,9 +5,10 @@ import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface';
 import type { SubtopicWithProgressRecord } from '../../domain/trackers.types';
-import type { TrackerLessonAccessPayloadDTO } from '../tracker.dto';
-
-type GetTrackerLessonResultDTO = ReturnType<ITrackerMapper['toGeneratedLessonDto']>;
+import type {
+  TrackerLessonViewDTO,
+  TrackerLessonAccessPayloadDTO,
+} from '../tracker.dto';
 
 const flattenSubtopics = (subtopics: SubtopicWithProgressRecord[]) => {
   return [...subtopics].sort((a, b) => {
@@ -24,7 +25,7 @@ const flattenSubtopics = (subtopics: SubtopicWithProgressRecord[]) => {
 };
 
 export interface IGetTrackerLessonUseCase {
-  execute(input: TrackerLessonAccessPayloadDTO): Promise<GetTrackerLessonResultDTO>;
+  execute(input: TrackerLessonAccessPayloadDTO): Promise<TrackerLessonViewDTO>;
 }
 
 export class GetTrackerLessonUseCase implements IGetTrackerLessonUseCase {
@@ -38,11 +39,11 @@ export class GetTrackerLessonUseCase implements IGetTrackerLessonUseCase {
       | 'getSubtopicsWithUserProgress'
       | 'getTopicsForTracker'
     >,
-    private readonly _trackerAIGateway: ITrackerAIGateway,
+    private readonly _trackerAIGateway: Pick<ITrackerAIGateway, 'generateLesson'>,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: TrackerLessonAccessPayloadDTO): Promise<GetTrackerLessonResultDTO> {
+  async execute(input: TrackerLessonAccessPayloadDTO): Promise<TrackerLessonViewDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

@@ -9,13 +9,13 @@ export interface IGetAdminMockTestDetailUseCase {
 
 export class GetAdminMockTestDetailUseCase implements IGetAdminMockTestDetailUseCase {
   constructor(
-    private readonly repository: Pick<IAdminMockTestsRepository, 'getDetail'>,
-    private readonly mapper: IAdminMockTestsMapper
+    private readonly _repository: Pick<IAdminMockTestsRepository, 'getDetail'>,
+    private readonly _mapper: IAdminMockTestsMapper
   ) {}
 
   async execute(id: string): Promise<AdminMockTestDetailDTO> {
-    const test = await this.repository.getDetail(id);
+    const test = await this._repository.getDetail(id);
     if (!test) throw AdminMockTestsApplicationError.notFound();
-    return this.mapper.toDetailDTO(test);
+    return this._mapper.toDetailDTO(test);
   }
 }

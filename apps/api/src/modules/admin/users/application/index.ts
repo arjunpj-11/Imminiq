@@ -1,7 +1,16 @@
 export type * from './admin-users.dto';
 export type * from './admin-users-use-cases.contract';
+export * from './use-cases/bulk-set-admin-user-status.usecase';
 export * from './use-cases/send-admin-user-message.usecase';
 export * from './use-cases/list-admin-user-appeals.usecase';
 export * from './use-cases/update-admin-user-appeal.usecase';
 export * from './use-cases/revoke-admin-user-session.usecase';
 export * from './use-cases/update-admin-user-role.usecase';
+export * from './admin-data-privacy-request.service';
+export * from './admin-user-notes.service';
+export * from './admin-users-application.error';
+export * from './admin-users.mapper';
+export * from './use-cases/get-admin-user-detail.usecase';
+export * from './use-cases/list-admin-users.usecase';
+export * from './use-cases/set-admin-action-password.usecase';
+export * from './use-cases/set-admin-user-status.usecase';

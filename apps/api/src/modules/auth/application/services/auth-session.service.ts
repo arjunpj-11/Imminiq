@@ -10,7 +10,7 @@ export interface IAuthSessionIssuer {
 
 export class AuthSessionIssuer implements IAuthSessionIssuer {
   constructor(
-    private readonly _authSessionRepository: IAuthSessionRepository,
+    private readonly _authSessionRepository: Pick<IAuthSessionRepository, 'saveSession'>,
     private readonly _authToken: IAuthToken,
     private readonly _refreshTokenHasher: IRefreshTokenHasher
   ) {}

@@ -3,7 +3,7 @@ import { MulterError } from 'multer';
 import { ZodError } from 'zod';
 
 import type { ErrorKind, IKindedError } from '../errors/error-kind';
-import { ApiError } from '../utils/ApiError';
+import { ApiError } from '../utils/api-error';
 
 type ErrorDetails = Record<string, string[]>;
 

@@ -8,7 +8,7 @@ import type { PrivilegedAdminMiddleware } from '../../../../shared/middlewares/a
 import type { AdminUsersUseCases } from '../application/admin-users-use-cases.contract';
 import { AdminUsersController } from './admin-users.controller';
 import { ADMIN_USERS_ROUTE_PATHS } from './admin-users.route.constants';
-import { validateIdentifierParam } from '../../../../shared/middlewares/validate';
+import { validateIdentifierParam } from '../../../../shared/middlewares/validate.middleware';
 
 export const createAdminUsersRoutes = (
   useCases: AdminUsersUseCases,

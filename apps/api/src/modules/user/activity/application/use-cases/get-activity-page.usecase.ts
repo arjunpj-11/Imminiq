@@ -4,7 +4,7 @@ import { ActivityApplicationError } from '../activity-application.error';
 import type { ActivityMapperContract } from '../activity.mapper';
 import type { ActivityAnalyticsContract } from '../services/activity-analytics.service';
 import type { ActivityDateRangeContract } from '../services/activity-date-range.service';
-import type { GetActivityFeedUseCase } from './get-activity-feed.usecase';
+import type { IGetActivityFeedUseCase } from './get-activity-feed.usecase';
 import type { IClock } from '../../../../../shared/time/clock.interface';
 import type { IActivityPolicyReader } from '../../../../../shared/platform-policy';
 
@@ -19,7 +19,7 @@ export interface IGetActivityPageUseCase {
 export class GetActivityPageUseCase implements IGetActivityPageUseCase {
   constructor(
     private readonly _activityRepository: IActivityQueryRepository,
-    private readonly _feedUseCase: GetActivityFeedUseCase,
+    private readonly _feedUseCase: IGetActivityFeedUseCase,
     private readonly _mapper: ActivityMapperContract,
     private readonly _analyticsCalculator: ActivityAnalyticsContract,
     private readonly _dateRange: ActivityDateRangeContract,

@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
-import { apiNotFoundHandler, errorHandler } from '../../src/shared/middlewares/errorHandler';
+import { apiNotFoundHandler, errorHandler } from '../../src/shared/middlewares/error-handler.middleware';
 import { AuthApplicationError } from '../../src/modules/auth/application/auth-application.error';
 import { ServiceError } from '../../src/shared/errors/service.error';
 

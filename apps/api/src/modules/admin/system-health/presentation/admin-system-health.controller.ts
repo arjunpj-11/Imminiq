@@ -3,13 +3,13 @@ import { getAdminActor, sendAdminResult } from '../../../../shared/admin';
 import type { AdminSystemHealthUseCases } from '../application/admin-system-health-use-cases.contract';
 import { adminJobActionSchema, adminJobWorklistQuerySchema } from './admin-system-health.schema';
 export class AdminSystemHealthController {
-  constructor(private readonly useCases: AdminSystemHealthUseCases) {}
+  constructor(private readonly _useCases: AdminSystemHealthUseCases) {}
   get = (_req: Request, res: Response, next: NextFunction) =>
-    sendAdminResult(next, () => this.useCases.get.execute(), res, 'System health fetched');
+    sendAdminResult(next, () => this._useCases.get.execute(), res, 'System health fetched');
   listJobs = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCases.jobs.list(adminJobWorklistQuerySchema.parse(req.query)),
+      () => this._useCases.jobs.list(adminJobWorklistQuerySchema.parse(req.query)),
       res,
       'Background worklist fetched'
     );
@@ -17,7 +17,7 @@ export class AdminSystemHealthController {
     sendAdminResult(
       next,
       () =>
-        this.useCases.jobs.act({
+        this._useCases.jobs.act({
           queueName: String(req.params.queueName),
           jobId: String(req.params.jobId),
           action: adminJobActionSchema.parse(req.body).action,

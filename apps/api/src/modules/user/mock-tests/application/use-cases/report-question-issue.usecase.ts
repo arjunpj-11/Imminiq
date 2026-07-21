@@ -1,21 +1,15 @@
 import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface';
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface';
 import type { IMockTestQuestionIssueRepository } from '../../domain/repositories/mock-test-question-issue.repository.interface';
-import type { MockTestQuestionIssueReason } from '../../domain/repositories/mock-test-question-issue.repository.interface';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
-import type { ReportQuestionIssueResultDTO } from '../mock-tests.dto';
-
-export type ReportQuestionIssueInput = {
-  reason: MockTestQuestionIssueReason;
-  details?: string;
-};
+import type { ReportQuestionIssueInputDTO, ReportQuestionIssueResultDTO } from '../mock-tests.dto';
 
 export interface IReportQuestionIssueUseCase {
   execute(
     attemptId: string,
     questionId: string,
     userId: string,
-    input: ReportQuestionIssueInput
+    input: ReportQuestionIssueInputDTO
   ): Promise<ReportQuestionIssueResultDTO>;
 }
 
@@ -24,17 +18,17 @@ type ReportQuestionIssueRepository = Pick<IMockTestAttemptRepository, 'findAttem
   Pick<IMockTestQuestionIssueRepository, 'createOrReopenQuestionIssue'>;
 
 export class ReportQuestionIssueUseCase implements IReportQuestionIssueUseCase {
-  constructor(private readonly repository: ReportQuestionIssueRepository) {}
+  constructor(private readonly _repository: ReportQuestionIssueRepository) {}
 
   async execute(
     attemptId: string,
     questionId: string,
     userId: string,
-    input: ReportQuestionIssueInput
+    input: ReportQuestionIssueInputDTO
   ) {
     const [attempt, question] = await Promise.all([
-      this.repository.findAttemptById(attemptId),
-      this.repository.findQuestionById(questionId),
+      this._repository.findAttemptById(attemptId),
+      this._repository.findQuestionById(questionId),
     ]);
 
     if (!attempt) throw MockTestsApplicationError.notFound('Attempt not found');
@@ -43,7 +37,7 @@ export class ReportQuestionIssueUseCase implements IReportQuestionIssueUseCase {
       throw MockTestsApplicationError.notFound('Question not found in this attempt');
     }
 
-    return this.repository.createOrReopenQuestionIssue({
+    return this._repository.createOrReopenQuestionIssue({
       testId: attempt.testId,
       questionId,
       attemptId,

@@ -4,7 +4,7 @@ import type { IMockTestQuestionRepository } from '../../domain/repositories/mock
 import type { IMockTestReportRepository } from '../../domain/repositories/mock-test-report.repository.interface';
 import type { AttemptAnalysisDTO } from '../mock-tests.dto';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
-import { attemptQuestionSnapshotService } from '../services/attempt-question-snapshot.service';
+import type { IAttemptQuestionSnapshotService } from '../services/attempt-question-snapshot.service';
 
 type GetAttemptAnalysisRepository = IMockTestAttemptRepository &
   IMockTestAnswerRepository &
@@ -16,7 +16,10 @@ export interface IGetAttemptAnalysisUseCase {
 }
 
 export class GetAttemptAnalysisUseCase implements IGetAttemptAnalysisUseCase {
-  constructor(private readonly _repository: GetAttemptAnalysisRepository) {}
+  constructor(
+    private readonly _repository: GetAttemptAnalysisRepository,
+    private readonly _questionSnapshot: IAttemptQuestionSnapshotService
+  ) {}
 
   async execute(attemptId: string, userId: string): Promise<AttemptAnalysisDTO> {
     const attempt = await this._repository.findAttemptById(attemptId);
@@ -44,7 +47,7 @@ export class GetAttemptAnalysisUseCase implements IGetAttemptAnalysisUseCase {
       this._repository.findQuestionsByTest(attempt.testId),
     ]);
 
-    const attemptQuestions = attemptQuestionSnapshotService.all(attempt, questions);
+    const attemptQuestions = this._questionSnapshot.all(attempt, questions);
     const answerMap = new Map(answers.map((answer) => [answer.questionId, answer]));
 
     return {

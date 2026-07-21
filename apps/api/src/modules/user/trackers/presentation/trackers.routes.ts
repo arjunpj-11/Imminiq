@@ -4,7 +4,7 @@ import type { ZodTypeAny } from 'zod';
 
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
-import { validate, validateIdentifierParam } from '../../../../shared/middlewares/validate';
+import { validate, validateIdentifierParam } from '../../../../shared/middlewares/validate.middleware';
 import { TrackerManagementController } from './tracker-management.controller';
 import { TrackerRoadmapController } from './tracker-roadmap.controller';
 import { TrackerLessonsController } from './tracker-lessons.controller';

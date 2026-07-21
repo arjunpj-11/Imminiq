@@ -1,5 +1,5 @@
 import type { Request } from 'express';
-import { ApiError } from './ApiError';
+import { ApiError } from './api-error';
 
 export const getAuthUser = (req: Request) => {
   if (!req.user) {

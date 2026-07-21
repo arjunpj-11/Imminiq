@@ -6,11 +6,11 @@ import {
   adminSupportTicketUpdateSchema,
 } from './admin-support-tickets.schema';
 export class AdminSupportTicketsController {
-  constructor(private readonly useCases: AdminSupportTicketsUseCases) {}
+  constructor(private readonly _useCases: AdminSupportTicketsUseCases) {}
   list = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCases.list.execute(adminSupportTicketsQuerySchema.parse(req.query)),
+      () => this._useCases.list.execute(adminSupportTicketsQuerySchema.parse(req.query)),
       res,
       'Support tickets fetched'
     );
@@ -18,7 +18,7 @@ export class AdminSupportTicketsController {
     sendAdminResult(
       next,
       () =>
-        this.useCases.update.execute(
+        this._useCases.update.execute(
           String(req.params.id),
           adminSupportTicketUpdateSchema.parse(req.body),
           getAdminActor(req)

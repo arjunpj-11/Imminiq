@@ -2,7 +2,7 @@ import { extname } from 'node:path';
 import multer from 'multer';
 import { env } from '../../config/env';
 
-import { ApiError } from '../utils/ApiError';
+import { ApiError } from '../utils/api-error';
 
 const MAX_AVATAR_SIZE = env.UPLOAD_AVATAR_MAX_BYTES;
 const MAX_BANNER_SIZE = env.UPLOAD_BANNER_MAX_BYTES;

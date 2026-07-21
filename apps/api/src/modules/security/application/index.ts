@@ -13,3 +13,4 @@ export * from './use-cases/revoke-security-session.usecase';
 export * from './use-cases/setup-two-factor.usecase';
 export * from './use-cases/verify-email-change.usecase';
 export * from './use-cases/verify-two-factor-setup.usecase';
+export * from './security-use-cases.contract';

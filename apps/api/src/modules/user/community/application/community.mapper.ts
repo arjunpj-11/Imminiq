@@ -52,7 +52,7 @@ export interface ICommunityMapper {
 }
 
 export class CommunityMapper implements ICommunityMapper {
-  constructor(private readonly clock: IClock) {}
+  constructor(private readonly _clock: IClock) {}
 
   toTrackerView(entity: CommunityTrackerEntity): CommunityTrackerViewDTO {
     return {
@@ -104,7 +104,7 @@ export class CommunityMapper implements ICommunityMapper {
       _id: entity.id,
       title: entity.title,
       category: entity.category,
-      timeLeft: entity.timeLeftAt(this.clock.now()),
+      timeLeft: entity.timeLeftAt(this._clock.now()),
       excerpt: entity.excerpt,
       progress: entity.progress,
       passVotes: entity.passVotes,

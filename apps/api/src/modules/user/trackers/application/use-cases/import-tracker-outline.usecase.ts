@@ -1,46 +1,32 @@
 import type { ICreateTrackerSubtopicUseCase } from './create-tracker-subtopic.usecase';
 import type { ICreateTrackerTopicUseCase } from './create-tracker-topic.usecase';
-
-export type ImportOutlineNode = {
-  title: string;
-  description?: string;
-  subtopics: ImportOutlineNode[];
-};
-
-export type ImportTrackerOutlineInput =
-  | { trackerId: string; userId: string; kind: 'topics'; topics: ImportOutlineNode[] }
-  | {
-      trackerId: string;
-      userId: string;
-      kind: 'subtopics';
-      topicId: string;
-      parentSubtopicId?: string | null;
-      subtopics: ImportOutlineNode[];
-    };
-
-export type ImportTrackerOutlineResult = { topicsAdded: number; subtopicsAdded: number };
+import type {
+  ImportTrackerOutlineInputDTO,
+  ImportTrackerOutlineNodeDTO,
+  ImportTrackerOutlineResultDTO,
+} from '../tracker.dto';
 
 export interface IImportTrackerOutlineUseCase {
-  execute(input: ImportTrackerOutlineInput): Promise<ImportTrackerOutlineResult>;
+  execute(input: ImportTrackerOutlineInputDTO): Promise<ImportTrackerOutlineResultDTO>;
 }
 
 export class ImportTrackerOutlineUseCase implements IImportTrackerOutlineUseCase {
   constructor(
-    private readonly createTopic: ICreateTrackerTopicUseCase,
-    private readonly createSubtopic: ICreateTrackerSubtopicUseCase
+    private readonly _createTopic: ICreateTrackerTopicUseCase,
+    private readonly _createSubtopic: ICreateTrackerSubtopicUseCase
   ) {}
 
-  async execute(input: ImportTrackerOutlineInput) {
+  async execute(input: ImportTrackerOutlineInputDTO) {
     let topicsAdded = 0;
     let subtopicsAdded = 0;
 
     const addSubtopics = async (
       topicId: string,
       parentSubtopicId: string | null,
-      nodes: ImportOutlineNode[]
+      nodes: ImportTrackerOutlineNodeDTO[]
     ): Promise<void> => {
       for (const node of nodes) {
-        const created = await this.createSubtopic.execute({
+        const created = await this._createSubtopic.execute({
           trackerId: input.trackerId,
           userId: input.userId,
           topicId,
@@ -55,7 +41,7 @@ export class ImportTrackerOutlineUseCase implements IImportTrackerOutlineUseCase
 
     if (input.kind === 'topics') {
       for (const topic of input.topics) {
-        const created = await this.createTopic.execute({
+        const created = await this._createTopic.execute({
           trackerId: input.trackerId,
           userId: input.userId,
           title: topic.title,

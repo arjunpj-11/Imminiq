@@ -9,11 +9,11 @@ export interface IListAdminMockTestsUseCase {
 
 export class ListAdminMockTestsUseCase implements IListAdminMockTestsUseCase {
   constructor(
-    private readonly repository: Pick<IAdminMockTestsRepository, 'list'>,
-    private readonly mapper: IAdminMockTestsMapper
+    private readonly _repository: Pick<IAdminMockTestsRepository, 'list'>,
+    private readonly _mapper: IAdminMockTestsMapper
   ) {}
 
   async execute(query: AdminListQuery): Promise<AdminPage<AdminMockTestDTO>> {
-    return this.mapper.toPageDTO(await this.repository.list(query));
+    return this._mapper.toPageDTO(await this._repository.list(query));
   }
 }

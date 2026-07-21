@@ -31,5 +31,3 @@ export class AttemptQuestionSnapshotService implements IAttemptQuestionSnapshotS
     return liveQuestion ?? null;
   }
 }
-
-export const attemptQuestionSnapshotService = new AttemptQuestionSnapshotService();

@@ -16,24 +16,32 @@ import {
   adminQuestionBankQuerySchema,
 } from './admin-mock-tests.schema';
 export class AdminMockTestsController {
-  constructor(private readonly useCases: AdminMockTestsUseCases) {}
-  exportCsv = async (req: Request, res: Response, next: NextFunction) => { try { const query = adminMockTestsQuerySchema.parse(req.query); const content = await this.useCases.exports.mockTests({ search: query.search ?? '', status: query.status ?? 'all' }); res.setHeader('Content-Type', 'text/csv; charset=utf-8'); res.setHeader('Content-Disposition', 'attachment; filename="imminiq-mock-tests.csv"'); res.send(`\uFEFF${content}`); } catch (error) { next(error); } };
-  bulkLifecycle = async (req: Request, res: Response, next: NextFunction) => { try { const input = adminMockTestBulkLifecycleSchema.parse(req.body); if (input.preview) { const candidates = await Promise.all(input.ids.map(async (id) => ({ id, exists: Boolean(await this.useCases.getDetail.execute(id).catch(() => null)) }))); return res.json({ success: true, message: 'Bulk action preview', data: { requested: input.ids.length, eligible: candidates.filter((item) => item.exists).map((item) => item.id), blocked: candidates.filter((item) => !item.exists).map((item) => ({ id: item.id, reason: 'not_found' })) } }); } const { ids, preview: _preview, ...lifecycle } = input; const actor = getAdminActor(req); const settled = await Promise.allSettled(ids.map((id) => this.useCases.updateLifecycle.execute(id, lifecycle, actor))); const results = settled.map((result, index) => result.status === 'fulfilled' ? { id: ids[index], success: true } : { id: ids[index], success: false, error: result.reason instanceof Error ? result.reason.message : 'Failed' }); return res.json({ success: true, message: 'Bulk mock test action completed', data: { succeeded: results.filter((item) => item.success).length, failed: results.filter((item) => !item.success).length, results } }); } catch (error) { return next(error); } };
+  constructor(private readonly _useCases: AdminMockTestsUseCases) {}
+  exportCsv = async (req: Request, res: Response, next: NextFunction) => { try { const query = adminMockTestsQuerySchema.parse(req.query); const content = await this._useCases.exports.mockTests({ search: query.search ?? '', status: query.status ?? 'all' }); res.setHeader('Content-Type', 'text/csv; charset=utf-8'); res.setHeader('Content-Disposition', 'attachment; filename="imminiq-mock-tests.csv"'); res.send(`\uFEFF${content}`); } catch (error) { next(error); } };
+  bulkLifecycle = (req: Request, res: Response, next: NextFunction) => {
+    const input = adminMockTestBulkLifecycleSchema.parse(req.body);
+    return sendAdminResult(
+      next,
+      () => this._useCases.bulkUpdateLifecycle.execute(input, getAdminActor(req)),
+      res,
+      input.preview ? 'Bulk action preview' : 'Bulk mock test action completed'
+    );
+  };
   listAppeals = (req: Request, res: Response, next: NextFunction) =>
-    sendAdminResult(next, () => this.useCases.contentAppeals.list('mock_test', adminContentAppealsQuerySchema.parse(req.query)), res, 'Mock test appeals fetched');
+    sendAdminResult(next, () => this._useCases.contentAppeals.list('mock_test', adminContentAppealsQuerySchema.parse(req.query)), res, 'Mock test appeals fetched');
   updateAppeal = (req: Request, res: Response, next: NextFunction) =>
-    sendAdminResult(next, () => this.useCases.contentAppeals.update('mock_test', String(req.params.appealId), adminContentAppealUpdateSchema.parse(req.body), getAdminActor(req)), res, 'Mock test appeal updated');
+    sendAdminResult(next, () => this._useCases.contentAppeals.update('mock_test', String(req.params.appealId), adminContentAppealUpdateSchema.parse(req.body), getAdminActor(req)), res, 'Mock test appeal updated');
   list = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCases.list.execute(adminMockTestsQuerySchema.parse(req.query)),
+      () => this._useCases.list.execute(adminMockTestsQuerySchema.parse(req.query)),
       res,
       'Mock tests fetched'
     );
   getDetail = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCases.getDetail.execute(String(req.params.id)),
+      () => this._useCases.getDetail.execute(String(req.params.id)),
       res,
       'Mock test fetched'
     );
@@ -41,7 +49,7 @@ export class AdminMockTestsController {
   listQuestionIssues = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCases.listQuestionIssues.execute(adminMockTestsQuerySchema.parse(req.query)),
+      () => this._useCases.listQuestionIssues.execute(adminMockTestsQuerySchema.parse(req.query)),
       res,
       'Mock test question reports fetched'
     );
@@ -49,7 +57,7 @@ export class AdminMockTestsController {
   listQuestionBank = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCases.questionBank.list(adminQuestionBankQuerySchema.parse(req.query)),
+      () => this._useCases.questionBank.list(adminQuestionBankQuerySchema.parse(req.query)),
       res,
       'Question bank fetched'
     );
@@ -57,7 +65,7 @@ export class AdminMockTestsController {
   getQuestionBankItem = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCases.questionBank.get(adminQuestionBankIdSchema.parse(req.params.bankId)),
+      () => this._useCases.questionBank.get(adminQuestionBankIdSchema.parse(req.params.bankId)),
       res,
       'Question bank item fetched'
     );
@@ -66,7 +74,7 @@ export class AdminMockTestsController {
     sendAdminResult(
       next,
       () =>
-        this.useCases.questionBank.remove({
+        this._useCases.questionBank.remove({
           bankId: adminQuestionBankIdSchema.parse(req.params.bankId),
           reason: adminQuestionBankDeleteSchema.parse(req.body).reason,
           actor: getAdminActor(req),
@@ -79,7 +87,7 @@ export class AdminMockTestsController {
     sendAdminResult(
       next,
       () =>
-        this.useCases.questionBank.restore({
+        this._useCases.questionBank.restore({
           bankId: adminQuestionBankIdSchema.parse(req.params.bankId),
           reason: adminQuestionBankRestoreSchema.parse(req.body).reason,
           actor: getAdminActor(req),
@@ -92,7 +100,7 @@ export class AdminMockTestsController {
     sendAdminResult(
       next,
       () =>
-        this.useCases.updateQuestionIssue.execute(
+        this._useCases.updateQuestionIssue.execute(
           String(req.params.issueId),
           adminMockTestQuestionIssueUpdateSchema.parse(req.body),
           getAdminActor(req)
@@ -105,7 +113,7 @@ export class AdminMockTestsController {
     sendAdminResult(
       next,
       () =>
-        this.useCases.updateLifecycle.execute(
+        this._useCases.updateLifecycle.execute(
           String(req.params.id),
           adminMockTestLifecycleSchema.parse(req.body),
           getAdminActor(req)
@@ -117,7 +125,7 @@ export class AdminMockTestsController {
   listQuestionVersions = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCases.questionVersions.list(String(req.params.questionId)),
+      () => this._useCases.questionVersions.list(String(req.params.questionId)),
       res,
       'Question versions fetched'
     );
@@ -126,7 +134,7 @@ export class AdminMockTestsController {
     sendAdminResult(
       next,
       () =>
-        this.useCases.questionVersions.restore(
+        this._useCases.questionVersions.restore(
           String(req.params.questionId),
           adminMockTestQuestionVersionParamSchema.parse(req.params.version),
           adminMockTestQuestionVersionRestoreSchema.parse(req.body).reason,

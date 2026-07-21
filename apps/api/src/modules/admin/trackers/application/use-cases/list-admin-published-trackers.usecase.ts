@@ -9,14 +9,14 @@ export interface IListAdminPublishedTrackersUseCase {
 
 export class ListAdminPublishedTrackersUseCase implements IListAdminPublishedTrackersUseCase {
   constructor(
-    private readonly repository: Pick<IAdminTrackersRepository, 'listPublished'>,
-    private readonly mapper: IAdminTrackersMapper
+    private readonly _repository: Pick<IAdminTrackersRepository, 'listPublished'>,
+    private readonly _mapper: IAdminTrackersMapper
   ) {}
 
   async execute(
     query: AdminListQuery,
     actor: AdminActor
   ): Promise<AdminPage<AdminPublishedTrackerDTO>> {
-    return this.mapper.toPublishedPageDTO(await this.repository.listPublished(query, actor));
+    return this._mapper.toPublishedPageDTO(await this._repository.listPublished(query, actor));
   }
 }

@@ -510,8 +510,8 @@ const processRoadmapEvaluation = async (
 
 export class TrackerCreationAIJobProcessor implements ITrackerCreationAIJobProcessor {
   constructor(
-    private readonly capacityEnforcer: ITrackerCreationCapacityEnforcer,
-    private readonly notifier: ITrackerCreationJobNotifier
+    private readonly _capacityEnforcer: ITrackerCreationCapacityEnforcer,
+    private readonly _notifier: ITrackerCreationJobNotifier
   ) {}
 
   processRoadmapGeneration(payload: RoadmapGenerationJobPayload): Promise<void> {
@@ -522,8 +522,8 @@ export class TrackerCreationAIJobProcessor implements ITrackerCreationAIJobProce
       payload.goal,
       payload.level,
       payload.preferredLanguage,
-      this.capacityEnforcer,
-      this.notifier
+      this._capacityEnforcer,
+      this._notifier
     );
   }
 

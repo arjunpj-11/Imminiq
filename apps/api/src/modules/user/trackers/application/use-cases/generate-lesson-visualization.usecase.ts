@@ -19,7 +19,7 @@ export class GenerateLessonVisualizationUseCase implements IGenerateLessonVisual
       | 'findOwnedTrackerById'
       | 'saveLessonVisualization'
     >,
-    private readonly _trackerAIGateway: ITrackerAIGateway,
+    private readonly _trackerAIGateway: Pick<ITrackerAIGateway, 'generateLessonVisualization'>,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 

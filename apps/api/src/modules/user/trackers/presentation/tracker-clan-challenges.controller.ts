@@ -1,19 +1,19 @@
 import type { NextFunction, Request, Response } from 'express';
 
 import { HttpStatusCode } from '../../../../shared/constants/http-status-code.enum';
-import { ApiResponse } from '../../../../shared/utils/ApiResponse';
-import { getAuthUser } from '../../../../shared/utils/getAuthUser';
+import { ApiResponse } from '../../../../shared/utils/api-response';
+import { getAuthUser } from '../../../../shared/utils/get-auth-user';
 import type { TrackerUseCases } from '../application/tracker-use-cases.contract';
 
 type TrackerParams = { trackerId: string };
 type ChallengeParams = { trackerId: string; challengeId: string };
 
 export class TrackerClanChallengesController {
-  constructor(private readonly useCases: TrackerUseCases) {}
+  constructor(private readonly _useCases: TrackerUseCases) {}
 
   list = async (req: Request<TrackerParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClanChallenges.list({
+      const result = await this._useCases.trackerClanChallenges.list({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
       });
@@ -25,7 +25,7 @@ export class TrackerClanChallengesController {
 
   get = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClanChallenges.get({
+      const result = await this._useCases.trackerClanChallenges.get({
         trackerId: req.params.trackerId,
         challengeId: req.params.challengeId,
         userId: getAuthUser(req).userId,
@@ -38,7 +38,7 @@ export class TrackerClanChallengesController {
 
   history = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClanChallenges.history({
+      const result = await this._useCases.trackerClanChallenges.history({
         trackerId: req.params.trackerId,
         challengeId: req.params.challengeId,
         userId: getAuthUser(req).userId,
@@ -51,7 +51,7 @@ export class TrackerClanChallengesController {
 
   active = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClanChallenges.active(getAuthUser(req).userId);
+      const result = await this._useCases.trackerClanChallenges.active(getAuthUser(req).userId);
       res.json(new ApiResponse('Active guild challenge fetched', result));
     } catch (error) {
       next(error);
@@ -60,7 +60,7 @@ export class TrackerClanChallengesController {
 
   create = async (req: Request<TrackerParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClanChallenges.create({
+      const result = await this._useCases.trackerClanChallenges.create({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
         opponentId: req.body.opponentId,
@@ -75,7 +75,7 @@ export class TrackerClanChallengesController {
 
   accept = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClanChallenges.accept({
+      const result = await this._useCases.trackerClanChallenges.accept({
         trackerId: req.params.trackerId,
         challengeId: req.params.challengeId,
         userId: getAuthUser(req).userId,
@@ -88,7 +88,7 @@ export class TrackerClanChallengesController {
 
   decline = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClanChallenges.decline({
+      const result = await this._useCases.trackerClanChallenges.decline({
         trackerId: req.params.trackerId,
         challengeId: req.params.challengeId,
         userId: getAuthUser(req).userId,
@@ -101,7 +101,7 @@ export class TrackerClanChallengesController {
 
   cancel = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClanChallenges.cancel({
+      const result = await this._useCases.trackerClanChallenges.cancel({
         trackerId: req.params.trackerId,
         challengeId: req.params.challengeId,
         userId: getAuthUser(req).userId,
@@ -114,7 +114,7 @@ export class TrackerClanChallengesController {
 
   quit = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClanChallenges.quit({
+      const result = await this._useCases.trackerClanChallenges.quit({
         trackerId: req.params.trackerId,
         challengeId: req.params.challengeId,
         userId: getAuthUser(req).userId,
@@ -127,7 +127,7 @@ export class TrackerClanChallengesController {
 
   extend = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClanChallenges.extend({
+      const result = await this._useCases.trackerClanChallenges.extend({
         trackerId: req.params.trackerId,
         challengeId: req.params.challengeId,
         userId: getAuthUser(req).userId,
@@ -141,7 +141,7 @@ export class TrackerClanChallengesController {
 
   submit = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClanChallenges.submit({
+      const result = await this._useCases.trackerClanChallenges.submit({
         trackerId: req.params.trackerId,
         challengeId: req.params.challengeId,
         userId: getAuthUser(req).userId,
@@ -155,7 +155,7 @@ export class TrackerClanChallengesController {
 
   chooseCheckpoint = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClanChallenges.chooseCheckpoint({
+      const result = await this._useCases.trackerClanChallenges.chooseCheckpoint({
         trackerId: req.params.trackerId,
         challengeId: req.params.challengeId,
         userId: getAuthUser(req).userId,
@@ -167,7 +167,7 @@ export class TrackerClanChallengesController {
 
   answerNode = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClanChallenges.answerNode({
+      const result = await this._useCases.trackerClanChallenges.answerNode({
         trackerId: req.params.trackerId,
         challengeId: req.params.challengeId,
         userId: getAuthUser(req).userId,
@@ -180,7 +180,7 @@ export class TrackerClanChallengesController {
 
   usePower = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClanChallenges.usePower({
+      const result = await this._useCases.trackerClanChallenges.usePower({
         trackerId: req.params.trackerId,
         challengeId: req.params.challengeId,
         userId: getAuthUser(req).userId,

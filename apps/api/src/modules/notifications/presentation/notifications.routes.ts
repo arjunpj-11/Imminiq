@@ -2,7 +2,7 @@ import { Router } from 'express';
 import type { NotificationsUseCases } from '../application';
 import { authenticate } from '../../../shared/middlewares/auth.middleware';
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware';
-import { validate, validateIdentifierParam, validateQuery } from '../../../shared/middlewares/validate';
+import { validate, validateIdentifierParam, validateQuery } from '../../../shared/middlewares/validate.middleware';
 import { NotificationsController } from './notifications.controller';
 import { NOTIFICATION_ROUTE_PATHS } from './notifications.route.constants';
 import { notificationPollVoteSchema, notificationsListQuerySchema } from './notifications.schema';

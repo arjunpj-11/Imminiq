@@ -1,9 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import {
-  AddAdminTrackerReviewConsensusUseCase,
-  AdminTrackerReviewsMapper,
-} from '../../src/modules/admin/trackers/application/admin-tracker-reviews';
+import { AdminTrackersMapper } from '../../src/modules/admin/trackers/application/admin-trackers.mapper';
+import { AddAdminTrackerReviewConsensusUseCase } from '../../src/modules/admin/trackers/application/use-cases/add-admin-tracker-review-consensus.usecase';
 import type { IAdminTrackerReviewsRepository } from '../../src/modules/admin/trackers/domain/repositories/admin-tracker-reviews.repository.interface';
 import { adminTrackerReviewConsensusSchema } from '../../src/modules/admin/trackers/presentation/admin-trackers.schema';
 
@@ -27,7 +25,7 @@ describe('AdminTrackerReviewsUseCase', () => {
     await expect(
       new AddAdminTrackerReviewConsensusUseCase(
         repository,
-        new AdminTrackerReviewsMapper()
+        new AdminTrackersMapper()
       ).execute('review-id', 'pass', actor)
     ).resolves.toEqual({ id: 'review-id', passVotes: 4, failVotes: 2 });
     expect(repository.addConsensusVote).toHaveBeenCalledWith('review-id', 'pass', actor);
@@ -49,7 +47,7 @@ describe('AdminTrackerReviewsUseCase', () => {
     await expect(
       new AddAdminTrackerReviewConsensusUseCase(
         repository,
-        new AdminTrackerReviewsMapper()
+        new AdminTrackersMapper()
       ).execute('review-id', 'fail', actor)
     ).rejects.toMatchObject({ kind: 'conflict', code: 'TRACKER_REVIEW_NOT_OPEN' });
   });

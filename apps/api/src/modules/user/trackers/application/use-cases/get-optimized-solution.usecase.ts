@@ -1,3 +1,6 @@
+import type {
+  GetOptimizedSolutionPayloadDTO,
+} from '../tracker.dto';
 import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
@@ -6,16 +9,8 @@ import type {
   OptimizedCodeSolution,
 } from '../../domain/services/tracker-ai.interface';
 
-type GetOptimizedSolutionInput = {
-  trackerId: string;
-  subtopicId: string;
-  userId: string;
-  sourceCode: string;
-  language?: string;
-};
-
 export interface IGetOptimizedSolutionUseCase {
-  execute(input: GetOptimizedSolutionInput): Promise<OptimizedCodeSolution>;
+  execute(input: GetOptimizedSolutionPayloadDTO): Promise<OptimizedCodeSolution>;
 }
 
 export class GetOptimizedSolutionUseCase implements IGetOptimizedSolutionUseCase {
@@ -24,11 +19,14 @@ export class GetOptimizedSolutionUseCase implements IGetOptimizedSolutionUseCase
       ITrackerRepository,
       'findGeneratedLessonBySubtopic' | 'findOwnedTrackerById'
     >,
-    private readonly _trackerAIGateway: ITrackerAIGateway,
+    private readonly _trackerAIGateway: Pick<
+      ITrackerAIGateway,
+      'generateOptimizedCodeSolution'
+    >,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: GetOptimizedSolutionInput): Promise<OptimizedCodeSolution> {
+  async execute(input: GetOptimizedSolutionPayloadDTO): Promise<OptimizedCodeSolution> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

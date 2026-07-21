@@ -26,3 +26,5 @@ export * from './mock-tests.dto';
 export * from './mock-tests.mapper';
 export * from './mock-tests-application.error';
 export * from './services/test-scorer.service';
+export * from './services/attempt-question-snapshot.service';
+export * from './mock-tests-use-cases.contract';

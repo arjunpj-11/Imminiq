@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 
 import { env } from '../../config/env';
-import { ApiError } from '../utils/ApiError';
+import { ApiError } from '../utils/api-error';
 
 const UNSAFE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 

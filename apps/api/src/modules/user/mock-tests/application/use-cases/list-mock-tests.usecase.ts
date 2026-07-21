@@ -6,36 +6,15 @@ import {
   DEFAULT_MOCK_TEST_PAGE,
   MAX_MOCK_TEST_LIST_LIMIT,
 } from '../../domain/mock-tests.constants';
-import type { MockTestSummary } from '../../domain/value-objects/mock-test-analytics.vo';
-import type { MockTestAttemptDTO, MockTestDTO } from '../mock-tests.dto';
+import type { ListMockTestsOptionsDTO, ListMockTestsResultDTO } from '../mock-tests.dto';
 import type { IMockTestsMapper } from '../mock-tests.mapper';
-
-type ListMockTestsOptions = {
-  page?: number;
-  limit?: number;
-};
 
 type ListMockTestsRepository = IMockTestRepository &
   IMockTestAttemptRepository &
   IMockTestAnalyticsRepository;
 
-type ListMockTestsResultDTO = {
-  summary: MockTestSummary;
-  tests: (MockTestDTO & {
-    latestAttempt: MockTestAttemptDTO | null;
-  })[];
-  pagination: {
-    page: number;
-    limit: number;
-    totalItems: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-  };
-};
-
 export interface IListMockTestsUseCase {
-  execute(userId: string, options?: ListMockTestsOptions): Promise<ListMockTestsResultDTO>;
+  execute(userId: string, options?: ListMockTestsOptionsDTO): Promise<ListMockTestsResultDTO>;
 }
 
 export class ListMockTestsUseCase implements IListMockTestsUseCase {
@@ -44,7 +23,7 @@ export class ListMockTestsUseCase implements IListMockTestsUseCase {
     private readonly _mapper: IMockTestsMapper
   ) {}
 
-  async execute(userId: string, options: ListMockTestsOptions = {}) {
+  async execute(userId: string, options: ListMockTestsOptionsDTO = {}) {
     const page = this.sanitizePage(options.page);
     const limit = this.sanitizeLimit(options.limit);
 

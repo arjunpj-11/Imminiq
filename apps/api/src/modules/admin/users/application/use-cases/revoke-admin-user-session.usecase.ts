@@ -16,7 +16,7 @@ export interface IRevokeAdminUserSessionUseCase {
 }
 
 export class RevokeAdminUserSessionUseCase implements IRevokeAdminUserSessionUseCase {
-  constructor(private readonly repository: Pick<IAdminUsersRepository, 'revokeSession'>) {}
+  constructor(private readonly _repository: Pick<IAdminUsersRepository, 'revokeSession'>) {}
 
   async execute(
     userId: string,
@@ -24,7 +24,7 @@ export class RevokeAdminUserSessionUseCase implements IRevokeAdminUserSessionUse
     actor: AdminActor,
     context: AdminRequestContextDTO
   ) {
-    const revoked = await this.repository.revokeSession(userId, sessionId, {
+    const revoked = await this._repository.revokeSession(userId, sessionId, {
       actorId: actor.userId,
       ...context,
     });

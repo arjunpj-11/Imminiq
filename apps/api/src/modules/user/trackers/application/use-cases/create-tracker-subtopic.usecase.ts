@@ -1,12 +1,13 @@
+import type {
+  TrackerSubtopicDTO,
+} from '../tracker.dto';
 import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { CreateSubtopicUseCaseInput } from '../../domain/trackers.types';
 
-type CreateTrackerSubtopicResultDTO = ReturnType<ITrackerMapper['toTrackerSubtopicDto']>;
-
 export interface ICreateTrackerSubtopicUseCase {
-  execute(input: CreateSubtopicUseCaseInput): Promise<CreateTrackerSubtopicResultDTO>;
+  execute(input: CreateSubtopicUseCaseInput): Promise<TrackerSubtopicDTO>;
 }
 
 export class CreateTrackerSubtopicUseCase implements ICreateTrackerSubtopicUseCase {
@@ -24,7 +25,7 @@ export class CreateTrackerSubtopicUseCase implements ICreateTrackerSubtopicUseCa
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: CreateSubtopicUseCaseInput): Promise<CreateTrackerSubtopicResultDTO> {
+  async execute(input: CreateSubtopicUseCaseInput): Promise<TrackerSubtopicDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

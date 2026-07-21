@@ -12,12 +12,12 @@ export class ListAdminMockTestQuestionIssuesUseCase
   implements IListAdminMockTestQuestionIssuesUseCase
 {
   constructor(
-    private readonly repository: Pick<IAdminMockTestsRepository, 'listQuestionIssues'>,
-    private readonly mapper: IAdminMockTestsMapper
+    private readonly _repository: Pick<IAdminMockTestsRepository, 'listQuestionIssues'>,
+    private readonly _mapper: IAdminMockTestsMapper
   ) {}
 
   async execute(query: AdminListQuery) {
-    const page = await this.repository.listQuestionIssues(query);
-    return this.mapper.toIssuePageDTO(page as AdminPage<AdminMockTestQuestionIssue>);
+    const page = await this._repository.listQuestionIssues(query);
+    return this._mapper.toIssuePageDTO(page as AdminPage<AdminMockTestQuestionIssue>);
   }
 }

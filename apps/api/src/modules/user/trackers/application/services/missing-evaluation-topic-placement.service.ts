@@ -29,7 +29,7 @@ export interface IMissingEvaluationTopicPlacementService {
 export class MissingEvaluationTopicPlacementService
   implements IMissingEvaluationTopicPlacementService
 {
-  constructor(private readonly repository: IMissingEvaluationTopicPlacementRepository) {}
+  constructor(private readonly _repository: IMissingEvaluationTopicPlacementRepository) {}
 
   async place(input: PlacementInput): Promise<AddMissingEvaluationTopicResult> {
     const placement = parseNewTopLevelPlacement(input.missingTopic.suggestedParentTitle);
@@ -44,7 +44,7 @@ export class MissingEvaluationTopicPlacementService
     placement: NewTopLevelPlacement
   ): Promise<AddMissingEvaluationTopicResult> {
     const order = await this.resolveTopLevelOrder(input.trackerId, input.trackerTopics, placement);
-    const addedTopic = await this.repository.createTrackerTopic({
+    const addedTopic = await this._repository.createTrackerTopic({
       trackerId: input.trackerId,
       title: input.missingTopic.title,
       description: input.missingTopic.description,
@@ -52,8 +52,8 @@ export class MissingEvaluationTopicPlacementService
     });
 
     await Promise.all([
-      this.repository.incrementTrackerTopicsCount(input.trackerId),
-      this.repository.markMissingEvaluationTopicAsAdded({
+      this._repository.incrementTrackerTopicsCount(input.trackerId),
+      this._repository.markMissingEvaluationTopicAsAdded({
         evaluationJobId: input.evaluationJobId,
         topicIndex: input.topicIndex,
         addedTopicId: addedTopic._id.toString(),
@@ -92,11 +92,11 @@ export class MissingEvaluationTopicPlacementService
       ? matchedSubtopic.topicId.toString()
       : matchedTopic!._id.toString();
     const parentSubtopicId = matchedSubtopic ? matchedSubtopic._id.toString() : null;
-    const lastSibling = await this.repository.findLastSiblingSubtopic({
+    const lastSibling = await this._repository.findLastSiblingSubtopic({
       topicId,
       parentSubtopicId,
     });
-    const addedSubtopic = await this.repository.createTrackerSubtopic({
+    const addedSubtopic = await this._repository.createTrackerSubtopic({
       trackerId: input.trackerId,
       topicId,
       parentSubtopicId,
@@ -107,9 +107,9 @@ export class MissingEvaluationTopicPlacementService
     });
 
     await Promise.all([
-      this.repository.incrementTrackerSubtopicsCount(input.trackerId),
-      this.repository.recomputeTrackerProgress({ trackerId: input.trackerId, userId: input.userId }),
-      this.repository.markMissingEvaluationTopicAsAdded({
+      this._repository.incrementTrackerSubtopicsCount(input.trackerId),
+      this._repository.recomputeTrackerProgress({ trackerId: input.trackerId, userId: input.userId }),
+      this._repository.markMissingEvaluationTopicAsAdded({
         evaluationJobId: input.evaluationJobId,
         topicIndex: input.topicIndex,
         addedSubtopicId: addedSubtopic._id.toString(),
@@ -145,12 +145,12 @@ export class MissingEvaluationTopicPlacementService
       const referenceTopic = findBestMatchingParent(trackerTopics, placement.referenceTitle);
       if (referenceTopic) {
         const order = referenceTopic.order + (placement.relation === 'after' ? 1 : 0);
-        await this.repository.shiftTopicOrdersFrom({ trackerId, fromOrder: order });
+        await this._repository.shiftTopicOrdersFrom({ trackerId, fromOrder: order });
         return order;
       }
     }
 
-    const lastTopic = await this.repository.findLastTopicForTracker(trackerId);
+    const lastTopic = await this._repository.findLastTopicForTracker(trackerId);
     return (lastTopic?.order || 0) + 1;
   }
 }

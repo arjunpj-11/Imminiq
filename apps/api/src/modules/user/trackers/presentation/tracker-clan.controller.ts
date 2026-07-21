@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 
 import { HttpStatusCode } from '../../../../shared/constants/http-status-code.enum';
-import { ApiResponse } from '../../../../shared/utils/ApiResponse';
-import { getAuthUser } from '../../../../shared/utils/getAuthUser';
+import { ApiResponse } from '../../../../shared/utils/api-response';
+import { getAuthUser } from '../../../../shared/utils/get-auth-user';
 import type { TrackerUseCases } from '../application/tracker-use-cases.contract';
 
 type TrackerParams = { trackerId: string };
@@ -11,11 +11,11 @@ type ClanMemberParams = { trackerId: string; memberId: string };
 type ClanRoleInvitationParams = { trackerId: string; invitationId: string };
 
 export class TrackerClanController {
-  constructor(private readonly useCases: TrackerUseCases) {}
+  constructor(private readonly _useCases: TrackerUseCases) {}
 
   getOverview = async (req: Request<TrackerParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClan.getOverview({
+      const result = await this._useCases.trackerClan.getOverview({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
       });
@@ -27,7 +27,7 @@ export class TrackerClanController {
 
   join = async (req: Request<TrackerParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClan.requestJoin({
+      const result = await this._useCases.trackerClan.requestJoin({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
       });
@@ -39,7 +39,7 @@ export class TrackerClanController {
 
   reviewJoin = async (req: Request<ClanRequestParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClan.reviewJoin({
+      const result = await this._useCases.trackerClan.reviewJoin({
         trackerId: req.params.trackerId,
         requestId: req.params.requestId,
         userId: getAuthUser(req).userId,
@@ -53,7 +53,7 @@ export class TrackerClanController {
 
   updateMember = async (req: Request<ClanMemberParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClan.updateMemberRole({
+      const result = await this._useCases.trackerClan.updateMemberRole({
         trackerId: req.params.trackerId,
         memberId: req.params.memberId,
         userId: getAuthUser(req).userId,
@@ -67,7 +67,7 @@ export class TrackerClanController {
 
   removeMember = async (req: Request<ClanMemberParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClan.removeMember({
+      const result = await this._useCases.trackerClan.removeMember({
         trackerId: req.params.trackerId,
         memberId: req.params.memberId,
         userId: getAuthUser(req).userId,
@@ -80,7 +80,7 @@ export class TrackerClanController {
 
   leave = async (req: Request<TrackerParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClan.leaveClan({
+      const result = await this._useCases.trackerClan.leaveClan({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
       });
@@ -92,7 +92,7 @@ export class TrackerClanController {
 
   transferOwnership = async (req: Request<TrackerParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClan.transferOwnership({
+      const result = await this._useCases.trackerClan.transferOwnership({
         trackerId: req.params.trackerId,
         newOwnerId: req.body.newOwnerId,
         userId: getAuthUser(req).userId,
@@ -109,7 +109,7 @@ export class TrackerClanController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.useCases.trackerClan.respondToRoleInvitation({
+      const result = await this._useCases.trackerClan.respondToRoleInvitation({
         trackerId: req.params.trackerId,
         invitationId: req.params.invitationId,
         userId: getAuthUser(req).userId,
@@ -128,7 +128,7 @@ export class TrackerClanController {
 
   syncPersonalClone = async (req: Request<TrackerParams>, res: Response, next: NextFunction) => {
     try {
-      const result = await this.useCases.trackerClan.syncPersonalClone({
+      const result = await this._useCases.trackerClan.syncPersonalClone({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
       });
@@ -141,7 +141,7 @@ export class TrackerClanController {
   listMessages = async (req: Request<TrackerParams>, res: Response, next: NextFunction) => {
     try {
       const query = res.locals.clanMessagesQuery as { limit: number };
-      const result = await this.useCases.trackerClan.listMessages({
+      const result = await this._useCases.trackerClan.listMessages({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
         limit: query.limit,

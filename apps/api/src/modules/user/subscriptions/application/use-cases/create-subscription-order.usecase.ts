@@ -19,10 +19,10 @@ export interface ICreateSubscriptionOrderUseCase {
 
 export class CreateSubscriptionOrderUseCase implements ICreateSubscriptionOrderUseCase {
   constructor(
-    private readonly repository: Pick<ISubscriptionRepository, 'createPending' | 'getPlan'>,
-    private readonly paymentGateway: ISubscriptionPaymentGateway,
-    private readonly mapper: ISubscriptionsMapper,
-    private readonly clock: IClock
+    private readonly _repository: Pick<ISubscriptionRepository, 'createPending' | 'getPlan'>,
+    private readonly _paymentGateway: ISubscriptionPaymentGateway,
+    private readonly _mapper: ISubscriptionsMapper,
+    private readonly _clock: IClock
   ) {}
 
   async execute(
@@ -30,15 +30,15 @@ export class CreateSubscriptionOrderUseCase implements ICreateSubscriptionOrderU
     planId: PaidSubscriptionPlanId,
     billingCycle: SubscriptionBillingCycle
   ) {
-    const plan = await this.repository.getPlan(planId);
+    const plan = await this._repository.getPlan(planId);
     if (!plan || plan.id === 'free') throw SubscriptionsApplicationError.invalidPlan();
     const amount = billingCycle === 'annual' ? plan.annualAmount : plan.monthlyAmount;
-    const receipt = `sub_${userId.slice(-8)}_${this.clock.now().getTime().toString(36)}`.slice(
+    const receipt = `sub_${userId.slice(-8)}_${this._clock.now().getTime().toString(36)}`.slice(
       0,
       40
     );
-    const order = await this.paymentGateway.createOrder(amount, receipt);
-    await this.repository.createPending({
+    const order = await this._paymentGateway.createOrder(amount, receipt);
+    await this._repository.createPending({
       userId,
       planId,
       planName: plan.name,
@@ -47,8 +47,8 @@ export class CreateSubscriptionOrderUseCase implements ICreateSubscriptionOrderU
       razorpayOrderId: order.id,
       limits: plan.limits,
     });
-    return this.mapper.toOrderDTO({
-      keyId: this.paymentGateway.getPublicKey(),
+    return this._mapper.toOrderDTO({
+      keyId: this._paymentGateway.getPublicKey(),
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,

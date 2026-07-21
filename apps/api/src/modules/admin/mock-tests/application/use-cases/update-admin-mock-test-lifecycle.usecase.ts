@@ -17,18 +17,18 @@ export class UpdateAdminMockTestLifecycleUseCase
   implements IUpdateAdminMockTestLifecycleUseCase
 {
   constructor(
-    private readonly repository: Pick<IAdminMockTestsRepository, 'updateLifecycle'>,
-    private readonly emailProvider: IAdminMockTestEmailProvider
+    private readonly _repository: Pick<IAdminMockTestsRepository, 'updateLifecycle'>,
+    private readonly _emailProvider: IAdminMockTestEmailProvider
   ) {}
 
   async execute(id: string, input: AdminMockTestLifecycleInput, actor: AdminActor) {
-    const result = await this.repository.updateLifecycle(id, input, actor);
+    const result = await this._repository.updateLifecycle(id, input, actor);
     if (!result) throw AdminMockTestsApplicationError.notFound();
 
     let notificationQueued = false;
     if (input.notifyOwner && result.ownerEmail) {
       try {
-        await this.emailProvider.queueModerationEmail({
+        await this._emailProvider.queueModerationEmail({
           to: result.ownerEmail,
           ownerName: result.owner,
           testTitle: result.title,

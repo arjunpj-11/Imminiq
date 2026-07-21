@@ -1,5 +1,5 @@
 import { rateLimit } from 'express-rate-limit';
-import { ApiError } from '../utils/ApiError';
+import { ApiError } from '../utils/api-error';
 import { env } from '../../config/env';
 import { redis } from '../../config/redis';
 import { RedisRateLimitStore } from '../../infrastructure/cache/redis-rate-limit.store';

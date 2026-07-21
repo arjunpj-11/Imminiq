@@ -10,13 +10,13 @@ export interface ILikeAdminPublishedTrackerUseCase {
 
 export class LikeAdminPublishedTrackerUseCase implements ILikeAdminPublishedTrackerUseCase {
   constructor(
-    private readonly repository: Pick<IAdminTrackersRepository, 'likePublished'>,
-    private readonly mapper: IAdminTrackersMapper
+    private readonly _repository: Pick<IAdminTrackersRepository, 'likePublished'>,
+    private readonly _mapper: IAdminTrackersMapper
   ) {}
 
   async execute(id: string, actor: AdminActor) {
-    const result = await this.repository.likePublished(id, actor);
+    const result = await this._repository.likePublished(id, actor);
     if (!result) throw AdminTrackersApplicationError.publishedTrackerNotFound();
-    return this.mapper.toEngagementResultDTO(result);
+    return this._mapper.toEngagementResultDTO(result);
   }
 }

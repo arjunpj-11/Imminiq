@@ -1,12 +1,12 @@
 import type { NextFunction, Request, Response } from 'express';
-import { ApiResponse } from '../../../../shared/utils/ApiResponse';
+import { ApiResponse } from '../../../../shared/utils/api-response';
 import type { SupportTicketsUseCases } from '../application/support-tickets-use-cases.contract';
 import { createSupportTicketSchema } from './support-tickets.schema';
 export class SupportTicketsController {
-  constructor(private readonly useCases: SupportTicketsUseCases) {}
+  constructor(private readonly _useCases: SupportTicketsUseCases) {}
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.useCases.createTicket.execute(
+      const data = await this._useCases.createTicket.execute(
         req.user!.userId,
         createSupportTicketSchema.parse(req.body)
       );

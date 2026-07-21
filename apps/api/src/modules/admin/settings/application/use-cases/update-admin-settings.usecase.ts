@@ -10,11 +10,11 @@ export interface IUpdateAdminSettingsUseCase {
 
 export class UpdateAdminSettingsUseCase implements IUpdateAdminSettingsUseCase {
   constructor(
-    private readonly repository: IAdminSettingsRepository,
-    private readonly mapper: IAdminSettingsMapper
+    private readonly _repository: IAdminSettingsRepository,
+    private readonly _mapper: IAdminSettingsMapper
   ) {}
 
   async execute(input: AdminSettingsInput, actor: AdminActor): Promise<AdminSettingsDTO> {
-    return this.mapper.toDTO(await this.repository.update(input, actor));
+    return this._mapper.toDTO(await this._repository.update(input, actor));
   }
 }

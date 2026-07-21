@@ -1,7 +1,6 @@
 import { AuthApplicationError } from '../auth-application.error';
 import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface';
 import type { IAuthTwoFactorRepository } from '../../domain/repositories/auth-two-factor.repository.interface';
-import type { IAuthRedirectResolver } from '../../domain/services/auth-redirect.interface';
 import type { IAuthToken } from '../../domain/services/auth-token.interface';
 import type { IPasswordHasher } from '../../domain/services/password-hasher.interface';
 import type {
@@ -14,14 +13,13 @@ import type {
   RequestMetaDTO,
   TwoFactorLoginVerifyPayloadDTO,
 } from '../auth.dto';
-import type { IAuthUserMapper } from '../auth-user.mapper';
 import type { IAuthAccountPolicy } from '../auth-account-policy.policy';
-import type { IAuthSessionIssuer } from '../services/auth-session.service';
+import type { IAuthLoginFinalizer } from '../services/auth-login-finalizer.service';
 import type { IBackupCodeNormalizer } from '../services/backup-code-normalizer.service';
 
 type TwoFactorLoginRepository = Pick<
   IAuthUserRepository,
-  'findById' | 'cancelScheduledDeletionIfRecoverable' | 'updateLastActive'
+  'findById'
 > &
   Pick<
     IAuthTwoFactorRepository,
@@ -46,15 +44,13 @@ export interface IVerifyTwoFactorLoginUseCase {
 export class VerifyTwoFactorLoginUseCase implements IVerifyTwoFactorLoginUseCase {
   constructor(
     private readonly _authRepository: TwoFactorLoginRepository,
-    private readonly _authRedirectResolver: IAuthRedirectResolver,
     private readonly _authToken: IAuthToken,
     private readonly _authAccountPolicy: IAuthAccountPolicy,
-    private readonly _authSessionIssuer: IAuthSessionIssuer,
+    private readonly _loginFinalizer: IAuthLoginFinalizer,
     private readonly _securityAttemptStore: ISecurityAttemptStore,
     private readonly _twoFactorCodeVerifier: ITwoFactorCodeVerifier,
     private readonly _backupCodeNormalizer: IBackupCodeNormalizer,
-    private readonly _passwordHasher: IPasswordHasher,
-    private readonly _authUserMapper: IAuthUserMapper
+    private readonly _passwordHasher: IPasswordHasher
   ) {}
 
   async execute(
@@ -110,27 +106,7 @@ export class VerifyTwoFactorLoginUseCase implements IVerifyTwoFactorLoginUseCase
 
     await this._securityAttemptStore.clear(TWO_FACTOR_LOGIN_SCOPE, decoded.userId);
 
-    const userId = user.id;
-
-    const recoveredUser = await this._authRepository.cancelScheduledDeletionIfRecoverable(userId);
-
-    const authenticatedUser = recoveredUser ?? user;
-
-    const redirectPath = await this._authRedirectResolver.resolveRedirectPath(
-      userId,
-      authenticatedUser.role
-    );
-
-    const tokens = await this._authSessionIssuer.issueTokenPair(userId, user.role, meta);
-
-    await this._authRepository.updateLastActive(userId);
-
-    return {
-      requiresTwoFactor: false,
-      tokens,
-      user: this._authUserMapper.toAuthUser(authenticatedUser),
-      redirectPath,
-    };
+    return this._loginFinalizer.finalize(user, meta);
   }
 
   private async assertTwoFactorLoginAllowed(userId: string): Promise<void> {

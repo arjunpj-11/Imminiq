@@ -13,9 +13,9 @@ export interface IUpdateAdminTrackerReportUseCase {
 }
 
 export class UpdateAdminTrackerReportUseCase implements IUpdateAdminTrackerReportUseCase {
-  constructor(private readonly repository: Pick<IAdminTrackersRepository, 'updateReport'>) {}
+  constructor(private readonly _repository: Pick<IAdminTrackersRepository, 'updateReport'>) {}
   async execute(id: string, input: AdminTrackerReportUpdateInput, actor: AdminActor) {
-    const result = await this.repository.updateReport(id, input, actor);
+    const result = await this._repository.updateReport(id, input, actor);
     if (!result) throw AdminTrackersApplicationError.reportNotFound();
     return result;
   }

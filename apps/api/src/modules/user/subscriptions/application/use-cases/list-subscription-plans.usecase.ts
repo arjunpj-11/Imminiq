@@ -8,11 +8,11 @@ export interface IListSubscriptionPlansUseCase {
 
 export class ListSubscriptionPlansUseCase implements IListSubscriptionPlansUseCase {
   constructor(
-    private readonly repository: Pick<ISubscriptionRepository, 'getPlans'>,
-    private readonly mapper: ISubscriptionsMapper
+    private readonly _repository: Pick<ISubscriptionRepository, 'getPlans'>,
+    private readonly _mapper: ISubscriptionsMapper
   ) {}
 
   async execute() {
-    return (await this.repository.getPlans()).map((plan) => this.mapper.toPlanDTO(plan));
+    return (await this._repository.getPlans()).map((plan) => this._mapper.toPlanDTO(plan));
   }
 }

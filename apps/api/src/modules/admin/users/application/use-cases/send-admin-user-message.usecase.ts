@@ -17,11 +17,11 @@ export interface ISendAdminUserMessageUseCase {
 
 export class SendAdminUserMessageUseCase implements ISendAdminUserMessageUseCase {
   constructor(
-    private readonly repository: Pick<
+    private readonly _repository: Pick<
       IAdminUsersRepository,
       'findById' | 'recordAdminMessage'
     >,
-    private readonly emailProvider: IAdminUserEmailProvider
+    private readonly _emailProvider: IAdminUserEmailProvider
   ) {}
 
   async execute(
@@ -33,9 +33,9 @@ export class SendAdminUserMessageUseCase implements ISendAdminUserMessageUseCase
     if (!/^[a-f\d]{24}$/i.test(userId)) {
       throw new AdminUsersDomainError('INVALID_USER_ID', 'Invalid user ID');
     }
-    const target = await this.repository.findById(userId);
+    const target = await this._repository.findById(userId);
     if (!target) throw AdminUsersApplicationError.userNotFound();
-    await this.repository.recordAdminMessage({
+    await this._repository.recordAdminMessage({
       actorId: actor.userId,
       userId,
       subject: input.subject,
@@ -45,7 +45,7 @@ export class SendAdminUserMessageUseCase implements ISendAdminUserMessageUseCase
     let emailQueued = false;
     if (input.notifyEmail && target.email) {
       try {
-        await this.emailProvider.queueDirectMessage({
+        await this._emailProvider.queueDirectMessage({
           to: target.email,
           userName: target.fullName,
           subject: input.subject,

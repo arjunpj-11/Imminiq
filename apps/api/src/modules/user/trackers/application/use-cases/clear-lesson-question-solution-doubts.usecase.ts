@@ -4,14 +4,13 @@ import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { IQuestionHasher } from '../../domain/services/question-hasher.interface';
-import type { LessonQuestionPayloadDTO } from '../tracker.dto';
-
-type ClearLessonQuestionSolutionDoubtsResultDTO = ReturnType<
-  ITrackerMapper['toClearLessonHistoryResultDto']
->;
+import type {
+  ClearLessonHistoryResultDTO,
+  LessonQuestionPayloadDTO,
+} from '../tracker.dto';
 
 export interface IClearLessonQuestionSolutionDoubtsUseCase {
-  execute(input: LessonQuestionPayloadDTO): Promise<ClearLessonQuestionSolutionDoubtsResultDTO>;
+  execute(input: LessonQuestionPayloadDTO): Promise<ClearLessonHistoryResultDTO>;
 }
 
 export class ClearLessonQuestionSolutionDoubtsUseCase implements IClearLessonQuestionSolutionDoubtsUseCase {
@@ -26,7 +25,7 @@ export class ClearLessonQuestionSolutionDoubtsUseCase implements IClearLessonQue
 
   async execute(
     input: LessonQuestionPayloadDTO
-  ): Promise<ClearLessonQuestionSolutionDoubtsResultDTO> {
+  ): Promise<ClearLessonHistoryResultDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

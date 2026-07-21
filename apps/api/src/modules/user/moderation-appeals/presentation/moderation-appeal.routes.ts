@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { validate } from '../../../../shared/middlewares/validate';
+import { validate } from '../../../../shared/middlewares/validate.middleware';
 import { authenticateModerationAppeal } from '../../../../shared/middlewares/moderation-appeal-auth.middleware';
 import { moderationAppealIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
 import { ModerationAppealController } from './moderation-appeal.controller';

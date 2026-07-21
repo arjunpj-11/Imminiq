@@ -3,7 +3,7 @@ import type {
   ListNotificationsPayloadDTO,
   ListNotificationsResponseDTO,
 } from '../notifications.dto';
-import type { NotificationsMapper } from '../notifications.mapper';
+import type { INotificationsMapper } from '../notifications.mapper';
 
 export interface IListNotificationsUseCase {
   execute(
@@ -14,7 +14,7 @@ export interface IListNotificationsUseCase {
 export class ListNotificationsUseCase implements IListNotificationsUseCase {
   constructor(
     private readonly _repository: INotificationQueryRepository,
-    private readonly _mapper: NotificationsMapper
+    private readonly _mapper: INotificationsMapper
   ) {}
   async execute(userId: string, payload: ListNotificationsPayloadDTO) {
     const page = await this._repository.listNotifications({ userId, ...payload });

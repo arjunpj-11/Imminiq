@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { authenticate, authenticateOptional } from '../../../../shared/middlewares/auth.middleware';
-import { validate, validateUsernameParam } from '../../../../shared/middlewares/validate';
+import { validate, validateUsernameParam } from '../../../../shared/middlewares/validate.middleware';
 import { UsersController } from './users.controller';
 import type { UsersUseCases } from '../application/users-use-cases.contract';
 import { USER_ROUTE_PATHS } from './users.route.constants';

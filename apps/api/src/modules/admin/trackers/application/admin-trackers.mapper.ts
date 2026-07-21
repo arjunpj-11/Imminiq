@@ -1,5 +1,10 @@
 import type { AdminPage } from '../../../../shared/admin';
 import type {
+  AdminTrackerReview,
+  AdminTrackerReviewConsensusResult,
+  AdminTrackerReviewStatusResult,
+} from '../domain/entities/admin-tracker-review.entity';
+import type {
   AdminPublishedTracker,
   AdminPublishedTrackerEngagementResult,
   AdminTracker,
@@ -10,6 +15,9 @@ import type {
   AdminPublishedTrackerEngagementResultDTO,
   AdminTrackerDTO,
   AdminTrackerDetailDTO,
+  AdminTrackerReviewConsensusResultDTO,
+  AdminTrackerReviewDTO,
+  AdminTrackerReviewStatusResultDTO,
 } from './admin-trackers.dto';
 
 export interface IAdminTrackersMapper {
@@ -21,6 +29,13 @@ export interface IAdminTrackersMapper {
   ): AdminPublishedTrackerEngagementResultDTO;
   toPageDTO(page: AdminPage<AdminTracker>): AdminPage<AdminTrackerDTO>;
   toPublishedPageDTO(page: AdminPage<AdminPublishedTracker>): AdminPage<AdminPublishedTrackerDTO>;
+  toReviewPageDTO(page: AdminPage<AdminTrackerReview>): AdminPage<AdminTrackerReviewDTO>;
+  toReviewStatusResultDTO(
+    result: AdminTrackerReviewStatusResult
+  ): AdminTrackerReviewStatusResultDTO;
+  toReviewConsensusResultDTO(
+    result: AdminTrackerReviewConsensusResult
+  ): AdminTrackerReviewConsensusResultDTO;
 }
 
 export class AdminTrackersMapper implements IAdminTrackersMapper {
@@ -50,6 +65,23 @@ export class AdminTrackersMapper implements IAdminTrackersMapper {
   toPublishedPageDTO(page: AdminPage<AdminPublishedTracker>): AdminPage<AdminPublishedTrackerDTO> {
     return this.mapPage(page, (item) => this.toPublishedDTO(item));
   }
+
+  toReviewPageDTO(page: AdminPage<AdminTrackerReview>): AdminPage<AdminTrackerReviewDTO> {
+    return this.mapPage(page, (item) => ({ ...item }));
+  }
+
+  toReviewStatusResultDTO(
+    result: AdminTrackerReviewStatusResult
+  ): AdminTrackerReviewStatusResultDTO {
+    return { ...result };
+  }
+
+  toReviewConsensusResultDTO(
+    result: AdminTrackerReviewConsensusResult
+  ): AdminTrackerReviewConsensusResultDTO {
+    return { ...result };
+  }
+
   private mapPage<TEntity, TDTO>(
     page: AdminPage<TEntity>,
     mapItem: (item: TEntity) => TDTO

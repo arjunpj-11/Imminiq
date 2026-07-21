@@ -29,25 +29,25 @@ return 1
  * Each limiter receives its own store instance and namespace.
  */
 export class RedisRateLimitStore {
-  private windowMs = 60_000;
+  private _windowMs = 60_000;
 
   constructor(
-    private readonly client: Redis,
+    private readonly _client: Redis,
     readonly prefix: string
   ) {}
 
   init(options: RateLimitOptions) {
-    this.windowMs = options.windowMs;
+    this._windowMs = options.windowMs;
   }
 
   async increment(key: string): Promise<IncrementResult> {
-    const result = await this.client.eval(
+    const result = await this._client.eval(
       INCREMENT_WITH_EXPIRY_SCRIPT,
       1,
       this.toRedisKey(key),
-      String(this.windowMs)
+      String(this._windowMs)
     );
-    const [rawHits, rawTtl] = Array.isArray(result) ? result : [1, this.windowMs];
+    const [rawHits, rawTtl] = Array.isArray(result) ? result : [1, this._windowMs];
     const totalHits = Math.max(1, Number(rawHits));
     const ttl = Math.max(1, Number(rawTtl));
 
@@ -55,11 +55,11 @@ export class RedisRateLimitStore {
   }
 
   async decrement(key: string): Promise<void> {
-    await this.client.eval(DECREMENT_IF_POSITIVE_SCRIPT, 1, this.toRedisKey(key));
+    await this._client.eval(DECREMENT_IF_POSITIVE_SCRIPT, 1, this.toRedisKey(key));
   }
 
   async resetKey(key: string): Promise<void> {
-    await this.client.del(this.toRedisKey(key));
+    await this._client.del(this.toRedisKey(key));
   }
 
   private toRedisKey(key: string) {

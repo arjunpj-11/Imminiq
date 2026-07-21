@@ -1,4 +1,4 @@
-import type { NotificationMetadata, NotificationType } from '../domain';
+import type { NotificationEntity, NotificationMetadata, NotificationType } from '../domain';
 
 export type NotificationDTO = {
   id: string;
@@ -11,6 +11,13 @@ export type NotificationDTO = {
 };
 
 export type ListNotificationsPayloadDTO = { page: number; limit: number };
+export type NotificationPageMappingInputDTO = {
+  notifications: NotificationEntity[];
+  total: number;
+  unreadCount: number;
+  page: number;
+  limit: number;
+};
 export type ListNotificationsResponseDTO = {
   notifications: NotificationDTO[];
   pagination: {
@@ -34,4 +41,3 @@ export type MarkNotificationReadResponseDTO = { updated: boolean };
 export type MarkAllNotificationsReadResponseDTO = { updated: number };
 export type VoteNotificationPollPayloadDTO = { optionIndex: number };
 export type VoteNotificationPollResponseDTO = { optionIndex: number };
-

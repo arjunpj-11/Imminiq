@@ -9,11 +9,11 @@ export interface IListAdminBroadcastsUseCase {
 
 export class ListAdminBroadcastsUseCase implements IListAdminBroadcastsUseCase {
   constructor(
-    private readonly repository: IAdminBroadcastRepository,
-    private readonly mapper: IAdminBroadcastMapper
+    private readonly _repository: IAdminBroadcastRepository,
+    private readonly _mapper: IAdminBroadcastMapper
   ) {}
 
   async execute(query: AdminListQuery): Promise<AdminPage<AdminBroadcastDTO>> {
-    return this.mapper.toPageDTO(await this.repository.list(query));
+    return this._mapper.toPageDTO(await this._repository.list(query));
   }
 }

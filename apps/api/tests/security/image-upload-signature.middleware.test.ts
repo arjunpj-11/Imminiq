@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Request } from 'express';
 
 import { validateUploadedImageSignature } from '../../src/shared/middlewares/image-upload-signature.middleware';
-import { ApiError } from '../../src/shared/utils/ApiError';
+import { ApiError } from '../../src/shared/utils/api-error';
 import {
   createMockRequest,
   createMockResponse,

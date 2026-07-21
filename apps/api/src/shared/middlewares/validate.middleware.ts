@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction, RequestParamHandler } from 'express';
 import type { ZodTypeAny } from 'zod';
 
-import { ApiError } from '../utils/ApiError';
+import { ApiError } from '../utils/api-error';
 
 type ValidationIssue = {
   path: readonly (string | number | symbol)[];

@@ -70,6 +70,12 @@ export default tseslint.config(
             match: false,
           },
         },
+        {
+          selector: ['classProperty', 'parameterProperty'],
+          modifiers: ['private'],
+          format: ['camelCase'],
+          leadingUnderscore: 'require',
+        },
       ],
     },
   },
@@ -96,6 +102,13 @@ export default tseslint.config(
           },
         },
       ],
+    },
+  },
+
+  {
+    files: ['apps/api/src/modules/**/*.{ts,tsx}'],
+    rules: {
+      'no-console': ['error', { allow: ['warn', 'error'] }],
     },
   },
 

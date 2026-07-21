@@ -8,3 +8,5 @@ export * from './services/activity-date-range.service';
 export * from './use-cases/get-activity-feed.usecase';
 export * from './use-cases/get-activity-page.usecase';
 export * from './use-cases/record-user-activity.usecase';
+export * from './activity-use-cases.contract';
+export * from './activity.constants';

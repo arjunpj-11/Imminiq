@@ -9,11 +9,11 @@ export interface IGetAdminAITokenSpendUseCase {
 
 export class GetAdminAITokenSpendUseCase implements IGetAdminAITokenSpendUseCase {
   constructor(
-    private readonly repository: IAdminAITokenSpendRepository,
-    private readonly mapper: IAdminAITokenSpendMapper
+    private readonly _repository: IAdminAITokenSpendRepository,
+    private readonly _mapper: IAdminAITokenSpendMapper
   ) {}
 
   async execute(range: AdminAITokenSpendRange): Promise<AdminAITokenSpendDTO> {
-    return this.mapper.toDTO(await this.repository.get(range));
+    return this._mapper.toDTO(await this._repository.get(range));
   }
 }

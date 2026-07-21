@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { NotificationsUseCases } from '../application';
-import { ApiResponse } from '../../../shared/utils/ApiResponse';
-import { getAuthUser } from '../../../shared/utils/getAuthUser';
+import { ApiResponse } from '../../../shared/utils/api-response';
+import { getAuthUser } from '../../../shared/utils/get-auth-user';
 import { notificationsListQuerySchema } from './notifications.schema';
 
 export class NotificationsController {

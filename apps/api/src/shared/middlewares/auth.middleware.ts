@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env';
-import { ApiError } from '../utils/ApiError';
+import { ApiError } from '../utils/api-error';
 import { User } from '../../infrastructure/database/models/user.model';
 import { AuthToken } from '../../infrastructure/database/models/auth-token.model';
 

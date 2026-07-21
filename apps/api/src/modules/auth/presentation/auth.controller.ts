@@ -2,8 +2,8 @@ import type { Request, Response, NextFunction } from 'express';
 
 import { env } from '../../../config/env';
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum';
-import { ApiResponse } from '../../../shared/utils/ApiResponse';
-import { getAuthUser } from '../../../shared/utils/getAuthUser';
+import { ApiResponse } from '../../../shared/utils/api-response';
+import { getAuthUser } from '../../../shared/utils/get-auth-user';
 import type { AuthUseCases } from '../application/auth-use-cases.contract';
 import type { OAuthLoginUserDTO } from '../application/auth.dto';
 import {

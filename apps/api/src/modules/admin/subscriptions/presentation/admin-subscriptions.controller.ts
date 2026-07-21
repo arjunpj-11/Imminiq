@@ -8,12 +8,12 @@ import {
 } from './admin-subscriptions.schema';
 
 export class AdminSubscriptionsController {
-  constructor(private readonly useCases: AdminSubscriptionsUseCases) {}
+  constructor(private readonly _useCases: AdminSubscriptionsUseCases) {}
 
   overview = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCases.getOverview.execute(adminSubscriptionsQuerySchema.parse(req.query)),
+      () => this._useCases.getOverview.execute(adminSubscriptionsQuerySchema.parse(req.query)),
       res,
       'Subscription overview fetched'
     );
@@ -22,7 +22,7 @@ export class AdminSubscriptionsController {
     sendAdminResult(
       next,
       () =>
-        this.useCases.updatePlan.execute(
+        this._useCases.updatePlan.execute(
           adminPlanIdSchema.parse(req.params.planId),
           adminSubscriptionPlanUpdateSchema.parse(req.body),
           getAdminActor(req)

@@ -43,7 +43,6 @@ export class MongoLeaderboardQueryRepository extends MongoLeaderboardBaseReposit
   async findLeaderboard(input: FindLeaderboardInput): Promise<LeaderboardQueryResult> {
     return this.execute('LEADERBOARD_READ_FAILED', 'Failed to read leaderboard', async () => {
       const audienceIds = await this.resolveAudienceIds(input.scope, input.viewerUserId);
-      console.log(audienceIds);
       const selectedRanking =
         input.scope === 'weekly'
           ? await this.findWeeklyRanking(
@@ -60,8 +59,6 @@ export class MongoLeaderboardQueryRepository extends MongoLeaderboardBaseReposit
               input.targetRank,
               audienceIds
             );
-      console.log(selectedRanking);
-
       const selectedUserIds = this.collectRankingUserIds(selectedRanking);
 
       const previousSelectedRanks =

@@ -8,11 +8,11 @@ export interface IGetAdminSettingsUseCase {
 
 export class GetAdminSettingsUseCase implements IGetAdminSettingsUseCase {
   constructor(
-    private readonly repository: IAdminSettingsRepository,
-    private readonly mapper: IAdminSettingsMapper
+    private readonly _repository: IAdminSettingsRepository,
+    private readonly _mapper: IAdminSettingsMapper
   ) {}
 
   async execute(): Promise<AdminSettingsDTO> {
-    return this.mapper.toDTO(await this.repository.get());
+    return this._mapper.toDTO(await this._repository.get());
   }
 }

@@ -4,7 +4,7 @@ import {
   requireAdminPermission,
 } from '../../../../shared/middlewares/admin.middleware';
 import type { PrivilegedAdminMiddleware } from '../../../../shared/middlewares/admin.middleware';
-import { validateIdentifierParam } from '../../../../shared/middlewares/validate';
+import { validateIdentifierParam } from '../../../../shared/middlewares/validate.middleware';
 import type { AdminMockTestsUseCases } from '../application/admin-mock-tests-use-cases.contract';
 import { AdminMockTestsController } from './admin-mock-tests.controller';
 import { ADMIN_MOCK_TESTS_ROUTE_PATHS } from './admin-mock-tests.route.constants';

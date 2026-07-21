@@ -1,4 +1,5 @@
 import type { AdminMockTestsUseCases } from './application/admin-mock-tests-use-cases.contract';
+import { BulkUpdateAdminMockTestLifecycleUseCase } from './application/use-cases/bulk-update-admin-mock-test-lifecycle.usecase';
 import { GetAdminMockTestDetailUseCase } from './application/use-cases/get-admin-mock-test-detail.usecase';
 import { ListAdminMockTestsUseCase } from './application/use-cases/list-admin-mock-tests.usecase';
 import { mongoAdminMockTestsRepository } from './infrastructure/repositories/mongo-admin-mock-tests.repository';
@@ -14,10 +15,18 @@ export type AdminMockTestsComposition = { useCases: AdminMockTestsUseCases };
 
 export const createAdminMockTestsComposition = (): AdminMockTestsComposition => {
   const mapper = new AdminMockTestsMapper();
+  const updateLifecycle = new UpdateAdminMockTestLifecycleUseCase(
+    mongoAdminMockTestsRepository,
+    bullMqAdminMockTestEmailProvider
+  );
   return {
     useCases: {
       exports: new AdminExportService(),
       contentAppeals: new AdminContentAppealService(),
+      bulkUpdateLifecycle: new BulkUpdateAdminMockTestLifecycleUseCase(
+        mongoAdminMockTestsRepository,
+        updateLifecycle
+      ),
       list: new ListAdminMockTestsUseCase(mongoAdminMockTestsRepository, mapper),
       getDetail: new GetAdminMockTestDetailUseCase(mongoAdminMockTestsRepository, mapper),
       listQuestionIssues: new ListAdminMockTestQuestionIssuesUseCase(
@@ -29,10 +38,7 @@ export const createAdminMockTestsComposition = (): AdminMockTestsComposition => 
         mapper,
         bullMqAdminMockTestEmailProvider
       ),
-      updateLifecycle: new UpdateAdminMockTestLifecycleUseCase(
-        mongoAdminMockTestsRepository,
-        bullMqAdminMockTestEmailProvider
-      ),
+      updateLifecycle,
       questionVersions: new AdminMockTestQuestionVersionService(mongoAdminMockTestsRepository),
       questionBank: mongoAdminQuestionBankService,
     },

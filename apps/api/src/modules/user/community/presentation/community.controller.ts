@@ -7,9 +7,9 @@ import type {
   VoteVerificationSubmissionInput,
   SendTrackerForVerificationInput,
 } from './community.schema';
-import { ApiError } from '../../../../shared/utils/ApiError';
-import { ApiResponse } from '../../../../shared/utils/ApiResponse';
-import { getAuthUser } from '../../../../shared/utils/getAuthUser';
+import { ApiError } from '../../../../shared/utils/api-error';
+import { ApiResponse } from '../../../../shared/utils/api-response';
+import { getAuthUser } from '../../../../shared/utils/get-auth-user';
 import { HttpStatusCode } from '../../../../shared/constants/http-status-code.enum';
 
 export class CommunityController {

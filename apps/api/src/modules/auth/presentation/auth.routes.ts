@@ -6,7 +6,7 @@ import { AuthSessionCookieService } from './internal/auth-session-cookie.service
 import { useCanonicalOAuthOrigin } from './internal/canonical-oauth-origin.middleware';
 import type { AuthUseCases } from '../application/auth-use-cases.contract';
 import { AUTH_ROUTE_PATHS } from './auth.route.constants';
-import { validate } from '../../../shared/middlewares/validate';
+import { validate } from '../../../shared/middlewares/validate.middleware';
 import { authenticate } from '../../../shared/middlewares/auth.middleware';
 import {
   issueOAuthState,

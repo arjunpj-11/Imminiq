@@ -4,7 +4,7 @@ import type { IMockTestRepository } from '../../domain/repositories/mock-test.re
 import { MockTestsApplicationError } from '../mock-tests-application.error';
 import type { MockTestAttemptSessionDTO } from '../mock-tests.dto';
 import type { IMockTestsMapper } from '../mock-tests.mapper';
-import { attemptQuestionSnapshotService } from '../services/attempt-question-snapshot.service';
+import type { IAttemptQuestionSnapshotService } from '../services/attempt-question-snapshot.service';
 
 type StartTestAttemptRepository = IMockTestRepository &
   IMockTestQuestionRepository &
@@ -17,7 +17,8 @@ export interface IStartTestAttemptUseCase {
 export class StartTestAttemptUseCase implements IStartTestAttemptUseCase {
   constructor(
     private readonly _repository: StartTestAttemptRepository,
-    private readonly _mapper: IMockTestsMapper
+    private readonly _mapper: IMockTestsMapper,
+    private readonly _questionSnapshot: IAttemptQuestionSnapshotService
   ) {}
 
   async execute(testId: string, userId: string) {
@@ -49,7 +50,7 @@ export class StartTestAttemptUseCase implements IStartTestAttemptUseCase {
     if (existingAttempt) {
       return this._mapper.toAttemptSessionDto(
         existingAttempt,
-        attemptQuestionSnapshotService.all(existingAttempt, questions)
+        this._questionSnapshot.all(existingAttempt, questions)
       );
     }
 

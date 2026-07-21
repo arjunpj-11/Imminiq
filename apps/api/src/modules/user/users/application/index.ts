@@ -11,3 +11,4 @@ export * from './use-cases/get-my-streak.usecase';
 export * from './use-cases/get-public-profile-page.usecase';
 export * from './use-cases/get-user-by-username.usecase';
 export * from './use-cases/update-me.usecase';
+export * from './users-use-cases.contract';

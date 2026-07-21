@@ -1,17 +1,11 @@
+import type {
+  LessonAnswerVerificationDTO,
+  VerifyLessonAnswerPayloadDTO,
+} from '../tracker.dto';
 import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface';
-
-type VerifyLessonAnswerInput = {
-  trackerId: string;
-  subtopicId: string;
-  userId: string;
-  question: string;
-  answer: string;
-};
-
-type VerifyLessonAnswerResultDTO = ReturnType<ITrackerMapper['toLessonAnswerVerificationDto']>;
 
 const getIsCorrectFromResult = (result: {
   verdict?: 'correct' | 'partially_correct' | 'incorrect';
@@ -20,7 +14,7 @@ const getIsCorrectFromResult = (result: {
 };
 
 export interface IVerifyLessonAnswerUseCase {
-  execute(input: VerifyLessonAnswerInput): Promise<VerifyLessonAnswerResultDTO>;
+  execute(input: VerifyLessonAnswerPayloadDTO): Promise<LessonAnswerVerificationDTO>;
 }
 
 export class VerifyLessonAnswerUseCase implements IVerifyLessonAnswerUseCase {
@@ -29,11 +23,11 @@ export class VerifyLessonAnswerUseCase implements IVerifyLessonAnswerUseCase {
       ITrackerRepository,
       'createLessonAnswerAttempt' | 'findLessonBySubtopicId' | 'findOwnedTrackerById'
     >,
-    private readonly _trackerAIGateway: ITrackerAIGateway,
+    private readonly _trackerAIGateway: Pick<ITrackerAIGateway, 'verifyNonCodingAnswer'>,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: VerifyLessonAnswerInput): Promise<VerifyLessonAnswerResultDTO> {
+  async execute(input: VerifyLessonAnswerPayloadDTO): Promise<LessonAnswerVerificationDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

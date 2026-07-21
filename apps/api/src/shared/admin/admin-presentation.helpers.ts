@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { ApiResponse } from '../utils/ApiResponse';
+import { ApiResponse } from '../utils/api-response';
 import { adminOutputMapper } from './admin-output.mapper';
 import type { AdminActor } from './admin.types';
 

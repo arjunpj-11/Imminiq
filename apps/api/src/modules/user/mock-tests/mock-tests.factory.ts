@@ -1,6 +1,7 @@
 import type { MockTestsUseCases } from './application/mock-tests-use-cases.contract';
 import { MockTestsMapper, type IMockTestsMapper } from './application/mock-tests.mapper';
 import { MockTestScorer, type IMockTestScorer } from './application/services/test-scorer.service';
+import { AttemptQuestionSnapshotService } from './application/services/attempt-question-snapshot.service';
 import { CreateMockTestUseCase } from './application/use-cases/create-mock-test.usecase';
 import { FinishTestAttemptUseCase } from './application/use-cases/finish-test-attempt.usecase';
 import { FlagQuestionUseCase } from './application/use-cases/flag-question.usecase';
@@ -79,6 +80,7 @@ export const createMockTestsComposition = (
   const mockTestsMapper = new MockTestsMapper();
 
   const mockTestScorer = new MockTestScorer();
+  const questionSnapshot = new AttemptQuestionSnapshotService();
 
   const shareTokenGenerator = cryptoShareTokenGenerator;
 
@@ -114,15 +116,24 @@ export const createMockTestsComposition = (
         bullMqMockTestGenerationJobGateway
       ),
 
-      startTestAttempt: new StartTestAttemptUseCase(mockTestsRepository, mockTestsMapper),
+      startTestAttempt: new StartTestAttemptUseCase(
+        mockTestsRepository,
+        mockTestsMapper,
+        questionSnapshot
+      ),
 
-      getAttemptQuestions: new GetAttemptQuestionsUseCase(mockTestsRepository, mockTestsMapper),
+      getAttemptQuestions: new GetAttemptQuestionsUseCase(
+        mockTestsRepository,
+        mockTestsMapper,
+        questionSnapshot
+      ),
 
       submitAnswer: new SubmitAnswerUseCase(
         mockTestsRepository,
         mockTestAIGateway,
         mockTestScorer,
-        mockTestsMapper
+        mockTestsMapper,
+        questionSnapshot
       ),
 
       flagQuestion: new FlagQuestionUseCase(mockTestsRepository),
@@ -136,12 +147,17 @@ export const createMockTestsComposition = (
         mockTestsMapper,
         systemClock,
         mongoPlatformPolicyReader,
+        questionSnapshot,
         completionObserver
       ),
 
-      getAttemptResult: new GetAttemptResultUseCase(mockTestsRepository, mockTestsMapper),
+      getAttemptResult: new GetAttemptResultUseCase(
+        mockTestsRepository,
+        mockTestsMapper,
+        questionSnapshot
+      ),
 
-      getAttemptAnalysis: new GetAttemptAnalysisUseCase(mockTestsRepository),
+      getAttemptAnalysis: new GetAttemptAnalysisUseCase(mockTestsRepository, questionSnapshot),
 
       retakeTest: new RetakeTestUseCase(mockTestsRepository, mockTestsMapper),
 
@@ -163,7 +179,11 @@ export const createMockTestsComposition = (
 
       runMockTestCode: new RunMockTestCodeUseCase(mockTestsRepository, mockTestCodeRunner),
 
-      submitMockTestCode: new SubmitMockTestCodeUseCase(mockTestsRepository, mockTestCodeRunner),
+      submitMockTestCode: new SubmitMockTestCodeUseCase(
+        mockTestsRepository,
+        mockTestCodeRunner,
+        questionSnapshot
+      ),
     },
 
     helpers: {

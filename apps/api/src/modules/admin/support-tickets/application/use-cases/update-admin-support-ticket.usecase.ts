@@ -15,8 +15,8 @@ export interface IUpdateAdminSupportTicketUseCase {
 
 export class UpdateAdminSupportTicketUseCase implements IUpdateAdminSupportTicketUseCase {
   constructor(
-    private readonly repository: IAdminSupportTicketsRepository,
-    private readonly mapper: IAdminSupportTicketsMapper
+    private readonly _repository: IAdminSupportTicketsRepository,
+    private readonly _mapper: IAdminSupportTicketsMapper
   ) {}
 
   async execute(
@@ -24,8 +24,8 @@ export class UpdateAdminSupportTicketUseCase implements IUpdateAdminSupportTicke
     input: AdminSupportTicketUpdate,
     actor: AdminActor
   ): Promise<AdminSupportTicketResultDTO> {
-    const result = await this.repository.update(id, input, actor);
+    const result = await this._repository.update(id, input, actor);
     if (!result) throw AdminSupportTicketsApplicationError.notFound();
-    return this.mapper.toResultDTO(result);
+    return this._mapper.toResultDTO(result);
   }
 }

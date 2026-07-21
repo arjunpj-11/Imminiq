@@ -7,7 +7,7 @@ import { adminAITokenSpendQuerySchema } from './admin-ai-token-spend.schema';
 const DAY_IN_MILLISECONDS = 86_400_000;
 
 export class AdminAITokenSpendController {
-  constructor(private readonly useCases: AdminAITokenSpendUseCases) {}
+  constructor(private readonly _useCases: AdminAITokenSpendUseCases) {}
 
   get = (req: Request, res: Response, next: NextFunction) => {
     const input = adminAITokenSpendQuerySchema.parse(req.query);
@@ -19,7 +19,7 @@ export class AdminAITokenSpendController {
 
     return sendAdminResult(
       next,
-      () => this.useCases.get.execute({ from, to, days }),
+      () => this._useCases.get.execute({ from, to, days }),
       res,
       'AI token spend fetched'
     );

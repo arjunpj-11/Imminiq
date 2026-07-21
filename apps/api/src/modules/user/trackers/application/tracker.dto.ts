@@ -47,6 +47,32 @@ export type TrackerRoadmapResultDTO = {
 export type TrackerTopicDTO = CreatedTrackerTopicRecord;
 export type TrackerSubtopicDTO = CreatedTrackerSubtopicRecord;
 export type GeneratedTrackerLessonDTO = GeneratedTrackerLessonRecord | GeneratedLessonData;
+export interface TrackerLessonViewDTO {
+  tracker: TrackerRecord;
+  lessonNode: {
+    _id: string;
+    trackerId: string;
+    topicId: string;
+    parentSubtopicId: string | null;
+    title: string;
+    description: string;
+    order: number;
+    depth: number;
+    status: SubtopicWithProgressRecord['status'];
+    isLocked: boolean;
+    progressPercent: number;
+    topicTitle: string;
+  };
+  generatedLesson: GeneratedTrackerLessonDTO;
+  previousLesson: { _id: string; title: string } | null;
+  nextLesson: { _id: string; title: string } | null;
+  lessonRoadmap: Array<{
+    _id: string;
+    title: string;
+    status: SubtopicWithProgressRecord['status'];
+    isLocked: boolean;
+  }>;
+}
 export type LessonChatHistoryDTO = LessonChatMessageRecord[];
 export type LessonAnswerAttemptsDTO = LessonAnswerAttemptRecord[];
 export type LessonCodeSubmissionsDTO = LessonCodeSubmissionRecord[];
@@ -63,6 +89,33 @@ export type LessonVisualizationDTO = LessonVisualizationRecord;
 export type TrackerAIValidationDTO = TrackerValidationResult;
 export type AddMissingEvaluationTopicDTO = AddMissingEvaluationTopicResult;
 export type RunLessonCodeDTO = RunLessonCodeInput;
+
+export type ImportTrackerOutlineNodeDTO = {
+  title: string;
+  description?: string;
+  subtopics: ImportTrackerOutlineNodeDTO[];
+};
+
+export type ImportTrackerOutlineInputDTO =
+  | {
+      trackerId: string;
+      userId: string;
+      kind: 'topics';
+      topics: ImportTrackerOutlineNodeDTO[];
+    }
+  | {
+      trackerId: string;
+      userId: string;
+      kind: 'subtopics';
+      topicId: string;
+      parentSubtopicId?: string | null;
+      subtopics: ImportTrackerOutlineNodeDTO[];
+    };
+
+export type ImportTrackerOutlineResultDTO = {
+  topicsAdded: number;
+  subtopicsAdded: number;
+};
 
 export interface TrackerAccessPayloadDTO {
   trackerId: string;
@@ -116,6 +169,62 @@ export interface GenerateLessonVisualizationPayloadDTO extends TrackerLessonAcce
 
 export interface GetLessonCodeSubmissionsPayloadDTO extends TrackerLessonAccessPayloadDTO {
   action?: 'run' | 'submit';
+}
+
+export interface RunLessonCodePayloadDTO extends TrackerLessonAccessPayloadDTO {
+  sourceCode: string;
+  languageId: number;
+  language?: string;
+  stdin?: string;
+}
+
+export type SubmitLessonCodePayloadDTO = RunLessonCodePayloadDTO;
+
+export interface GetCodeHintPayloadDTO extends TrackerLessonAccessPayloadDTO {
+  sourceCode: string;
+  actualOutput?: string;
+  errorOutput?: string;
+  hintCount: number;
+}
+
+export interface GetOptimizedSolutionPayloadDTO extends TrackerLessonAccessPayloadDTO {
+  sourceCode: string;
+  language?: string;
+}
+
+export interface VerifyLessonAnswerPayloadDTO extends LessonQuestionPayloadDTO {
+  answer: string;
+}
+
+export interface ExistingTrackerTopicDTO {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export interface VerifyTrackerTopicPayloadDTO extends TrackerAccessPayloadDTO {
+  trackerTitle: string;
+  topicTitle: string;
+  topicDescription: string;
+  existingTopics: ExistingTrackerTopicDTO[];
+}
+
+export interface ExistingTrackerSubtopicDTO {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: string;
+}
+
+export interface VerifyTrackerSubtopicPayloadDTO extends TrackerAccessPayloadDTO {
+  topicId: string;
+  trackerTitle: string;
+  topicTitle: string;
+  topicDescription: string;
+  subtopicTitle: string;
+  subtopicDescription: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  existingSubtopics: ExistingTrackerSubtopicDTO[];
 }
 
 export interface ReviewTopicContributionPayloadDTO extends TrackerAccessPayloadDTO {

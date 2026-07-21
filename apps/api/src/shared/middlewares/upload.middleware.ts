@@ -2,7 +2,7 @@ import { extname } from 'node:path';
 import multer from 'multer';
 import { env } from '../../config/env';
 
-import { ApiError } from '../utils/ApiError';
+import { ApiError } from '../utils/api-error';
 
 const storage = multer.memoryStorage();
 

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { TrackerClanService } from '../../src/modules/user/trackers/application/services/tracker-clan.service';
+import { TrackerClanNotificationService } from '../../src/modules/user/trackers/application/services/tracker-clan-notification.service';
 import { TrackerClanChallengeService } from '../../src/modules/user/trackers/application/services/tracker-clan-challenge.service';
 import type {
   ITrackerClanChallengeNotifier,
@@ -113,7 +114,10 @@ describe('TrackerClanService', () => {
       roleInvitations: [invitation],
     } satisfies TrackerClanOverview);
     const notifications: ITrackerClanNotificationNotifier = { notify: vi.fn() };
-    const useCase = new TrackerClanService(clans, notifications);
+    const useCase = new TrackerClanService(
+      clans,
+      new TrackerClanNotificationService(notifications)
+    );
 
     await useCase.updateMemberRole({
       trackerId: 'tracker-1',

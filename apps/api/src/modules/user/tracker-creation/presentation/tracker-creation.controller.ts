@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 
 import { HttpStatusCode } from '../../../../shared/constants/http-status-code.enum';
-import { ApiResponse } from '../../../../shared/utils/ApiResponse';
-import { getAuthUser } from '../../../../shared/utils/getAuthUser';
+import { ApiResponse } from '../../../../shared/utils/api-response';
+import { getAuthUser } from '../../../../shared/utils/get-auth-user';
 import type { TrackerCreationUseCases } from '../application/tracker-creation-use-cases.contract';
 
 type JobIdParams = {

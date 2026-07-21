@@ -7,14 +7,14 @@ export interface ICreateSupportTicketUseCase {
 }
 export class CreateSupportTicketUseCase implements ICreateSupportTicketUseCase {
   constructor(
-    private readonly repository: ISupportTicketsRepository,
-    private readonly mapper: ISupportTicketsMapper
+    private readonly _repository: ISupportTicketsRepository,
+    private readonly _mapper: ISupportTicketsMapper
   ) {}
 
   async execute(userId: string, input: CreateSupportTicketDTO) {
     try {
-      const ticket = await this.repository.create(userId, this.mapper.toCreateInput(input));
-      return this.mapper.toCreatedDTO(ticket);
+      const ticket = await this._repository.create(userId, this._mapper.toCreateInput(input));
+      return this._mapper.toCreatedDTO(ticket);
     } catch {
       throw SupportTicketsApplicationError.creationFailed();
     }

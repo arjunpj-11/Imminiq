@@ -47,3 +47,6 @@ export * from './use-cases/verify-tracker-topic.usecase';
 export * from './use-cases/report-tracker.usecase';
 export * from './services/tracker-clan.service';
 export * from './services/tracker-clan-challenge.service';
+export * from './missing-evaluation-topic.ports';
+export * from './missing-topic-placement.policy';
+export * from './tracker-use-cases.contract';

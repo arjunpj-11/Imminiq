@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
-import { validate } from '../../../../shared/middlewares/validate';
+import { validate } from '../../../../shared/middlewares/validate.middleware';
 import type { AdaptiveLearningUseCases } from '../application/adaptive-learning-use-cases.contract';
 import { AdaptiveLearningController } from './adaptive-learning.controller';
 import { ADAPTIVE_LEARNING_ROUTE_PATHS } from './adaptive-learning.route.constants';

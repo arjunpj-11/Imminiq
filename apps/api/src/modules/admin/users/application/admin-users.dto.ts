@@ -1,6 +1,6 @@
 import type { AdminUserDetailEntity, AdminUserEntity } from '../domain/entities/admin-user.entity';
 import type { AdminUserAppealsListResult } from '../domain/repositories/admin-users.repository.interface';
-import type { AdminActor } from '../domain/admin-users.types';
+import type { AdminActionMeta, AdminActor, AdminManagedUserStatus } from '../domain/admin-users.types';
 
 export type AdminUserDTO = Omit<AdminUserEntity, 'id'> & { _id: string };
 export type AdminUsersListDTO = {
@@ -47,4 +47,13 @@ export type SetAdminActionPasswordResultDTO = {
   userId: string;
   configured: true;
   setAt?: Date;
+};
+
+export type AdminUserBulkStatusInputDTO = Pick<
+  AdminActionMeta,
+  'reason' | 'reasonCode' | 'notifyEmail'
+> & {
+  userIds: string[];
+  status: AdminManagedUserStatus;
+  preview: boolean;
 };

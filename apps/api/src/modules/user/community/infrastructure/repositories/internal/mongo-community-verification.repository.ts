@@ -77,7 +77,6 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
         }).lean<MongoCommunitySubmissionRecord>();
 
         if (existingSubmission) {
-          console.log('Existing submission found:', existingSubmission);
           return this.toSubmissionWithReview(existingSubmission, null);
         }
 

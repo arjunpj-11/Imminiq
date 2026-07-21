@@ -1,3 +1,14 @@
+import type {
+  AdminTrackerReview,
+  AdminTrackerReviewConsensusResult,
+  AdminTrackerReviewStatusResult,
+} from '../domain/entities/admin-tracker-review.entity';
+import type {
+  AdminTrackerLifecycleInput,
+  AdminTrackerLifecycleResult,
+  AdminTrackerReport,
+} from '../domain/entities/admin-tracker.entity';
+
 export interface AdminTrackerDTO {
   id: string;
   title: string;
@@ -78,7 +89,12 @@ export interface AdminPublishedTrackerEngagementResultDTO {
   adminLiked: boolean;
   adminRating: number | null;
 }
-import type {
-  AdminTrackerLifecycleResult,
-  AdminTrackerReport,
-} from '../domain/entities/admin-tracker.entity';
+
+export type AdminTrackerReviewDTO = AdminTrackerReview;
+export type AdminTrackerReviewStatusResultDTO = AdminTrackerReviewStatusResult;
+export type AdminTrackerReviewConsensusResultDTO = AdminTrackerReviewConsensusResult;
+
+export type AdminTrackerBulkLifecycleInputDTO = AdminTrackerLifecycleInput & {
+  ids: string[];
+  preview: boolean;
+};

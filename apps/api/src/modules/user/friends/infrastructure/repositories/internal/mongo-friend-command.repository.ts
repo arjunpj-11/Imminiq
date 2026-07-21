@@ -109,15 +109,6 @@ export class MongoFriendCommandRepository
                 publicProfileEnabled?: boolean;
               }>();
 
-            console.log('Friend request availability', {
-              senderUserId: senderUserId.toString(),
-              receiverUserId: receiverUserId.toString(),
-              senderFound: Boolean(sender),
-              receiverFound: Boolean(receiver),
-              receiverProfileFound: Boolean(receiverProfile),
-              publicProfileEnabled: receiverProfile?.publicProfileEnabled,
-            });
-
             if (!sender || !receiver || receiverProfile?.publicProfileEnabled === false) {
               result = {
                 outcome: 'target_unavailable',

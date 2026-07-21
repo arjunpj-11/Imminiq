@@ -12,14 +12,14 @@ export interface IAnalyzeClonedTrackerUseCase {
 
 export class AnalyzeClonedTrackerUseCase implements IAnalyzeClonedTrackerUseCase {
   constructor(
-    private readonly jobs: ITrackerCreationAIJobCommandRepository,
-    private readonly clones: ICloneFreshnessAnalysisRepository,
-    private readonly queue: IAIJobQueueGateway,
-    private readonly quota: IAIJobQuotaStore
+    private readonly _jobs: ITrackerCreationAIJobCommandRepository,
+    private readonly _clones: ICloneFreshnessAnalysisRepository,
+    private readonly _queue: IAIJobQueueGateway,
+    private readonly _quota: IAIJobQuotaStore
   ) {}
 
   async execute(trackerId: string, userId: string): Promise<GenerateRoadmapResultDTO> {
-    const claim = await this.clones.claim({ trackerId, userId });
+    const claim = await this._clones.claim({ trackerId, userId });
 
     if (claim.status === 'not_found') {
       throw TrackerCreationApplicationError.trackerNotFound(
@@ -30,16 +30,16 @@ export class AnalyzeClonedTrackerUseCase implements IAnalyzeClonedTrackerUseCase
       throw TrackerCreationApplicationError.cloneFreshnessAnalysisAlreadyUsed();
     }
 
-    const quota = await this.quota.consume('roadmap_evaluation', userId);
+    const quota = await this._quota.consume('roadmap_evaluation', userId);
     if (!quota.allowed) {
-      await this.clones.markFailed({ trackerId, userId });
+      await this._clones.markFailed({ trackerId, userId });
       throw TrackerCreationApplicationError.roadmapEvaluationQuotaExceeded();
     }
 
     const sourceTrackerCreatedAt = claim.sourceTrackerCreatedAt.toISOString();
 
     try {
-      const job = await this.jobs.createEvaluationAIJob({
+      const job = await this._jobs.createEvaluationAIJob({
         userId,
         inputData: {
           trackerId,
@@ -49,12 +49,12 @@ export class AnalyzeClonedTrackerUseCase implements IAnalyzeClonedTrackerUseCase
         },
       });
 
-      await this.jobs.createAIJobSteps({
+      await this._jobs.createAIJobSteps({
         jobId: job.id,
         stepLabels: ROADMAP_EVALUATION_STEPS,
       });
-      await this.clones.attachJob({ trackerId, userId, jobId: job.id });
-      await this.queue.enqueueRoadmapEvaluation({
+      await this._clones.attachJob({ trackerId, userId, jobId: job.id });
+      await this._queue.enqueueRoadmapEvaluation({
         jobId: job.id,
         userId,
         trackerId,
@@ -65,7 +65,7 @@ export class AnalyzeClonedTrackerUseCase implements IAnalyzeClonedTrackerUseCase
 
       return { jobId: job.id };
     } catch (error) {
-      await this.clones.markFailed({ trackerId, userId });
+      await this._clones.markFailed({ trackerId, userId });
       throw TrackerCreationApplicationError.aiQueueError(
         error instanceof Error ? error.message : 'Failed to start cloned tracker analysis'
       );

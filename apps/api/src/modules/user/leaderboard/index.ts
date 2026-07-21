@@ -1,5 +1,4 @@
 export { createLeaderboardComposition } from './leaderboard.factory';
-export type { LeaderboardComposition } from './leaderboard.factory';
 
 export type {
   CaptureLeaderboardSnapshotResultViewDTO,

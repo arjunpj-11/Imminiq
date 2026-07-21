@@ -12,20 +12,20 @@ export interface IVerifySubscriptionPaymentUseCase {
 
 export class VerifySubscriptionPaymentUseCase implements IVerifySubscriptionPaymentUseCase {
   constructor(
-    private readonly repository: Pick<ISubscriptionRepository, 'activate' | 'findByOrderId'>,
-    private readonly paymentGateway: ISubscriptionPaymentGateway,
-    private readonly mapper: ISubscriptionsMapper,
-    private readonly clock: IClock
+    private readonly _repository: Pick<ISubscriptionRepository, 'activate' | 'findByOrderId'>,
+    private readonly _paymentGateway: ISubscriptionPaymentGateway,
+    private readonly _mapper: ISubscriptionsMapper,
+    private readonly _clock: IClock
   ) {}
 
   async execute(input: PaymentVerificationInput) {
-    const subscription = await this.repository.findByOrderId(input.razorpayOrderId);
+    const subscription = await this._repository.findByOrderId(input.razorpayOrderId);
     if (!subscription || subscription.userId !== input.userId) {
       throw SubscriptionsApplicationError.orderNotFound();
     }
-    if (subscription.status === 'active') return this.mapper.toUserSubscriptionDTO(subscription);
+    if (subscription.status === 'active') return this._mapper.toUserSubscriptionDTO(subscription);
     if (
-      !this.paymentGateway.verifySignature(
+      !this._paymentGateway.verifySignature(
         input.razorpayOrderId,
         input.razorpayPaymentId,
         input.razorpaySignature
@@ -33,17 +33,17 @@ export class VerifySubscriptionPaymentUseCase implements IVerifySubscriptionPaym
     ) {
       throw SubscriptionsApplicationError.invalidPaymentSignature();
     }
-    const startsAt = this.clock.now();
+    const startsAt = this._clock.now();
     const endsAt = new Date(startsAt);
     if (subscription.billingCycle === 'annual') endsAt.setFullYear(endsAt.getFullYear() + 1);
     else endsAt.setMonth(endsAt.getMonth() + 1);
-    const activated = await this.repository.activate(
+    const activated = await this._repository.activate(
       input.razorpayOrderId,
       input.razorpayPaymentId,
       input.razorpaySignature,
       startsAt,
       endsAt
     );
-    return this.mapper.toUserSubscriptionDTO(activated);
+    return this._mapper.toUserSubscriptionDTO(activated);
   }
 }

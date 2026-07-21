@@ -1,12 +1,13 @@
+import type {
+  TrackerDTO,
+} from '../tracker.dto';
 import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerCommandRepository } from '../../domain/repositories/tracker-command.repository.interface';
 import type { UpdateTrackerInput } from '../../domain/trackers.types';
 
-type UpdateTrackerResultDTO = ReturnType<ITrackerMapper['toTrackerDto']>;
-
 export interface IUpdateTrackerUseCase {
-  execute(input: UpdateTrackerInput): Promise<UpdateTrackerResultDTO>;
+  execute(input: UpdateTrackerInput): Promise<TrackerDTO>;
 }
 
 export class UpdateTrackerUseCase implements IUpdateTrackerUseCase {
@@ -15,7 +16,7 @@ export class UpdateTrackerUseCase implements IUpdateTrackerUseCase {
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: UpdateTrackerInput): Promise<UpdateTrackerResultDTO> {
+  async execute(input: UpdateTrackerInput): Promise<TrackerDTO> {
     const tracker = await this._trackerRepository.updateOwnedTracker(input);
 
     if (!tracker) {

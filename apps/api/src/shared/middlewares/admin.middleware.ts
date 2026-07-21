@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { ApiError } from '../utils/ApiError';
+import { ApiError } from '../utils/api-error';
 import { User } from '../../infrastructure/database/models/user.model';
 import {
   SECURITY_ATTEMPT_POLICIES,

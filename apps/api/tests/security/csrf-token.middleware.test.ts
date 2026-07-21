@@ -5,7 +5,7 @@ import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 
 import { validateCsrfToken } from '../../src/shared/middlewares/csrf-token.middleware';
-import { errorHandler } from '../../src/shared/middlewares/errorHandler';
+import { errorHandler } from '../../src/shared/middlewares/error-handler.middleware';
 
 const createApp = () => {
   const app = express();

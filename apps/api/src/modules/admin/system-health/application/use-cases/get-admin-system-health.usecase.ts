@@ -6,10 +6,10 @@ export interface IGetAdminSystemHealthUseCase {
 }
 export class GetAdminSystemHealthUseCase implements IGetAdminSystemHealthUseCase {
   constructor(
-    private readonly repository: IAdminSystemHealthRepository,
-    private readonly mapper: IAdminSystemHealthMapper
+    private readonly _repository: IAdminSystemHealthRepository,
+    private readonly _mapper: IAdminSystemHealthMapper
   ) {}
   async execute(): Promise<AdminSystemHealthDTO> {
-    return this.mapper.toDTO(await this.repository.inspect());
+    return this._mapper.toDTO(await this._repository.inspect());
   }
 }

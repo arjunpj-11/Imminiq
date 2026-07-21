@@ -12,10 +12,10 @@ import { redis } from './config/redis';
 import { initPassport } from './infrastructure/auth/passport';
 import { createApiRouter } from './routes/api.router';
 import { API_ROUTE_PATHS } from './shared/constants/api-route-paths';
-import { apiNotFoundHandler, errorHandler } from './shared/middlewares/errorHandler';
+import { apiNotFoundHandler, errorHandler } from './shared/middlewares/error-handler.middleware';
 import { verifyBrowserRequestOrigin } from './shared/middlewares/request-origin.middleware';
 import { validateCsrfToken } from './shared/middlewares/csrf-token.middleware';
-import { ApiError } from './shared/utils/ApiError';
+import { ApiError } from './shared/utils/api-error';
 import { RedisRateLimitStore } from './infrastructure/cache/redis-rate-limit.store';
 
 const app = express();

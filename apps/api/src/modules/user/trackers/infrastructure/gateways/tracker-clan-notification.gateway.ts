@@ -5,11 +5,11 @@ import type {
 } from '../../domain';
 
 export class TrackerClanNotificationGateway implements ITrackerClanNotificationNotifier {
-  constructor(private readonly createNotification: ICreateNotificationUseCase) {}
+  constructor(private readonly _createNotification: ICreateNotificationUseCase) {}
 
   async notify(input: TrackerClanNotificationInput) {
     try {
-      await this.createNotification.execute({
+      await this._createNotification.execute({
         userId: input.userId,
         type: input.type,
         message: input.message,

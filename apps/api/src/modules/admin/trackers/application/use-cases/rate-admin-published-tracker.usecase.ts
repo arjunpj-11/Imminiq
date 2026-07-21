@@ -14,13 +14,13 @@ export interface IRateAdminPublishedTrackerUseCase {
 
 export class RateAdminPublishedTrackerUseCase implements IRateAdminPublishedTrackerUseCase {
   constructor(
-    private readonly repository: Pick<IAdminTrackersRepository, 'ratePublished'>,
-    private readonly mapper: IAdminTrackersMapper
+    private readonly _repository: Pick<IAdminTrackersRepository, 'ratePublished'>,
+    private readonly _mapper: IAdminTrackersMapper
   ) {}
 
   async execute(id: string, rating: number, actor: AdminActor) {
-    const result = await this.repository.ratePublished(id, rating, actor);
+    const result = await this._repository.ratePublished(id, rating, actor);
     if (!result) throw AdminTrackersApplicationError.publishedTrackerNotFound();
-    return this.mapper.toEngagementResultDTO(result);
+    return this._mapper.toEngagementResultDTO(result);
   }
 }

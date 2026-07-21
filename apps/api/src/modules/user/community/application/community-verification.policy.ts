@@ -7,7 +7,7 @@ export interface ICommunityVerificationPolicy {
 }
 
 export class CommunityVerificationPolicy implements ICommunityVerificationPolicy {
-  constructor(private readonly clock: IClock) {}
+  constructor(private readonly _clock: IClock) {}
 
   ensureCanVote(submission: CommunityVerificationSubmissionEntity, userId: string): void {
     if (submission.ownerId === userId) {
@@ -18,7 +18,7 @@ export class CommunityVerificationPolicy implements ICommunityVerificationPolicy
       throw CommunityApplicationError.conflict('This review is already closed');
     }
 
-    if (submission.expiresAt && submission.expiresAt.getTime() <= this.clock.now().getTime()) {
+    if (submission.expiresAt && submission.expiresAt.getTime() <= this._clock.now().getTime()) {
       throw CommunityApplicationError.conflict('This review window has expired');
     }
   }

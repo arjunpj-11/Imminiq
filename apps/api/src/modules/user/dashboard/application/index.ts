@@ -9,3 +9,4 @@ export * from './dashboard.dto';
 export * from './dashboard.mapper';
 export * from './dashboard-application.error';
 export * from './dashboard.constants';
+export * from './dashboard-use-cases.contract';

@@ -7,7 +7,7 @@ import type {
   SubmitMockTestCodeResultDTO,
 } from '../mock-tests.dto';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
-import { attemptQuestionSnapshotService } from '../services/attempt-question-snapshot.service';
+import type { IAttemptQuestionSnapshotService } from '../services/attempt-question-snapshot.service';
 
 type SubmitMockTestCodeRepository = IMockTestAttemptRepository &
   IMockTestQuestionRepository &
@@ -25,7 +25,8 @@ export interface ISubmitMockTestCodeUseCase {
 export class SubmitMockTestCodeUseCase implements ISubmitMockTestCodeUseCase {
   constructor(
     private readonly _repository: SubmitMockTestCodeRepository,
-    private readonly _codeRunner: IMockTestCodeRunner
+    private readonly _codeRunner: IMockTestCodeRunner,
+    private readonly _questionSnapshot: IAttemptQuestionSnapshotService
   ) {}
 
   async execute(
@@ -49,7 +50,7 @@ export class SubmitMockTestCodeUseCase implements ISubmitMockTestCodeUseCase {
     }
 
     const liveQuestion = await this._repository.findQuestionById(questionId);
-    const question = attemptQuestionSnapshotService.find(attempt, questionId, liveQuestion);
+    const question = this._questionSnapshot.find(attempt, questionId, liveQuestion);
 
     if (!question || question.testId !== attempt.testId) {
       throw MockTestsApplicationError.notFound('Question not found');

@@ -6,7 +6,7 @@ import {
   validate,
   validateIdentifierParam,
   validateQuery,
-} from '../../../../shared/middlewares/validate';
+} from '../../../../shared/middlewares/validate.middleware';
 import { MockTestsController } from './mock-tests.controller';
 import type { MockTestsUseCases } from '../application/mock-tests-use-cases.contract';
 import { MOCK_TEST_ROUTE_PATHS } from './mock-tests.route.constants';

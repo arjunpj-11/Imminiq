@@ -19,6 +19,7 @@ import type {
   MockTestAttemptSessionDTO,
   MockTestDetailsDTO,
   MockTestListDTO,
+  MockTestListItemDTO,
   PublicMockTestDTO,
   PublicMockTestListDTO,
   PublicMockTestQuestionDTO,
@@ -32,10 +33,6 @@ import type {
   MockTestTopicBreakdown,
 } from '../domain/value-objects/mock-test-analytics.vo';
 import type { IScoreResult } from './services/test-scorer.service';
-
-export type MockTestListItemDTO = MockTestDTO & {
-  latestAttempt: MockTestAttemptDTO | null;
-};
 
 export type MockTestAttemptResultMappingInput = {
   attempt: MockTestAttemptEntity;

@@ -1,4 +1,4 @@
-export * from './domain';
-export * from './application';
-export * from './presentation';
-export * from './notifications.factory';
+export type { ICreateNotificationUseCase } from './application/use-cases/create-notification.usecase';
+
+export { createNotificationsComposition } from './notifications.factory';
+export { createNotificationsRoutes } from './presentation/notifications.routes';
