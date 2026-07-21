@@ -73,7 +73,6 @@ export class CommunityReviewMapper implements ICommunityReviewMapper {
         description: topic.description,
         order: topic.order,
         status: topic.status,
-        estimatedHours: topic.estimatedHours,
         subtopics: topic.subtopics.map((subtopic) => ({
           _id: subtopic.id,
           topicId: subtopic.topicId,
@@ -83,7 +82,6 @@ export class CommunityReviewMapper implements ICommunityReviewMapper {
           order: subtopic.order,
           depth: subtopic.depth,
           isLocked: subtopic.isLocked,
-          estimatedMinutes: subtopic.estimatedMinutes,
         })),
       })),
       ratingSummary: {

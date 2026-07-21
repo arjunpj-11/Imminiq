@@ -122,7 +122,6 @@ const saveNestedSubtopics = async ({
           order: node.order,
           depth,
           isLocked: true,
-          estimatedMinutes: 0,
           learningVideo:
             depth === 1 ? learningVideos.get(`${topicOrder}:${node.order}`) || null : null,
         },
@@ -365,7 +364,6 @@ const processRoadmapGeneration = async (
               order: topicData.order,
               learningVideo: learningVideos.get(topicData.order) || null,
               status: topicIndex === 0 ? 'active' : 'locked',
-              estimatedHours: 0,
               progressPercent: 0,
             },
           ],

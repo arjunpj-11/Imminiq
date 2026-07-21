@@ -135,6 +135,7 @@ export class AuthController {
       res.json(
         new ApiResponse('Token refreshed', {
           accessToken: tokens.accessToken,
+          user: tokens.user,
         })
       );
     } catch (error) {

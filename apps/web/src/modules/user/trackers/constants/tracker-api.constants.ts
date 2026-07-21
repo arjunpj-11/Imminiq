@@ -17,12 +17,21 @@ export const TRACKER_API_PATHS = {
   clanFetchChanges: (trackerId: string) => `/trackers/${trackerId}/clan/fetch-changes`,
   clanMessages: (trackerId: string) => `/trackers/${trackerId}/clan/messages`,
   clanChallenges: (trackerId: string) => `/trackers/${trackerId}/clan/challenges`,
+  clanChallenge: (trackerId: string, challengeId: string) =>
+    `/trackers/${trackerId}/clan/challenges/${challengeId}`,
+  clanChallengeHistory: (trackerId: string, challengeId: string) =>
+    `/trackers/${trackerId}/clan/challenges/${challengeId}/history`,
+  activeClanChallenge: '/trackers/clan/challenges/active',
   clanChallengeAccept: (trackerId: string, challengeId: string) =>
     `/trackers/${trackerId}/clan/challenges/${challengeId}/accept`,
   clanChallengeDecline: (trackerId: string, challengeId: string) =>
     `/trackers/${trackerId}/clan/challenges/${challengeId}/decline`,
   clanChallengeCancel: (trackerId: string, challengeId: string) =>
     `/trackers/${trackerId}/clan/challenges/${challengeId}/cancel`,
+  clanChallengeQuit: (trackerId: string, challengeId: string) =>
+    `/trackers/${trackerId}/clan/challenges/${challengeId}/quit`,
+  clanChallengeExtend: (trackerId: string, challengeId: string) =>
+    `/trackers/${trackerId}/clan/challenges/${challengeId}/questions`,
   clanChallengeSubmit: (trackerId: string, challengeId: string) =>
     `/trackers/${trackerId}/clan/challenges/${challengeId}/submit`,
   clanChallengeCheckpoint: (trackerId: string, challengeId: string) =>
@@ -36,6 +45,7 @@ export const TRACKER_API_PATHS = {
   publish: (trackerId: string) => `/trackers/${trackerId}/publish`,
   unpublish: (trackerId: string) => `/trackers/${trackerId}/unpublish`,
   topics: (trackerId: string) => `/trackers/${trackerId}/topics`,
+  importOutline: (trackerId: string) => `/trackers/${trackerId}/outline/import`,
   topic: (trackerId: string, topicId: string) => `/trackers/${trackerId}/topics/${topicId}`,
   subtopic: (trackerId: string, subtopicId: string) =>
     `/trackers/${trackerId}/subtopics/${subtopicId}`,

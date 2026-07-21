@@ -113,7 +113,6 @@ export class MongoTrackerMapper {
       order: subtopic.order,
       depth: subtopic.depth,
       isLocked: Boolean(subtopic.isLocked),
-      estimatedMinutes: subtopic.estimatedMinutes || 0,
       learningVideo: subtopic.learningVideo ?? null,
       status: (progress?.status ?? defaultStatus) as SubtopicWithProgressRecord['status'],
       isUnlocked: progress ? Boolean(progress.isUnlocked) : !subtopic.isLocked,

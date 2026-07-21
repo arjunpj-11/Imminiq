@@ -16,6 +16,23 @@ export const adminMockTestsQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
 
+export const adminQuestionBankQuerySchema = z.object({
+  search: z.string().trim().max(200).optional(),
+  topic: z.string().trim().max(200).optional(),
+  type: z.enum(['all', 'mcq', 'short_answer', 'coding']).optional().default('all'),
+  difficulty: z.enum(['all', 'easy', 'medium', 'hard']).optional().default('all'),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+
+export const adminQuestionBankDeleteSchema = z.object({
+  reason: z.string().trim().min(10).max(1000),
+});
+
+export const adminQuestionBankRestoreSchema = adminQuestionBankDeleteSchema;
+
+export const adminQuestionBankIdSchema = z.coerce.number().int().positive();
+
 export const adminMockTestLifecycleSchema = z.object({
   action: z.enum(['suspend', 'delete', 'restore']),
   reasonCode: z.enum([

@@ -1,4 +1,5 @@
-import { Database, MemoryStick, Server, Zap } from "lucide-react";
+import { Database, MemoryStick, RotateCcw, Server, Trash2, XCircle, Zap } from "lucide-react";
+import { useState } from "react";
 import {
   AdminError,
   AdminLoading,
@@ -6,11 +7,52 @@ import {
   AdminPageHeader,
   AdminPanel,
   AdminStatusBadge,
+  AdminPaginationControls,
 } from "../../../../components/admin";
+import AdminModal from "../../../../components/admin/AdminModal";
+import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
+import { getUserFacingError } from "../../../../lib/user-facing-error";
+import { toast } from "../../../../lib/toast";
 import { useAdminSystemHealth } from "../hooks/useAdminSystemHealth";
+import { useAdminJobAction, useAdminJobWorklist } from "../hooks/useAdminJobWorklist";
+import type { AdminBackgroundJob } from "../types/admin-system-health.types";
 export default function AdminSystemHealthPage() {
   const { data, isLoading, isError, error, refetch, isFetching } =
     useAdminSystemHealth();
+  const [queue, setQueue] = useState("all");
+  const [jobStatus, setJobStatus] = useState("all");
+  const [jobPage, setJobPage] = useState(1);
+  const [pendingAction, setPendingAction] = useState<{
+    job: AdminBackgroundJob;
+    action: "cancel" | "retry" | "remove";
+  } | null>(null);
+  const [actionPassword, setActionPassword] = useState("");
+  const jobs = useAdminJobWorklist({ queue, status: jobStatus, page: jobPage });
+  const jobAction = useAdminJobAction();
+  const closeAction = () => {
+    if (jobAction.isPending) return;
+    setPendingAction(null);
+    setActionPassword("");
+  };
+  const confirmAction = () => {
+    if (!pendingAction) return;
+    jobAction.mutate(
+      {
+        queue: pendingAction.job.queue,
+        jobId: pendingAction.job.id,
+        action: pendingAction.action,
+        actionPassword,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Background job updated", `${pendingAction.action} completed successfully.`);
+          closeAction();
+        },
+        onError: (jobError) => toast.error("Job action failed", getUserFacingError(jobError)),
+      },
+    );
+  };
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
@@ -23,7 +65,7 @@ export default function AdminSystemHealthPage() {
         }
       />
       {isLoading ? (
-        <AdminLoading />
+        <AdminLoading variant="health" />
       ) : isError ? (
         <AdminError error={error} onRetry={() => void refetch()} />
       ) : (
@@ -150,6 +192,53 @@ export default function AdminSystemHealthPage() {
                 </table>
               </div>
             </AdminPanel>
+            <AdminPanel
+              title="Background worklist"
+              toolbar={
+                <div className="flex flex-wrap gap-3">
+                  <select className="admin-select" value={queue} onChange={(event) => { setQueue(event.target.value); setJobPage(1); }}>
+                    <option value="all">All queues</option>
+                    {data.queues.map((item) => <option key={item.name} value={item.name}>{item.name}</option>)}
+                  </select>
+                  <select className="admin-select" value={jobStatus} onChange={(event) => { setJobStatus(event.target.value); setJobPage(1); }}>
+                    <option value="all">All states</option><option value="waiting">Waiting</option><option value="active">Active</option><option value="delayed">Delayed</option><option value="failed">Failed</option><option value="completed">Completed</option>
+                  </select>
+                  <button type="button" className="admin-button" onClick={() => void jobs.refetch()}>{jobs.isFetching ? "Refreshing…" : "Refresh worklist"}</button>
+                </div>
+              }
+            >
+              {jobs.isError ? (
+                <AdminError error={jobs.error} onRetry={() => void jobs.refetch()} />
+              ) : (
+                <>
+                  <div className="admin-table-scroll overflow-x-auto">
+                    <table className="admin-table w-full min-w-230 text-left text-sm">
+                      <thead><tr><th>Queue / task</th><th>State</th><th>Attempts</th><th>Started</th><th>Finished</th><th>Failure</th><th>Safe action</th></tr></thead>
+                      <tbody>
+                        {jobs.data?.items.map((job) => (
+                          <tr key={`${job.queue}-${job.id}`}>
+                            <td><div className="font-semibold capitalize">{job.queue} · {job.name.replaceAll("-", " ")}</div><div className="mt-1 font-mono text-[10px] text-[#817c75]">{job.applicationJobId ?? job.id}</div></td>
+                            <td><AdminStatusBadge value={job.state} /></td>
+                            <td>{job.attemptsMade} / {job.maxAttempts}</td>
+                            <td>{job.processedOn ? new Date(job.processedOn).toLocaleString() : "Not started"}</td>
+                            <td>{job.finishedOn ? new Date(job.finishedOn).toLocaleString() : "—"}</td>
+                            <td className="max-w-70 text-xs text-[#aaa59d]">{job.failedReason || "—"}</td>
+                            <td>
+                              {job.state === "failed" ? <div className="flex gap-2"><button className="admin-button" onClick={() => setPendingAction({ job, action: "retry" })}><RotateCcw size={14} /> Retry</button><button className="admin-button text-[#e26767]" onClick={() => setPendingAction({ job, action: "remove" })}><Trash2 size={14} /> Remove</button></div>
+                                : job.state === "completed" ? <button className="admin-button" onClick={() => setPendingAction({ job, action: "remove" })}><Trash2 size={14} /> Remove</button>
+                                  : ["waiting", "delayed"].includes(job.state) ? <button className="admin-button text-[#e26767]" onClick={() => setPendingAction({ job, action: "cancel" })}><XCircle size={14} /> Cancel</button>
+                                    : <span className="text-xs text-[#817c75]">Active · finishing safely</span>}
+                            </td>
+                          </tr>
+                        ))}
+                        {!jobs.isLoading && !jobs.data?.items.length && <tr><td colSpan={7} className="py-10 text-center text-[#817c75]">No jobs match these filters.</td></tr>}
+                      </tbody>
+                    </table>
+                  </div>
+                  <AdminPaginationControls page={jobPage} pages={jobs.data?.pagination.pages ?? 1} label="background jobs" onPageChange={setJobPage} />
+                </>
+              )}
+            </AdminPanel>
             {data.alerts.length > 0 && (
               <AdminPanel title="Operational alerts">
                 <div className="space-y-3 p-6">
@@ -168,6 +257,12 @@ export default function AdminSystemHealthPage() {
           </>
         )
       )}
+      <AdminModal open={Boolean(pendingAction)} onClose={closeAction} preventClose={jobAction.isPending} ariaLabel="Confirm background job action" contentClassName="max-w-md">
+        <h2 className="font-editorial text-2xl font-bold capitalize">{pendingAction?.action} background job?</h2>
+        <p className="mt-2 text-sm leading-6 text-[#aaa59d]">This action is limited to safe queue states. Active work is never force-killed because that can leave partially written data.</p>
+        <AdminActionPasswordField value={actionPassword} onChange={setActionPassword} className="admin-field mt-5" />
+        <div className="mt-6 flex justify-end gap-2"><button className="admin-button" onClick={closeAction}>Cancel</button><button className="admin-primary-button" disabled={!isAdminActionPasswordReady(actionPassword) || jobAction.isPending} onClick={confirmAction}>{jobAction.isPending ? "Working…" : "Confirm"}</button></div>
+      </AdminModal>
     </main>
   );
 }

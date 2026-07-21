@@ -18,6 +18,8 @@ export interface AdminMockTestDTO {
 
 export interface AdminMockTestQuestionDTO {
   id: string;
+  bankId?: number;
+  questionBankStatus?: 'active' | 'disabled';
   order: number;
   type: string;
   question: string;

@@ -87,7 +87,6 @@ export type CreateTrackerSubtopicInput = {
   description: string;
   order: number;
   depth: number;
-  estimatedMinutes?: number;
 };
 
 export type CreateSubtopicUseCaseInput = {
@@ -97,7 +96,6 @@ export type CreateSubtopicUseCaseInput = {
   title: string;
   description?: string;
   parentSubtopicId?: string | null;
-  estimatedMinutes?: number;
 };
 
 export type SubtopicProgressStatus = 'available' | 'in_progress' | 'completed';
@@ -190,7 +188,6 @@ export type TrackerTopicRecord = {
   title: string;
   description?: string;
   order: number;
-  estimatedHours?: number;
   learningVideo?: LearningVideoRecord | null;
 };
 
@@ -221,7 +218,6 @@ export type TrackerSubtopicRecord = {
   order: number;
   depth: number;
   isLocked: boolean; // renamed from defaultLocked
-  estimatedMinutes?: number;
   learningVideo?: LearningVideoRecord | null;
 };
 
@@ -314,7 +310,6 @@ export type RoadmapSubtopicNode = {
   depth: number;
   status: SubtopicStatus;
   isLocked: boolean;
-  estimatedMinutes: number;
   learningVideo: LearningVideoRecord | null;
   progressPercent: number;
   completedAt: Date | null;
@@ -330,7 +325,6 @@ export type RoadmapTopicNode = {
   order: number;
   status: TopicStatus;
   progressPercent: number;
-  estimatedHours: number;
   learningVideo: LearningVideoRecord | null;
   subtopics: RoadmapSubtopicNode[];
 };
@@ -390,7 +384,6 @@ export type GeneratedTrackerLessonRecord = {
   };
   tags: string[];
   difficulty: 'beginner' | 'intermediate' | 'advanced';
-  estimatedMinutes: number;
 };
 
 export type RunLessonCodeInput = {

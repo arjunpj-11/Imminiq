@@ -4,12 +4,14 @@ import type {
   ITrackerClanChallengeQuestionGenerator,
   ITrackerClanChallengeRepository,
   TrackerClanChallenge,
+  TrackerClanChallengeQuestionContext,
 } from '../../domain';
 import type { ITrackerClanChallengeServiceContract } from '../tracker-clan-challenge.contract';
 import type {
   AnswerTrackerClanNodePayloadDTO,
   ChooseTrackerClanCheckpointPayloadDTO,
   CreateTrackerClanChallengePayloadDTO,
+  ExtendTrackerClanChallengePayloadDTO,
   SubmitTrackerClanChallengePayloadDTO,
   TrackerAccessPayloadDTO,
   TrackerClanChallengeAccessPayloadDTO,
@@ -30,7 +32,35 @@ export class TrackerClanChallengeService implements ITrackerClanChallengeService
     return challenges;
   }
 
+  async get(input: TrackerClanChallengeAccessPayloadDTO) {
+    const challenge = await this.clans.getChallenge(input);
+    if (!challenge) throw TrackerApplicationError.forbidden('This battle is not available to you');
+    return challenge;
+  }
+
+  async history(input: TrackerClanChallengeAccessPayloadDTO) {
+    const history = await this.clans.getChallengeHistory(input);
+    if (!history) {
+      throw TrackerApplicationError.forbidden(
+        'Battle history is available to competitors after the battle ends'
+      );
+    }
+    return history;
+  }
+
+  active(userId: string) {
+    return this.clans.getActiveChallenge(userId);
+  }
+
   async create(input: CreateTrackerClanChallengePayloadDTO) {
+    if (!await this.clans.canCreateChallenge({
+      challengerId: input.userId,
+      opponentId: input.opponentId,
+    })) {
+      throw TrackerApplicationError.forbidden(
+        'Finish your current guild battle before starting another challenge'
+      );
+    }
     const context = await this.clans.getChallengeQuestionContext({
       trackerId: input.trackerId,
       challengerId: input.userId,
@@ -41,11 +71,11 @@ export class TrackerClanChallengeService implements ITrackerClanChallengeService
         'A guild challenge needs eligible members and at least one roadmap topic'
       );
     }
-    const questions = await this.questionGenerator.generate({
+    const questions = await this.generateQuestions(
       context,
-      questionCount: input.questionCount,
-      durationMinutes: input.durationMinutes,
-    });
+      input.questionCount * 2,
+      input.durationMinutes
+    );
     const challenge = await this.clans.createChallenge({
       trackerId: input.trackerId,
       challengerId: input.userId,
@@ -125,6 +155,33 @@ export class TrackerClanChallengeService implements ITrackerClanChallengeService
     return challenge;
   }
 
+  async quit(input: TrackerClanChallengeAccessPayloadDTO) {
+    const challenge = this.announce(
+      input.trackerId,
+      await this.clans.quitChallenge(input),
+      'This battle is no longer available to quit'
+    );
+    await this.notifyCompletion(challenge);
+    return challenge;
+  }
+
+  async extend(input: ExtendTrackerClanChallengePayloadDTO) {
+    const extension = await this.clans.getChallengeExtensionContext(input);
+    if (!extension) {
+      throw TrackerApplicationError.forbidden('Extra questions are not available for this battle');
+    }
+    const questions = await this.generateQuestions(extension.context, input.questionCount, 10);
+    return this.announce(
+      input.trackerId,
+      await this.clans.appendChallengeQuestions({
+        ...input,
+        expectedQuestionCount: extension.existingQuestionCount,
+        questions,
+      }),
+      'Extra questions are no longer needed for this battle'
+    );
+  }
+
   async submit(input: SubmitTrackerClanChallengePayloadDTO) {
     const challenge = this.announce(
       input.trackerId,
@@ -181,5 +238,22 @@ export class TrackerClanChallengeService implements ITrackerClanChallengeService
         })
       )
     );
+  }
+
+  private async generateQuestions(
+    context: TrackerClanChallengeQuestionContext,
+    questionCount: number,
+    durationMinutes: number
+  ) {
+    const batchSizes = Array.from(
+      { length: Math.ceil(questionCount / 10) },
+      (_, index) => Math.min(10, questionCount - index * 10)
+    );
+    const batches = await Promise.all(
+      batchSizes.map((batchSize) =>
+        this.questionGenerator.generate({ context, questionCount: batchSize, durationMinutes })
+      )
+    );
+    return batches.flat();
   }
 }

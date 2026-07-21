@@ -341,8 +341,8 @@ function ReportReviewDialog({
       {resolutionAction === "question_corrected" && status !== "reviewing" && (
         <div className="mt-4 grid gap-4 rounded-xl border border-[#e8816a]/30 bg-[#e8816a]/5 p-4">
           <p className="text-sm text-[#d9b4a8]">
-            This creates a version snapshot before updating the question shown
-            to learners. Completed attempt scores are preserved.
+            This updates the question shown to learners while preserving
+            completed attempt scores.
           </p>
           <label className="admin-field">
             <span>Corrected question</span>

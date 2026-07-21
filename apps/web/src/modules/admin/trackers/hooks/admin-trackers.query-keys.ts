@@ -16,6 +16,4 @@ export const adminTrackersKeys = {
   reviews: () => [...adminTrackersKeys.all, "reviews"] as const,
   reviewList: (query: AdminListQuery) =>
     [...adminTrackersKeys.reviews(), query] as const,
-  versions: (id?: string) =>
-    [...adminTrackersKeys.all, "versions", id] as const,
 };

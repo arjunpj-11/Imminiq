@@ -162,7 +162,7 @@ export default function AdminTrackersPage() {
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
         title="Tracker Management"
-        description="Inspect learning structures, review community reports, and manage tracker access with documented reasons."
+        description="Inspect original learning trackers, review community reports, and manage tracker access. Personal clone records are excluded."
         action={
           <>
             <button
@@ -306,6 +306,7 @@ export default function AdminTrackersPage() {
                     <th scope="col">Moderation</th>
                     <th scope="col">Reports</th>
                     <th scope="col">Topics</th>
+                    <th scope="col">Clones</th>
                     <th scope="col">Actions</th>
                   </tr>
                 </thead>
@@ -355,6 +356,7 @@ export default function AdminTrackersPage() {
                         </span>
                       </td>
                       <td>{item.topicsCount}</td>
+                      <td>{item.cloneCount}</td>
                       <td>
                         <Link
                           to={ADMIN_TRACKERS_ROUTES.detail(item.id)}

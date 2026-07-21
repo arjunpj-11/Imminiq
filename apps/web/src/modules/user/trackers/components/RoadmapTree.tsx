@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { IRoadmapSubtopic, IRoadmapTopic } from '../types/tracker.types';
-import { cn, formatMinutes } from '../utils/tracker-ui';
+import { cn } from '../utils/tracker-ui';
 
 interface IRoadmapTreeProps {
   trackerId: string;
@@ -59,7 +59,6 @@ function SubtopicNode({
             {item.description || 'Study this lesson and unlock the next step.'}
           </p>
           <div className="mt-3 flex flex-wrap gap-2 font-mono text-[8px] uppercase tracking-[0.12em] text-(--text-secondary) dark:text-(--text-secondary)">
-            <span>{formatMinutes(item.estimatedMinutes)}</span>
             <span>Depth {item.depth}</span>
             <span>{Math.round(item.progressPercent || 0)}%</span>
           </div>

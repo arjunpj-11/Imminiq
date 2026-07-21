@@ -19,3 +19,11 @@ export const OnboardingRoadmapReadyPage = lazy(
 export const OnboardingStepOnePage = lazy(
   () => import('../../modules/user/tracker-creation/pages/OnboardingStepOnePage')
 );
+
+export const TrackerCreationChoicePage = lazy(
+  () => import('../../modules/user/tracker-creation/pages/TrackerCreationChoicePage')
+);
+
+export const ManualTrackerCreationPage = lazy(
+  () => import('../../modules/user/tracker-creation/pages/ManualTrackerCreationPage')
+);

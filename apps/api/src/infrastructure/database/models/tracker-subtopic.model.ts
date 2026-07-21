@@ -13,7 +13,6 @@ export interface ITrackerSubtopicDocument extends Document {
   order: number;
   depth: number;
   isLocked: boolean;
-  estimatedMinutes: number;
   learningVideo?: {
     videoId: string;
     title: string;
@@ -73,11 +72,6 @@ const trackerSubtopicSchema = new Schema<ITrackerSubtopicDocument>(
     isLocked: {
       type: Boolean,
       default: true,
-    },
-    estimatedMinutes: {
-      type: Number,
-      default: 0,
-      min: 0,
     },
     learningVideo: {
       type: new Schema(

@@ -66,6 +66,7 @@ export class MongoAuthSessionRepository extends MongoAuthBaseRepository {
         const session = await AuthToken.findOneAndUpdate(
           {
             _id: data.sessionId,
+            refreshTokenHash: data.currentRefreshTokenHash,
             revokedAt: null,
             deletedAt: null,
           },

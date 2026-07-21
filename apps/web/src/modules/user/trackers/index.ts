@@ -1,7 +1,18 @@
 export { useAddMissingEvaluationTopic, useTrackerRoadmap, useTrackers } from './hooks/useTrackers';
-export { useRequestTrackerClanJoin } from './hooks/useTrackerMutations';
+export {
+  useCreateTracker,
+  useImportTrackerOutline,
+  useRequestTrackerClanJoin,
+} from './hooks/useTrackerMutations';
 export { useTrackerClan } from './hooks/useTrackerQueries';
 
-export type { IRoadmapSubtopic, IRoadmapTopic, ITracker } from './types/tracker.types';
+export type {
+  IRoadmapSubtopic,
+  IRoadmapTopic,
+  ITracker,
+  TrackerDomain,
+  TrackerLevel,
+} from './types/tracker.types';
+export { parseTrackerOutlineJson, trackerOutlineExample } from './utils/tracker-outline';
 export * from './constants/tracker-api.constants';
 export { trackerKeys } from './hooks/trackers.query-keys';

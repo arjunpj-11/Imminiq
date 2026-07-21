@@ -9,7 +9,6 @@ export type CommunityVerificationReviewSubtopic = {
   order: number;
   depth: number;
   isLocked: boolean;
-  estimatedMinutes: number;
 };
 
 export type CommunityVerificationReviewTopic = {
@@ -18,7 +17,6 @@ export type CommunityVerificationReviewTopic = {
   description: string;
   order: number;
   status: string;
-  estimatedHours: number;
   subtopics: CommunityVerificationReviewSubtopic[];
 };
 

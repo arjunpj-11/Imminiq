@@ -1,4 +1,4 @@
-import type { RouteObject } from 'react-router-dom';
+import { Navigate, type RouteObject } from 'react-router-dom';
 
 import {
   AdaptiveLearningPage,
@@ -33,6 +33,7 @@ import {
   SubscriptionPlansPage,
 } from '../config/authenticated-pages';
 import { ROUTES } from '../config/route-paths';
+import SettingsShell from '../../modules/user/settings/components/SettingsShell';
 
 export const authenticatedRoutes: RouteObject[] = [
   {
@@ -49,26 +50,35 @@ export const authenticatedRoutes: RouteObject[] = [
   },
 
   {
-    path: ROUTES.settingsSecurity,
-    element: <AccountSecuritySettingsPage />,
-  },
-  {
-    path: ROUTES.settingsNotifications,
-    element: <NotificationSettingsPage />,
+    path: ROUTES.settingsRoot,
+    element: <SettingsShell />,
+    children: [
+      {
+        index: true,
+        element: <Navigate to={ROUTES.settingsSecurity} replace />,
+      },
+      {
+        path: 'security',
+        element: <AccountSecuritySettingsPage />,
+      },
+      {
+        path: 'notifications',
+        element: <NotificationSettingsPage />,
+      },
+      {
+        path: 'preferences',
+        element: <PreferencesSettingsPage />,
+      },
+      {
+        path: 'privacy',
+        element: <PrivacySettingsPage />,
+      },
+    ],
   },
   {
     path: ROUTES.notifications,
     element: <NotificationsPage />,
   },
-  {
-    path: ROUTES.settingsPreferences,
-    element: <PreferencesSettingsPage />,
-  },
-  {
-    path: ROUTES.settingsPrivacy,
-    element: <PrivacySettingsPage />,
-  },
-
   {
     path: ROUTES.trackers,
     element: <MyTrackersPage />,

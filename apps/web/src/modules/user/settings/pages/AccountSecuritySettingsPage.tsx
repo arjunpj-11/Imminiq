@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../../../routes/config/route-paths';
 
-import SettingsShell from '../components/SettingsShell';
 import SettingsContentLoading from '../components/SettingsContentLoading';
 import { MonoLabel, SettingsCard, SettingsToast, TextField } from '../components/SettingsUi';
 import { useSettingsToast } from '../hooks/useSettingsToast';
@@ -125,18 +124,7 @@ export default function AccountSecuritySettingsPage() {
     (!stepUpRequiresTwoFactor || deleteTwoFactorCode.length === 6);
 
   if (securityQuery.isLoading) {
-    return (
-      <SettingsShell
-        title="Account Security"
-        subtitle="Manage your email, password, sessions, two-factor authentication and account safety."
-      >
-        <SettingsContentLoading
-          eyebrow="Loading Security"
-          title="Preparing account security"
-          description="Fetching your email, password options, sessions, and two-factor settings."
-        />
-      </SettingsShell>
-    );
+    return <SettingsContentLoading variant="security" title="Preparing account security" />;
   }
 
   const handleEmailUpdate = async () => {
@@ -305,10 +293,7 @@ export default function AccountSecuritySettingsPage() {
   };
 
   return (
-    <SettingsShell
-      title="Account Security"
-      subtitle="Manage your email, password, sessions, two-factor authentication and account safety."
-    >
+    <>
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-5">
           {/* ─── EMAIL ADDRESS ───────────────────────────── */}
@@ -718,6 +703,6 @@ export default function AccountSecuritySettingsPage() {
       />
 
       <SettingsToast visible={toast.visible} message={toast.message} tone={toast.tone} />
-    </SettingsShell>
+    </>
   );
 }

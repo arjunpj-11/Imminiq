@@ -57,12 +57,24 @@ export class TrackerRoadmapController {
         title: req.body.title,
         description: req.body.description,
         parentSubtopicId: req.body.parentSubtopicId,
-        estimatedMinutes: req.body.estimatedMinutes,
       });
 
       res
         .status(HttpStatusCode.CREATED)
         .json(new ApiResponse('Subtopic created successfully', result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  importOutline = async (req: Request<TrackerParams>, res: Response, next: NextFunction) => {
+    try {
+      const result = await this._useCases.importTrackerOutline.execute({
+        ...req.body,
+        trackerId: req.params.trackerId,
+        userId: getAuthUser(req).userId,
+      });
+      res.status(HttpStatusCode.CREATED).json(new ApiResponse('Roadmap outline imported', result));
     } catch (error) {
       next(error);
     }

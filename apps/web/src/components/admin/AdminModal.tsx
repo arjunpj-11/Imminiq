@@ -132,7 +132,7 @@ export default function AdminModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex min-h-0 items-center justify-center overflow-hidden bg-black/75 p-2 backdrop-blur-sm sm:p-4"
+      className="admin-modal-viewport fixed inset-0 z-[1000] flex h-dvh min-h-0 w-screen items-center justify-center overflow-hidden bg-black/55 p-[max(0.5rem,env(safe-area-inset-top))_max(0.5rem,env(safe-area-inset-right))_max(0.5rem,env(safe-area-inset-bottom))_max(0.5rem,env(safe-area-inset-left))] backdrop-blur-[8px] sm:p-4"
       role="presentation"
       onMouseDown={handleBackdropMouseDown}
     >
@@ -144,13 +144,13 @@ export default function AdminModal({
           aria-label={ariaLabel}
           aria-busy={preventClose || undefined}
           tabIndex={-1}
-          className={`admin-modal-panel relative flex min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-white/12 shadow-[0_28px_90px_rgba(0,0,0,0.58)] ${contentClassName}`}
+          className={`admin-modal-panel relative flex max-h-[calc(100dvh-1rem)] min-h-0 w-full flex-col overflow-hidden rounded-xl border border-white/12 bg-[#1c1a18] text-[#f2f0eb] shadow-[0_28px_90px_rgba(0,0,0,0.58)] outline-none sm:max-h-[calc(100dvh-2rem)] sm:rounded-2xl ${contentClassName}`}
           style={{ overflow: "hidden" }}
           onMouseDown={(event) => event.stopPropagation()}
         >
           <div
             className={`admin-modal-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain ${
-              hasZeroPadding ? "p-0" : "p-5 sm:p-6"
+              hasZeroPadding ? "p-0" : "p-4 sm:p-6"
             }`}
             tabIndex={-1}
           >

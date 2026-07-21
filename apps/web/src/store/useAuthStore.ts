@@ -38,7 +38,7 @@ export const useAuthStore = create<IAuthStore>()(
       accessToken: null,
       isAuthenticated: false,
       authReady: false,
-      setUser: (user) => set({ user, isAuthenticated: true }),
+      setUser: (user) => set({ user, isAuthenticated: true, authReady: true }),
       setAccessToken: (accessToken) => set({ accessToken }),
       setAuthReady: (authReady) => set({ authReady }),
       clearUser: () => set({ user: null, isAuthenticated: false }),

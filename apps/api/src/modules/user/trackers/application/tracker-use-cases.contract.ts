@@ -14,6 +14,7 @@ export type TrackerUseCases = {
   getTrackerRoadmap: Application.IGetTrackerRoadmapUseCase;
   createTrackerTopic: Application.ICreateTrackerTopicUseCase;
   createTrackerSubtopic: Application.ICreateTrackerSubtopicUseCase;
+  importTrackerOutline: Application.IImportTrackerOutlineUseCase;
   createTopicContribution: Application.ICreateTopicContributionUseCase;
   listTopicContributions: Application.IListTopicContributionsUseCase;
   reviewTopicContribution: Application.IReviewTopicContributionUseCase;
@@ -61,6 +62,7 @@ export type TrackerManagementUseCases = Pick<
   | 'getTrackerRoadmap'
   | 'createTrackerTopic'
   | 'createTrackerSubtopic'
+  | 'importTrackerOutline'
   | 'createTopicContribution'
   | 'listTopicContributions'
   | 'reviewTopicContribution'

@@ -79,6 +79,13 @@ describe('security-sensitive HTTP integration flows', () => {
 
     expect(firstRefresh.status).toBe(200);
     expect(firstRefresh.body?.data?.accessToken).toEqual(expect.any(String));
+    expect(firstRefresh.body?.data?.user).toMatchObject({
+      _id: user.userId,
+      username: user.username,
+      email: user.email,
+      status: 'active',
+    });
+    expect(firstRefresh.body.data.user).not.toHaveProperty('passwordHash');
 
     const reuseResponse = await request(app)
       .post('/api/auth/refresh-token')

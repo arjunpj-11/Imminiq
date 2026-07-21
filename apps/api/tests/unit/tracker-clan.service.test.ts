@@ -29,11 +29,18 @@ const repository = () =>
     deleteSubtopic: vi.fn(),
     listMessages: vi.fn(),
     listChallenges: vi.fn(),
+    getChallenge: vi.fn(),
+    getChallengeHistory: vi.fn(),
+    getActiveChallenge: vi.fn(),
+    canCreateChallenge: vi.fn().mockResolvedValue(true),
     getChallengeQuestionContext: vi.fn(),
     createChallenge: vi.fn(),
     acceptChallenge: vi.fn(),
     declineChallenge: vi.fn(),
     cancelChallenge: vi.fn(),
+    quitChallenge: vi.fn(),
+    getChallengeExtensionContext: vi.fn(),
+    appendChallengeQuestions: vi.fn(),
     submitChallenge: vi.fn(),
     chooseChallengeCheckpoint: vi.fn(),
     answerChallengeNode: vi.fn(),
@@ -211,7 +218,7 @@ describe('TrackerClanService', () => {
     ).resolves.toBe(challenge);
     expect(questionGenerator.generate).toHaveBeenCalledWith({
       context,
-      questionCount: 5,
+      questionCount: 10,
       durationMinutes: 10,
     });
     expect(clans.createChallenge).toHaveBeenCalledWith(
@@ -287,7 +294,8 @@ describe('TrackerClanService', () => {
     );
 
     await expect(useCase.answerNode({
-      trackerId: 'tracker-1', challengeId: 'challenge-1', userId: 'member-1', answer: '42',
+      trackerId: 'tracker-1', challengeId: 'challenge-1', userId: 'member-1',
+      questionId: 'question-1', answer: '42',
     })).resolves.toBe(challenge);
     expect(notifier.notify).toHaveBeenCalledWith({
       id: 'challenge-1', trackerId: 'tracker-1', status: 'active',

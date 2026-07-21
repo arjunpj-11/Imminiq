@@ -32,6 +32,10 @@ export interface TokenPairDTO {
   refreshToken: string;
 }
 
+export interface RefreshedAuthSessionDTO extends TokenPairDTO {
+  user: AuthUserDTO;
+}
+
 export interface AuthUserDTO {
   _id: string;
   fullName: string;

@@ -23,6 +23,41 @@ export class TrackerClanChallengesController {
     }
   };
 
+  get = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.useCases.trackerClanChallenges.get({
+        trackerId: req.params.trackerId,
+        challengeId: req.params.challengeId,
+        userId: getAuthUser(req).userId,
+      });
+      res.json(new ApiResponse('Guild challenge fetched', result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  history = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.useCases.trackerClanChallenges.history({
+        trackerId: req.params.trackerId,
+        challengeId: req.params.challengeId,
+        userId: getAuthUser(req).userId,
+      });
+      res.json(new ApiResponse('Guild challenge history fetched', result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  active = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.useCases.trackerClanChallenges.active(getAuthUser(req).userId);
+      res.json(new ApiResponse('Active guild challenge fetched', result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
   create = async (req: Request<TrackerParams>, res: Response, next: NextFunction) => {
     try {
       const result = await this.useCases.trackerClanChallenges.create({
@@ -77,6 +112,33 @@ export class TrackerClanChallengesController {
     }
   };
 
+  quit = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.useCases.trackerClanChallenges.quit({
+        trackerId: req.params.trackerId,
+        challengeId: req.params.challengeId,
+        userId: getAuthUser(req).userId,
+      });
+      res.json(new ApiResponse('Guild challenge quit', result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  extend = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.useCases.trackerClanChallenges.extend({
+        trackerId: req.params.trackerId,
+        challengeId: req.params.challengeId,
+        userId: getAuthUser(req).userId,
+        questionCount: req.body.questionCount,
+      });
+      res.json(new ApiResponse('Extra battle questions added', result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
   submit = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
     try {
       const result = await this.useCases.trackerClanChallenges.submit({
@@ -109,6 +171,7 @@ export class TrackerClanChallengesController {
         trackerId: req.params.trackerId,
         challengeId: req.params.challengeId,
         userId: getAuthUser(req).userId,
+        questionId: req.body.questionId,
         answer: req.body.answer,
       });
       res.json(new ApiResponse('Node answer checked', result));

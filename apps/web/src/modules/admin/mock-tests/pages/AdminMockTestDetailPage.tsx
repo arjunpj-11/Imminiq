@@ -4,7 +4,6 @@ import {
   CheckCircle2,
   Eye,
   EyeOff,
-  History,
   RotateCcw,
   ShieldAlert,
   Trash2,
@@ -20,11 +19,16 @@ import {
   AdminStatusBadge,
 } from "../../../../components/admin";
 import { useAdminMockTestDetail } from "../hooks/useAdminMockTestDetail";
+import { useRestoreAdminQuestionBankItem } from "../hooks/useAdminQuestionBank";
 import { ADMIN_MOCK_TESTS_ROUTES } from "../constants/admin-mock-tests.constants";
 import AdminMockTestModerationDialog from "../components/AdminMockTestModerationDialog";
 import type { AdminMockTestLifecyclePayload } from "../types/admin-mock-tests.types";
 import { useAuthStore } from "../../../../store/useAuthStore";
-import AdminMockTestQuestionVersionsDialog from "../components/AdminMockTestQuestionVersionsDialog";
+import AdminModal from "../../../../components/admin/AdminModal";
+import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
+import { getUserFacingError } from "../../../../lib/user-facing-error";
+import { toast } from "../../../../lib/toast";
 import type { AdminMockTestQuestion } from "../types/admin-mock-tests.types";
 export default function AdminMockTestDetailPage() {
   const canManageLifecycle = useAuthStore(
@@ -37,9 +41,42 @@ export default function AdminMockTestDetailPage() {
     AdminMockTestLifecyclePayload["action"] | null
   >(null);
   const [learnerPreview, setLearnerPreview] = useState(false);
-  const [versionQuestion, setVersionQuestion] =
+  const [restoreQuestion, setRestoreQuestion] =
     useState<AdminMockTestQuestion | null>(null);
-  if (isLoading) return <AdminLoading />;
+  const [restoreReason, setRestoreReason] = useState("");
+  const [actionPassword, setActionPassword] = useState("");
+  const restoreBankQuestion = useRestoreAdminQuestionBankItem();
+  const closeRestore = () => {
+    if (restoreBankQuestion.isPending) return;
+    setRestoreQuestion(null);
+    setRestoreReason("");
+    setActionPassword("");
+  };
+  const confirmRestore = () => {
+    if (restoreQuestion?.bankId == null || restoreReason.trim().length < 10) return;
+    restoreBankQuestion.mutate(
+      {
+        bankId: restoreQuestion.bankId,
+        reason: restoreReason.trim(),
+        actionPassword,
+      },
+      {
+        onSuccess: (result) => {
+          toast.success(
+            "Question restored",
+            `Restored in ${result.restoredInTests} question slot${result.restoredInTests === 1 ? "" : "s"} across ${result.affectedTests} mock test${result.affectedTests === 1 ? "" : "s"}.`,
+          );
+          setRestoreQuestion(null);
+          setRestoreReason("");
+          setActionPassword("");
+          void refetch();
+        },
+        onError: (restoreError) =>
+          toast.error("Question could not be restored", getUserFacingError(restoreError)),
+      },
+    );
+  };
+  if (isLoading) return <main className="mx-auto max-w-275 px-5 py-8 sm:px-8"><AdminLoading variant="detail" /></main>;
   if (isError || !data)
     return <AdminError error={error} onRetry={() => void refetch()} />;
   return (
@@ -130,6 +167,18 @@ export default function AdminMockTestDetailPage() {
                   <div className="text-[10px] uppercase tracking-wider text-[#e8816a]">
                     Question {question.order} ·{" "}
                     {question.type.replace("_", " ")}
+                    {question.bankId == null && " · Not linked to Question Bank"}
+                    {question.bankId != null && (
+                      <>
+                        {" · "}
+                        <Link
+                          to={`${ADMIN_MOCK_TESTS_ROUTES.questionBank}?q=${question.bankId}`}
+                          className="font-mono underline decoration-[#e8816a]/50 underline-offset-2 hover:text-[#f2a18f]"
+                        >
+                          Question Bank #{question.bankId}
+                        </Link>
+                      </>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     {question.openReportCount > 0 && (
@@ -144,19 +193,17 @@ export default function AdminMockTestDetailPage() {
                     )}
                     <AdminStatusBadge value={question.difficulty} />
                     <AdminStatusBadge value={question.moderationStatus} />
-                    <span className="text-[10px] text-[#817c75]">
-                      v{question.version}
-                    </span>
-                    {!learnerPreview && (
-                      <button
-                        type="button"
-                        className="admin-icon-button"
-                        aria-label={`View version history for question ${question.order}`}
-                        onClick={() => setVersionQuestion(question)}
-                      >
-                        <History size={14} />
-                      </button>
-                    )}
+                    {!learnerPreview &&
+                      question.bankId != null &&
+                      question.questionBankStatus === "disabled" && (
+                        <button
+                          type="button"
+                          className="admin-button px-2.5 py-1.5 text-xs text-[#52c58c]"
+                          onClick={() => setRestoreQuestion(question)}
+                        >
+                          <RotateCcw size={14} /> Restore question
+                        </button>
+                      )}
                   </div>
                 </div>
                 <h3 className="mt-3 font-semibold leading-6">
@@ -263,11 +310,49 @@ export default function AdminMockTestDetailPage() {
           void refetch();
         }}
       />
-      <AdminMockTestQuestionVersionsDialog
-        key={versionQuestion?.id ?? "closed-question-versions"}
-        question={versionQuestion}
-        onClose={() => setVersionQuestion(null)}
-      />
+      <AdminModal
+        open={Boolean(restoreQuestion)}
+        onClose={closeRestore}
+        preventClose={restoreBankQuestion.isPending}
+        ariaLabel="Restore question bank item"
+        contentClassName="max-w-lg"
+      >
+        <h2 className="font-editorial text-2xl font-bold">
+          Restore Question Bank #{restoreQuestion?.bankId}?
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-[#aaa59d]">
+          This restores the question in the Question Bank and every linked mock test.
+          Tests automatically suspended because they became empty will be reactivated.
+        </p>
+        <label className="admin-field mt-5">
+          <span>Restoration reason</span>
+          <textarea
+            rows={3}
+            maxLength={1000}
+            value={restoreReason}
+            onChange={(event) => setRestoreReason(event.target.value)}
+          />
+        </label>
+        <AdminActionPasswordField
+          value={actionPassword}
+          onChange={setActionPassword}
+          className="admin-field mt-4"
+        />
+        <div className="mt-6 flex justify-end gap-2">
+          <button className="admin-button" onClick={closeRestore}>Cancel</button>
+          <button
+            className="admin-primary-button"
+            disabled={
+              restoreReason.trim().length < 10 ||
+              !isAdminActionPasswordReady(actionPassword) ||
+              restoreBankQuestion.isPending
+            }
+            onClick={confirmRestore}
+          >
+            {restoreBankQuestion.isPending ? "Restoring…" : "Restore question"}
+          </button>
+        </div>
+      </AdminModal>
     </main>
   );
 }

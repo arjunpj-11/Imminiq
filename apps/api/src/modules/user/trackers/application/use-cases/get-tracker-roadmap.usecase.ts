@@ -32,7 +32,6 @@ const buildRoadmapTree = ({
       depth: subtopic.depth,
       status: subtopic.status || 'available',
       isLocked: Boolean(subtopic.isLocked),
-      estimatedMinutes: subtopic.estimatedMinutes || 0,
       learningVideo: subtopic.learningVideo || null,
       progressPercent: subtopic.progressPercent || 0,
       completedAt: subtopic.completedAt || null,
@@ -69,7 +68,6 @@ const buildRoadmapTree = ({
         order: topic.order,
         status: topic.status || 'active',
         progressPercent: topic.progressPercent || 0,
-        estimatedHours: topic.estimatedHours || 0,
         learningVideo: topic.learningVideo || null,
         subtopics: attachChildren(topicChildren),
       };

@@ -129,6 +129,10 @@ export class MongoTrackerRepository implements ITrackerRepository {
     return this._managementRepository.findOwnedTrackerById(data);
   }
 
+  async findOwnedTrackerForDisplayById(data: FindOwnedTrackerByIdInput) {
+    return this._managementRepository.findOwnedTrackerForDisplayById(data);
+  }
+
   async archiveOwnedTracker(data: ArchiveOwnedTrackerInput) {
     return this._managementRepository.archiveOwnedTracker(data);
   }

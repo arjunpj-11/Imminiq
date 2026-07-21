@@ -191,7 +191,12 @@ export interface ChooseTrackerClanCheckpointPayloadDTO
 }
 
 export interface AnswerTrackerClanNodePayloadDTO extends TrackerClanChallengeAccessPayloadDTO {
+  questionId: string;
   answer: string;
+}
+
+export interface ExtendTrackerClanChallengePayloadDTO extends TrackerClanChallengeAccessPayloadDTO {
+  questionCount: 10 | 20;
 }
 
 export type UpdateSubtopicProgressResultDTO = {

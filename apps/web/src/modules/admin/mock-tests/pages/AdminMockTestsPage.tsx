@@ -1,4 +1,4 @@
-import { Download, Eye, FileText, ShieldAlert } from "lucide-react";
+import { Database, Download, Eye, FileText, ShieldAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -150,6 +150,12 @@ export default function AdminMockTestsPage() {
         description="Inspect assessment contents, questions, correct answers, and test configuration."
         action={
           <>
+            <Link
+              to={ADMIN_MOCK_TESTS_ROUTES.questionBank}
+              className="admin-button"
+            >
+              <Database size={16} aria-hidden="true" /> Question bank
+            </Link>
             <button
               type="button"
               onClick={exportCurrentView}

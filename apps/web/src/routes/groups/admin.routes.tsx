@@ -16,6 +16,7 @@ const AdminPublishedTrackersPage = lazy(() => import('../../modules/admin/tracke
 const AdminTrackerDetailPage = lazy(() => import('../../modules/admin/trackers/pages/AdminTrackerDetailPage'));
 const AdminMockTestsPage = lazy(() => import('../../modules/admin/mock-tests/pages/AdminMockTestsPage'));
 const AdminMockTestReportsPage = lazy(() => import('../../modules/admin/mock-tests/pages/AdminMockTestReportsPage'));
+const AdminQuestionBankPage = lazy(() => import('../../modules/admin/mock-tests/pages/AdminQuestionBankPage'));
 const AdminMockTestDetailPage = lazy(() => import('../../modules/admin/mock-tests/pages/AdminMockTestDetailPage'));
 const AdminAnalyticsPage = lazy(() => import('../../modules/admin/analytics/pages/AdminAnalyticsPage'));
 const AdminBroadcastPage = lazy(() => import('../../modules/admin/broadcast/pages/AdminBroadcastPage'));
@@ -45,6 +46,7 @@ export const adminRoutes: RouteObject[] = [
       { path: ADMIN_ROUTES.trackerDetailPattern, element: <AdminTrackerDetailPage /> },
       { path: ADMIN_ROUTES.mockTests, element: <AdminMockTestsPage /> },
       { path: ADMIN_ROUTES.mockTestReports, element: <AdminMockTestReportsPage /> },
+      { path: ADMIN_ROUTES.questionBank, element: staffOnly(<AdminQuestionBankPage />) },
       { path: ADMIN_ROUTES.mockTestDetailPattern, element: <AdminMockTestDetailPage /> },
       {
         path: ADMIN_ROUTES.legacyTrackerReviews,

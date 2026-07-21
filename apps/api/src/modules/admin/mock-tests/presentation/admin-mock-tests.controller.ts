@@ -10,6 +10,10 @@ import {
   adminContentAppealsQuerySchema,
   adminContentAppealUpdateSchema,
   adminMockTestBulkLifecycleSchema,
+  adminQuestionBankDeleteSchema,
+  adminQuestionBankRestoreSchema,
+  adminQuestionBankIdSchema,
+  adminQuestionBankQuerySchema,
 } from './admin-mock-tests.schema';
 export class AdminMockTestsController {
   constructor(private readonly useCases: AdminMockTestsUseCases) {}
@@ -40,6 +44,48 @@ export class AdminMockTestsController {
       () => this.useCases.listQuestionIssues.execute(adminMockTestsQuerySchema.parse(req.query)),
       res,
       'Mock test question reports fetched'
+    );
+
+  listQuestionBank = (req: Request, res: Response, next: NextFunction) =>
+    sendAdminResult(
+      next,
+      () => this.useCases.questionBank.list(adminQuestionBankQuerySchema.parse(req.query)),
+      res,
+      'Question bank fetched'
+    );
+
+  getQuestionBankItem = (req: Request, res: Response, next: NextFunction) =>
+    sendAdminResult(
+      next,
+      () => this.useCases.questionBank.get(adminQuestionBankIdSchema.parse(req.params.bankId)),
+      res,
+      'Question bank item fetched'
+    );
+
+  deleteQuestionBankItem = (req: Request, res: Response, next: NextFunction) =>
+    sendAdminResult(
+      next,
+      () =>
+        this.useCases.questionBank.remove(
+          adminQuestionBankIdSchema.parse(req.params.bankId),
+          adminQuestionBankDeleteSchema.parse(req.body).reason,
+          getAdminActor(req)
+        ),
+      res,
+      'Question removed from the bank and active mock tests'
+    );
+
+  restoreQuestionBankItem = (req: Request, res: Response, next: NextFunction) =>
+    sendAdminResult(
+      next,
+      () =>
+        this.useCases.questionBank.restore(
+          adminQuestionBankIdSchema.parse(req.params.bankId),
+          adminQuestionBankRestoreSchema.parse(req.body).reason,
+          getAdminActor(req)
+        ),
+      res,
+      'Question restored in the bank and linked mock tests'
     );
 
   updateQuestionIssue = (req: Request, res: Response, next: NextFunction) =>

@@ -35,7 +35,7 @@ export default function AdminSettingsPage() {
         description="Global operational controls for the Imminiq administration environment."
       />
       {isLoading ? (
-        <AdminLoading />
+        <AdminLoading variant="settings" />
       ) : isError || !data ? (
         <AdminError error={error} onRetry={() => void refetch()} />
       ) : (

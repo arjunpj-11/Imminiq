@@ -28,7 +28,6 @@ type ContributionLeanRecord = {
     order: number;
     depth: number;
     isLocked?: boolean;
-    estimatedMinutes?: number;
     learningVideo?: unknown;
   }>;
   status: 'pending' | 'processing' | 'approved' | 'rejected';
@@ -127,7 +126,6 @@ export class MongoTrackerTopicContributionRepository
           order: subtopic.order,
           depth: subtopic.depth,
           isLocked: Boolean(subtopic.isLocked),
-          estimatedMinutes: subtopic.estimatedMinutes ?? 0,
           learningVideo: subtopic.learningVideo ?? null,
         })),
       });
@@ -249,7 +247,6 @@ export class MongoTrackerTopicContributionRepository
         description: claimed.description ?? '',
         order: (lastTopic?.order ?? 0) + 1,
         status: lastTopic ? 'locked' : 'active',
-        estimatedHours: 0,
         progressPercent: 0,
         deletedAt: null,
       });
@@ -269,7 +266,6 @@ export class MongoTrackerTopicContributionRepository
           order: subtopic.order,
           depth: subtopic.depth,
           isLocked: subtopic.isLocked ?? subtopic.depth > 1,
-          estimatedMinutes: subtopic.estimatedMinutes ?? 0,
           learningVideo: subtopic.learningVideo ?? null,
           deletedAt: null,
         });

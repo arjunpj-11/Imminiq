@@ -24,6 +24,13 @@ export type TrackerValidationResult = {
   message: string;
   polishedTitle: string;
   polishedDescription: string;
+  suggestedSubtopics: TrackerOutlineSuggestion[];
+};
+
+export type TrackerOutlineSuggestion = {
+  title: string;
+  description: string;
+  subtopics: TrackerOutlineSuggestion[];
 };
 
 export type LessonCodeHintAIResult = {

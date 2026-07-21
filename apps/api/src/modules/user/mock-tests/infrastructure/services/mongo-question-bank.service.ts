@@ -47,6 +47,7 @@ export class MongoQuestionBank implements IMockTestQuestionBank {
       const safeTopic = this.escapeRegExp(normalizedTopic);
       const match: Record<string, unknown> = {
         topic: { $regex: new RegExp(`^${safeTopic}$`, 'i') },
+        deletedAt: null,
       };
 
       if (difficulty) {

@@ -17,6 +17,8 @@ export type AdminMockTest = {
 };
 export type AdminMockTestQuestion = {
   id: string;
+  bankId?: number;
+  questionBankStatus?: 'active' | 'disabled';
   order: number;
   type: string;
   question: string;

@@ -62,6 +62,7 @@ const links = [
     section: "Content",
     icon: ClipboardCheck,
     moderator: true,
+    end: true,
   },
   {
     to: ADMIN_ROUTES.activity,
@@ -93,7 +94,7 @@ const links = [
   },
   {
     to: ADMIN_ROUTES.systemHealth,
-    label: "System Health",
+    label: "System Health & Jobs",
     section: "Operations",
     icon: HeartPulse,
     moderator: false,

@@ -29,7 +29,6 @@ export type CreateTrackerLessonInput = {
   practiceTask: GeneratedLessonPracticeTask;
   tags: string[];
   difficulty: TrackerLessonDifficulty;
-  estimatedMinutes: number;
 };
 
 export type LessonChatScope = 'lesson_doubt_chat' | 'question_solution_chat';

@@ -148,7 +148,6 @@ export class GetTrackerLessonUseCase implements IGetTrackerLessonUseCase {
         title: subtopic.title,
         status: subtopic.status,
         isLocked: subtopic.isLocked,
-        estimatedMinutes: subtopic.estimatedMinutes || 5,
       })),
     };
 

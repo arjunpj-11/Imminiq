@@ -12,14 +12,29 @@ const challengeQuestionSchema = new Schema(
   { _id: true }
 );
 
+const challengeAnswerHistorySchema = new Schema(
+  {
+    questionId: { type: Schema.Types.ObjectId, required: true },
+    answer: { type: String, required: true },
+    isCorrect: { type: Boolean, required: true },
+    isCheckpoint: { type: Boolean, required: true },
+    positionBefore: { type: Number, required: true, min: 0 },
+    positionAfter: { type: Number, required: true, min: 0 },
+    answeredAt: { type: Date, required: true },
+  },
+  { _id: false }
+);
+
 const challengeProgressSchema = new Schema(
   {
     position: { type: Number, required: true, default: 0, min: 0 },
+    questionIndex: { type: Number, required: true, default: 0, min: 0 },
     score: { type: Number, required: true, default: 0, min: 0 },
     pushBackPowers: { type: Number, required: true, default: 0, min: 0 },
     attemptedAnswers: { type: [String], default: [] },
     attemptedCheckpoints: { type: [Number], default: [] },
     resolvedCheckpoints: { type: [Number], default: [] },
+    answerHistory: { type: [challengeAnswerHistorySchema], default: [] },
     lastAnswerCorrect: { type: Boolean, default: null },
   },
   { _id: false }
@@ -50,6 +65,7 @@ const trackerClanChallengeSchema = new Schema(
     trackerId: { type: Schema.Types.ObjectId, ref: 'Tracker', required: true, index: true },
     challengerId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     opponentId: { type: Schema.Types.ObjectId, ref: 'User', default: null, index: true },
+    participantIds: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
     challengeType: { type: String, enum: ['open', 'direct'], required: true },
     status: {
       type: String,
@@ -58,6 +74,7 @@ const trackerClanChallengeSchema = new Schema(
       index: true,
     },
     durationMinutes: { type: Number, required: true, min: 5, max: 30 },
+    totalNodes: { type: Number, required: true, min: 3, max: 15 },
     questions: { type: [challengeQuestionSchema], required: true },
     challengerSubmission: { type: challengeSubmissionSchema, default: null },
     opponentSubmission: { type: challengeSubmissionSchema, default: null },
@@ -66,6 +83,7 @@ const trackerClanChallengeSchema = new Schema(
     acceptBy: { type: Date, required: true, index: true },
     completedAt: { type: Date, default: null },
     winnerId: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+    quitById: { type: Schema.Types.ObjectId, ref: 'User', default: null },
     challengerProgress: { type: challengeProgressSchema, default: () => ({}) },
     opponentProgress: { type: challengeProgressSchema, default: () => ({}) },
   },
@@ -74,6 +92,13 @@ const trackerClanChallengeSchema = new Schema(
 
 trackerClanChallengeSchema.index({ trackerId: 1, status: 1, createdAt: -1 });
 trackerClanChallengeSchema.index({ challengerId: 1, opponentId: 1, status: 1 });
+trackerClanChallengeSchema.index(
+  { participantIds: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { status: 'active', participantIds: { $exists: true } },
+  }
+);
 
 export type TrackerClanChallengeDocument = InferSchemaType<
   typeof trackerClanChallengeSchema

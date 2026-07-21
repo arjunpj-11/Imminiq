@@ -6,6 +6,7 @@ import { MockTestModel } from '../../../../../infrastructure/database/models/moc
 import { MockTestQuestionIssueModel } from '../../../../../infrastructure/database/models/mock-test-question-issue.model';
 import { MockTestQuestionModel } from '../../../../../infrastructure/database/models/mock-test-question.model';
 import { MockTestQuestionVersionModel } from '../../../../../infrastructure/database/models/mock-test-question-version.model';
+import { QuestionBankModel } from '../../../../../infrastructure/database/models/question-bank.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
 import { ActivityLog } from '../../../../../infrastructure/database/models/activity-log.model';
 import type { AdminActor, AdminListQuery } from '../../../../../shared/admin';
@@ -26,6 +27,17 @@ type PopulatedUser = {
 
 const displayName = (user?: PopulatedUser | null) =>
   user?.fullName ?? user?.username ?? 'Unknown';
+
+const legacyQuestionKey = (question: {
+  type?: string;
+  question?: string;
+  correctAnswer?: string | null;
+}) =>
+  JSON.stringify([
+    question.type ?? '',
+    question.question?.trim() ?? '',
+    question.correctAnswer?.trim() ?? '',
+  ]);
 
 export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository {
   async list(query: AdminListQuery) {
@@ -168,6 +180,50 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
       ]);
     if (!test) return null;
 
+    const legacyQuestions = questions.filter((question) => question.bankId == null);
+    const resolvedLegacyBankIds = new Map<string, number>();
+    if (legacyQuestions.length) {
+      const bankCandidates = await QuestionBankModel.find({
+        question: { $in: [...new Set(legacyQuestions.map((question) => question.question))] },
+      })
+        .select('bankId type question correctAnswer')
+        .lean();
+      const candidatesByKey = new Map<string, number[]>();
+      for (const candidate of bankCandidates) {
+        const key = legacyQuestionKey(candidate);
+        candidatesByKey.set(key, [...(candidatesByKey.get(key) ?? []), candidate.bankId]);
+      }
+      for (const question of legacyQuestions) {
+        const candidates = candidatesByKey.get(legacyQuestionKey(question));
+        if (candidates?.length === 1) {
+          resolvedLegacyBankIds.set(String(question._id), candidates[0]);
+        }
+      }
+      if (resolvedLegacyBankIds.size) {
+        await MockTestQuestionModel.bulkWrite(
+          [...resolvedLegacyBankIds].map(([questionId, bankId]) => ({
+            updateOne: {
+              filter: { _id: questionId, bankId: null },
+              update: { $set: { bankId } },
+            },
+          }))
+        );
+      }
+    }
+
+    const questionBankIds = questions.flatMap((question) => {
+      const bankId = question.bankId ?? resolvedLegacyBankIds.get(String(question._id));
+      return bankId == null ? [] : [bankId];
+    });
+    const questionBankRows = questionBankIds.length
+      ? await QuestionBankModel.find({ bankId: { $in: [...new Set(questionBankIds)] } })
+          .select('bankId deletedAt')
+          .lean()
+      : [];
+    const questionBankStatusById = new Map<number, 'active' | 'disabled'>(
+      questionBankRows.map((row) => [row.bankId, row.deletedAt ? 'disabled' : 'active'])
+    );
+
     const owner = test.ownerId as unknown as PopulatedUser;
     const issueByQuestion = new Map(
       questionIssues.map((item) => [String(item._id), item] as const)
@@ -204,8 +260,13 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
         const issues = issueByQuestion.get(String(question._id));
         const answers = answerByQuestion.get(String(question._id));
         const answerCount = answers?.answerCount ?? 0;
+        const bankId = question.bankId ?? resolvedLegacyBankIds.get(String(question._id));
         return {
           id: String(question._id),
+          ...(bankId == null ? {} : { bankId }),
+          ...(bankId != null && questionBankStatusById.has(bankId)
+            ? { questionBankStatus: questionBankStatusById.get(bankId) }
+            : {}),
           order: question.order,
           type: question.type,
           question: question.question,

@@ -119,6 +119,12 @@ const mockTestCodingSchema = new Schema(
 
 const mockTestQuestionSchema = new Schema(
   {
+    bankId: {
+      type: Number,
+      default: undefined,
+      index: true,
+    },
+
     testId: {
       type: Schema.Types.ObjectId,
       ref: 'MockTest',

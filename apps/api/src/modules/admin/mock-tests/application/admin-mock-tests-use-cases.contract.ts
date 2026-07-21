@@ -5,6 +5,7 @@ import type { IUpdateAdminMockTestLifecycleUseCase } from './use-cases/update-ad
 import type { IUpdateAdminMockTestQuestionIssueUseCase } from './use-cases/update-admin-mock-test-question-issue.usecase';
 import type { IAdminMockTestQuestionVersionService } from './admin-mock-test-question-version.service';
 import type { IAdminContentAppealService, IAdminExportService } from '../../../../shared/admin';
+import type { IAdminQuestionBankService } from './admin-question-bank.service';
 
 export type AdminMockTestsUseCases = {
   exports: IAdminExportService;
@@ -15,4 +16,5 @@ export type AdminMockTestsUseCases = {
   updateQuestionIssue: IUpdateAdminMockTestQuestionIssueUseCase;
   updateLifecycle: IUpdateAdminMockTestLifecycleUseCase;
   questionVersions: IAdminMockTestQuestionVersionService;
+  questionBank: IAdminQuestionBankService;
 };

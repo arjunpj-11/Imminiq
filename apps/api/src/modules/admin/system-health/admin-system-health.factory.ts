@@ -2,11 +2,15 @@ import type { AdminSystemHealthUseCases } from './application/admin-system-healt
 import { GetAdminSystemHealthUseCase } from './application/use-cases/get-admin-system-health.usecase';
 import { runtimeAdminSystemHealthRepository } from './infrastructure/repositories/runtime-admin-system-health.repository';
 import { AdminSystemHealthMapper } from './application/admin-system-health.mapper';
+import { bullMqAdminJobWorklistService } from './infrastructure/services/bullmq-admin-job-worklist.service';
 export type AdminSystemHealthComposition = { useCases: AdminSystemHealthUseCases };
 
 export const createAdminSystemHealthComposition = (): AdminSystemHealthComposition => {
   const mapper = new AdminSystemHealthMapper();
   return {
-    useCases: { get: new GetAdminSystemHealthUseCase(runtimeAdminSystemHealthRepository, mapper) },
+    useCases: {
+      get: new GetAdminSystemHealthUseCase(runtimeAdminSystemHealthRepository, mapper),
+      jobs: bullMqAdminJobWorklistService,
+    },
   };
 };

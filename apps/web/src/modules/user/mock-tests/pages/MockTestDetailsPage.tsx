@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import SkeletonBlock from '../../../../components/feedback/SkeletonBlock';
 import { ContentModerationAppealPanel } from '../../../../components/moderation/ContentModerationAppealPanel';
 
 import { useMockTestDetails, useStartMockTestAttempt } from '../hooks/useMockTests';
@@ -42,14 +43,25 @@ export default function MockTestDetailsPage() {
   if (detailsQuery.isLoading) {
     return (
       <PageShell>
-        <div className="h-72 animate-pulse rounded-2xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)" />
+        <section className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-7 shadow-(--shadow-1) max-[640px]:p-5">
+          <SkeletonBlock className="h-3 w-56" />
+          <SkeletonBlock className="mt-4 h-11 w-[min(38rem,88%)] rounded-xl max-[640px]:h-9" />
+          <SkeletonBlock className="mt-4 h-4 w-full" />
+          <SkeletonBlock className="mt-2 h-4 w-4/5" />
+          <div className="mt-5 flex flex-wrap gap-2"><SkeletonBlock className="h-7 w-24 rounded-full" /><SkeletonBlock className="h-7 w-28 rounded-full" /><SkeletonBlock className="h-7 w-20 rounded-full" /></div>
+          <SkeletonBlock className="mt-6 h-12 w-32 rounded-md max-[480px]:w-full" />
+        </section>
 
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               key={index}
-              className="h-24 animate-pulse rounded-2xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)"
-            />
+              className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-4 shadow-(--shadow-1)"
+            >
+              <SkeletonBlock className="h-3 w-40" />
+              <SkeletonBlock className="mt-3 h-5 w-[min(36rem,84%)]" />
+              <div className="mt-3 grid gap-2 sm:grid-cols-2"><SkeletonBlock className="h-10 w-full rounded-md" /><SkeletonBlock className="h-10 w-full rounded-md" /><SkeletonBlock className="h-10 w-full rounded-md" /><SkeletonBlock className="h-10 w-full rounded-md" /></div>
+            </div>
           ))}
         </div>
       </PageShell>

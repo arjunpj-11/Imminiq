@@ -171,7 +171,8 @@ export const createAuthComposition = (): AuthComposition => {
         retiredRefreshTokenStore,
         auditLogger,
         authAccountPolicy,
-        sha256RefreshTokenHasher
+        sha256RefreshTokenHasher,
+        authUserMapper
       ),
 
       getCurrentUser: new GetCurrentUserUseCase(authRepository, authAccountPolicy, authUserMapper),

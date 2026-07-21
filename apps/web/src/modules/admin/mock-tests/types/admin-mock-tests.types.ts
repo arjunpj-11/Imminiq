@@ -15,8 +15,39 @@ export type AdminMockTest = {
   openReportCount: number;
   flagCount: number;
 };
+
+export type AdminQuestionBankItem = {
+  id: string;
+  bankId: number;
+  topic: string;
+  type: string;
+  question: string;
+  difficulty: string;
+  points: number;
+  usageCount: number;
+  createdAt: string;
+};
+export type AdminQuestionBankDetail = AdminQuestionBankItem & {
+  options?: string[];
+  correctAnswer?: string;
+  explanation?: string;
+  coding?: {
+    functionName?: string;
+    language?: string;
+    starterCode?: string;
+    testCases?: Array<{ input?: unknown; expectedOutput?: unknown; isHidden?: boolean }>;
+  };
+  attemptCount: number;
+  uniqueLearnerCount: number;
+  correctCount: number;
+  incorrectCount: number;
+  pendingEvaluationCount: number;
+  flagCount: number;
+};
 export type AdminMockTestQuestion = {
   id: string;
+  bankId?: number;
+  questionBankStatus?: "active" | "disabled";
   order: number;
   type: string;
   question: string;
@@ -27,7 +58,6 @@ export type AdminMockTestQuestion = {
   points: number;
   moderationStatus: "active" | "disabled";
   moderationReason?: string;
-  version: number;
   reportCount: number;
   openReportCount: number;
   flagCount: number;
@@ -123,15 +153,4 @@ export type AdminMockTestIssueUpdatePayload = {
   correctedPoints?: number;
   correctedCoding?: Record<string, unknown>;
   actionPassword?: string;
-};
-
-export type AdminMockTestQuestionVersion = {
-  id: string;
-  questionId: string;
-  testId: string;
-  version: number;
-  snapshot: Record<string, unknown>;
-  changedBy: string;
-  reason: string;
-  createdAt: string;
 };

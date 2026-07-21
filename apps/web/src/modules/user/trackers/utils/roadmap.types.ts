@@ -7,8 +7,6 @@ export type RoadmapNode = {
   order: number;
   status?: string;
   progressPercent?: number;
-  estimatedMinutes?: number;
-  estimatedHours?: number;
   isLocked?: boolean;
   learningVideo?: ILearningVideo | null;
   children: RoadmapNode[];

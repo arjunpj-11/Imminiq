@@ -383,7 +383,6 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
         description: topic.description ?? '',
         order: topic.order,
         status: topic.order === 1 ? 'active' : (topic.status ?? 'locked'),
-        estimatedHours: topic.estimatedHours ?? 0,
         learningVideo: topic.learningVideo ?? null,
         progressPercent: 0,
         deletedAt: null,
@@ -423,7 +422,6 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
         order: subtopic.order,
         depth: subtopic.depth,
         isLocked: subtopic.depth === 1 ? false : Boolean(subtopic.isLocked),
-        estimatedMinutes: subtopic.estimatedMinutes ?? 0,
         learningVideo: subtopic.learningVideo ?? null,
         deletedAt: null,
       });

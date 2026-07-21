@@ -161,7 +161,6 @@ export interface ICommunityPublicTrackerSubtopic {
   order: number;
   depth: number;
   isLocked: boolean;
-  estimatedMinutes: number;
 }
 
 export interface ICommunityPublicTrackerTopic {
@@ -170,7 +169,6 @@ export interface ICommunityPublicTrackerTopic {
   description: string;
   order: number;
   status: string;
-  estimatedHours: number;
   subtopics: ICommunityPublicTrackerSubtopic[];
 }
 
@@ -274,7 +272,6 @@ export interface ICommunityVerificationReviewSubtopic {
   order: number;
   depth: number;
   isLocked: boolean;
-  estimatedMinutes: number;
 }
 
 export interface ICommunityVerificationReviewTopic {
@@ -283,7 +280,6 @@ export interface ICommunityVerificationReviewTopic {
   description: string;
   order: number;
   status: string;
-  estimatedHours: number;
   subtopics: ICommunityVerificationReviewSubtopic[];
 }
 

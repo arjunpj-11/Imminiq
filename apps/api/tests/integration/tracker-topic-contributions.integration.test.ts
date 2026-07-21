@@ -7,6 +7,7 @@ import { TrackerLesson } from '../../src/infrastructure/database/models/tracker-
 import { TrackerSubtopic } from '../../src/infrastructure/database/models/tracker-subtopic.model';
 import { TrackerTopic } from '../../src/infrastructure/database/models/tracker-topic.model';
 import { TrackerTopicContribution } from '../../src/infrastructure/database/models/tracker-topic-contribution.model';
+import { TrackerClan } from '../../src/infrastructure/database/models/tracker-clan.model';
 import { TrackerClanMessage } from '../../src/infrastructure/database/models/tracker-clan-message.model';
 import { User } from '../../src/infrastructure/database/models/user.model';
 import { MongoTrackerTopicContributionRepository } from '../../src/modules/user/trackers/infrastructure/repositories/mongo-tracker-topic-contribution.repository';
@@ -30,6 +31,44 @@ describe('tracker topic contributions', () => {
   afterAll(async () => {
     await mongoose.disconnect();
     await mongo.stop();
+  });
+
+  it('creates clan data only after publication and removes it on unpublish', async () => {
+    const owner = await User.create({
+      fullName: 'Private Tracker Owner',
+      username: 'private-tracker-owner',
+      passwordHash: null,
+      emailVerified: true,
+    });
+    const tracker = await Tracker.create({
+      ownerId: owner._id,
+      title: 'Private Systems Roadmap',
+      slug: 'private-systems-roadmap',
+      visibility: 'private',
+      status: 'active',
+      publishedAt: null,
+    });
+    const clans = new MongoTrackerClanRepository({ ensureClone: async () => true });
+    const management = new MongoTrackerManagementRepository();
+    const access = { trackerId: tracker.id, userId: owner.id };
+
+    await expect(clans.getOverview(access)).resolves.toBeNull();
+    await expect(TrackerClan.countDocuments({ trackerId: tracker._id })).resolves.toBe(0);
+
+    await management.publishOwnedTracker(access);
+    await expect(clans.getOverview(access)).resolves.toMatchObject({ role: 'owner' });
+    await expect(TrackerClan.countDocuments({ trackerId: tracker._id })).resolves.toBe(1);
+
+    await TrackerClanMessage.create({
+      trackerId: tracker._id,
+      userId: owner._id,
+      text: 'Published tracker guild message',
+    });
+    await management.unpublishOwnedTracker(access);
+
+    await expect(TrackerClan.countDocuments({ trackerId: tracker._id })).resolves.toBe(0);
+    await expect(TrackerClanMessage.countDocuments({ trackerId: tracker._id })).resolves.toBe(0);
+    await expect(clans.getOverview(access)).resolves.toBeNull();
   });
 
   it('snapshots a cloned topic and merges its nested subtopics after owner approval', async () => {
@@ -664,6 +703,130 @@ describe('tracker topic contributions', () => {
         userId: member._id.toString(),
       })
     ).resolves.toMatchObject({ status: 'declined' });
+
+    const memberInvitation = await clans.createChallenge({
+      trackerId: tracker._id.toString(),
+      challengerId: member._id.toString(),
+      opponentId: owner._id.toString(),
+      durationMinutes: 10,
+      questionCount: 5,
+      questions: Array.from({ length: 10 }, (_, index) => ({
+        prompt: `Member invitation question ${index + 1}`,
+        options: ['A', 'B', 'C', 'D'],
+        correctAnswer: 'A',
+        topicTitle: 'Retained topic',
+        points: 1,
+        isCheckpoint: false,
+      })),
+    });
+    const raceInvitation = await clans.createChallenge({
+      trackerId: tracker._id.toString(),
+      challengerId: owner._id.toString(),
+      durationMinutes: 10,
+      questionCount: 10,
+      questions: Array.from({ length: 20 }, (_, index) => ({
+        prompt: `Race question ${index + 1}`,
+        options: ['A', 'B', 'C', 'D'],
+        correctAnswer: 'A',
+        topicTitle: 'Retained topic',
+        points: 1,
+        isCheckpoint: false,
+      })),
+    });
+    let race = await clans.acceptChallenge({
+      trackerId: tracker._id.toString(),
+      challengeId: raceInvitation!.id,
+      userId: member._id.toString(),
+    });
+    expect(race).toMatchObject({
+      status: 'active',
+      totalNodes: 10,
+      questionsRemaining: 20,
+    });
+    const cancelledInvitation = (await clans.listChallenges({
+      trackerId: tracker._id.toString(),
+      userId: member._id.toString(),
+    }))?.find((challenge) => challenge.id === memberInvitation!.id);
+    expect(cancelledInvitation?.status).toBe('cancelled');
+
+    const firstQuestionId = race!.questions[0]!.id;
+    race = await clans.answerChallengeNode({
+      trackerId: tracker._id.toString(),
+      challengeId: raceInvitation!.id,
+      userId: member._id.toString(),
+      questionId: firstQuestionId,
+      answer: 'B',
+    });
+    expect(race).toMatchObject({ viewerPosition: 0, questionsRemaining: 19, lastAnswerCorrect: false });
+    expect(race!.questions[0]!.id).not.toBe(firstQuestionId);
+
+    for (let index = 0; index < 4; index += 1) {
+      race = await clans.answerChallengeNode({
+        trackerId: tracker._id.toString(),
+        challengeId: raceInvitation!.id,
+        userId: member._id.toString(),
+        questionId: race!.questions[0]!.id,
+        answer: 'A',
+      });
+    }
+    expect(race).toMatchObject({ viewerPosition: 4, checkpointDecisionRequired: true });
+    race = await clans.chooseChallengeCheckpoint({
+      trackerId: tracker._id.toString(),
+      challengeId: raceInvitation!.id,
+      userId: member._id.toString(),
+      decision: 'attempt',
+    });
+    const checkpointQuestionId = race!.questions[0]!.id;
+    expect(race!.questions[0]!.isCheckpoint).toBe(true);
+    race = await clans.answerChallengeNode({
+      trackerId: tracker._id.toString(),
+      challengeId: raceInvitation!.id,
+      userId: member._id.toString(),
+      questionId: checkpointQuestionId,
+      answer: 'B',
+    });
+    expect(race).toMatchObject({ viewerPosition: 1, lastAnswerCorrect: false });
+    await expect(clans.answerChallengeNode({
+      trackerId: tracker._id.toString(),
+      challengeId: raceInvitation!.id,
+      userId: member._id.toString(),
+      questionId: checkpointQuestionId,
+      answer: 'A',
+    })).resolves.toBeNull();
+    await expect(clans.getActiveChallenge(member._id.toString())).resolves.toMatchObject({
+      id: raceInvitation!.id,
+    });
+    await expect(clans.quitChallenge({
+      trackerId: tracker._id.toString(),
+      challengeId: raceInvitation!.id,
+      userId: member._id.toString(),
+    })).resolves.toMatchObject({
+      status: 'completed',
+      winnerId: owner._id.toString(),
+      quitById: member._id.toString(),
+    });
+    const raceHistory = await clans.getChallengeHistory({
+      trackerId: tracker._id.toString(),
+      challengeId: raceInvitation!.id,
+      userId: member._id.toString(),
+    });
+    const memberHistory = raceHistory?.players.find(
+      (player) => player.user.userId === member._id.toString()
+    );
+    expect(memberHistory?.answers).toHaveLength(6);
+    expect(memberHistory?.answers[0]).toMatchObject({
+      answer: 'B',
+      correctAnswer: 'A',
+      isCorrect: false,
+      positionBefore: 0,
+      positionAfter: 0,
+    });
+    expect(memberHistory?.answers.at(-1)).toMatchObject({
+      isCheckpoint: true,
+      isCorrect: false,
+      positionBefore: 4,
+      positionAfter: 1,
+    });
 
     const transferred = await clans.transferOwnership({
       trackerId: tracker._id.toString(),

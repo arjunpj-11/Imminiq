@@ -4,9 +4,10 @@ import type { IAuthUserRepository } from '../../domain/repositories/auth-user.re
 import type { IAuthToken } from '../../domain/services/auth-token.interface';
 import type { IRetiredRefreshTokenStore } from '../../domain/services/retired-refresh-token-store.interface';
 import type { IAuthSecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
-import type { RequestMetaDTO, TokenPairDTO } from '../auth.dto';
+import type { RefreshedAuthSessionDTO, RequestMetaDTO } from '../auth.dto';
 import type { IAuthAccountPolicy } from '../auth-account-policy.policy';
 import type { IRefreshTokenHasher } from '../../../../shared/security/refresh-token-hasher.interface';
+import type { IAuthUserMapper } from '../auth-user.mapper';
 
 type RefreshTokensRepository = Pick<IAuthUserRepository, 'findById'> &
   Pick<
@@ -15,7 +16,7 @@ type RefreshTokensRepository = Pick<IAuthUserRepository, 'findById'> &
   >;
 
 export interface IRefreshAuthTokensUseCase {
-  execute(refreshToken: string, meta?: RequestMetaDTO): Promise<TokenPairDTO>;
+  execute(refreshToken: string, meta?: RequestMetaDTO): Promise<RefreshedAuthSessionDTO>;
 }
 
 export class RefreshAuthTokensUseCase implements IRefreshAuthTokensUseCase {
@@ -25,10 +26,11 @@ export class RefreshAuthTokensUseCase implements IRefreshAuthTokensUseCase {
     private readonly _retiredRefreshTokenStore: IRetiredRefreshTokenStore,
     private readonly _authSecurityAuditLogger: IAuthSecurityAuditLogger,
     private readonly _authAccountPolicy: IAuthAccountPolicy,
-    private readonly _refreshTokenHasher: IRefreshTokenHasher
+    private readonly _refreshTokenHasher: IRefreshTokenHasher,
+    private readonly _authUserMapper: IAuthUserMapper
   ) {}
 
-  async execute(refreshToken: string, meta?: RequestMetaDTO): Promise<TokenPairDTO> {
+  async execute(refreshToken: string, meta?: RequestMetaDTO): Promise<RefreshedAuthSessionDTO> {
     const refreshTokenHash = this._refreshTokenHasher.hash(refreshToken);
 
     const tokenRecord = await this._authRepository.findSessionByRefreshTokenHash(refreshTokenHash);
@@ -80,6 +82,7 @@ export class RefreshAuthTokensUseCase implements IRefreshAuthTokensUseCase {
 
     const rotatedSession = await this._authRepository.rotateRefreshTokenInSameSession({
       sessionId: tokenRecord.id,
+      currentRefreshTokenHash: refreshTokenHash,
       newRefreshTokenHash,
       meta,
     });
@@ -91,6 +94,7 @@ export class RefreshAuthTokensUseCase implements IRefreshAuthTokensUseCase {
     return {
       accessToken,
       refreshToken: newRefreshToken,
+      user: this._authUserMapper.toAuthUser(user),
     };
   }
 }

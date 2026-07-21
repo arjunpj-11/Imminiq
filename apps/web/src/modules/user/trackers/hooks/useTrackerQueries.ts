@@ -21,6 +21,7 @@ import type {
   ITrackerClanOverview,
   ITrackerClanMessage,
   ITrackerClanChallenge,
+  ITrackerClanChallengeHistory,
 } from '../types/tracker.types';
 import { trackerKeys } from './trackers.query-keys';
 
@@ -83,10 +84,10 @@ export const useTrackerDetails = (trackerId?: string) => {
   });
 };
 
-export const useTrackerRoadmap = (trackerId?: string) => {
+export const useTrackerRoadmap = (trackerId?: string, enabled = true) => {
   return useQuery({
     queryKey: trackerKeys.roadmap(trackerId || ''),
-    enabled: Boolean(trackerId),
+    enabled: Boolean(trackerId) && enabled,
     refetchOnWindowFocus: true,
 
     queryFn: async () => {
@@ -150,10 +151,57 @@ export const useTrackerClanChallenges = (trackerId?: string, enabled = true) =>
     },
   });
 
-export const useTrackerLesson = (trackerId?: string, subtopicId?: string) => {
+export const useTrackerClanChallenge = (
+  trackerId?: string,
+  challengeId?: string,
+  enabled = true
+) =>
+  useQuery({
+    queryKey: trackerKeys.clanChallenge(trackerId || '', challengeId || ''),
+    enabled: Boolean(trackerId && challengeId) && enabled,
+    refetchInterval: 10_000,
+    queryFn: async () => {
+      const response = await api.get<IApiResponse<ITrackerClanChallenge>>(
+        TRACKER_API_PATHS.clanChallenge(trackerId || '', challengeId || '')
+      );
+      return unwrap(response.data);
+    },
+  });
+
+export const useTrackerClanChallengeHistory = (
+  trackerId?: string,
+  challengeId?: string,
+  enabled = true
+) =>
+  useQuery({
+    queryKey: trackerKeys.clanChallengeHistory(trackerId || '', challengeId || ''),
+    enabled: Boolean(trackerId && challengeId) && enabled,
+    queryFn: async () => {
+      const response = await api.get<IApiResponse<ITrackerClanChallengeHistory>>(
+        TRACKER_API_PATHS.clanChallengeHistory(trackerId || '', challengeId || '')
+      );
+      return unwrap(response.data);
+    },
+  });
+
+export const useActiveTrackerClanChallenge = (enabled = true) =>
+  useQuery({
+    queryKey: trackerKeys.activeClanChallenge(),
+    enabled,
+    refetchInterval: 10_000,
+    refetchOnWindowFocus: true,
+    queryFn: async () => {
+      const response = await api.get<IApiResponse<ITrackerClanChallenge | null>>(
+        TRACKER_API_PATHS.activeClanChallenge
+      );
+      return unwrap(response.data);
+    },
+  });
+
+export const useTrackerLesson = (trackerId?: string, subtopicId?: string, enabled = true) => {
   return useQuery({
     queryKey: trackerKeys.lesson(trackerId || '', subtopicId || ''),
-    enabled: Boolean(trackerId && subtopicId),
+    enabled: Boolean(trackerId && subtopicId) && enabled,
 
     queryFn: async () => {
       const response = await api.get<IApiResponse<ITrackerLessonResponse>>(

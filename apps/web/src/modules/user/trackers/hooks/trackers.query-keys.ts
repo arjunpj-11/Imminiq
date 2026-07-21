@@ -12,6 +12,11 @@ export const trackerKeys = {
   clan: (trackerId: string) => [...trackerKeys.detail(trackerId), 'clan'] as const,
   clanMessages: (trackerId: string) => [...trackerKeys.clan(trackerId), 'messages'] as const,
   clanChallenges: (trackerId: string) => [...trackerKeys.clan(trackerId), 'challenges'] as const,
+  clanChallenge: (trackerId: string, challengeId: string) =>
+    [...trackerKeys.clanChallenges(trackerId), challengeId] as const,
+  clanChallengeHistory: (trackerId: string, challengeId: string) =>
+    [...trackerKeys.clanChallenge(trackerId, challengeId), 'history'] as const,
+  activeClanChallenge: () => [...trackerKeys.all, 'active-clan-challenge'] as const,
   contributions: (trackerId: string) =>
     [...trackerKeys.detail(trackerId), 'topic-contributions'] as const,
   lesson: (trackerId: string, subtopicId: string) =>

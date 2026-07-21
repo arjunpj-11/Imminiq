@@ -63,6 +63,8 @@ export interface ITrackerQueryRepository {
 
   findOwnedTrackerById(data: FindOwnedTrackerByIdInput): Promise<TrackerRecord | null>;
 
+  findOwnedTrackerForDisplayById(data: FindOwnedTrackerByIdInput): Promise<TrackerRecord | null>;
+
   getTopicsForTracker(trackerId: string): Promise<TrackerTopicRecord[]>;
 
   getTopicsWithUserProgress(

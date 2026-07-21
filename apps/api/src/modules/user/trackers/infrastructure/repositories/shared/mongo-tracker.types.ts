@@ -44,7 +44,6 @@ export type MongoSubtopicContentRecord = {
   order: number;
   depth: number;
   isLocked?: boolean;
-  estimatedMinutes?: number;
   learningVideo?: LearningVideoRecord | null;
 };
 

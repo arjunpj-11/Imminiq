@@ -52,6 +52,10 @@ Your task:
 - Reject it if it is off-topic for the parent topic, too vague, a clear duplicate of an existing subtopic, or does not add learning value.
 - Approve it if it is a relevant, distinct, and meaningful lesson that fits logically under the parent topic.
 - Be practical: minor wording differences from existing subtopics are fine if the learning content is clearly distinct.
+- If approved and the new subtopic benefits from being broken down, suggest 1-4 narrower child subtopics.
+- Child suggestions may contain one more useful nested level, but do not create filler or repeat existing lessons.
+- It is valid to return no suggestions when the submitted subtopic is already atomic.
+- If rejected, return an empty suggestedSubtopics array.
 
 Return ONLY valid JSON using this exact structure:
 
@@ -59,7 +63,14 @@ Return ONLY valid JSON using this exact structure:
   "verified": true,
   "message": "Short explanation of why this subtopic was approved or rejected.",
   "polishedTitle": "Fix obvious typos only. Otherwise return the title exactly as given.",
-  "polishedDescription": "One clear sentence describing what the learner will understand or practice in this subtopic."
+  "polishedDescription": "One clear sentence describing what the learner will understand or practice in this subtopic.",
+  "suggestedSubtopics": [
+    {
+      "title": "A narrower child lesson",
+      "description": "One sentence explaining what is learned.",
+      "subtopics": []
+    }
+  ]
 }
 `.trim();
 };

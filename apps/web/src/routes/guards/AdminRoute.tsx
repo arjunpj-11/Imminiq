@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
-import { RouteSkeleton } from '../../components/feedback/RouteSkeleton';
+import AuthLoadingScreen from '../../components/feedback/AuthLoadingScreen';
 import { useAuthStore } from '../../store/useAuthStore';
 import { ROUTES } from '../config/route-paths';
 
@@ -14,7 +14,7 @@ export function AdminRoute({ children }: IAdminRouteProps) {
   const authReady = useAuthStore((state) => state.authReady);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  if (!authReady) return <RouteSkeleton withChrome />;
+  if (!authReady && (!user || !isAuthenticated)) return <AuthLoadingScreen />;
   if (!isAuthenticated || !user) return <Navigate to={ROUTES.login} replace />;
 
   if (

@@ -5,7 +5,10 @@ import { User } from '../../../../../../infrastructure/database/models/user.mode
 import { TrackerReport } from '../../../../../../infrastructure/database/models/tracker-report.model';
 import { TrackerVersion } from '../../../../../../infrastructure/database/models/tracker-version.model';
 import { TrackerClan } from '../../../../../../infrastructure/database/models/tracker-clan.model';
+import { TrackerClanChallenge } from '../../../../../../infrastructure/database/models/tracker-clan-challenge.model';
+import { TrackerClanMessage } from '../../../../../../infrastructure/database/models/tracker-clan-message.model';
 import { TrackerTopicContribution } from '../../../../../../infrastructure/database/models/tracker-topic-contribution.model';
+import { Types } from 'mongoose';
 import type {
   ArchiveOwnedTrackerInput,
   FindOwnedTrackerByIdInput,
@@ -24,6 +27,7 @@ import { MongoTrackerBaseRepository } from '../shared/mongo-tracker-base.reposit
 import { MongoTrackerErrorMapper } from '../shared/mongo-tracker-error.mapper';
 import { MongoTrackerMapper } from '../shared/mongo-tracker.mapper';
 import type { MongoQuery, MongoUpdate } from '../shared/mongo-tracker.types';
+import { createUniqueTrackerSlug } from '../shared/tracker-slug';
 
 export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository {
   constructor(protected readonly mapper = new MongoTrackerMapper()) {
@@ -141,28 +145,32 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
       'Failed to read tracker summary',
       async () => {
         const ownerId = this.mapper.toObjectId(userId);
-        const base: MongoQuery = {
+        const ownedBase: MongoQuery = {
           ownerId,
           deletedAt: null,
         };
+        const activeBase: MongoQuery = {
+          ...ownedBase,
+          moderationStatus: { $in: ['active', null] },
+        };
 
         const [total, active, completed, published, progressAgg] = await Promise.all([
-          Tracker.countDocuments(this.mapper.asMongoFilter(base)),
+          Tracker.countDocuments(this.mapper.asMongoFilter(ownedBase)),
           Tracker.countDocuments(
             this.mapper.asMongoFilter({
-              ...base,
+              ...activeBase,
               status: 'active',
             })
           ),
           Tracker.countDocuments(
             this.mapper.asMongoFilter({
-              ...base,
+              ...activeBase,
               status: 'completed',
             })
           ),
           Tracker.countDocuments(
             this.mapper.asMongoFilter({
-              ...base,
+              ...activeBase,
               visibility: 'public',
               publishedAt: {
                 $ne: null,
@@ -171,7 +179,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           ),
           Tracker.aggregate<{ avg?: number }>([
             {
-              $match: base,
+              $match: activeBase,
             },
             {
               $group: {
@@ -387,10 +395,14 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
       'TRACKER_CREATE_FAILED',
       'Failed to create tracker',
       async () => {
+        const trackerId = new Types.ObjectId();
+        const slug = createUniqueTrackerSlug(data.title, trackerId.toHexString());
         const tracker = await Tracker.create(
           this.mapper.asMongoCreatePayload({
+            _id: trackerId,
             ownerId: this.mapper.toObjectId(data.userId),
             title: data.title,
+            slug,
             description: data.description || '',
             domain: data.domain || 'other',
             goal: data.goal || '',
@@ -511,18 +523,21 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
       );
 
       if (tracker) {
-        await CommunityVerificationSubmission.updateMany(
-          {
-            trackerId: tracker._id,
-            deletedAt: null,
-          },
-          {
-            $set: {
-              status: 'closed',
-              deletedAt,
+        await Promise.all([
+          CommunityVerificationSubmission.updateMany(
+            {
+              trackerId: tracker._id,
+              deletedAt: null,
             },
-          }
-        );
+            {
+              $set: {
+                status: 'closed',
+                deletedAt,
+              },
+            }
+          ),
+          this.deleteClanData(tracker._id),
+        ]);
       }
 
       return tracker as TrackerRecord | null;
@@ -543,6 +558,23 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           ...(coOwner ? {} : { ownerId: userId }),
           deletedAt: null,
           moderationStatus: { $in: ['active', null] },
+        })
+      ).lean();
+
+      if (!tracker) return null;
+      const [trackerWithSource] = await this.enrichCloneSources([
+        tracker as unknown as TrackerRecord,
+      ]);
+      return trackerWithSource ?? null;
+    });
+  }
+
+  async findOwnedTrackerForDisplayById(data: FindOwnedTrackerByIdInput) {
+    return this.execute('TRACKER_READ_FAILED', 'Failed to read owned tracker status', async () => {
+      const tracker = await Tracker.findOne(
+        this.mapper.asMongoFilter({
+          _id: this.mapper.toObjectId(data.trackerId),
+          ownerId: this.mapper.toObjectId(data.userId),
         })
       ).lean();
 
@@ -680,8 +712,19 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
         }
       );
 
+      if (tracker) await this.deleteClanData(tracker._id);
+
       return tracker as TrackerRecord | null;
     });
+  }
+
+  private async deleteClanData(trackerId: Types.ObjectId) {
+    await Promise.all([
+      TrackerClan.deleteOne({ trackerId }),
+      TrackerClanMessage.deleteMany({ trackerId }),
+      TrackerClanChallenge.deleteMany({ trackerId }),
+      TrackerTopicContribution.deleteMany({ sourceTrackerId: trackerId }),
+    ]);
   }
 
   private async enrichCloneSources(trackers: TrackerRecord[]): Promise<TrackerRecord[]> {

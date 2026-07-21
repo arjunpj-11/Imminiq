@@ -91,6 +91,7 @@ export class MongoMockTestsMapper {
 
   toMockTestQuestionEntity(doc: RawMockTestQuestionDoc): MockTestQuestionEntity {
     return new MockTestQuestionEntity({
+      bankId: doc.bankId,
       _id: this.toId(doc._id),
       testId: this.toId(doc.testId),
       type: doc.type || 'mcq',

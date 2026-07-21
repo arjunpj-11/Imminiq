@@ -9,6 +9,7 @@ import { ClearLessonChatHistoryUseCase } from './application/use-cases/clear-les
 import { ClearLessonQuestionSolutionDoubtsUseCase } from './application/use-cases/clear-lesson-question-solution-doubts.usecase';
 import { CreateTrackerSubtopicUseCase } from './application/use-cases/create-tracker-subtopic.usecase';
 import { CreateTrackerTopicUseCase } from './application/use-cases/create-tracker-topic.usecase';
+import { ImportTrackerOutlineUseCase } from './application/use-cases/import-tracker-outline.usecase';
 import { CreateTrackerUseCase } from './application/use-cases/create-tracker.usecase';
 import { CreateTopicContributionUseCase } from './application/use-cases/create-topic-contribution.usecase';
 import { DeleteTrackerUseCase } from './application/use-cases/delete-tracker.usecase';
@@ -152,6 +153,8 @@ export const createTrackerComposition = (
   const missingEvaluationTopicPlacement = new MissingEvaluationTopicPlacementService(
     trackerRepository
   );
+  const createTrackerTopic = new CreateTrackerTopicUseCase(trackerRepository, _trackerMapper);
+  const createTrackerSubtopic = new CreateTrackerSubtopicUseCase(trackerRepository, _trackerMapper);
 
   return {
     useCases: {
@@ -190,9 +193,14 @@ export const createTrackerComposition = (
 
       getTrackerRoadmap: new GetTrackerRoadmapUseCase(trackerRepository, _trackerMapper),
 
-      createTrackerTopic: new CreateTrackerTopicUseCase(trackerRepository, _trackerMapper),
+      createTrackerTopic,
 
-      createTrackerSubtopic: new CreateTrackerSubtopicUseCase(trackerRepository, _trackerMapper),
+      createTrackerSubtopic,
+
+      importTrackerOutline: new ImportTrackerOutlineUseCase(
+        createTrackerTopic,
+        createTrackerSubtopic
+      ),
 
       createTopicContribution: new CreateTopicContributionUseCase(
         mongoTrackerTopicContributionRepository,

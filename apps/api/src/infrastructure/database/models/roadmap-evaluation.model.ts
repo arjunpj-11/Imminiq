@@ -13,7 +13,6 @@ export interface IRoadmapEvaluationMissingTopicDocument {
   title: string;
   priority: MissingTopicPriority;
   description: string;
-  estimatedHours: number;
   readinessImpact: number;
 }
 
@@ -65,12 +64,6 @@ const missingTopicSchema = new Schema<IRoadmapEvaluationMissingTopicDocument>(
       type: String,
       default: '',
       trim: true,
-    },
-
-    estimatedHours: {
-      type: Number,
-      default: 0,
-      min: 0,
     },
 
     readinessImpact: {

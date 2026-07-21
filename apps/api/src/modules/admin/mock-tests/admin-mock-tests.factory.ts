@@ -9,6 +9,7 @@ import { UpdateAdminMockTestQuestionIssueUseCase } from './application/use-cases
 import { bullMqAdminMockTestEmailProvider } from './infrastructure/providers/bullmq-admin-mock-test-email.provider';
 import { AdminMockTestQuestionVersionService } from './application/admin-mock-test-question-version.service';
 import { AdminContentAppealService, AdminExportService } from './infrastructure';
+import { mongoAdminQuestionBankService } from './infrastructure/services/mongo-admin-question-bank.service';
 export type AdminMockTestsComposition = { useCases: AdminMockTestsUseCases };
 
 export const createAdminMockTestsComposition = (): AdminMockTestsComposition => {
@@ -33,6 +34,7 @@ export const createAdminMockTestsComposition = (): AdminMockTestsComposition => 
         bullMqAdminMockTestEmailProvider
       ),
       questionVersions: new AdminMockTestQuestionVersionService(mongoAdminMockTestsRepository),
+      questionBank: mongoAdminQuestionBankService,
     },
   };
 };

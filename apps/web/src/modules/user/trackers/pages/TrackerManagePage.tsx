@@ -7,16 +7,16 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import { AppPageSkeleton } from '../../../../components/feedback/RouteSkeleton';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
-import { ContentModerationAppealPanel } from '../../../../components/moderation/ContentModerationAppealPanel';
+import TrackerModerationNotice from '../components/TrackerModerationNotice';
 import { useUnsavedChangesGuard } from '../../../../hooks/useUnsavedChangesGuard';
 import SubtopicTreeNode from '../components/manage/SubtopicTreeNode';
+import OutlineSuggestionPicker from '../components/manage/OutlineSuggestionPicker';
 import {
   TrackerManageEmptyState as EmptyPanel,
 } from '../components/manage/TrackerManageStates';
 
 import {
-  useCreateTrackerSubtopic,
-  useCreateTrackerTopic,
+  useImportTrackerOutline,
   useCreateTopicContribution,
   useTrackerDetails,
   useTrackerRoadmap,
@@ -42,6 +42,13 @@ import {
   type TrackerRoadmapLike,
   type RoadmapSubtopicNode,
 } from '../utils/tracker-roadmap-normalizers';
+import {
+  allOutlinePaths,
+  parseTrackerOutlineJson,
+  selectedOutline,
+  trackerOutlineExample,
+  type TrackerOutlineNode,
+} from '../utils/tracker-outline';
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
@@ -65,23 +72,34 @@ export default function TrackerManagePage() {
 
   // ── Data queries ──
   const trackerDetailsQuery = useTrackerDetails(trackerId);
-  const roadmapQuery = useTrackerRoadmap(trackerId);
+  const trackerIsModerated = Boolean(
+    trackerDetailsQuery.data?.moderationStatus &&
+      trackerDetailsQuery.data.moderationStatus !== 'active'
+  );
+  const roadmapQuery = useTrackerRoadmap(
+    trackerId,
+    Boolean(trackerDetailsQuery.data && !trackerIsModerated)
+  );
 
   const updateTrackerMutation = useUpdateTracker();
-  const createTopicMutation = useCreateTrackerTopic();
-  const createSubtopicMutation = useCreateTrackerSubtopic();
+  const importOutlineMutation = useImportTrackerOutline();
   const verifyTopicMutation = useVerifyTrackerTopic();
   const verifySubtopicMutation = useVerifyTrackerSubtopic();
   const createContributionMutation = useCreateTopicContribution();
   const updateTopicMutation = useUpdateTrackerTopic();
   const deleteTopicMutation = useDeleteTrackerTopic();
   const deleteSubtopicMutation = useDeleteTrackerSubtopic();
-  const clanQuery = useTrackerClan(trackerId);
 
   const roadmapData = roadmapQuery.data as TrackerRoadmapLike | undefined;
   const tracker = trackerDetailsQuery.data || extractRoadmapTracker(roadmapData);
   const isClonedTracker = Boolean(tracker?.sourceTrackerId);
-  const canDeleteRoadmapContent = !isClonedTracker && Boolean(clanQuery.data?.canManage);
+  const isPublishedTracker =
+    tracker?.visibility === 'public' || Boolean(tracker?.publishedAt);
+  const clanQuery = useTrackerClan(trackerId, Boolean(trackerId && isPublishedTracker));
+  const canManageTracker = isPublishedTracker
+    ? Boolean(clanQuery.data?.canManage)
+    : Boolean(tracker && !isClonedTracker);
+  const canDeleteRoadmapContent = !isClonedTracker && canManageTracker;
   const contributionsQuery = useTrackerTopicContributions(
     trackerId,
     Boolean(tracker && isClonedTracker)
@@ -109,12 +127,22 @@ export default function TrackerManagePage() {
 
   const [newTopicTitle, setNewTopicTitle] = useState('');
   const [newTopicDescription, setNewTopicDescription] = useState('');
+  const [topicSuggestions, setTopicSuggestions] = useState<TrackerOutlineNode[]>([]);
+  const [selectedTopicSuggestionPaths, setSelectedTopicSuggestionPaths] = useState<Set<string>>(
+    () => new Set()
+  );
 
   const [newSubtopicTitle, setNewSubtopicTitle] = useState('');
   const [newSubtopicDescription, setNewSubtopicDescription] = useState('');
   const [newSubtopicDifficulty, setNewSubtopicDifficulty] =
     useState<SubtopicDifficulty>('beginner');
   const [newSubtopicParentId, setNewSubtopicParentId] = useState<string | null>(null);
+  const [subtopicSuggestions, setSubtopicSuggestions] = useState<TrackerOutlineNode[]>([]);
+  const [selectedSubtopicSuggestionPaths, setSelectedSubtopicSuggestionPaths] = useState<Set<string>>(
+    () => new Set()
+  );
+  const [importJson, setImportJson] = useState('');
+  const [showJsonImport, setShowJsonImport] = useState(false);
 
   const [topicVerification, setTopicVerification] = useState<AiVerificationState>({
     status: 'idle',
@@ -136,7 +164,7 @@ export default function TrackerManagePage() {
     [selectedTopicId, topics]
   );
   const canEditActiveTopic = Boolean(
-    clanQuery.data?.canManage &&
+    canManageTracker &&
       activeTopic &&
       (!isClonedTracker || activeTopic.isCloneAddition || !activeTopic.sourceTopicId)
   );
@@ -175,6 +203,7 @@ export default function TrackerManagePage() {
     newTopicDescription.trim() ||
     newSubtopicTitle.trim() ||
     newSubtopicDescription.trim() ||
+    importJson.trim() ||
     newSubtopicParentId ||
     newSubtopicDifficulty !== 'beginner'
   );
@@ -189,13 +218,13 @@ export default function TrackerManagePage() {
   const canAddTopic =
     topicTitleReady &&
     topicVerification.status === 'approved' &&
-    !createTopicMutation.isPending;
+    !importOutlineMutation.isPending;
 
   const canAddSubtopic =
     Boolean(activeTopic?._id) &&
     subtopicTitleReady &&
     subtopicVerification.status === 'approved' &&
-    !createSubtopicMutation.isPending;
+    !importOutlineMutation.isPending;
 
   // ── Helpers ──
   const clearMessages = () => {
@@ -203,10 +232,17 @@ export default function TrackerManagePage() {
     setErrorMessage(null);
   };
 
-  const resetTopicVerification = () => setTopicVerification({ status: 'idle', message: null });
+  const resetTopicVerification = () => {
+    setTopicVerification({ status: 'idle', message: null });
+    setTopicSuggestions([]);
+    setSelectedTopicSuggestionPaths(new Set());
+  };
 
-  const resetSubtopicVerification = () =>
+  const resetSubtopicVerification = () => {
     setSubtopicVerification({ status: 'idle', message: null });
+    setSubtopicSuggestions([]);
+    setSelectedSubtopicSuggestionPaths(new Set());
+  };
 
   // ── Handlers ──
   const handleTopicTitleChange = (value: string) => {
@@ -305,6 +341,8 @@ export default function TrackerManagePage() {
       if (result.verified) {
         setNewTopicTitle(result.polishedTitle ?? newTopicTitle);
         setNewTopicDescription(result.polishedDescription ?? newTopicDescription);
+        setTopicSuggestions(result.suggestedSubtopics);
+        setSelectedTopicSuggestionPaths(new Set(allOutlinePaths(result.suggestedSubtopics)));
       }
     } catch (error) {
       setTopicVerification({
@@ -367,6 +405,8 @@ export default function TrackerManagePage() {
       if (result.verified) {
         setNewSubtopicTitle(result.polishedTitle ?? newSubtopicTitle);
         setNewSubtopicDescription(result.polishedDescription ?? newSubtopicDescription);
+        setSubtopicSuggestions(result.suggestedSubtopics);
+        setSelectedSubtopicSuggestionPaths(new Set(allOutlinePaths(result.suggestedSubtopics)));
       }
     } catch (error) {
       setSubtopicVerification({
@@ -394,16 +434,20 @@ export default function TrackerManagePage() {
     topicCreating.current = true;
 
     try {
-      await createTopicMutation.mutateAsync({
+      await importOutlineMutation.mutateAsync({
         trackerId,
-        title: newTopicTitle.trim(),
-        description: newTopicDescription.trim(),
+        kind: 'topics',
+        topics: [{
+          title: newTopicTitle.trim(),
+          description: newTopicDescription.trim(),
+          subtopics: selectedOutline(topicSuggestions, selectedTopicSuggestionPaths),
+        }],
       });
 
       setNewTopicTitle('');
       setNewTopicDescription('');
       resetTopicVerification();
-      setStatusMessage('Topic added.');
+      setStatusMessage('Topic and your selected AI suggestions were added.');
     } catch (error) {
       setErrorMessage(getUserFacingError(error, 'Unable to add topic.'));
     } finally {
@@ -429,12 +473,16 @@ export default function TrackerManagePage() {
     subtopicCreating.current = true;
 
     try {
-      await createSubtopicMutation.mutateAsync({
+      await importOutlineMutation.mutateAsync({
         trackerId,
+        kind: 'subtopics',
         topicId: activeTopic._id,
-        title: newSubtopicTitle.trim(),
-        description: newSubtopicDescription.trim(),
         parentSubtopicId: newSubtopicParentId || undefined,
+        subtopics: [{
+          title: newSubtopicTitle.trim(),
+          description: newSubtopicDescription.trim(),
+          subtopics: selectedOutline(subtopicSuggestions, selectedSubtopicSuggestionPaths),
+        }],
       });
 
       setNewSubtopicTitle('');
@@ -442,11 +490,31 @@ export default function TrackerManagePage() {
       setNewSubtopicDifficulty('beginner');
       setNewSubtopicParentId(null);
       resetSubtopicVerification();
-      setStatusMessage('Subtopic added.');
+      setStatusMessage('Subtopic and your selected child suggestions were added.');
     } catch (error) {
       setErrorMessage(getUserFacingError(error, 'Unable to add subtopic.'));
     } finally {
       subtopicCreating.current = false;
+    }
+  };
+
+  const handleImportJson = async () => {
+    if (!trackerId || importOutlineMutation.isPending) return;
+    clearMessages();
+    try {
+      const importedTopics = parseTrackerOutlineJson(importJson);
+      const result = await importOutlineMutation.mutateAsync({
+        trackerId,
+        kind: 'topics',
+        topics: importedTopics,
+      });
+      setImportJson('');
+      setShowJsonImport(false);
+      setStatusMessage(
+        `Imported ${result.topicsAdded} topic${result.topicsAdded === 1 ? '' : 's'} and ${result.subtopicsAdded} nested subtopic${result.subtopicsAdded === 1 ? '' : 's'}.`
+      );
+    } catch (error) {
+      setErrorMessage(getUserFacingError(error, 'Unable to import this JSON outline.'));
     }
   };
 
@@ -516,13 +584,13 @@ export default function TrackerManagePage() {
   };
 
   // ── Loading / error flags ──
-  const isLoading = trackerDetailsQuery.isLoading || roadmapQuery.isLoading;
+  const isLoading = trackerDetailsQuery.isLoading || (!trackerIsModerated && roadmapQuery.isLoading);
 
   const hasError = !trackerId || trackerDetailsQuery.isError || roadmapQuery.isError;
 
   const savingTracker = updateTrackerMutation.isPending;
-  const creatingTopic = createTopicMutation.isPending;
-  const creatingSubtopic = createSubtopicMutation.isPending;
+  const creatingTopic = importOutlineMutation.isPending;
+  const creatingSubtopic = importOutlineMutation.isPending;
 
   const verifyingTopic = topicVerification.status === 'checking' || verifyTopicMutation.isPending;
 
@@ -533,6 +601,14 @@ export default function TrackerManagePage() {
     return (
       <AppShellBoundary>
         <AppPageSkeleton kind="editor" label="Loading tracker editor" />
+      </AppShellBoundary>
+    );
+  }
+
+  if (trackerIsModerated && trackerDetailsQuery.data) {
+    return (
+      <AppShellBoundary>
+        <TrackerModerationNotice tracker={trackerDetailsQuery.data} />
       </AppShellBoundary>
     );
   }
@@ -604,11 +680,7 @@ export default function TrackerManagePage() {
           </div>
         </section>
 
-        {tracker.moderationStatus && tracker.moderationStatus !== 'active' && trackerId && (
-          <ContentModerationAppealPanel targetType="tracker" targetId={trackerId} />
-        )}
-
-        {!isClonedTracker && clanQuery.data?.canManage && (
+        {isPublishedTracker && !isClonedTracker && clanQuery.data?.canManage && (
           <section className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[#d6ad47]/30 bg-[linear-gradient(135deg,rgba(244,201,93,.12),rgba(184,76,43,.05))] px-5 py-4 dark:border-[#d6ad47]/20">
             <div className="flex items-center gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-full bg-[#171512] text-lg text-white">🛡</span>
@@ -944,6 +1016,42 @@ export default function TrackerManagePage() {
           </div>
 
           <aside className="flex flex-col gap-5">
+            {/* ── Import JSON ── */}
+            <section className="rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-mono text-[9px] uppercase tracking-[.14em] text-(--brand-500)">Fast build</p>
+                  <h3 className="mt-1 font-serif text-[18px] font-bold">Import JSON</h3>
+                </div>
+                <button type="button" onClick={() => setShowJsonImport((value) => !value)} className={cn(subtleButtonClass, 'px-3 py-2 text-[11px]')}>
+                  {showJsonImport ? 'Close' : 'Import'}
+                </button>
+              </div>
+              <p className="mt-2 text-[12px] leading-relaxed text-(--text-secondary)">
+                Paste a complete recursive outline. Nested <code>subtopics</code> are created at every level.
+              </p>
+              {showJsonImport && (
+                <div className="mt-4 grid gap-3">
+                  <textarea
+                    value={importJson}
+                    onChange={(event) => setImportJson(event.target.value)}
+                    className={cn(inputClass, 'min-h-72 resize-y font-mono text-[11px]')}
+                    placeholder={trackerOutlineExample}
+                    spellCheck={false}
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" onClick={() => setImportJson(trackerOutlineExample)} className={cn(subtleButtonClass, 'px-3 py-2 text-[11px]')}>Use example</button>
+                    <button type="button" onClick={() => void handleImportJson()} disabled={!importJson.trim() || importOutlineMutation.isPending} className={cn(buttonClass, 'px-3 py-2 text-[11px]')}>
+                      {importOutlineMutation.isPending ? 'Importing tree...' : 'Validate & import'}
+                    </button>
+                  </div>
+                  <p className="text-[10.5px] leading-relaxed text-(--text-secondary)">
+                    Accepted root: <code>{'{ "topics": [...] }'}</code> or a direct topics array. Up to 250 items and 8 nested levels.
+                  </p>
+                </div>
+              )}
+            </section>
+
             {/* ── Add Topic ── */}
             <section className="rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card)">
               <h3 className="font-serif text-[18px] font-bold tracking-[-0.3px]">Add Topic</h3>
@@ -976,6 +1084,22 @@ export default function TrackerManagePage() {
                 {topicVerification.status !== 'idle' && (
                   <div className={getVerificationMessageClass(topicVerification.status)}>
                     {topicVerification.message}
+                  </div>
+                )}
+
+                {topicVerification.status === 'approved' && topicSuggestions.length > 0 && (
+                  <div className="rounded-xl border border-[rgba(184,76,43,.22)] bg-[rgba(184,76,43,.06)] p-3">
+                    <div className="mb-3">
+                      <p className="text-[12px] font-bold text-(--text-primary)">Choose suggested subtopics</p>
+                      <p className="mt-1 text-[10.5px] leading-relaxed text-(--text-secondary)">
+                        AI found useful children. Only checked items will be added with the topic.
+                      </p>
+                    </div>
+                    <OutlineSuggestionPicker
+                      nodes={topicSuggestions}
+                      selectedPaths={selectedTopicSuggestionPaths}
+                      onChange={setSelectedTopicSuggestionPaths}
+                    />
                   </div>
                 )}
 
@@ -1112,6 +1236,20 @@ export default function TrackerManagePage() {
                 {subtopicVerification.status !== 'idle' && (
                   <div className={getVerificationMessageClass(subtopicVerification.status)}>
                     {subtopicVerification.message}
+                  </div>
+                )}
+
+                {subtopicVerification.status === 'approved' && subtopicSuggestions.length > 0 && (
+                  <div className="rounded-xl border border-[rgba(184,76,43,.22)] bg-[rgba(184,76,43,.06)] p-3">
+                    <p className="text-[12px] font-bold text-(--text-primary)">Add child suggestions?</p>
+                    <p className="mb-3 mt-1 text-[10.5px] leading-relaxed text-(--text-secondary)">
+                      Keep the useful children checked. Unchecked suggestions will not be created.
+                    </p>
+                    <OutlineSuggestionPicker
+                      nodes={subtopicSuggestions}
+                      selectedPaths={selectedSubtopicSuggestionPaths}
+                      onChange={setSelectedSubtopicSuggestionPaths}
+                    />
                   </div>
                 )}
 

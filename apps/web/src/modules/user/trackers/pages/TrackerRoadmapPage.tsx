@@ -5,7 +5,8 @@ import { ROUTES } from '../../../../routes/config/route-paths';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import { AppPageSkeleton } from '../../../../components/feedback/RouteSkeleton';
-import { useTrackerRoadmap } from '../hooks/useTrackers';
+import { useTrackerDetails, useTrackerRoadmap } from '../hooks/useTrackers';
+import TrackerModerationNotice from '../components/TrackerModerationNotice';
 import {
   CheckIcon,
   CompassIcon,
@@ -34,7 +35,15 @@ export default function TrackerRoadmapPage() {
     return readSavedRoadmapStack(trackerId);
   });
 
-  const roadmapQuery = useTrackerRoadmap(trackerId || '');
+  const trackerDetailsQuery = useTrackerDetails(trackerId);
+  const trackerIsModerated = Boolean(
+    trackerDetailsQuery.data?.moderationStatus &&
+      trackerDetailsQuery.data.moderationStatus !== 'active'
+  );
+  const roadmapQuery = useTrackerRoadmap(
+    trackerId || '',
+    Boolean(trackerDetailsQuery.data && !trackerIsModerated)
+  );
 
   const roadmapData = roadmapQuery.data;
 
@@ -73,7 +82,7 @@ export default function TrackerRoadmapPage() {
   const progress =
     currentNodes.length === 0 ? 0 : Math.round((completedCount / currentNodes.length) * 100);
 
-  const isMainLoading = roadmapQuery.isLoading;
+  const isMainLoading = trackerDetailsQuery.isLoading || (!trackerIsModerated && roadmapQuery.isLoading);
 
   const hasMainError = !trackerId || roadmapQuery.isError;
 
@@ -127,6 +136,8 @@ export default function TrackerRoadmapPage() {
     <AppShellBoundary>
       {isMainLoading ? (
         <AppPageSkeleton kind="roadmap" label="Loading roadmap" />
+      ) : trackerIsModerated && trackerDetailsQuery.data ? (
+        <TrackerModerationNotice tracker={trackerDetailsQuery.data} />
       ) : hasMainError || !roadmapData ? (
         <div className="flex min-h-[calc(100vh-88px)] items-center justify-center px-4">
           <div className="max-w-md rounded-2xl border border-[rgba(200,50,50,0.22)] bg-(--surface-card) p-6 text-center shadow-(--shadow-2) dark:bg-(--surface-card)">

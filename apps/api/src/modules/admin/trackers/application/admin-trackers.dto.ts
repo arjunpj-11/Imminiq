@@ -23,7 +23,6 @@ export interface AdminTrackerSubtopicDTO {
   order: number;
   depth: number;
   parentSubtopicId: string | null;
-  estimatedMinutes: number;
 }
 
 export interface AdminTrackerTopicDTO {
@@ -32,7 +31,6 @@ export interface AdminTrackerTopicDTO {
   description: string;
   order: number;
   status: string;
-  estimatedHours: number;
   subtopics: AdminTrackerSubtopicDTO[];
 }
 

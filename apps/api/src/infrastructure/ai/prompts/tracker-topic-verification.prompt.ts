@@ -40,6 +40,10 @@ Your task:
 - Reject it if it is off-topic, too vague, completely duplicate, or clearly does not fit the tracker's subject.
 - Approve it if it is a relevant, meaningful topic that adds value to this learning roadmap.
 - Be practical: slight overlaps are fine as long as the new topic has its own distinct value.
+- If approved, design 2-5 useful subtopics that make this topic learnable rather than empty.
+- A suggested subtopic may contain 0-3 narrower nested subtopics when that extra level genuinely improves the roadmap.
+- Suggestions must not duplicate existing roadmap topics and must be concrete learning units.
+- If rejected, return an empty suggestedSubtopics array.
 
 Return ONLY valid JSON using this exact structure:
 
@@ -47,7 +51,14 @@ Return ONLY valid JSON using this exact structure:
   "verified": true,
   "message": "Short explanation of why this topic was approved or rejected.",
   "polishedTitle": "Fix obvious typos only (e.g. 'Javascrpt' → 'JavaScript'). Otherwise return the title exactly as given.",
-  "polishedDescription": "One clear sentence describing what the learner will cover. If user left it empty, write one based on the title and tracker context."
+  "polishedDescription": "One clear sentence describing what the learner will cover. If user left it empty, write one based on the title and tracker context.",
+  "suggestedSubtopics": [
+    {
+      "title": "A concrete child lesson",
+      "description": "One sentence explaining what is learned.",
+      "subtopics": []
+    }
+  ]
 }
 `.trim();
 };

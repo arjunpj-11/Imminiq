@@ -80,7 +80,6 @@ export class CreateTrackerSubtopicUseCase implements ICreateTrackerSubtopicUseCa
       description: input.description || '',
       order: (lastSibling?.order || 0) + 1,
       depth,
-      estimatedMinutes: input.estimatedMinutes || 0,
     });
 
     await Promise.all([

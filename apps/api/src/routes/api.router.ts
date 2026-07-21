@@ -202,7 +202,7 @@ export const createApiRouter = () => {
   );
   router.use(
     API_ROUTE_PATHS.admin.systemHealth,
-    createAdminSystemHealthRoutes(adminSystemHealthComposition.useCases)
+    createAdminSystemHealthRoutes(adminSystemHealthComposition.useCases, requirePrivilegedMfa)
   );
   router.use(
     API_ROUTE_PATHS.admin.supportTickets,

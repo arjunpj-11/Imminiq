@@ -125,7 +125,7 @@ function SubscriptionView({
   const [exportFormat, setExportFormat] = useState<"csv" | "pdf" | null>(null);
   const [selectedPlan, setSelectedPlan] =
     useState<AdminSubscriptionPlan | null>(null);
-  if (query.isLoading) return <AdminLoading />;
+  if (query.isLoading) return <AdminLoading variant="subscriptions" />;
   if (query.isError || !query.data)
     return (
       <AdminError error={query.error} onRetry={() => void query.refetch()} />

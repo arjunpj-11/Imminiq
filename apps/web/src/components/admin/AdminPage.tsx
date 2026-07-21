@@ -435,10 +435,20 @@ export function AdminRefreshingIndicator({
 export function AdminLoading({
   tableColumns = 6,
   tableRows = 7,
+  variant = "table",
 }: {
   tableColumns?: number;
   tableRows?: number;
+  variant?:
+    | "table"
+    | "analytics"
+    | "settings"
+    | "health"
+    | "detail"
+    | "subscriptions";
 } = {}) {
+  const chartBars = [38, 62, 48, 76, 58, 88, 68, 52, 72, 44, 64, 82];
+
   return (
     <div
       aria-label="Loading current data"
@@ -447,13 +457,60 @@ export function AdminLoading({
       className="mt-7 space-y-4"
     >
       <span className="sr-only">Loading current data…</span>
-      <AdminCardSkeleton />
-      <div className="overflow-hidden rounded-xl border border-white/9 bg-[#1c1a18]">
-        <div className="border-b border-white/9 px-6 py-5">
-          <div className="admin-skeleton h-6 w-44" />
+      {variant === "detail" && (
+        <>
+          <div className="admin-skeleton h-4 w-36" />
+          <div className="flex flex-wrap items-end justify-between gap-5 py-2">
+            <div className="min-w-0 flex-1"><div className="admin-skeleton h-3 w-24" /><div className="admin-skeleton mt-3 h-10 w-[min(30rem,80%)] rounded-lg" /><div className="admin-skeleton mt-3 h-4 w-[min(42rem,92%)]" /></div>
+            <div className="flex flex-wrap gap-2"><div className="admin-skeleton h-8 w-20 rounded-md" /><div className="admin-skeleton h-10 w-24 rounded-lg" /><div className="admin-skeleton h-10 w-24 rounded-lg" /></div>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-5">{Array.from({ length: 5 }, (_, index) => <div key={index} className="rounded-xl border border-white/9 bg-[#1c1a18] p-4"><div className="admin-skeleton h-3 w-2/5" /><div className="admin-skeleton mt-3 h-4 w-4/5" /></div>)}</div>
+          <div className="overflow-hidden rounded-xl border border-white/9 bg-[#1c1a18]"><div className="border-b border-white/9 px-6 py-5"><div className="admin-skeleton h-6 w-48" /></div><div className="space-y-5 p-6">{Array.from({ length: 3 }, (_, index) => <div key={index} className="rounded-xl border border-white/9 bg-[#24211e] p-5"><div className="admin-skeleton h-3 w-20" /><div className="admin-skeleton mt-3 h-5 w-2/5" /><div className="admin-skeleton mt-3 h-3 w-4/5" /><div className="mt-5 space-y-3"><div className="admin-skeleton h-10 w-full rounded-md" /><div className="admin-skeleton h-10 w-full rounded-md" /></div></div>)}</div></div>
+        </>
+      )}
+
+      {variant !== "detail" && <AdminCardSkeleton />}
+
+      {variant === "analytics" && (
+        <>
+          <div className="overflow-hidden rounded-xl border border-white/9 bg-[#1c1a18]"><div className="border-b border-white/9 px-6 py-5"><div className="admin-skeleton h-6 w-48" /></div><div className="flex h-72 items-end gap-2 overflow-hidden p-6 pt-10">{chartBars.map((height, index) => <div key={index} className="admin-skeleton min-w-6 flex-1 rounded-b-none rounded-t-md" style={{ height: `${height}%` }} />)}</div></div>
+          <div className="overflow-hidden rounded-xl border border-white/9 bg-[#1c1a18]"><div className="border-b border-white/9 px-6 py-5"><div className="admin-skeleton h-6 w-36" /></div><div className="grid gap-3 p-6 sm:grid-cols-2 lg:grid-cols-4">{Array.from({ length: 8 }, (_, index) => <div key={index} className="rounded-lg border border-white/8 bg-[#24211e] p-4"><div className="admin-skeleton h-3 w-3/5" /><div className="admin-skeleton mt-3 h-7 w-2/5" /></div>)}</div></div>
+        </>
+      )}
+
+      {variant === "settings" && (
+        <div className="overflow-hidden rounded-xl border border-white/9 bg-[#1c1a18]">
+          <div className="flex justify-between border-b border-white/9 px-6 py-5"><div className="admin-skeleton h-6 w-40" /><div className="admin-skeleton h-8 w-32 rounded-full" /></div>
+          <div className="space-y-6 p-4 sm:p-6"><div className="flex items-center justify-between gap-4 rounded-xl border border-white/9 p-5"><div className="flex-1"><div className="admin-skeleton h-4 w-40" /><div className="admin-skeleton mt-3 h-3 w-4/5" /></div><div className="admin-skeleton h-7 w-12 rounded-full" /></div>{Array.from({ length: 3 }, (_, section) => <div key={section} className="rounded-xl border border-white/9 p-5"><div className="admin-skeleton h-5 w-44" /><div className="mt-5 grid gap-4 sm:grid-cols-2">{Array.from({ length: 4 }, (_, field) => <div key={field}><div className="admin-skeleton h-3 w-28" /><div className="admin-skeleton mt-2 h-11 w-full rounded-lg" /></div>)}</div></div>)}</div>
         </div>
-        <AdminTableSkeleton columns={tableColumns} rows={tableRows} />
-      </div>
+      )}
+
+      {variant === "health" && (
+        <>
+          <div className="overflow-hidden rounded-xl border border-white/9 bg-[#1c1a18]"><div className="border-b border-white/9 px-6 py-5"><div className="admin-skeleton h-6 w-32" /></div><div className="grid gap-4 p-6 md:grid-cols-3">{Array.from({ length: 3 }, (_, index) => <div key={index} className="rounded-xl border border-white/10 bg-[#24211e] p-5"><div className="flex justify-between"><div className="admin-skeleton h-6 w-6 rounded-md" /><div className="admin-skeleton h-6 w-20 rounded-md" /></div><div className="admin-skeleton mt-5 h-4 w-2/5" /><div className="admin-skeleton mt-3 h-3 w-3/5" /></div>)}</div></div>
+          <div className="overflow-hidden rounded-xl border border-white/9 bg-[#1c1a18]"><div className="border-b border-white/9 px-6 py-5"><div className="admin-skeleton h-6 w-24" /></div><div className="p-6"><div className="flex justify-between"><div className="admin-skeleton h-4 w-28" /><div className="admin-skeleton h-4 w-32" /></div><div className="admin-skeleton mt-4 h-3 w-full rounded-full" /><div className="admin-skeleton mt-4 h-3 w-2/5" /></div></div>
+          <div className="overflow-hidden rounded-xl border border-white/9 bg-[#1c1a18]"><div className="border-b border-white/9 px-6 py-5"><div className="admin-skeleton h-6 w-44" /></div><AdminTableSkeleton columns={6} rows={5} /></div>
+        </>
+      )}
+
+      {variant === "subscriptions" && (
+        <>
+          <div className="overflow-hidden rounded-xl border border-white/9 bg-[#1c1a18]">
+            <div className="border-b border-white/9 px-6 py-5"><div className="admin-skeleton h-6 w-44" /></div>
+            <div className="border-b border-white/9 px-6 py-4"><div className="admin-skeleton h-3 w-4/5" /></div>
+            <div className="grid gap-3 p-6 sm:grid-cols-3">{Array.from({ length: 3 }, (_, index) => <div key={index} className="rounded-xl border border-white/9 bg-[#24211e] p-5"><div className="admin-skeleton h-5 w-2/5" /><div className="admin-skeleton mt-4 h-7 w-3/5" /><div className="admin-skeleton mt-3 h-3 w-4/5" /><div className="admin-skeleton mt-5 h-9 w-full rounded-lg" /></div>)}</div>
+          </div>
+          <div className="grid gap-6 lg:grid-cols-2">{Array.from({ length: 2 }, (_, panel) => <div key={panel} className="overflow-hidden rounded-xl border border-white/9 bg-[#1c1a18]"><div className="border-b border-white/9 px-6 py-5"><div className="admin-skeleton h-6 w-36" /></div><div className="space-y-4 p-6">{Array.from({ length: 4 }, (_, row) => <div key={row} className="flex justify-between gap-5"><div className="admin-skeleton h-4 w-2/5" /><div className="admin-skeleton h-4 w-1/4" /></div>)}</div></div>)}</div>
+          <div className="overflow-hidden rounded-xl border border-white/9 bg-[#1c1a18]"><div className="border-b border-white/9 px-6 py-5"><div className="admin-skeleton h-6 w-40" /></div><AdminTableSkeleton columns={7} rows={7} /></div>
+        </>
+      )}
+
+      {variant === "table" && (
+        <div className="overflow-hidden rounded-xl border border-white/9 bg-[#1c1a18]">
+          <div className="border-b border-white/9 px-6 py-5"><div className="admin-skeleton h-6 w-44" /></div>
+          <AdminTableSkeleton columns={tableColumns} rows={tableRows} />
+        </div>
+      )}
     </div>
   );
 }
