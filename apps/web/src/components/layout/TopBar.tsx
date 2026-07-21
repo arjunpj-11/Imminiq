@@ -1,16 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
-import api from '../../lib/axios';
 import { cn } from '../../lib/cn';
-import { useAuthStore } from '../../store/useAuthStore';
 import { useAppShellStore } from '../../store/useAppShellStore';
 import ImminiqLogo from '../ui/ImminiqLogo';
 import ImminiqWordmark from '../ui/ImminiqWordmark';
 import ConfirmDialog from '../overlays/ConfirmDialog';
 import { ROUTES } from '../../routes/config/route-paths';
 import UserAvatar from '../data-display/UserAvatar';
-import { useActiveTrackerClanChallenge } from '../../modules/user/trackers/hooks/useTrackers';
+import { useActiveTrackerClanChallenge } from '../../modules/user/trackers';
+import { useLogout } from '../../modules/auth';
 
 interface ITopBarProps {
   onMenuClick?: () => void;
@@ -119,13 +118,11 @@ export default function TopBar({
   friendRequestCount = 0,
 }: ITopBarProps) {
   const location = useLocation();
-  const navigate = useNavigate();
-  const clearAuth = useAuthStore((state) => state.clearAuth);
+  const logout = useLogout();
   const activeBattleQuery = useActiveTrackerClanChallenge(!isGuest);
   const activeBattle = activeBattleQuery.data;
   const [profileOpen, setProfileOpen] = useState(false);
   const [streakOpen, setStreakOpen] = useState(false);
-  const [isSigningOut, setIsSigningOut] = useState(false);
   const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const streakRef = useRef<HTMLDivElement>(null);
@@ -171,19 +168,10 @@ export default function TopBar({
     return () => document.removeEventListener('mousedown', handlePointer);
   }, []);
 
-  const handleSignOut = async () => {
-    if (isSigningOut) return;
-    setIsSigningOut(true);
+  const handleSignOut = () => {
+    if (logout.isPending) return;
     setProfileOpen(false);
-    try {
-      await api.post('/auth/logout');
-    } catch (error) {
-      console.error('Logout request failed:', error);
-    } finally {
-      clearAuth();
-      navigate(ROUTES.login, { replace: true });
-      setIsSigningOut(false);
-    }
+    logout.mutate();
   };
 
   const requestSignOut = () => {
@@ -414,10 +402,10 @@ export default function TopBar({
                         type="button"
                         role="menuitem"
                         onClick={requestSignOut}
-                        disabled={isSigningOut}
+                        disabled={logout.isPending}
                         className="w-full rounded-sm px-3 py-2.5 text-left text-[12px] font-semibold text-(--danger) transition hover:bg-[color-mix(in_srgb,var(--danger)_8%,transparent)] disabled:opacity-60"
                       >
-                        {isSigningOut ? 'Signing out…' : 'Sign out'}
+                        {logout.isPending ? 'Signing out…' : 'Sign out'}
                       </button>
                     </div>
                   </div>
@@ -432,12 +420,12 @@ export default function TopBar({
         title="Sign out of Imminiq?"
         description="Are you sure you want to sign out? You’ll need to sign in again to continue learning."
         confirmText="Sign out"
-        isLoading={isSigningOut}
+        isLoading={logout.isPending}
         onConfirm={() => {
           void handleSignOut();
         }}
         onClose={() => {
-          if (!isSigningOut) setSignOutConfirmOpen(false);
+          if (!logout.isPending) setSignOutConfirmOpen(false);
         }}
       />
     </>

@@ -17,17 +17,20 @@ import {
   Users,
 } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import ConfirmDialog from "./AdminConfirmDialog";
 import ImminiqLogo from "../ui/ImminiqLogo";
 import ImminiqWordmark from "../ui/ImminiqWordmark";
-import api from "../../lib/axios";
 import { getTemporaryAdminNavItem } from "../../lib/current-page-navigation";
 import { refreshCurrentRoute } from "../../lib/refresh-current-route";
-import { ADMIN_ROUTES, ROUTES } from "../../routes/config/route-paths";
+import { ADMIN_ROUTES } from "../../routes/config/route-paths";
+import {
+  ADMIN_ROUTE_ROLES,
+  canAccessAdminRoute,
+} from "../../routes/config/admin-access";
 import { useAppShellStore } from "../../store/useAppShellStore";
 import { useAuthStore } from "../../store/useAuthStore";
-import { AUTH_API_PATHS } from "../../modules/auth";
+import { useLogout } from "../../modules/auth";
 import "./admin-theme.css";
 import { RouteSkeleton } from "../feedback/RouteSkeleton";
 
@@ -40,28 +43,28 @@ const links = [
     section: "Overview",
     icon: Gauge,
     end: true,
-    moderator: true,
+    roles: ADMIN_ROUTE_ROLES.dashboard,
   },
   {
     to: ADMIN_ROUTES.users,
     label: "Users",
     section: "People",
     icon: Users,
-    moderator: false,
+    roles: ADMIN_ROUTE_ROLES.users,
   },
   {
     to: ADMIN_ROUTES.trackers,
     label: "Trackers",
     section: "Content",
     icon: BookOpenCheck,
-    moderator: true,
+    roles: ADMIN_ROUTE_ROLES.trackers,
   },
   {
     to: ADMIN_ROUTES.mockTests,
     label: "Mock Tests",
     section: "Content",
     icon: ClipboardCheck,
-    moderator: true,
+    roles: ADMIN_ROUTE_ROLES.mockTests,
     end: true,
   },
   {
@@ -69,49 +72,49 @@ const links = [
     label: "Activity",
     section: "Insights",
     icon: BarChart3,
-    moderator: false,
+    roles: ADMIN_ROUTE_ROLES.analytics,
   },
   {
     to: ADMIN_ROUTES.broadcast,
     label: "Broadcast",
     section: "Engagement",
     icon: Megaphone,
-    moderator: false,
+    roles: ADMIN_ROUTE_ROLES.broadcast,
   },
   {
     to: ADMIN_ROUTES.subscriptions,
     label: "Premium / Subscriptions",
     section: "Business",
     icon: ShieldCheck,
-    moderator: false,
+    roles: ADMIN_ROUTE_ROLES.subscriptions,
   },
   {
     to: ADMIN_ROUTES.auditLogs,
     label: "Audit Logs",
     section: "Operations",
     icon: Activity,
-    moderator: false,
+    roles: ADMIN_ROUTE_ROLES.auditLogs,
   },
   {
     to: ADMIN_ROUTES.systemHealth,
     label: "System Health & Jobs",
     section: "Operations",
     icon: HeartPulse,
-    moderator: false,
+    roles: ADMIN_ROUTE_ROLES.systemHealth,
   },
   {
     to: ADMIN_ROUTES.aiTokenSpend,
     label: "AI Token Spend",
     section: "Operations",
     icon: Cpu,
-    moderator: false,
+    roles: ADMIN_ROUTE_ROLES.aiTokenSpend,
   },
   {
     to: ADMIN_ROUTES.supportTickets,
     label: "Support Tickets",
     section: "Support",
     icon: TicketCheck,
-    moderator: true,
+    roles: ADMIN_ROUTE_ROLES.supportTickets,
   },
 ];
 
@@ -128,8 +131,7 @@ export default function AdminLayout() {
   );
   const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
-  const clearAuth = useAuthStore((state) => state.clearAuth);
-  const navigate = useNavigate();
+  const logout = useLogout();
   const location = useLocation();
   const routeRefreshVersion = useAppShellStore(
     (state) => state.routeRefreshVersion,
@@ -190,16 +192,6 @@ export default function AdminLayout() {
     setMobileOpen((current) => !current);
   };
 
-  const logout = async () => {
-    try {
-      await api.post(AUTH_API_PATHS.logout);
-    } catch {
-      /* Local sign-out still completes. */
-    }
-    clearAuth();
-    navigate(ROUTES.login, { replace: true });
-  };
-
   const displayName = user?.fullName || user?.username || "Administrator";
   const showSidebarLabels = !isDesktop || !sidebarCollapsed;
   const sidebarToggleLabel = isDesktop
@@ -219,7 +211,7 @@ export default function AdminLayout() {
         : "text-[#aaa59d] hover:bg-[#24211e] hover:text-[#f2f0eb]"
     }`;
   const visibleLinks = links.filter(
-    (item) => user?.role !== "moderator" || item.moderator,
+    (item) => canAccessAdminRoute(item.roles, user?.role),
   );
   const currentPageLabel =
     temporaryItem?.label ||
@@ -239,7 +231,7 @@ export default function AdminLayout() {
     <div className="admin-theme min-h-screen bg-[#141412] text-[#f2f0eb]">
       <a
         href="#admin-main-content"
-        className="fixed left-4 top-4 z-[70] -translate-y-24 rounded-lg bg-[#e8816a] px-4 py-2 font-bold text-[#1a1210] transition focus:translate-y-0"
+        className="fixed left-4 top-4 z-70 -translate-y-24 rounded-lg bg-[#e8816a] px-4 py-2 font-bold text-[#1a1210] transition focus:translate-y-0"
       >
         Skip to admin content
       </a>
@@ -257,11 +249,11 @@ export default function AdminLayout() {
         id="admin-navigation"
         aria-label="Admin navigation"
         className={`admin-sidebar fixed inset-y-0 left-0 z-40 flex flex-col border-r border-[rgba(255,255,255,0.09)] bg-[#18100e] transition-[width,transform] duration-200 lg:translate-x-0 ${
-          sidebarCollapsed ? "lg:w-[5.25rem]" : "lg:w-[17rem]"
-        } w-[17rem] ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+          sidebarCollapsed ? "lg:w-21" : "lg:w-68"
+        } w-68 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div
-          className={`flex h-[5.375rem] shrink-0 items-center border-b border-white/6 ${
+          className={`flex h-21.5 shrink-0 items-center border-b border-white/6 ${
             showSidebarLabels ? "justify-between px-5" : "justify-center px-3"
           }`}
         >
@@ -357,12 +349,12 @@ export default function AdminLayout() {
         </nav>
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#18100e] to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-[#18100e] to-transparent"
         />
         </div>
 
         <div className="shrink-0 border-t border-[rgba(255,255,255,0.09)] p-3">
-          {user?.role !== "moderator" && (
+          {canAccessAdminRoute(ADMIN_ROUTE_ROLES.settings, user?.role) && (
             <NavLink
               to={ADMIN_ROUTES.settings}
               title={!showSidebarLabels ? "Settings" : undefined}
@@ -389,10 +381,10 @@ export default function AdminLayout() {
 
       <div
         className={`transition-[padding] duration-200 ${
-          sidebarCollapsed ? "lg:pl-[5.25rem]" : "lg:pl-[17rem]"
+          sidebarCollapsed ? "lg:pl-21" : "lg:pl-68"
         }`}
       >
-        <header className="admin-shell-header sticky top-0 z-20 flex h-[4.25rem] items-center justify-between border-b border-[rgba(255,255,255,0.09)] bg-[#1c1a18]/92 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
+        <header className="admin-shell-header sticky top-0 z-20 flex h-17 items-center justify-between border-b border-[rgba(255,255,255,0.09)] bg-[#1c1a18]/92 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <button
               type="button"
@@ -462,7 +454,8 @@ export default function AdminLayout() {
         description="Are you sure you want to sign out? You’ll need to sign in again to continue."
         confirmText="Sign out"
         onClose={() => setSignOutConfirmOpen(false)}
-        onConfirm={() => void logout()}
+        isLoading={logout.isPending}
+        onConfirm={() => logout.mutate()}
       />
     </div>
   );

@@ -22,14 +22,13 @@ import type {
 import { ADMIN_TRACKERS_ROUTES } from "../constants/admin-trackers.constants";
 import AdminTrackerModerationDialog from "../components/AdminTrackerModerationDialog";
 import { useAuthStore } from "../../../../store/useAuthStore";
+import { isAdminRole } from "../../../../lib/auth-roles";
 
 export default function AdminTrackerDetailPage() {
   const [moderating, setModerating] = useState<
     AdminTrackerLifecyclePayload["action"] | null
   >(null);
-  const canManageLifecycle = useAuthStore(
-    (state) => state.user?.role !== "moderator",
-  );
+  const canManageLifecycle = useAuthStore((state) => isAdminRole(state.user?.role));
   const { trackerId } = useParams();
   const location = useLocation();
   const fromTrackerReview = Boolean(

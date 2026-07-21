@@ -14,10 +14,10 @@ import {
   AdminSearch,
   AdminStatusBadge,
   AdminTableSkeleton,
-  downloadServerCsv,
   downloadTablePdf,
-  fetchAllAdminItems,
 } from "../../../../components/admin";
+import { useDownloadAdminCsv } from "../../../../hooks/admin/useDownloadAdminCsv";
+import { useExportAdminItems } from "../../../../hooks/admin/useExportAdminItems";
 import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
 import UserAvatar from "../../../../components/data-display/UserAvatar";
 import { getUserFacingError } from "../../../../lib/user-facing-error";
@@ -38,6 +38,8 @@ export default function AdminUsersPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState(() => searchParams.get("q") || "");
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const csvExport = useDownloadAdminCsv();
+  const exportItems = useExportAdminItems<AdminUsersData, AdminUser>();
   const debouncedSearch = useDebouncedValue(
     search,
     ADMIN_USERS_SEARCH_DEBOUNCE_MS,
@@ -81,19 +83,19 @@ export default function AdminUsersPage() {
     });
 
   const exportCurrentView = () =>
-    void downloadServerCsv(
-      "/admin/users/export.csv",
-      `imminiq-users-${status}.csv`,
-      {
+    csvExport.mutate({
+      endpoint: ADMIN_USERS_ENDPOINTS.exportCsv,
+      filename: `imminiq-users-${status}.csv`,
+      params: {
         search: debouncedSearch,
         status,
       },
-    );
+    });
 
   const exportPdf = async () => {
     setIsExportingPdf(true);
     try {
-      const users = await fetchAllAdminItems<AdminUsersData, AdminUser>({
+      const users = await exportItems.mutateAsync({
         endpoint: ADMIN_USERS_ENDPOINTS.list,
         params: {
           search: debouncedSearch || undefined,

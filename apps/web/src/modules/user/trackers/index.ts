@@ -4,7 +4,7 @@ export {
   useImportTrackerOutline,
   useRequestTrackerClanJoin,
 } from './hooks/useTrackerMutations';
-export { useTrackerClan } from './hooks/useTrackerQueries';
+export { useActiveTrackerClanChallenge, useTrackerClan } from './hooks/useTrackerQueries';
 
 export type {
   IRoadmapSubtopic,

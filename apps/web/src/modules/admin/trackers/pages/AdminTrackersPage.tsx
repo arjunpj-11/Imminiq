@@ -13,11 +13,11 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
-  downloadServerCsv,
   downloadTablePdf,
-  fetchAllAdminItems,
   type AdminPageData,
 } from "../../../../components/admin";
+import { useDownloadAdminCsv } from "../../../../hooks/admin/useDownloadAdminCsv";
+import { useExportAdminItems } from "../../../../hooks/admin/useExportAdminItems";
 import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
 import { getUserFacingError } from "../../../../lib/user-facing-error";
 import { toast } from "../../../../lib/toast";
@@ -41,6 +41,8 @@ export default function AdminTrackersPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState(() => searchParams.get("q") || "");
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const csvExport = useDownloadAdminCsv();
+  const exportItems = useExportAdminItems<AdminPageData<AdminTracker>, AdminTracker>();
   const debouncedSearch = useDebouncedValue(search, 300);
   const requestedStatus = searchParams.get("status") ?? "all";
   const status = trackerStatusFilters.has(requestedStatus)
@@ -79,22 +81,19 @@ export default function AdminTrackersPage() {
   });
 
   const exportCurrentView = () =>
-    void downloadServerCsv(
-      "/admin/trackers/export.csv",
-      `imminiq-trackers-${status}.csv`,
-      {
+    csvExport.mutate({
+      endpoint: ADMIN_TRACKERS_ENDPOINTS.exportCsv,
+      filename: `imminiq-trackers-${status}.csv`,
+      params: {
         search: debouncedSearch,
         status,
       },
-    );
+    });
 
   const exportPdf = async () => {
     setIsExportingPdf(true);
     try {
-      const trackers = await fetchAllAdminItems<
-        AdminPageData<AdminTracker>,
-        AdminTracker
-      >({
+      const trackers = await exportItems.mutateAsync({
         endpoint: ADMIN_TRACKERS_ENDPOINTS.list,
         params: {
           search: debouncedSearch || undefined,

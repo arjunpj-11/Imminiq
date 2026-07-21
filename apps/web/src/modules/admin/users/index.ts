@@ -9,6 +9,10 @@ export { useAdminUserAppeals } from "./hooks/useAdminUserAppeals";
 export { useUpdateAdminUserAppeal } from "./hooks/useUpdateAdminUserAppeal";
 export { useRevokeAdminUserSession } from "./hooks/useRevokeAdminUserSession";
 export { useUpdateAdminUserRole } from "./hooks/useUpdateAdminUserRole";
+export { useAdminUserNotes } from "./hooks/useAdminUserNotes";
+export { useAddAdminUserNote } from "./hooks/useAddAdminUserNote";
+export { useDeleteAdminUserNote } from "./hooks/useDeleteAdminUserNote";
+export { useUpdateAdminUserTags } from "./hooks/useUpdateAdminUserTags";
 export type {
   AdminUser,
   AdminUserDetailData,

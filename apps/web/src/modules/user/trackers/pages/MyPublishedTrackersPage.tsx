@@ -433,7 +433,7 @@ function PublishedTrackerCard({
   };
 
   return (
-    <article className="group relative flex min-h-[430px] flex-col overflow-hidden rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) transition duration-200 hover:-translate-y-1 hover:border-[rgba(45,106,71,0.28)] hover:shadow-(--shadow-2)">
+    <article className="group relative flex min-h-107.5 flex-col overflow-hidden rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) transition duration-200 hover:-translate-y-1 hover:border-[rgba(45,106,71,0.28)] hover:shadow-(--shadow-2)">
       <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[rgba(45,106,71,0.08)] blur-3xl dark:bg-[rgba(92,201,138,0.08)]" />
       <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-linear-to-r from-transparent via-(--success) to-transparent opacity-45" />
 

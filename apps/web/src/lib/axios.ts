@@ -8,6 +8,8 @@ import {
 import { getUserFacingError } from './user-facing-error';
 import { webEnvironment } from '../config/env';
 import { getCsrfToken, refreshAuthSession } from './auth-session-refresh';
+import { resetClientState } from '../store/reset-client-state';
+import { ROUTES } from '../routes/config/route-paths';
 
 interface IApiErrorResponse {
   success?: false;
@@ -138,10 +140,10 @@ api.interceptors.response.use(
         saveBlockedAppealIdentifier(restrictedIdentifier);
       }
 
-      useAuthStore.getState().clearAuth();
+      resetClientState();
 
-      if (window.location.pathname !== '/blocked') {
-        window.location.replace('/blocked');
+      if (window.location.pathname !== ROUTES.blocked) {
+        window.location.replace(ROUTES.blocked);
       }
 
       return Promise.reject(error);
@@ -156,7 +158,7 @@ api.interceptors.response.use(
 
     if (status !== 401 || originalRequest._retry || shouldSkipRefresh) {
       if (status === 401 && shouldSkipRefresh) {
-        useAuthStore.getState().clearAuth();
+        resetClientState();
       }
 
       return Promise.reject(error);
@@ -190,11 +192,11 @@ api.interceptors.response.use(
         );
       }
 
-      useAuthStore.getState().clearAuth();
+      resetClientState();
 
       if (isRestrictedAccountError(refreshStatus, refreshErrorCode)) {
-        if (window.location.pathname !== '/blocked') {
-          window.location.replace('/blocked');
+        if (window.location.pathname !== ROUTES.blocked) {
+          window.location.replace(ROUTES.blocked);
         }
 
         return Promise.reject(axiosRefreshError);

@@ -3,7 +3,6 @@
 
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import { AppPageSkeleton } from '../../../../components/feedback/RouteSkeleton';
@@ -20,6 +19,7 @@ import ReflectionPracticeCard from '../components/lesson/ReflectionPracticeCard'
 import type { LessonLocationState } from '../types/lesson.types';
 import { formatLessonType } from '../utils/lesson-formatters';
 import { readSavedRoadmapStack } from '../utils/roadmap.utils';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 export default function TrackerLessonPage() {
   const navigate = useNavigate();
@@ -30,7 +30,6 @@ export default function TrackerLessonPage() {
     subtopicId: string;
   }>();
 
-  const queryClient = useQueryClient();
   const trackerDetailsQuery = useTrackerDetails(trackerId);
   const trackerIsModerated = Boolean(
     trackerDetailsQuery.data?.moderationStatus &&
@@ -80,26 +79,8 @@ export default function TrackerLessonPage() {
         status: 'completed',
       },
       {
-        onSuccess: async () => {
+        onSuccess: () => {
           setOptimisticCompletedId(subtopicId ?? null);
-
-          await Promise.all([
-            queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
-            queryClient.invalidateQueries({ queryKey: ['dashboard', 'summary'] }),
-            queryClient.invalidateQueries({ queryKey: ['dashboard', 'current-roadmap'] }),
-            queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity-intensity'] }),
-            queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity-intensity', 6] }),
-            queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity-intensity', 12] }),
-            queryClient.invalidateQueries({ queryKey: ['dashboard', 'heatmap'] }),
-            queryClient.invalidateQueries({ queryKey: ['activity-intensity'] }),
-            queryClient.invalidateQueries({ queryKey: ['trackers', 'roadmap', trackerId] }),
-            queryClient.invalidateQueries({ queryKey: ['trackers', 'list'] }),
-            queryClient.invalidateQueries({ queryKey: ['trackers'] }),
-            queryClient.invalidateQueries({ queryKey: ['tracker', trackerId] }),
-            queryClient.invalidateQueries({ queryKey: ['tracker-lesson', trackerId, subtopicId] }),
-          ]);
-
-          await lessonQuery.refetch();
         },
         onError: (error) => {
           console.error('❌ Mutation error:', error);
@@ -109,14 +90,14 @@ export default function TrackerLessonPage() {
   };
 
   const goToLesson = (id: string) => {
-    navigate(`/trackers/${trackerId}/lessons/${id}`, {
+    navigate(ROUTES.trackerLesson(trackerId!, id), {
       state: { returnToRoadmapStack: getReturnStack() },
     });
   };
 
   const backToRoadmapLastLevel = () => {
     const stack = getReturnStack();
-    navigate(`/trackers/${trackerId}/roadmap`, {
+    navigate(ROUTES.trackerRoadmap(trackerId!), {
       state: { roadmapBreadcrumbStack: stack },
     });
   };

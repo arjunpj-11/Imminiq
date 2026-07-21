@@ -5,7 +5,9 @@ import {
   clearBlockedAppealIdentifier,
   saveBlockedAppealIdentifier,
 } from '../../lib/blockedAppealSession';
+import { resetClientState } from '../../store/reset-client-state';
 import { useAuthStore, type IAuthUser } from '../../store/useAuthStore';
+import { ROUTES } from '../../routes/config/route-paths';
 
 interface IApiErrorResponse {
   success?: boolean;
@@ -30,7 +32,6 @@ const isRestrictedStatus = (status?: IAuthUser['status']) => {
 
 export const useRestoreSession = () => {
   const setAuthReady = useAuthStore((state) => state.setAuthReady);
-  const clearAuth = useAuthStore((state) => state.clearAuth);
 
   useEffect(() => {
     const currentSession = useAuthStore.getState();
@@ -47,10 +48,10 @@ export const useRestoreSession = () => {
             saveBlockedAppealIdentifier(restrictedIdentifier);
           }
 
-          clearAuth();
+          resetClientState();
 
-          if (window.location.pathname !== '/blocked') {
-            window.location.replace('/blocked');
+          if (window.location.pathname !== ROUTES.blocked) {
+            window.location.replace(ROUTES.blocked);
           }
 
           return;
@@ -62,11 +63,11 @@ export const useRestoreSession = () => {
         const axiosError = error as AxiosError<IApiErrorResponse>;
         const errorCode = axiosError.response?.data?.code;
 
-        clearAuth();
+        resetClientState();
 
         if (isRestrictedAccountCode(errorCode)) {
-          if (window.location.pathname !== '/blocked') {
-            window.location.replace('/blocked');
+          if (window.location.pathname !== ROUTES.blocked) {
+            window.location.replace(ROUTES.blocked);
           }
 
           return;
@@ -77,5 +78,5 @@ export const useRestoreSession = () => {
     };
 
     restoreSession();
-  }, [clearAuth, setAuthReady]);
+  }, [setAuthReady]);
 };

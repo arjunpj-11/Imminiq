@@ -3,6 +3,7 @@ import type { AxiosError } from 'axios';
 import api from '../../lib/axios';
 import type { IApiErrorResponse, IApiResponse, IStreakSummary } from '../../modules/user/users';
 import { streakQueryKeys } from './streak.query-keys';
+import { PROGRESS_ENDPOINTS } from './progress.constants';
 
 interface IUseStreakOptions {
   enabled?: boolean;
@@ -13,7 +14,7 @@ export const useStreak = (year?: number, options: IUseStreakOptions = {}) => {
     queryKey: streakQueryKeys.me(year),
     enabled: options.enabled ?? true,
     queryFn: async () => {
-      const response = await api.get<IApiResponse<IStreakSummary>>('/users/me/streak', {
+      const response = await api.get<IApiResponse<IStreakSummary>>(PROGRESS_ENDPOINTS.streak, {
         params: year ? { year } : undefined,
       });
 

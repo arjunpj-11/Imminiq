@@ -31,6 +31,8 @@ import type {
 } from '../types/settings.types';
 
 import { useAuthStore } from '../../../../store/useAuthStore';
+import { resetClientState } from '../../../../store/reset-client-state';
+import { isStaffRole } from '../../../../lib/auth-roles';
 import {
   formatCountdown,
   getApiErrorMessage,
@@ -42,7 +44,6 @@ export default function AccountSecuritySettingsPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const user = useAuthStore((state) => state.user);
-  const clearAuth = useAuthStore((state) => state.clearAuth);
 
   const securityQuery = useSecurityOverview();
   const changeEmail = useChangeEmail();
@@ -91,9 +92,7 @@ export default function AccountSecuritySettingsPage() {
   const scoreLabel = score >= 80 ? 'Strong' : score >= 50 ? 'Medium' : 'Weak';
 
   const security = securityQuery.data;
-  const isStaff = Boolean(
-    user && ['moderator', 'admin', 'superadmin'].includes(user.role)
-  );
+  const isStaff = isStaffRole(user?.role);
   const staffEnrollmentRequired =
     isStaff && searchParams.get('staff2fa') === 'required';
   const requestedReturnTo = searchParams.get('returnTo');
@@ -309,7 +308,7 @@ export default function AccountSecuritySettingsPage() {
       await deleteAccount.mutateAsync(payload);
 
       resetDeleteModal();
-      clearAuth();
+      resetClientState();
 
       navigate(ROUTES.login, {
         replace: true,

@@ -35,6 +35,4 @@ export type {
 } from "../../lib/admin/admin-api.types";
 export { downloadCsv } from "../../lib/admin/downloadCsv";
 export { downloadTablePdf } from "../../lib/admin/downloadPdf";
-export { downloadServerCsv } from "../../lib/admin/downloadServerCsv";
-export { fetchAllAdminItems } from "../../lib/admin/fetchAllAdminItems";
 export { redactSensitiveMetadata } from "../../lib/admin/redactSensitiveMetadata";

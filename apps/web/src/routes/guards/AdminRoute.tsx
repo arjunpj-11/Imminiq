@@ -2,9 +2,10 @@ import type { ReactNode } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import AuthLoadingScreen from '../../components/feedback/AuthLoadingScreen';
-import { useSecurityOverview } from '../../modules/user/settings/hooks/useSecuritySettings';
+import { useSecurityOverview } from '../../modules/user/settings';
 import { useAuthStore } from '../../store/useAuthStore';
 import { ROUTES } from '../config/route-paths';
+import { isStaffRole } from '../../lib/auth-roles';
 
 interface IAdminRouteProps {
   children?: ReactNode;
@@ -15,9 +16,7 @@ export function AdminRoute({ children }: IAdminRouteProps) {
   const user = useAuthStore((state) => state.user);
   const authReady = useAuthStore((state) => state.authReady);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const isStaff = Boolean(
-    user && ['moderator', 'admin', 'superadmin'].includes(user.role)
-  );
+  const isStaff = isStaffRole(user?.role);
   const securityQuery = useSecurityOverview({
     enabled: Boolean(authReady && isAuthenticated && isStaff),
   });

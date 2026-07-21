@@ -65,8 +65,10 @@ export const useChangeEmail = () => {
 
 // ─── CHANGE PASSWORD ───────────────────────────────
 
-export const useChangePassword = () =>
-  useMutation({
+export const useChangePassword = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationFn: async (payload: IChangePasswordPayload) => {
       const response = await api.patch<IApiEnvelope<{ sessionsRevoked: boolean }>>(
         SETTINGS_API_PATHS.changePassword,
@@ -75,7 +77,11 @@ export const useChangePassword = () =>
 
       return unwrap(response);
     },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: settingsKeys.securityOverview() });
+    },
   });
+};
 
 // ─── TERMINATE SESSION ─────────────────────────────
 

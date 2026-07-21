@@ -13,11 +13,11 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
-  downloadServerCsv,
   downloadTablePdf,
-  fetchAllAdminItems,
   type AdminPageData,
 } from "../../../../components/admin";
+import { useDownloadAdminCsv } from "../../../../hooks/admin/useDownloadAdminCsv";
+import { useExportAdminItems } from "../../../../hooks/admin/useExportAdminItems";
 import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
 import { getUserFacingError } from "../../../../lib/user-facing-error";
 import { toast } from "../../../../lib/toast";
@@ -35,6 +35,8 @@ export default function AdminMockTestsPage() {
   const [search, setSearch] = useState(() => searchParams.get("q") || "");
   const [selected, setSelected] = useState<string[]>([]);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const csvExport = useDownloadAdminCsv();
+  const exportItems = useExportAdminItems<AdminPageData<AdminMockTest>, AdminMockTest>();
   const debouncedSearch = useDebouncedValue(search, 300);
   const requestedStatus = searchParams.get("status") || "all";
   const status = validStatuses.has(requestedStatus) ? requestedStatus : "all";
@@ -69,19 +71,16 @@ export default function AdminMockTestsPage() {
   });
 
   const exportCurrentView = () =>
-    void downloadServerCsv(
-      "/admin/mock-tests/export.csv",
-      `imminiq-mock-tests-${status}.csv`,
-      { search: debouncedSearch, status },
-    );
+    csvExport.mutate({
+      endpoint: ADMIN_MOCK_TESTS_ENDPOINTS.exportCsv,
+      filename: `imminiq-mock-tests-${status}.csv`,
+      params: { search: debouncedSearch, status },
+    });
 
   const exportPdf = async () => {
     setIsExportingPdf(true);
     try {
-      const tests = await fetchAllAdminItems<
-        AdminPageData<AdminMockTest>,
-        AdminMockTest
-      >({
+      const tests = await exportItems.mutateAsync({
         endpoint: ADMIN_MOCK_TESTS_ENDPOINTS.list,
         params: {
           search: debouncedSearch || undefined,

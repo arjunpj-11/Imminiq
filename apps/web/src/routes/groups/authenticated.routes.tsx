@@ -33,7 +33,7 @@ import {
   SubscriptionPlansPage,
 } from '../config/authenticated-pages';
 import { ROUTES } from '../config/route-paths';
-import SettingsShell from '../../modules/user/settings/components/SettingsShell';
+import { SettingsShell } from '../../modules/user/settings';
 
 export const authenticatedRoutes: RouteObject[] = [
   {

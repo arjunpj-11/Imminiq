@@ -2,8 +2,9 @@
 
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../store/useAuthStore';
+import { resetClientState } from '../../store/reset-client-state';
 import { ROUTES } from '../../routes/config/route-paths';
+import { STORAGE_KEYS } from '../../lib/storage/storage-keys';
 
 type AuthSyncPayload = {
   type?: 'EMAIL_CHANGED_LOGOUT';
@@ -12,11 +13,9 @@ type AuthSyncPayload = {
 
 export const useAuthSync = () => {
   const navigate = useNavigate();
-  const clearAuth = useAuthStore((state) => state.clearAuth);
-
   useEffect(() => {
     const handleStorage = (event: StorageEvent) => {
-      if (event.key !== 'imminiq-auth-sync' || !event.newValue) {
+      if (event.key !== STORAGE_KEYS.authSync || !event.newValue) {
         return;
       }
 
@@ -24,7 +23,7 @@ export const useAuthSync = () => {
         const payload = JSON.parse(event.newValue) as AuthSyncPayload;
 
         if (payload.type === 'EMAIL_CHANGED_LOGOUT') {
-          clearAuth();
+          resetClientState();
           navigate(ROUTES.login, { replace: true });
         }
       } catch {
@@ -37,5 +36,5 @@ export const useAuthSync = () => {
     return () => {
       window.removeEventListener('storage', handleStorage);
     };
-  }, [clearAuth, navigate]);
+  }, [navigate]);
 };

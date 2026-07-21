@@ -2,6 +2,7 @@ import { ADMIN_ROUTES } from "../../../../routes/config/route-paths";
 
 export const ADMIN_USERS_ENDPOINTS = {
   list: "/admin/users",
+  exportCsv: "/admin/users/export.csv",
   detail: (userId: string) => `/admin/users/${userId}`,
   status: (userId: string) => `/admin/users/${userId}/status`,
   message: (userId: string) => `/admin/users/${userId}/message`,

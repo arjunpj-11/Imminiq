@@ -2,6 +2,7 @@ import { ADMIN_ROUTES } from "../../../../routes/config/route-paths";
 
 export const ADMIN_TRACKERS_ENDPOINTS = {
   list: "/admin/trackers",
+  exportCsv: "/admin/trackers/export.csv",
   detail: (trackerId: string) => `/admin/trackers/${trackerId}`,
   published: "/admin/trackers/published",
   reports: "/admin/trackers/reports",

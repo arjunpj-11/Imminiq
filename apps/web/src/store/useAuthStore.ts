@@ -10,7 +10,7 @@ export interface IAuthUser {
   username: string;
   email?: string;
   phone?: string;
-  role: string;
+  role: 'user' | 'moderator' | 'admin' | 'superadmin';
   status?: 'active' | 'paused' | 'blocked' | 'deactivated' | 'banned';
   isPremium?: boolean;
   avatarUrl?: string;

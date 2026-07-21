@@ -3,6 +3,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
 import { TRACKER_API_PATHS } from '../constants/tracker-api.constants';
 import { communityKeys } from '../../community';
+import { dashboardKeys } from '../../dashboard';
+import { activityQueryKeys } from '../../activity';
+import { activityQueryKeys as profileActivityKeys } from '../../../../hooks/activity/activity.query-keys';
 import type {
   IApiResponse,
   ICreateSubtopicPayload,
@@ -602,6 +605,10 @@ export const useUpdateSubtopicProgress = () => {
       queryClient.invalidateQueries({
         queryKey: trackerKeys.lists(),
       });
+
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
+      queryClient.invalidateQueries({ queryKey: activityQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: profileActivityKeys.all });
     },
   });
 };

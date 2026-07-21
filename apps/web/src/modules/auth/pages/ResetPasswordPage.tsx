@@ -1,16 +1,14 @@
 import { useMemo, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
-import api from '../../../lib/axios';
 import AuthLayout from '../components/AuthLayout';
 import { ApiErrorBanner, FieldError } from '../components/AuthError';
 import { EyeIcon } from '../components/icons/AuthIcons';
 import { authInputClass, authLabelClass, cn } from '../utils/auth-ui';
 import { getPasswordStrength, validatePassword } from '../utils/auth-validation';
 import { ROUTES } from '../../../routes/config/route-paths';
-import { AUTH_API_PATHS } from '../constants/auth.constants';
+import { getUserFacingError } from '../../../lib/user-facing-error';
+import { useResetPassword } from '../hooks/useResetPassword';
 
 interface IFormState {
   newPassword: string;
@@ -34,8 +32,8 @@ export default function ResetPasswordPage() {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const resetPassword = useResetPassword();
 
   const strength = useMemo(() => getPasswordStrength(form.newPassword), [form.newPassword]);
 
@@ -96,20 +94,13 @@ export default function ResetPasswordPage() {
     if (Object.keys(newErrors).length > 0) return;
 
     try {
-      setIsSubmitting(true);
-      await api.post(AUTH_API_PATHS.resetPassword, {
-        resetToken,
+      await resetPassword.mutateAsync({
+        resetToken: resetToken!,
         newPassword: form.newPassword,
       });
       setIsSuccess(true);
     } catch (error: unknown) {
-      let message = 'Failed to reset password. Please try again.';
-      if (axios.isAxiosError<{ message?: string }>(error)) {
-        message = error.response?.data?.message || message;
-      }
-      setErrors({ api: message });
-    } finally {
-      setIsSubmitting(false);
+      setErrors({ api: getUserFacingError(error, 'Failed to reset password. Please try again.') });
     }
   };
 
@@ -226,9 +217,9 @@ export default function ResetPasswordPage() {
         <button
           className="relative mt-1 w-full overflow-hidden rounded-md bg-(--brand-500) p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-70 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           type="submit"
-          disabled={isSubmitting}
+          disabled={resetPassword.isPending}
         >
-          {isSubmitting ? 'Resetting password…' : 'Reset password'}
+          {resetPassword.isPending ? 'Resetting password…' : 'Reset password'}
         </button>
       </form>
 

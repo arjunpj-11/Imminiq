@@ -24,6 +24,7 @@ import { ADMIN_MOCK_TESTS_ROUTES } from "../constants/admin-mock-tests.constants
 import AdminMockTestModerationDialog from "../components/AdminMockTestModerationDialog";
 import type { AdminMockTestLifecyclePayload } from "../types/admin-mock-tests.types";
 import { useAuthStore } from "../../../../store/useAuthStore";
+import { isAdminRole } from "../../../../lib/auth-roles";
 import AdminModal from "../../../../components/admin/AdminModal";
 import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
 import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
@@ -31,9 +32,7 @@ import { getUserFacingError } from "../../../../lib/user-facing-error";
 import { toast } from "../../../../lib/toast";
 import type { AdminMockTestQuestion } from "../types/admin-mock-tests.types";
 export default function AdminMockTestDetailPage() {
-  const canManageLifecycle = useAuthStore(
-    (state) => state.user?.role !== "moderator",
-  );
+  const canManageLifecycle = useAuthStore((state) => isAdminRole(state.user?.role));
   const { testId } = useParams();
   const { data, isLoading, isError, error, refetch } =
     useAdminMockTestDetail(testId);

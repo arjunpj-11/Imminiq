@@ -11,7 +11,7 @@ import {
 } from '../constants/mock-tests.constants';
 import { useTrackerRoadmap, useTrackers } from '../../trackers';
 import { useGenerateMockTest } from '../hooks/useMockTests';
-import { useMockTestsStore } from '../store/mockTests.store';
+import { useMockTestsStore } from '../store/useMockTestsStore';
 import { cn } from '../utils/mock-tests-formatters';
 import { SparklesIcon } from './MockTestIcons';
 import type { QuestionType } from '../types/mock-tests.types';
