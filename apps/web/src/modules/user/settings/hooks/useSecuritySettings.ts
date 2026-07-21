@@ -28,9 +28,10 @@ const unwrap = <T>(response: { data: IApiEnvelope<T> }) => {
 
 // ─── SECURITY OVERVIEW ─────────────────────────────
 
-export const useSecurityOverview = () =>
+export const useSecurityOverview = (options: { enabled?: boolean } = {}) =>
   useQuery({
     queryKey: settingsKeys.securityOverview(),
+    enabled: options.enabled ?? true,
     queryFn: async () => {
       const response = await api.get<IApiEnvelope<ISecurityOverview>>(
         SETTINGS_API_PATHS.securityOverview

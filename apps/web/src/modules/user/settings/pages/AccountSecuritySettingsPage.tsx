@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../../../../routes/config/route-paths';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ADMIN_ROUTES, ROUTES } from '../../../../routes/config/route-paths';
 
 import SettingsContentLoading from '../components/SettingsContentLoading';
 import { MonoLabel, SettingsCard, SettingsToast, TextField } from '../components/SettingsUi';
@@ -40,6 +40,8 @@ import {
 
 export default function AccountSecuritySettingsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const user = useAuthStore((state) => state.user);
   const clearAuth = useAuthStore((state) => state.clearAuth);
 
   const securityQuery = useSecurityOverview();
@@ -89,6 +91,15 @@ export default function AccountSecuritySettingsPage() {
   const scoreLabel = score >= 80 ? 'Strong' : score >= 50 ? 'Medium' : 'Weak';
 
   const security = securityQuery.data;
+  const isStaff = Boolean(
+    user && ['moderator', 'admin', 'superadmin'].includes(user.role)
+  );
+  const staffEnrollmentRequired =
+    isStaff && searchParams.get('staff2fa') === 'required';
+  const requestedReturnTo = searchParams.get('returnTo');
+  const staffReturnTo = requestedReturnTo?.startsWith('/admin')
+    ? requestedReturnTo
+    : ADMIN_ROUTES.dashboard;
 
   const providerLabel =
     security?.authProvider === 'google'
@@ -125,6 +136,25 @@ export default function AccountSecuritySettingsPage() {
 
   if (securityQuery.isLoading) {
     return <SettingsContentLoading variant="security" title="Preparing account security" />;
+  }
+
+  if (securityQuery.isError) {
+    return (
+      <div className="rounded-xl border border-red-500/25 bg-red-500/8 p-6">
+        <h2 className="font-serif text-2xl font-extrabold">Security settings unavailable</h2>
+        <p className="mt-2 text-sm text-(--text-secondary)">
+          We could not check your two-step verification status. Retry before entering the admin
+          area.
+        </p>
+        <button
+          type="button"
+          onClick={() => void securityQuery.refetch()}
+          className="mt-5 rounded-md bg-(--brand-500) px-5 py-3 text-[13px] font-bold text-white"
+        >
+          Retry security check
+        </button>
+      </div>
+    );
   }
 
   const handleEmailUpdate = async () => {
@@ -294,6 +324,42 @@ export default function AccountSecuritySettingsPage() {
 
   return (
     <>
+      {staffEnrollmentRequired && (
+        <section className="mb-5 rounded-xl border border-[#d6ad47]/45 bg-[#f4c95d]/12 p-5 shadow-sm">
+          <p className="font-mono text-[9px] font-black uppercase tracking-[.16em] text-[#8a6509] dark:text-[#f4c95d]">
+            Staff security requirement
+          </p>
+          <h2 className="mt-2 font-serif text-2xl font-extrabold">
+            {security?.twoFactorEnabled
+              ? 'Two-step verification is ready'
+              : 'Enable two-step verification to enter Admin'}
+          </h2>
+          <p className="mt-2 max-w-3xl text-[13px] leading-relaxed text-(--text-secondary)">
+            {security?.twoFactorEnabled
+              ? 'Your staff account now meets the admin security requirement. Keep the backup codes from setup in a safe place.'
+              : 'Admin and moderator accounts must be protected by an authenticator app. Scan the QR code, enter the six-digit code, and securely save the backup codes.'}
+          </p>
+          <button
+            type="button"
+            disabled={setupTwoFactor.isPending}
+            onClick={() => {
+              if (security?.twoFactorEnabled) {
+                navigate(staffReturnTo, { replace: true });
+                return;
+              }
+              void handleStartTwoFactorSetup();
+            }}
+            className="mt-4 rounded-md bg-[#171512] px-5 py-3 text-[13px] font-extrabold text-white disabled:opacity-50 dark:bg-[#f2f0eb] dark:text-[#171512]"
+          >
+            {security?.twoFactorEnabled
+              ? 'Continue to Admin'
+              : setupTwoFactor.isPending
+                ? 'Preparing authenticator setup…'
+                : 'Enable 2FA now'}
+          </button>
+        </section>
+      )}
+
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-5">
           {/* ─── EMAIL ADDRESS ───────────────────────────── */}
