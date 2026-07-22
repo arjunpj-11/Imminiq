@@ -28,7 +28,7 @@ const findPlan = async (planId: AdminSubscriptionPlan['planId']) => {
 
 export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRepository {
   constructor(
-    private readonly resolveDefaultPlan: (
+    private readonly _resolveDefaultPlan: (
       planId: AdminSubscriptionPlan['planId']
     ) => AdminSubscriptionPlanInput
   ) {}
@@ -144,7 +144,7 @@ export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRep
       subscriptions: createAdminPage(items, query, total),
       plans: planRows.map((row, index) => {
         const planId = (['free', 'pro', 'premium'] as const)[index];
-        const fallback = this.resolveDefaultPlan(planId);
+        const fallback = this._resolveDefaultPlan(planId);
         return {
           planId,
           name: row?.name ?? fallback.name,
@@ -169,7 +169,7 @@ export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRep
   ): Promise<AdminSubscriptionPlan> {
     const existing = await findPlan(planId);
     const filter = existing?._id ? { _id: existing._id } : { planId };
-    const fallback = this.resolveDefaultPlan(planId);
+    const fallback = this._resolveDefaultPlan(planId);
     if (existing?._id) {
       await SubscriptionPlanModel.deleteMany({
         _id: { $ne: existing._id },

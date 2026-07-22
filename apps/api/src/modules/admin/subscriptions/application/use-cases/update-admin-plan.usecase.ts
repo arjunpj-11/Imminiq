@@ -1,39 +1,35 @@
 import type { AdminActor } from '../../../../../shared/admin';
 import type {
   AdminSubscriptionPlan,
-  AdminPlanLimitField,
-  AdminSubscriptionPlanInput,
 } from '../../domain/entities/admin-subscription.entity';
 import type { IAdminSubscriptionsRepository } from '../../domain/repositories/admin-subscriptions.repository.interface';
-import type { AdminSubscriptionPlanDTO } from '../admin-subscriptions.dto';
+import type {
+  AdminSubscriptionPlanDTO,
+  AdminSubscriptionPlanUpdateInputDTO,
+} from '../admin-subscriptions.dto';
 import type { IAdminSubscriptionsMapper } from '../admin-subscriptions.mapper';
 
 export interface IUpdateAdminPlanUseCase {
   execute(
     planId: AdminSubscriptionPlan['planId'],
-    input: AdminSubscriptionPlanUpdateInput,
+    input: AdminSubscriptionPlanUpdateInputDTO,
     actor: AdminActor
   ): Promise<AdminSubscriptionPlanDTO>;
 }
 
-export type AdminSubscriptionPlanUpdateInput = {
-  plan: AdminSubscriptionPlanInput;
-  propagateLimitFields: AdminPlanLimitField[];
-};
-
 export class UpdateAdminPlanUseCase implements IUpdateAdminPlanUseCase {
   constructor(
-    private readonly repository: Pick<IAdminSubscriptionsRepository, 'updatePlan'>,
-    private readonly mapper: IAdminSubscriptionsMapper
+    private readonly _repository: Pick<IAdminSubscriptionsRepository, 'updatePlan'>,
+    private readonly _mapper: IAdminSubscriptionsMapper
   ) {}
 
   execute(
     planId: AdminSubscriptionPlan['planId'],
-    input: AdminSubscriptionPlanUpdateInput,
+    input: AdminSubscriptionPlanUpdateInputDTO,
     actor: AdminActor
   ): Promise<AdminSubscriptionPlanDTO> {
-    return this.repository
+    return this._repository
       .updatePlan(planId, input.plan, input.propagateLimitFields, actor)
-      .then((plan) => this.mapper.toPlanDTO(plan));
+      .then((plan) => this._mapper.toPlanDTO(plan));
   }
 }

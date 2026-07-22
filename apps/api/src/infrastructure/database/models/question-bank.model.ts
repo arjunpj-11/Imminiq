@@ -176,11 +176,29 @@ const questionBankSchema = new Schema(
       type: codingSchema,
       default: undefined,
     },
+
+    deletedAt: {
+      type: Date,
+      default: null,
+      index: true,
+    },
+
+    deletedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
+
+    deletionReason: {
+      type: String,
+      default: undefined,
+      maxlength: 1000,
+    },
   },
   { timestamps: true }
 );
 
-questionBankSchema.index({ topic: 1, difficulty: 1 });
+questionBankSchema.index({ topic: 1, difficulty: 1, deletedAt: 1 });
 
 export const QuestionBankModel =
   mongoose.models.QuestionBank || mongoose.model('QuestionBank', questionBankSchema);

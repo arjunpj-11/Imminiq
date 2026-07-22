@@ -20,23 +20,24 @@ export class GetMockTestDetailsUseCase implements IGetMockTestDetailsUseCase {
   ) {}
 
   async execute(testId: string, userId: string) {
-    const test = await this._repository.findTestById(testId);
+    const test =
+      (await this._repository.findTestById(testId)) ??
+      (await this._repository.findTestForModerationDisplayById(testId));
 
     if (!test) {
       throw MockTestsApplicationError.notFound('Test not found');
     }
 
-    if (test.ownerId !== userId) {
+    const attempts = await this._repository.findAttemptsByUser({
+      userId,
+      testId,
+    });
+
+    if (test.ownerId !== userId && attempts.length === 0) {
       throw MockTestsApplicationError.forbidden();
     }
 
-    const [questions, attempts] = await Promise.all([
-      this._repository.findQuestionsByTest(testId),
-      this._repository.findAttemptsByUser({
-        userId,
-        testId,
-      }),
-    ]);
+    const questions = await this._repository.findQuestionsByTest(testId);
 
     const ownsTest = test.ownerId === userId;
 

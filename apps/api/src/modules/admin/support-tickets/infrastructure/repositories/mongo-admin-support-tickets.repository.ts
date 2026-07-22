@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { SupportTicket } from '../../../../../infrastructure/database/models/support-ticket.model';
 import { Notification } from '../../../../../infrastructure/database/models/notification.model';
 import type { AdminActor, AdminListQuery } from '../../../../../shared/admin';
@@ -135,4 +136,3 @@ export class MongoAdminSupportTicketsRepository implements IAdminSupportTicketsR
   }
 }
 export const mongoAdminSupportTicketsRepository = new MongoAdminSupportTicketsRepository();
-import mongoose from 'mongoose';

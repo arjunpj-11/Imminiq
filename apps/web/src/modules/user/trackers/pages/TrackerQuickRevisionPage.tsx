@@ -6,7 +6,8 @@ import { ROUTES } from '../../../../routes/config/route-paths';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import { AppPageSkeleton } from '../../../../components/feedback/RouteSkeleton';
-import { useTrackerRoadmap, useTrackerLesson } from '../hooks/useTrackers';
+import { useTrackerDetails, useTrackerRoadmap, useTrackerLesson } from '../hooks/useTrackers';
+import TrackerModerationNotice from '../components/TrackerModerationNotice';
 
 import MathText from '../components/lesson/MathText';
 import type { IRoadmapSubtopic, IRoadmapTopic } from '../types/tracker.types';
@@ -21,7 +22,6 @@ type FlatNode = {
   order: number;
   status?: string;
   isLocked?: boolean;
-  estimatedMinutes?: number;
   nodeType: 'topic' | 'subtopic';
   depth: number;
   children: FlatNode[];
@@ -37,7 +37,6 @@ const mapSubtopicToNode = (s: IRoadmapSubtopic, depth: number): FlatNode => ({
   order: s.order,
   status: s.status,
   isLocked: s.isLocked,
-  estimatedMinutes: s.estimatedMinutes,
   nodeType: 'subtopic',
   depth,
   children: (s.children || []).map((c) => mapSubtopicToNode(c, depth + 1)),
@@ -315,7 +314,15 @@ export default function TrackerQuickRevisionPage() {
 
   const [search, setSearch] = useState('');
 
-  const roadmapQuery = useTrackerRoadmap(trackerId || '');
+  const trackerDetailsQuery = useTrackerDetails(trackerId);
+  const trackerIsModerated = Boolean(
+    trackerDetailsQuery.data?.moderationStatus &&
+      trackerDetailsQuery.data.moderationStatus !== 'active'
+  );
+  const roadmapQuery = useTrackerRoadmap(
+    trackerId || '',
+    Boolean(trackerDetailsQuery.data && !trackerIsModerated)
+  );
 
   const roadmapData = roadmapQuery.data;
 
@@ -341,7 +348,7 @@ export default function TrackerQuickRevisionPage() {
   const { total, completed } = count(allNodes);
   const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
 
-  const isMainLoading = roadmapQuery.isLoading;
+  const isMainLoading = trackerDetailsQuery.isLoading || (!trackerIsModerated && roadmapQuery.isLoading);
   const hasMainError = !trackerId || roadmapQuery.isError;
 
   return (
@@ -353,6 +360,8 @@ export default function TrackerQuickRevisionPage() {
     >
       {isMainLoading ? (
         <AppPageSkeleton kind="lesson" label="Loading revision" />
+      ) : trackerIsModerated && trackerDetailsQuery.data ? (
+        <TrackerModerationNotice tracker={trackerDetailsQuery.data} />
       ) : hasMainError || !roadmapData ? (
         <div className="flex min-h-[calc(100vh-88px)] items-center justify-center px-4">
           <div className="max-w-md rounded-2xl border border-[rgba(200,50,50,0.22)] bg-(--surface-card) p-6 text-center shadow-(--shadow-2) dark:bg-(--surface-card)">

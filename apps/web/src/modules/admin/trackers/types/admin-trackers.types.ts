@@ -34,7 +34,6 @@ export type AdminTrackerSubtopic = {
   order: number;
   depth: number;
   parentSubtopicId: string | null;
-  estimatedMinutes: number;
 };
 export type AdminTrackerTopic = {
   id: string;
@@ -42,7 +41,6 @@ export type AdminTrackerTopic = {
   description: string;
   order: number;
   status: string;
-  estimatedHours: number;
   subtopics: AdminTrackerSubtopic[];
 };
 export type AdminTrackerDetail = AdminTracker & {
@@ -111,13 +109,4 @@ export type AdminTrackerReportUpdatePayload = {
   status: "reviewing" | "resolved" | "dismissed";
   resolutionNote: string;
   actionPassword?: string;
-};
-export type AdminTrackerVersion = {
-  id: string;
-  trackerId: string;
-  version: number;
-  snapshot: Record<string, unknown>;
-  changedBy: string;
-  reason: string;
-  createdAt: string;
 };

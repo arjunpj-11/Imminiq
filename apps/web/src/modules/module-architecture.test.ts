@@ -282,4 +282,54 @@ describe('frontend feature-module architecture', () => {
 
     expect(violations).toEqual([]);
   });
+
+  it('keeps API and TanStack Query orchestration out of React components', () => {
+    const violations = collectFiles(sourceRoot)
+      .filter((file) => file.endsWith('.tsx'))
+      .filter((file) => {
+        const source = readFileSync(file, 'utf8');
+        return (
+          /\bapi\.(?:get|post|put|patch|delete)\b/.test(source) ||
+          /\buse(?:Infinite)?Query\s*\(/.test(source) ||
+          /\buseMutation\s*\(/.test(source)
+        );
+      })
+      .map((file) => file.replace(`${sourceRoot}/`, ''));
+
+    expect(violations).toEqual([]);
+  });
+
+  it('uses query-key factories for every cache operation', () => {
+    const violations = collectFiles(sourceRoot)
+      .filter((file) => /\.(?:ts|tsx)$/.test(file))
+      .filter((file) => !file.endsWith('.query-keys.ts') && !file.endsWith('.test.ts'))
+      .filter((file) => {
+        const source = readFileSync(file, 'utf8');
+        return (
+          /queryKey:\s*\[/.test(source) ||
+          /(?:invalidateQueries|removeQueries|resetQueries|cancelQueries)\(\{\s*queryKey:\s*\[/.test(
+            source,
+          ) ||
+          /(?:setQueryData|getQueryData)\(\s*\[/.test(source)
+        );
+      })
+      .map((file) => file.replace(`${sourceRoot}/`, ''));
+
+    expect(violations).toEqual([]);
+  });
+
+  it('uses consistent names for module Zustand stores', () => {
+    const violations = featureModuleRoots()
+      .flatMap((moduleRoot) => {
+        const storeRoot = join(moduleRoot, 'store');
+        if (!existsSync(storeRoot)) return [];
+        return collectFiles(storeRoot).filter((file) => {
+          const source = readFileSync(file, 'utf8');
+          return /from\s+['"]zustand/.test(source) && !/^use[A-Z]\w*Store\.ts$/.test(file.split(sep).at(-1) ?? '');
+        });
+      })
+      .map((file) => file.replace(`${modulesRoot}/`, ''));
+
+    expect(violations).toEqual([]);
+  });
 });

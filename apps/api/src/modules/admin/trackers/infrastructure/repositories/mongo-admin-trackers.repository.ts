@@ -8,6 +8,7 @@ import { TrackerReport } from '../../../../../infrastructure/database/models/tra
 import { Notification } from '../../../../../infrastructure/database/models/notification.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
 import { ActivityLog } from '../../../../../infrastructure/database/models/activity-log.model';
+import { TrackerClanChallenge } from '../../../../../infrastructure/database/models/tracker-clan-challenge.model';
 import { recordAdminAction } from '../../../../../infrastructure/admin';
 import { createAdminPage, escapeAdminSearch } from '../../../../../infrastructure/admin';
 import type { AdminActor, AdminListQuery } from '../../../../../shared/admin';
@@ -20,7 +21,9 @@ import type {
 export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
   async list(query: AdminListQuery) {
     const filter: Record<string, unknown> =
-      query.status === 'deleted' ? { moderationStatus: 'deleted' } : { deletedAt: null };
+      query.status === 'deleted'
+        ? { moderationStatus: 'deleted', sourceTrackerId: null }
+        : { deletedAt: null, sourceTrackerId: null };
     if (query.status && query.status !== 'all') {
       if (query.status === 'suspended') filter.moderationStatus = 'suspended';
       else if (query.status !== 'deleted') {
@@ -43,11 +46,12 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
       Tracker.countDocuments(filter),
       Tracker.countDocuments({
         deletedAt: null,
+        sourceTrackerId: null,
         status: 'active',
         moderationStatus: { $in: ['active', null] },
       }),
-      Tracker.countDocuments({ deletedAt: null, status: 'draft' }),
-      Tracker.countDocuments({ deletedAt: null, status: 'archived' }),
+      Tracker.countDocuments({ deletedAt: null, sourceTrackerId: null, status: 'draft' }),
+      Tracker.countDocuments({ deletedAt: null, sourceTrackerId: null, status: 'archived' }),
       TrackerReport.aggregate<{ _id: unknown; reportCount: number; openReportCount: number }>([
         {
           $group: {
@@ -83,17 +87,22 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
       };
     });
     return createAdminPage(items, query, total, {
-      total: await Tracker.countDocuments({ deletedAt: null }),
+      total: await Tracker.countDocuments({ deletedAt: null, sourceTrackerId: null }),
       active,
       draft,
       archived,
-      suspended: await Tracker.countDocuments({ moderationStatus: 'suspended', deletedAt: null }),
+      suspended: await Tracker.countDocuments({
+        moderationStatus: 'suspended',
+        deletedAt: null,
+        sourceTrackerId: null,
+      }),
       openReports: reports.reduce((sum, item) => sum + item.openReportCount, 0),
     });
   }
   async listPublished(query: AdminListQuery, actor: AdminActor) {
     const filter: Record<string, unknown> = {
       deletedAt: null,
+      sourceTrackerId: null,
       visibility: 'public',
       publishedAt: { $ne: null },
       moderationStatus: { $in: ['active', null] },
@@ -263,7 +272,6 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
         description: topic.description,
         order: topic.order,
         status: topic.status,
-        estimatedHours: topic.estimatedHours,
         subtopics: subtopics
           .filter((subtopic) => String(subtopic.topicId) === String(topic._id))
           .map((subtopic) => ({
@@ -273,7 +281,6 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
             order: subtopic.order,
             depth: subtopic.depth,
             parentSubtopicId: subtopic.parentSubtopicId ? String(subtopic.parentSubtopicId) : null,
-            estimatedMinutes: subtopic.estimatedMinutes,
           })),
       })),
       moderationHistory: history.map((item) => {
@@ -468,6 +475,11 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
           { session }
         );
         if (input.action !== 'restore') {
+          await TrackerClanChallenge.updateMany(
+            { trackerId: id, status: { $in: ['open', 'pending', 'active'] } },
+            { $set: { status: 'cancelled', completedAt: now } },
+            { session }
+          );
           await TrackerReport.updateMany(
             { trackerId: id, status: { $in: ['open', 'reviewing'] } },
             {

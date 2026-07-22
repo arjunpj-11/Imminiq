@@ -11,3 +11,4 @@ export * from './use-cases/list-friends.usecase';
 export * from './use-cases/remove-friend.usecase';
 export * from './use-cases/search-users.usecase';
 export * from './use-cases/send-friend-request.usecase';
+export * from './friends-use-cases.contract';

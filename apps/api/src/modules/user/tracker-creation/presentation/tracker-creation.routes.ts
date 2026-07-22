@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
-import { validate, validateIdentifierParam } from '../../../../shared/middlewares/validate';
+import { validate, validateIdentifierParam } from '../../../../shared/middlewares/validate.middleware';
 import { TrackerCreationController } from './tracker-creation.controller';
 import type { TrackerCreationUseCases } from '../application/tracker-creation-use-cases.contract';
 import { TRACKER_CREATION_ROUTE_PATHS } from './tracker-creation.route.constants';

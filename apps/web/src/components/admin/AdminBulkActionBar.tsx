@@ -1,21 +1,17 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ShieldAlert, UsersRound, X } from "lucide-react";
 import { useState } from "react";
 import Modal from "./AdminModal";
-import api from "../../lib/axios";
 import { toast } from "../../lib/toast";
-import { getUserFacingError } from "../../lib/user-facing-error";
 import AdminActionPasswordField from "./AdminActionPasswordField";
 import { isAdminActionPasswordReady } from "../../lib/admin/admin-action-password";
+import {
+  useAdminBulkAction,
+  type AdminBulkAction,
+} from "../../hooks/admin/useAdminBulkAction";
+import type { AdminFeatureKind } from "../../hooks/admin/admin-shared.query-keys";
 
-type Kind = "users" | "trackers" | "mock-tests";
-type Action = "suspend" | "delete" | "restore" | "block";
-
-type BulkResult = {
-  eligible?: string[];
-  succeeded?: number;
-  failed?: number;
-};
+type Kind = AdminFeatureKind;
+type Action = AdminBulkAction;
 
 export function AdminBulkActionBar({
   kind,
@@ -31,44 +27,13 @@ export function AdminBulkActionBar({
   const [reason, setReason] = useState("");
   const [actionPassword, setActionPassword] = useState("");
   const [eligible, setEligible] = useState<string[] | null>(null);
-  const client = useQueryClient();
-  const endpoint =
-    kind === "users"
-      ? "/admin/users/bulk/status"
-      : `/admin/${kind}/bulk/lifecycle`;
+  const mutation = useAdminBulkAction();
 
-  const body = (preview: boolean) =>
-    kind === "users"
-      ? {
-          userIds: selected,
-          status:
-            action === "block" || action === "restore"
-              ? action === "restore"
-                ? "active"
-                : "blocked"
-              : "paused",
-          reasonCode: action === "restore" ? "appeal_accepted" : "other",
-          reason,
-          notifyEmail: true,
-          preview,
-        }
-      : {
-          ids: selected,
-          action: action === "block" ? "suspend" : action,
-          reasonCode: action === "restore" ? "appeal_accepted" : "other",
-          reason,
-          notifyOwner: true,
-          preview,
-        };
-
-  const mutation = useMutation({
-    mutationFn: async (preview: boolean) =>
-      (
-        await api.post(endpoint, body(preview), {
-          headers: actionPassword ? { "X-Admin-Action-Password": actionPassword } : undefined,
-        })
-      ).data.data as BulkResult,
-    onSuccess: async (data, preview) => {
+  const runBulkAction = (preview: boolean) => {
+    mutation.mutate(
+      { kind, selected, action, reason, actionPassword, preview },
+      {
+        onSuccess: (data) => {
       if (preview) {
         setEligible(data.eligible ?? []);
         return;
@@ -82,11 +47,10 @@ export function AdminBulkActionBar({
       setReason("");
       setActionPassword("");
       onClear();
-      await client.invalidateQueries({ queryKey: ["admin", kind] });
-    },
-    onError: (error) =>
-      toast.error("Bulk action failed", getUserFacingError(error)),
-  });
+        },
+      },
+    );
+  };
 
   if (!selected.length) return null;
 
@@ -216,7 +180,7 @@ export function AdminBulkActionBar({
               type="button"
               className="admin-primary-button"
               disabled={!eligible.length || mutation.isPending || !actionPasswordReady}
-              onClick={() => mutation.mutate(false)}
+              onClick={() => runBulkAction(false)}
             >
               {mutation.isPending ? "Applying…" : `Apply to ${eligible.length}`}
             </button>
@@ -225,7 +189,7 @@ export function AdminBulkActionBar({
               type="button"
               className="admin-primary-button"
               disabled={!reasonReady || !actionPasswordReady || mutation.isPending}
-              onClick={() => mutation.mutate(true)}
+              onClick={() => runBulkAction(true)}
             >
               {mutation.isPending ? "Checking impact…" : "Preview impact"}
             </button>

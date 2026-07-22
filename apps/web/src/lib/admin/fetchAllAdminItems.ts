@@ -3,7 +3,7 @@ import type { ApiEnvelope } from "../api.types";
 
 type ExportQueryValue = string | number | boolean | null | undefined;
 
-type FetchAllAdminItemsOptions<TData, TItem> = {
+export type FetchAllAdminItemsOptions<TData, TItem> = {
   endpoint: string;
   params?: Record<string, ExportQueryValue>;
   selectItems: (data: TData) => TItem[];
@@ -27,10 +27,7 @@ export async function fetchAllAdminItems<TData, TItem>({
 }: FetchAllAdminItemsOptions<TData, TItem>): Promise<TItem[]> {
   const items: TItem[] = [];
   let page = 1;
-  // eslint-disable-next-line no-useless-assignment -- pages is used in the while condition
-  let pages = 1;
-
-  do {
+  while (true) {
     const response = await api.get<ApiEnvelope<TData>>(endpoint, {
       params: {
         ...params,
@@ -40,7 +37,8 @@ export async function fetchAllAdminItems<TData, TItem>({
     });
     const data = response.data.data;
     items.push(...selectItems(data));
-    pages = Math.max(1, Math.floor(selectPageCount(data) || 1));
+    const pages = Math.max(1, Math.floor(selectPageCount(data) || 1));
+    if (page >= pages) break;
     page += 1;
 
     if (page > maxPages) {
@@ -48,7 +46,7 @@ export async function fetchAllAdminItems<TData, TItem>({
         `The export contains more than ${maxPages * pageSize} records. Use a narrower filter before exporting.`,
       );
     }
-  } while (page <= pages);
+  }
 
   return items;
 }

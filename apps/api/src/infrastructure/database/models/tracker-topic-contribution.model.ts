@@ -9,7 +9,6 @@ const contributionSubtopicSchema = new Schema(
     order: { type: Number, required: true, min: 1 },
     depth: { type: Number, required: true, min: 1 },
     isLocked: { type: Boolean, default: true },
-    estimatedMinutes: { type: Number, default: 0, min: 0 },
     learningVideo: { type: Schema.Types.Mixed, default: null },
   },
   { _id: false }

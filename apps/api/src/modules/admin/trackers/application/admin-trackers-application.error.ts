@@ -1,4 +1,5 @@
 import type { ErrorKind } from '../../../../shared/errors/error-kind';
+
 export class AdminTrackersApplicationError extends Error {
   readonly kind: ErrorKind;
   readonly code: string;
@@ -11,7 +12,11 @@ export class AdminTrackersApplicationError extends Error {
   }
 
   static trackerNotFound() {
-    return new AdminTrackersApplicationError('missing-resource', 'TRACKER_NOT_FOUND', 'Tracker not found');
+    return new AdminTrackersApplicationError(
+      'missing-resource',
+      'TRACKER_NOT_FOUND',
+      'Tracker not found'
+    );
   }
 
   static publishedTrackerNotFound() {
@@ -27,6 +32,22 @@ export class AdminTrackersApplicationError extends Error {
       'missing-resource',
       'TRACKER_REPORT_NOT_FOUND',
       'Tracker report not found'
+    );
+  }
+
+  static reviewNotFound() {
+    return new AdminTrackersApplicationError(
+      'missing-resource',
+      'TRACKER_REVIEW_NOT_FOUND',
+      'Tracker review not found'
+    );
+  }
+
+  static reviewNotOpen() {
+    return new AdminTrackersApplicationError(
+      'conflict',
+      'TRACKER_REVIEW_NOT_OPEN',
+      'Consensus can only be changed while a review is open'
     );
   }
 }

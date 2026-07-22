@@ -6,7 +6,7 @@ import { MockTestsApplicationError } from '../mock-tests-application.error';
 import type { IMockTestReportRepository } from '../../domain/repositories/mock-test-report.repository.interface';
 import type { TestAttemptResultDTO } from '../mock-tests.dto';
 import type { IMockTestsMapper } from '../mock-tests.mapper';
-import { attemptQuestionSnapshotService } from '../services/attempt-question-snapshot.service';
+import type { IAttemptQuestionSnapshotService } from '../services/attempt-question-snapshot.service';
 
 type GetAttemptResultRepository = IMockTestAttemptRepository &
   IMockTestAnswerRepository &
@@ -21,7 +21,8 @@ export interface IGetAttemptResultUseCase {
 export class GetAttemptResultUseCase implements IGetAttemptResultUseCase {
   constructor(
     private readonly _repository: GetAttemptResultRepository,
-    private readonly _mapper: IMockTestsMapper
+    private readonly _mapper: IMockTestsMapper,
+    private readonly _questionSnapshot: IAttemptQuestionSnapshotService
   ) {}
 
   async execute(attemptId: string, userId: string) {
@@ -47,7 +48,7 @@ export class GetAttemptResultUseCase implements IGetAttemptResultUseCase {
     ]);
 
     const questionMap = new Map(
-      attemptQuestionSnapshotService.all(attempt, questions).map((question) => [question._id, question])
+      this._questionSnapshot.all(attempt, questions).map((question) => [question._id, question])
     );
     const aiEvalMap = new Map(aiEvaluations.map((evaluation) => [evaluation.answerId, evaluation]));
 

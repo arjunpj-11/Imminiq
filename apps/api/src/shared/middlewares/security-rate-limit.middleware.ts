@@ -1,6 +1,8 @@
 import { rateLimit } from 'express-rate-limit';
-import { ApiError } from '../utils/ApiError';
+import { ApiError } from '../utils/api-error';
 import { env } from '../../config/env';
+import { redis } from '../../config/redis';
+import { RedisRateLimitStore } from '../../infrastructure/cache/redis-rate-limit.store';
 
 const createSensitiveLimiter = (config: {
   windowMs: number;
@@ -11,6 +13,7 @@ const createSensitiveLimiter = (config: {
   return rateLimit({
     windowMs: config.windowMs,
     limit: config.limit,
+    store: new RedisRateLimitStore(redis, config.code.toLowerCase()),
     standardHeaders: 'draft-8',
     legacyHeaders: false,
     handler: (_req, _res, next) => {

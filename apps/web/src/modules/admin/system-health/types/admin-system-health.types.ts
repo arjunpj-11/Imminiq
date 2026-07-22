@@ -24,3 +24,18 @@ export type AdminSystemHealth = {
   memory: { rssMb: number; heapUsedMb: number; heapTotalMb: number };
   nodeVersion: string;
 };
+
+export type AdminBackgroundJob = {
+  id: string;
+  queue: string;
+  name: string;
+  state: "waiting" | "active" | "delayed" | "completed" | "failed";
+  progress: number;
+  attemptsMade: number;
+  maxAttempts: number;
+  timestamp: number;
+  processedOn?: number | null;
+  finishedOn?: number | null;
+  failedReason?: string | null;
+  applicationJobId?: string | null;
+};

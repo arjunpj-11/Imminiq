@@ -2,7 +2,6 @@ import { AuthApplicationError } from '../auth-application.error';
 import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface';
 import type { IAuthTwoFactorRepository } from '../../domain/repositories/auth-two-factor.repository.interface';
 import type { IAuthNotification } from '../../domain/services/auth-notification.interface';
-import type { IAuthRedirectResolver } from '../../domain/services/auth-redirect.interface';
 import type { IPasswordHasher } from '../../domain/services/password-hasher.interface';
 import type {
   SecurityAttemptScope,
@@ -10,16 +9,15 @@ import type {
 } from '../../domain/services/security-attempt-store.interface';
 import type { AuthLoginResultDTO, LoginPayloadDTO, RequestMetaDTO } from '../auth.dto';
 import type { AuthRuntimePolicy } from '../../domain/auth-runtime-policy';
-import type { IAuthUserMapper } from '../auth-user.mapper';
 import type { IAuthAccountPolicy } from '../auth-account-policy.policy';
-import type { IAuthSessionIssuer } from '../services/auth-session.service';
+import type { IAuthLoginFinalizer } from '../services/auth-login-finalizer.service';
 import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface';
 import type { IAuthToken } from '../../domain/services/auth-token.interface';
 import type { IModerationAppealToken } from '../../domain/services/moderation-appeal-token.interface';
 
 type LoginRepository = Pick<
   IAuthUserRepository,
-  'findByIdentifier' | 'cancelScheduledDeletionIfRecoverable' | 'updateLastActive'
+  'findByIdentifier'
 > &
   Pick<IAuthTwoFactorRepository, 'hasActiveTwoFactor'>;
 
@@ -33,14 +31,12 @@ export class LoginUserUseCase implements ILoginUserUseCase {
   constructor(
     private readonly _authRepository: LoginRepository,
     private readonly _authNotification: IAuthNotification,
-    private readonly _authRedirectResolver: IAuthRedirectResolver,
     private readonly _identifierNormalizer: IIdentifierNormalizer,
     private readonly _authAccountPolicy: IAuthAccountPolicy,
-    private readonly _authSessionIssuer: IAuthSessionIssuer,
+    private readonly _loginFinalizer: IAuthLoginFinalizer,
     private readonly _authToken: IAuthToken,
     private readonly _passwordHasher: IPasswordHasher,
     private readonly _securityAttemptStore: ISecurityAttemptStore,
-    private readonly _authUserMapper: IAuthUserMapper,
     private readonly _moderationAppealToken: IModerationAppealToken,
     private readonly _runtimePolicy: Pick<AuthRuntimePolicy, 'twoFactorChallengeTtlMinutes'>
   ) {}
@@ -120,25 +116,7 @@ export class LoginUserUseCase implements ILoginUserUseCase {
       };
     }
 
-    const recoveredUser = await this._authRepository.cancelScheduledDeletionIfRecoverable(userId);
-
-    const authenticatedUser = recoveredUser ?? user;
-
-    const redirectPath = await this._authRedirectResolver.resolveRedirectPath(
-      userId,
-      authenticatedUser.role
-    );
-
-    const tokens = await this._authSessionIssuer.issueTokenPair(userId, user.role, meta);
-
-    await this._authRepository.updateLastActive(userId);
-
-    return {
-      requiresTwoFactor: false,
-      tokens,
-      user: this._authUserMapper.toAuthUser(authenticatedUser),
-      redirectPath,
-    };
+    return this._loginFinalizer.finalize(user, meta);
   }
 
   private async throwIfLoginTemporarilyBlocked(identifier: string): Promise<void> {

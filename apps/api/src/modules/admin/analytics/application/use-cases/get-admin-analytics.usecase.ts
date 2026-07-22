@@ -7,10 +7,10 @@ export interface IGetAdminAnalyticsUseCase {
 }
 export class GetAdminAnalyticsUseCase implements IGetAdminAnalyticsUseCase {
   constructor(
-    private readonly repository: IAdminAnalyticsRepository,
-    private readonly mapper: IAdminAnalyticsMapper
+    private readonly _repository: IAdminAnalyticsRepository,
+    private readonly _mapper: IAdminAnalyticsMapper
   ) {}
   async execute(range: AdminAnalyticsRange): Promise<AdminAnalyticsDTO> {
-    return this.mapper.toDTO(await this.repository.get(range));
+    return this._mapper.toDTO(await this._repository.get(range));
   }
 }

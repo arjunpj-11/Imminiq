@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
-import { validate } from '../../../../shared/middlewares/validate';
+import { validate } from '../../../../shared/middlewares/validate.middleware';
 import { SettingsController } from './settings.controller';
 import type { SettingsUseCases } from '../application/settings-use-cases.contract';
 import { SETTINGS_ROUTE_PATHS } from './settings.route.constants';

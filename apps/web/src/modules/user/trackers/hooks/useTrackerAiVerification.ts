@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 
 import api from '../../../../lib/axios';
 import { TRACKER_API_PATHS } from '../constants/tracker-api.constants';
+import type { TrackerOutlineNode } from '../utils/tracker-outline';
 
 type ExistingTopic = {
   id: string;
@@ -41,6 +42,7 @@ export type TrackerAiVerificationResult = {
   message: string;
   polishedTitle: string;
   polishedDescription: string;
+  suggestedSubtopics: TrackerOutlineNode[];
 };
 
 type ApiVerificationResponse = {
@@ -65,6 +67,20 @@ const getString = (source: Record<string, unknown>, keys: string[]): string | un
   }
 
   return undefined;
+};
+
+const normalizeSuggestions = (value: unknown, depth = 0): TrackerOutlineNode[] => {
+  if (!Array.isArray(value) || depth > 8) return [];
+  return value.flatMap((item) => {
+    if (!isRecord(item)) return [];
+    const title = getString(item, ['title']);
+    if (!title) return [];
+    return [{
+      title,
+      description: getString(item, ['description']) || '',
+      subtopics: normalizeSuggestions(item.subtopics ?? item.children, depth + 1),
+    }];
+  });
 };
 
 const normalizeVerificationResponse = (
@@ -98,6 +114,9 @@ const normalizeVerificationResponse = (
     message,
     polishedTitle,
     polishedDescription,
+    suggestedSubtopics: normalizeSuggestions(
+      (source as Record<string, unknown>).suggestedSubtopics
+    ),
   };
 };
 

@@ -1,7 +1,7 @@
 import { basename, extname } from 'node:path';
 import type { NextFunction, Request, Response } from 'express';
 
-import { ApiError } from '../utils/ApiError';
+import { ApiError } from '../utils/api-error';
 
 type ImageKind = 'jpeg' | 'png' | 'webp';
 

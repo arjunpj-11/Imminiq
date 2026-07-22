@@ -1,3 +1,7 @@
+import type {
+  LessonCodeExecutionDTO,
+  RunLessonCodePayloadDTO,
+} from '../tracker.dto';
 // apps/api/src/modules/user/trackers/application/use-cases/run-lesson-code.usecase.ts
 
 import { TrackerApplicationError } from '../tracker-application.error';
@@ -5,20 +9,8 @@ import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { ICodeExecutor } from '../../domain/services/code-execution.interface';
 
-type RunLessonCodeInput = {
-  trackerId: string;
-  subtopicId: string;
-  userId: string;
-  sourceCode: string;
-  languageId: number;
-  language?: string;
-  stdin?: string;
-};
-
-type RunLessonCodeResultDTO = ReturnType<ITrackerMapper['toLessonCodeExecutionDto']>;
-
 export interface IRunLessonCodeUseCase {
-  execute(input: RunLessonCodeInput): Promise<RunLessonCodeResultDTO>;
+  execute(input: RunLessonCodePayloadDTO): Promise<LessonCodeExecutionDTO>;
 }
 
 export class RunLessonCodeUseCase implements IRunLessonCodeUseCase {
@@ -31,7 +23,7 @@ export class RunLessonCodeUseCase implements IRunLessonCodeUseCase {
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: RunLessonCodeInput): Promise<RunLessonCodeResultDTO> {
+  async execute(input: RunLessonCodePayloadDTO): Promise<LessonCodeExecutionDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { verifyBrowserRequestOrigin } from '../../src/shared/middlewares/request-origin.middleware';
-import { ApiError } from '../../src/shared/utils/ApiError';
+import { ApiError } from '../../src/shared/utils/api-error';
 import {
   createMockRequest,
   createMockResponse,

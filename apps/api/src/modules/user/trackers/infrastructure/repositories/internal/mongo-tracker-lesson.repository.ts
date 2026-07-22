@@ -92,7 +92,6 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
               practiceTask: data.practiceTask,
               tags: data.tags,
               difficulty: data.difficulty,
-              estimatedMinutes: data.estimatedMinutes,
               deletedAt: null,
             }),
           },

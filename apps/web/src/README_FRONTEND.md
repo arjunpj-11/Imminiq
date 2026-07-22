@@ -2,7 +2,7 @@
 
 > **Status:** Authoritative frontend guide  
 > **Audited source:** Latest refactored Imminiq `src` tree  
-> **Last reviewed:** 2026-07-03  
+> **Last reviewed:** 2026-07-22
 > **Audience:** Imminiq developers, reviewers, and AI coding assistants
 
 This document explains the complete Imminiq frontend architecture and defines the rules for creating or modifying modules without breaking consistency.
@@ -235,19 +235,29 @@ lib/
 
 ```text
 modules/
-├── activity/
-├── auth/
-├── community/
-├── dashboard/
-├── friends/
 ├── landing/
-├── leaderboard/
 ├── legal/
-├── mock-tests/
-├── settings/
-├── tracker-creation/
-├── trackers/
-└── users/
+├── notifications/
+├── auth/
+├── admin/
+│   ├── dashboard/
+│   ├── users/
+│   ├── trackers/
+│   ├── mock-tests/
+│   └── ...
+└── user/
+    ├── activity/
+    ├── community/
+    ├── dashboard/
+    ├── friends/
+    ├── leaderboard/
+    ├── mock-tests/
+    ├── settings/
+    ├── subscriptions/
+    ├── support-tickets/
+    ├── tracker-creation/
+    ├── trackers/
+    └── users/
 ```
 
 ---
@@ -281,6 +291,9 @@ Do not create a second router or query client inside a module.
 - Root toast provider
 
 A feature module must not recreate these systems.
+
+React components and pages must not call the API or create TanStack queries directly. They
+consume feature hooks; hooks own API contracts, query keys, cache updates, and invalidation.
 
 ---
 
@@ -696,6 +709,10 @@ Owns:
 - Auth bootstrap readiness
 
 Only the user/authenticated marker is persisted. The access token is not persisted.
+
+Logout, expired authentication, restricted-account handling, and cross-tab sign-out must all use
+the central client-session reset. It clears the query cache and user-scoped workflow stores before
+another account can use the application.
 
 ### `useAppShellStore`
 

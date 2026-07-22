@@ -201,6 +201,13 @@ export default function TrackerCard({
   const isArchived = tracker.status === "archived";
   const cloneSource = tracker.clonedFrom;
   const hasClanMembership = Boolean(tracker.clanRole);
+  const shouldShowClan =
+    isPublished &&
+    Boolean(
+      cloneSource ||
+        tracker.clanRole === "owner" ||
+        tracker.clanRole === "co_owner",
+    );
   const isSharedCoOwner = !cloneSource && tracker.clanRole === "co_owner";
   const hasOwnerControls = !cloneSource && !isSharedCoOwner;
   const verificationStatus = (
@@ -353,7 +360,15 @@ export default function TrackerCard({
 
   return (
     <>
-      <article className="render-lazy group relative flex min-h-[430px] flex-col overflow-visible rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) transition duration-200 hover:-translate-y-1 hover:border-[rgba(184,76,43,0.24)] hover:shadow-(--shadow-2) dark:hover:border-[rgba(232,129,106,0.26)]">
+      <article
+        className={cn(
+          "render-lazy group relative flex min-h-[430px] flex-col rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) transition duration-200",
+          isUnavailable
+            ? "overflow-hidden border-amber-500/25"
+            : "overflow-visible hover:-translate-y-1 hover:border-[rgba(184,76,43,0.24)] hover:shadow-(--shadow-2) dark:hover:border-[rgba(232,129,106,0.26)]",
+        )}
+        aria-disabled={isUnavailable || undefined}
+      >
         <div
           className={cn(
             "pointer-events-none absolute inset-x-5 top-0 h-px bg-linear-to-r from-transparent via-(--brand-500) to-transparent opacity-45",
@@ -387,9 +402,7 @@ export default function TrackerCard({
           </div>
 
           <div className="relative flex shrink-0 items-center gap-1">
-            {(cloneSource ||
-              tracker.clanRole === "owner" ||
-              tracker.clanRole === "co_owner") && (
+            {shouldShowClan && (
               <button
                 type="button"
                 onClick={() =>
@@ -450,15 +463,6 @@ export default function TrackerCard({
               "A focused learning roadmap built around your goals."}
           </p>
         </div>
-
-        {isUnavailable && tracker.moderationReason && (
-          <div className="relative mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10 px-3.5 py-3 text-[12.5px] font-semibold leading-5 text-amber-800 dark:text-amber-200">
-            <span className="block text-[10px] font-extrabold uppercase tracking-[0.1em]">
-              Admin note
-            </span>
-            <span className="mt-1 block">{tracker.moderationReason}</span>
-          </div>
-        )}
 
         <section
           className={cn(
@@ -625,6 +629,21 @@ export default function TrackerCard({
             )}
           </div>
         </footer>
+
+        {isUnavailable && (
+          <button
+            type="button"
+            className="absolute inset-0 z-40 cursor-pointer rounded-2xl bg-[rgba(245,237,228,0.38)] backdrop-blur-[3px] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-amber-500/35 dark:bg-[rgba(15,14,12,0.48)]"
+            onClick={() => navigate(ROUTES.trackerManage(tracker._id))}
+            aria-label={`Open moderation status for ${tracker.title}`}
+          >
+            <span className="absolute left-1/2 top-4 -translate-x-1/2 whitespace-nowrap rounded-full border border-amber-500/35 bg-(--surface-card)/95 px-3 py-1.5 font-mono text-[10px] font-extrabold uppercase tracking-[0.12em] text-amber-800 shadow-sm dark:text-amber-200">
+              {tracker.moderationStatus === "deleted"
+                ? "Tracker blocked"
+                : "Tracker under review"}
+            </span>
+          </button>
+        )}
       </article>
 
       {publishModalOpen && hasOwnerControls && (

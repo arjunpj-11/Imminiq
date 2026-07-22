@@ -3,6 +3,7 @@ import type { MockTestCodingDetails } from '../value-objects/mock-test-coding.vo
 import type { QuestionType } from '../value-objects/question-type.vo';
 
 export type MockTestQuestionEntityProps = {
+  bankId?: number;
   _id: string;
   testId: string;
   type: QuestionType;
@@ -18,6 +19,7 @@ export type MockTestQuestionEntityProps = {
 };
 
 export class MockTestQuestionEntity {
+  readonly bankId?: number;
   readonly _id: string;
   readonly testId: string;
   readonly type: QuestionType;
@@ -32,6 +34,7 @@ export class MockTestQuestionEntity {
   readonly version: number;
 
   constructor(props: MockTestQuestionEntityProps) {
+    this.bankId = props.bankId;
     this._id = props._id;
     this.testId = props.testId;
     this.type = props.type;

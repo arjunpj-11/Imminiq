@@ -15,16 +15,16 @@ export interface IUpdateAdminTrackerLifecycleUseCase {
 
 export class UpdateAdminTrackerLifecycleUseCase implements IUpdateAdminTrackerLifecycleUseCase {
   constructor(
-    private readonly repository: Pick<IAdminTrackersRepository, 'updateLifecycle'>,
-    private readonly emailProvider: IAdminTrackerEmailProvider
+    private readonly _repository: Pick<IAdminTrackersRepository, 'updateLifecycle'>,
+    private readonly _emailProvider: IAdminTrackerEmailProvider
   ) {}
   async execute(id: string, input: AdminTrackerLifecycleInput, actor: AdminActor) {
-    const result = await this.repository.updateLifecycle(id, input, actor);
+    const result = await this._repository.updateLifecycle(id, input, actor);
     if (!result) throw AdminTrackersApplicationError.trackerNotFound();
     let notificationQueued = false;
     if (input.notifyOwner && result.ownerEmail) {
       try {
-        await this.emailProvider.queueTrackerModeration({
+        await this._emailProvider.queueTrackerModeration({
           to: result.ownerEmail,
           ownerName: result.owner,
           trackerTitle: result.title,

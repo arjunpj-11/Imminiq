@@ -12,7 +12,7 @@ import type { IClock } from '../../../../../shared/time/clock.interface';
 import type { IMockTestCompletionObserver } from '../../domain/services/mock-test-completion-observer.interface';
 import type { FinishMockTestAttemptDTO } from '../mock-tests.dto';
 import type { IMockTestPolicyReader } from '../../../../../shared/platform-policy';
-import { attemptQuestionSnapshotService } from '../services/attempt-question-snapshot.service';
+import type { IAttemptQuestionSnapshotService } from '../services/attempt-question-snapshot.service';
 
 type FinishTestAttemptRepository = IMockTestRepository &
   IMockTestQuestionRepository &
@@ -41,6 +41,7 @@ export class FinishTestAttemptUseCase implements IFinishTestAttemptUseCase {
 
     private readonly _clock: IClock,
     private readonly _policyReader: IMockTestPolicyReader,
+    private readonly _questionSnapshot: IAttemptQuestionSnapshotService,
     private readonly _completionObserver?: IMockTestCompletionObserver
   ) {}
 
@@ -82,7 +83,7 @@ export class FinishTestAttemptUseCase implements IFinishTestAttemptUseCase {
 
       this._repository.findAnswersByAttempt(attemptId),
     ]);
-    const questions = attemptQuestionSnapshotService.all(attempt, liveQuestions);
+    const questions = this._questionSnapshot.all(attempt, liveQuestions);
 
     const completedAt = attempt.completedAt ?? this._clock.now();
 

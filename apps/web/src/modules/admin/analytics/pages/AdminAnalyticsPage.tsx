@@ -123,7 +123,7 @@ export default function AdminAnalyticsPage() {
         }
       />
       {isLoading || isPlaceholderData ? (
-        <AdminLoading />
+        <AdminLoading variant="analytics" />
       ) : isError ? (
         <AdminError error={error} onRetry={() => void refetch()} />
       ) : (

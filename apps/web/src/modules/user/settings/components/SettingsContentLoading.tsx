@@ -1,75 +1,88 @@
+import SkeletonBlock from '../../../../components/feedback/SkeletonBlock';
+
 interface ISettingsContentLoadingProps {
   eyebrow?: string;
   title?: string;
   description?: string;
+  variant?: 'appearance' | 'notifications' | 'privacy' | 'security';
+}
+
+function CardHeader() {
+  return (
+    <div className="mb-4 flex items-start gap-3">
+      <SkeletonBlock className="h-9 w-9 shrink-0 rounded-xl" />
+      <div className="min-w-0 flex-1">
+        <SkeletonBlock className="h-6 w-44 rounded-lg" />
+        <SkeletonBlock className="mt-2 h-3 w-[min(42rem,92%)]" />
+        <SkeletonBlock className="mt-2 h-3 w-[min(34rem,76%)]" />
+      </div>
+    </div>
+  );
+}
+
+function ToggleSkeleton() {
+  return (
+    <div className="flex items-center justify-between gap-5 border-t border-(--border-subtle) py-4 first:border-t-0">
+      <div className="min-w-0 flex-1">
+        <SkeletonBlock className="h-4 w-[min(18rem,65%)]" />
+        <SkeletonBlock className="mt-2 h-3 w-[min(38rem,90%)]" />
+      </div>
+      <SkeletonBlock className="h-7 w-12 shrink-0 rounded-full" />
+    </div>
+  );
+}
+
+function SettingsCardSkeleton({ rows = 2, fields = false }: { rows?: number; fields?: boolean }) {
+  return (
+    <section className="surface-elevated p-5 max-[640px]:p-4">
+      <CardHeader />
+      {fields ? (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {Array.from({ length: rows }, (_, index) => (
+            <div key={index}><SkeletonBlock className="h-3 w-28" /><SkeletonBlock className="mt-2 h-11 w-full rounded-md" /></div>
+          ))}
+        </div>
+      ) : Array.from({ length: rows }, (_, index) => <ToggleSkeleton key={index} />)}
+    </section>
+  );
+}
+
+function SaveBarSkeleton() {
+  return (
+    <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-5 py-4 shadow-(--shadow-1)">
+      <SkeletonBlock className="h-3 w-[min(25rem,80%)]" />
+      <div className="flex gap-2"><SkeletonBlock className="h-10 w-20 rounded-md" /><SkeletonBlock className="h-10 w-32 rounded-md" /></div>
+    </div>
+  );
 }
 
 export default function SettingsContentLoading({
-  eyebrow = 'Loading',
   title = 'Preparing settings',
-  description = 'Please wait while Imminiq gets everything ready.',
+  variant = 'security',
 }: ISettingsContentLoadingProps) {
   return (
-    <div
-      className="relative min-h-105 w-full overflow-hidden rounded-3xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-6 text-(--text-primary) shadow-[0_14px_48px_rgba(26,23,20,0.08)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-primary) dark:shadow-[0_18px_60px_rgba(0,0,0,0.28)]"
-      role="status"
-      aria-live="polite"
-      aria-label={title}
-    >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.025] dark:opacity-[0.04]"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
-          backgroundSize: '180px 180px',
-        }}
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-[10%] top-[12%] h-48 w-48 rounded-full bg-[rgba(184,76,43,0.10)] blur-3xl dark:bg-[rgba(232,129,106,0.08)]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-[10%] right-[10%] h-44 w-44 rounded-full bg-[rgba(59,108,183,0.10)] blur-3xl dark:bg-[rgba(107,159,232,0.08)]"
-      />
-
-      <div className="relative z-10 space-y-6">
-        <div className="space-y-3">
-          <div className="h-3 w-24 animate-pulse rounded-full bg-[#e8d8cf] dark:bg-white/10" />
-          <div className="h-8 w-56 animate-pulse rounded-2xl bg-[#e8d8cf] dark:bg-white/10" />
-          <div className="h-4 w-full max-w-xl animate-pulse rounded-full bg-[#efe2dc] dark:bg-white/8" />
-          <div className="h-4 w-3/4 animate-pulse rounded-full bg-[#efe2dc] dark:bg-white/8" />
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div
-              key={index}
-              className="rounded-3xl border-[1.5px] border-(--border-subtle) bg-white/45 p-5 shadow-[0_10px_28px_rgba(26,23,20,0.06)] dark:border-(--border-subtle) dark:bg-white/[0.035]"
-            >
-              <div className="mb-5 flex items-center gap-3">
-                <div className="h-11 w-11 animate-pulse rounded-2xl bg-[#e8d8cf] dark:bg-white/10" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 w-32 animate-pulse rounded-full bg-[#e8d8cf] dark:bg-white/10" />
-                  <div className="h-3 w-44 animate-pulse rounded-full bg-[#efe2dc] dark:bg-white/8" />
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="h-11 w-full animate-pulse rounded-2xl bg-[#efe2dc] dark:bg-white/8" />
-                <div className="h-11 w-full animate-pulse rounded-2xl bg-[#efe2dc] dark:bg-white/8" />
-                <div className="h-11 w-2/3 animate-pulse rounded-2xl bg-[#efe2dc] dark:bg-white/8" />
-              </div>
-            </div>
-          ))}
-        </div>
+    <div role="status" aria-live="polite" aria-busy="true" aria-label={title}>
+      <span className="sr-only">{title}…</span>
+      <div aria-hidden="true">
+        {variant === 'appearance' && (
+          <><SettingsCardSkeleton rows={3} fields /><SaveBarSkeleton /></>
+        )}
+        {variant === 'notifications' && (
+          <><SettingsCardSkeleton rows={2} /><SaveBarSkeleton /></>
+        )}
+        {variant === 'privacy' && (
+          <div className="space-y-5"><SettingsCardSkeleton rows={3} /><SaveBarSkeleton /><SettingsCardSkeleton rows={2} fields /></div>
+        )}
+        {variant === 'security' && (
+          <div className="space-y-5">
+            <SettingsCardSkeleton rows={4} fields />
+            <SettingsCardSkeleton rows={3} fields />
+            <SettingsCardSkeleton rows={3} />
+            <SettingsCardSkeleton rows={2} fields />
+            <SettingsCardSkeleton rows={3} />
+          </div>
+        )}
       </div>
-
-      <span className="sr-only">
-        {eyebrow}. {title}. {description}
-      </span>
     </div>
   );
 }

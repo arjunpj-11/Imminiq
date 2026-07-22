@@ -3,12 +3,12 @@
 
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import { AppPageSkeleton } from '../../../../components/feedback/RouteSkeleton';
 import WidgetErrorBoundary from '../../../../components/system/WidgetErrorBoundary';
-import { useTrackerLesson, useUpdateSubtopicProgress } from '../hooks/useTrackers';
+import { useTrackerDetails, useTrackerLesson, useUpdateSubtopicProgress } from '../hooks/useTrackers';
+import TrackerModerationNotice from '../components/TrackerModerationNotice';
 
 import CompilerCard from '../components/lesson/CompilerCard';
 import LessonChatCard from '../components/lesson/LessonChatCard';
@@ -19,6 +19,7 @@ import ReflectionPracticeCard from '../components/lesson/ReflectionPracticeCard'
 import type { LessonLocationState } from '../types/lesson.types';
 import { formatLessonType } from '../utils/lesson-formatters';
 import { readSavedRoadmapStack } from '../utils/roadmap.utils';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 export default function TrackerLessonPage() {
   const navigate = useNavigate();
@@ -29,8 +30,16 @@ export default function TrackerLessonPage() {
     subtopicId: string;
   }>();
 
-  const queryClient = useQueryClient();
-  const lessonQuery = useTrackerLesson(trackerId || '', subtopicId || '');
+  const trackerDetailsQuery = useTrackerDetails(trackerId);
+  const trackerIsModerated = Boolean(
+    trackerDetailsQuery.data?.moderationStatus &&
+      trackerDetailsQuery.data.moderationStatus !== 'active'
+  );
+  const lessonQuery = useTrackerLesson(
+    trackerId || '',
+    subtopicId || '',
+    Boolean(trackerDetailsQuery.data && !trackerIsModerated)
+  );
   const updateProgressMutation = useUpdateSubtopicProgress();
 
   const lessonData = lessonQuery.data;
@@ -50,7 +59,7 @@ export default function TrackerLessonPage() {
     );
   }, [generatedLesson]);
 
-  const isMainLoading = lessonQuery.isLoading;
+  const isMainLoading = trackerDetailsQuery.isLoading || (!trackerIsModerated && lessonQuery.isLoading);
 
   const hasMainError = lessonQuery.isError || !trackerId || !subtopicId;
 
@@ -70,26 +79,8 @@ export default function TrackerLessonPage() {
         status: 'completed',
       },
       {
-        onSuccess: async () => {
+        onSuccess: () => {
           setOptimisticCompletedId(subtopicId ?? null);
-
-          await Promise.all([
-            queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
-            queryClient.invalidateQueries({ queryKey: ['dashboard', 'summary'] }),
-            queryClient.invalidateQueries({ queryKey: ['dashboard', 'current-roadmap'] }),
-            queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity-intensity'] }),
-            queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity-intensity', 6] }),
-            queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity-intensity', 12] }),
-            queryClient.invalidateQueries({ queryKey: ['dashboard', 'heatmap'] }),
-            queryClient.invalidateQueries({ queryKey: ['activity-intensity'] }),
-            queryClient.invalidateQueries({ queryKey: ['trackers', 'roadmap', trackerId] }),
-            queryClient.invalidateQueries({ queryKey: ['trackers', 'list'] }),
-            queryClient.invalidateQueries({ queryKey: ['trackers'] }),
-            queryClient.invalidateQueries({ queryKey: ['tracker', trackerId] }),
-            queryClient.invalidateQueries({ queryKey: ['tracker-lesson', trackerId, subtopicId] }),
-          ]);
-
-          await lessonQuery.refetch();
         },
         onError: (error) => {
           console.error('❌ Mutation error:', error);
@@ -99,14 +90,14 @@ export default function TrackerLessonPage() {
   };
 
   const goToLesson = (id: string) => {
-    navigate(`/trackers/${trackerId}/lessons/${id}`, {
+    navigate(ROUTES.trackerLesson(trackerId!, id), {
       state: { returnToRoadmapStack: getReturnStack() },
     });
   };
 
   const backToRoadmapLastLevel = () => {
     const stack = getReturnStack();
-    navigate(`/trackers/${trackerId}/roadmap`, {
+    navigate(ROUTES.trackerRoadmap(trackerId!), {
       state: { roadmapBreadcrumbStack: stack },
     });
   };
@@ -124,6 +115,8 @@ export default function TrackerLessonPage() {
     >
       {isMainLoading ? (
         <AppPageSkeleton kind="lesson" label="Loading lesson" />
+      ) : trackerIsModerated && trackerDetailsQuery.data ? (
+        <TrackerModerationNotice tracker={trackerDetailsQuery.data} />
       ) : hasMainError || !lessonData || !tracker || !lessonNode || !generatedLesson ? (
         <div className="flex min-h-[calc(100vh-88px)] items-center justify-center bg-(--surface-canvas) px-4 dark:bg-(--surface-canvas)">
           <div className="max-w-md rounded-2xl border border-[rgba(200,50,50,0.22)] bg-(--surface-card) p-6 text-center shadow-(--shadow-2) dark:bg-(--surface-card)">
@@ -170,7 +163,6 @@ export default function TrackerLessonPage() {
               </p>
 
               <div className="mt-5 flex flex-wrap items-center gap-5 text-[12.5px] font-medium text-(--text-secondary) dark:text-(--text-secondary)">
-                <div>⏱ {generatedLesson.estimatedMinutes} min</div>
                 <div>◇ Level {lessonNode.depth}</div>
                 <div>★ +180 XP</div>
               </div>

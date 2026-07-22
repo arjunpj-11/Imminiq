@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 
 import { HttpStatusCode } from '../../../../shared/constants/http-status-code.enum';
-import { ApiResponse } from '../../../../shared/utils/ApiResponse';
-import { getAuthUser } from '../../../../shared/utils/getAuthUser';
+import { ApiResponse } from '../../../../shared/utils/api-response';
+import { getAuthUser } from '../../../../shared/utils/get-auth-user';
 import type { TrackerUseCases } from '../application/tracker-use-cases.contract';
 
 type TrackerParams = { trackerId: string };
@@ -57,12 +57,24 @@ export class TrackerRoadmapController {
         title: req.body.title,
         description: req.body.description,
         parentSubtopicId: req.body.parentSubtopicId,
-        estimatedMinutes: req.body.estimatedMinutes,
       });
 
       res
         .status(HttpStatusCode.CREATED)
         .json(new ApiResponse('Subtopic created successfully', result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  importOutline = async (req: Request<TrackerParams>, res: Response, next: NextFunction) => {
+    try {
+      const result = await this._useCases.importTrackerOutline.execute({
+        ...req.body,
+        trackerId: req.params.trackerId,
+        userId: getAuthUser(req).userId,
+      });
+      res.status(HttpStatusCode.CREATED).json(new ApiResponse('Roadmap outline imported', result));
     } catch (error) {
       next(error);
     }

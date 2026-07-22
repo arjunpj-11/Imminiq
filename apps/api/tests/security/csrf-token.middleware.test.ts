@@ -5,7 +5,7 @@ import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 
 import { validateCsrfToken } from '../../src/shared/middlewares/csrf-token.middleware';
-import { errorHandler } from '../../src/shared/middlewares/errorHandler';
+import { errorHandler } from '../../src/shared/middlewares/error-handler.middleware';
 
 const createApp = () => {
   const app = express();
@@ -23,13 +23,15 @@ const createApp = () => {
   app.use(testRateLimiter);
   app.use(validateCsrfToken);
 
-  app.post('*path', (_req, res) => res.status(204).send());
+  app.use((_req, res) => res.status(204).send());
   app.use(errorHandler);
 
   return app;
 };
 
 describe('validateCsrfToken', () => {
+  const app = createApp();
+
   it.each([
     '/api/auth/register',
     '/api/auth/login',
@@ -37,7 +39,7 @@ describe('validateCsrfToken', () => {
     '/api/auth/verify-reset-code',
     '/api/auth/reset-password',
   ])('allows cookie-independent auth route %s with a stale auth cookie', async (path) => {
-    const response = await request(createApp())
+    const response = await request(app)
       .post(path)
       .set('Cookie', 'refreshToken=stale-token');
 
@@ -45,7 +47,7 @@ describe('validateCsrfToken', () => {
   });
 
   it('still protects refresh requests that carry an auth cookie', async () => {
-    const response = await request(createApp())
+    const response = await request(app)
       .post('/api/auth/refresh-token')
       .set('Cookie', 'refreshToken=active-token');
 
@@ -57,7 +59,7 @@ describe('validateCsrfToken', () => {
   });
 
   it('protects every unsafe cookie-authenticated API route', async () => {
-    const response = await request(createApp())
+    const response = await request(app)
       .patch('/api/security/change-email')
       .set('Cookie', 'refreshToken=active-token; csrfToken=matching-token')
       .set('X-CSRF-Token', 'different-token');
@@ -70,7 +72,7 @@ describe('validateCsrfToken', () => {
   });
 
   it('allows unsafe requests authenticated only with a bearer token', async () => {
-    const response = await request(createApp())
+    const response = await request(app)
       .post('/api/trackers')
       .set('Authorization', 'Bearer test-token');
 
@@ -78,7 +80,7 @@ describe('validateCsrfToken', () => {
   });
 
   it('accepts a matching CSRF cookie and header on cookie-backed routes', async () => {
-    const response = await request(createApp())
+    const response = await request(app)
       .post('/api/auth/refresh-token')
       .set('Cookie', 'refreshToken=active-token; csrfToken=matching-token')
       .set('X-CSRF-Token', 'matching-token');

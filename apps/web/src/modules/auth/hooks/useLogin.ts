@@ -11,6 +11,8 @@ import {
 } from '../../../lib/blockedAppealSession';
 import { ADMIN_ROUTES, ROUTES } from '../../../routes/config/route-paths';
 import { AUTH_API_PATHS } from '../constants/auth.constants';
+import { isStaffRole } from '../../../lib/auth-roles';
+import { resetClientState } from '../../../store/reset-client-state';
 
 interface ILoginPayload {
   identifier: string;
@@ -67,7 +69,6 @@ export const useLogin = () => {
 
   const setUser = useAuthStore((state) => state.setUser);
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
-  const clearAuth = useAuthStore((state) => state.clearAuth);
 
   return useMutation<ILoginResponse, AxiosError<IApiErrorResponse>, ILoginPayload>({
     mutationFn: async (payload) => {
@@ -89,7 +90,7 @@ export const useLogin = () => {
 
       const user = data?.user;
       const accessToken = data?.accessToken;
-      const redirectPath = ['admin', 'superadmin', 'moderator'].includes(user?.role || '')
+      const redirectPath = isStaffRole(user?.role)
         ? ADMIN_ROUTES.dashboard
         : data?.redirectPath || ROUTES.dashboard;
 
@@ -121,7 +122,7 @@ export const useLogin = () => {
 
         if (!appealToken) return;
 
-        clearAuth();
+        resetClientState();
         saveBlockedAppealIdentifier(payload.identifier);
         saveBlockedAppealToken(appealToken);
         saveBlockedModerationMessage(

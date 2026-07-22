@@ -195,7 +195,7 @@ export default function AdminAITokenSpendPage() {
       />
 
       {isLoading || isPlaceholderData ? (
-        <AdminLoading />
+        <AdminLoading variant="analytics" />
       ) : isError ? (
         <AdminError error={error} onRetry={() => void refetch()} />
       ) : (

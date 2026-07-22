@@ -13,7 +13,6 @@ type CurrentRoadmap = {
   totalTopics?: number | null;
   completedTopics?: number | null;
   remainingTopics?: number | null;
-  estimatedHours?: number | null;
 };
 
 type CurrentRoadmapCardProps = {

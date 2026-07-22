@@ -5,8 +5,8 @@ import type {
   DashboardRecentItemsQueryDTO,
 } from '../application/dashboard.dto';
 import type { DashboardUseCases } from '../application/dashboard-use-cases.contract';
-import { ApiResponse } from '../../../../shared/utils/ApiResponse';
-import { getAuthUser } from '../../../../shared/utils/getAuthUser';
+import { ApiResponse } from '../../../../shared/utils/api-response';
+import { getAuthUser } from '../../../../shared/utils/get-auth-user';
 
 export class DashboardController {
   constructor(private readonly _useCases: DashboardUseCases) {}

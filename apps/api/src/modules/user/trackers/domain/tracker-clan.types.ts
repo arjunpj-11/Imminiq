@@ -83,6 +83,7 @@ export type TrackerClanChallenge = {
   challengerScore: number | null;
   opponentScore: number | null;
   winnerId: string | null;
+  quitById: string | null;
   createdAt: Date;
   acceptBy: Date;
   startsAt: Date | null;
@@ -91,6 +92,7 @@ export type TrackerClanChallenge = {
   canAccept: boolean;
   canDecline: boolean;
   canCancel: boolean;
+  canQuit: boolean;
   canSubmit: boolean;
   submitted: boolean;
   totalNodes: number;
@@ -99,6 +101,7 @@ export type TrackerClanChallenge = {
   opponentPosition: number;
   viewerScore: number;
   opponentLiveScore: number;
+  questionsRemaining: number;
   pushBackPowers: number;
   checkpointDecisionRequired: boolean;
   lastAnswerCorrect: boolean | null;
@@ -134,5 +137,38 @@ export type TrackerClanChallengeQuestionContext = {
     title: string;
     description: string;
     subtopics: Array<{ title: string; description: string }>;
+  }>;
+};
+
+export type TrackerClanChallengeExtensionContext = {
+  context: TrackerClanChallengeQuestionContext;
+  existingQuestionCount: number;
+};
+
+export type TrackerClanChallengeHistoryAnswer = {
+  questionId: string;
+  prompt: string;
+  options: string[];
+  topicTitle: string;
+  answer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+  isCheckpoint: boolean;
+  positionBefore: number;
+  positionAfter: number;
+  answeredAt: Date;
+};
+
+export type TrackerClanChallengeHistory = {
+  challengeId: string;
+  trackerId: string;
+  startedAt: Date | null;
+  completedAt: Date;
+  winnerId: string | null;
+  quitById: string | null;
+  players: Array<{
+    user: Omit<TrackerClanPerson, 'role' | 'joinedAt'>;
+    score: number;
+    answers: TrackerClanChallengeHistoryAnswer[];
   }>;
 };

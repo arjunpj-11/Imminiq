@@ -1,3 +1,5 @@
+import type { AdminMockTestLifecycleInput } from '../domain/entities/admin-mock-test.entity';
+
 export interface AdminMockTestDTO {
   id: string;
   title: string;
@@ -18,6 +20,8 @@ export interface AdminMockTestDTO {
 
 export interface AdminMockTestQuestionDTO {
   id: string;
+  bankId?: number;
+  questionBankStatus?: 'active' | 'disabled';
   order: number;
   type: string;
   question: string;
@@ -101,3 +105,8 @@ export interface AdminMockTestLifecycleResultDTO {
   notificationQueued: boolean;
   updatedAt: Date;
 }
+
+export type AdminMockTestBulkLifecycleInputDTO = AdminMockTestLifecycleInput & {
+  ids: string[];
+  preview: boolean;
+};

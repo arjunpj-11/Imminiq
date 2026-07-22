@@ -7,6 +7,7 @@ import type { MockTestCreationDraft } from '../domain/value-objects/mock-test-cr
 import type { MockTestCodingLanguage } from '../domain/value-objects/coding-language.vo';
 import type { QuestionType } from '../domain/value-objects/question-type.vo';
 import type { MockTestCodeTestCaseResult } from '../domain/services/mock-test-code-runner.interface';
+import type { MockTestQuestionIssueReason } from '../domain/repositories/mock-test-question-issue.repository.interface';
 
 export type {
   DifficultyLevel,
@@ -73,6 +74,10 @@ export interface MockTestAttemptDTO {
   answeredQuestions: number;
   createdAt: Date;
 }
+
+export type MockTestListItemDTO = MockTestDTO & {
+  latestAttempt: MockTestAttemptDTO | null;
+};
 
 export interface MockTestAnswerDTO {
   _id: string;
@@ -200,6 +205,24 @@ export interface MockTestSummaryDTO {
   passedAttempts: number;
 }
 
+export interface ListMockTestsOptionsDTO {
+  page?: number;
+  limit?: number;
+}
+
+export interface ListMockTestsResultDTO {
+  summary: MockTestSummaryDTO;
+  tests: MockTestListItemDTO[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalItems: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}
+
 export interface TestAttemptResultDTO {
   attempt: MockTestAttemptDTO;
   report: MockTestReportDTO | null;
@@ -310,6 +333,11 @@ export interface ReportQuestionIssueResultDTO {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type ReportQuestionIssueInputDTO = {
+  reason: MockTestQuestionIssueReason;
+  details?: string;
+};
 
 export interface TopicBreakdownItemDTO {
   topic: string;

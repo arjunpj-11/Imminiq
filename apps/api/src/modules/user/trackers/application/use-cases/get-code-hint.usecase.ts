@@ -1,22 +1,14 @@
+import type {
+  GetCodeHintPayloadDTO,
+  LessonCodeHintDTO,
+} from '../tracker.dto';
 import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface';
 
-type GetCodeHintInput = {
-  trackerId: string;
-  subtopicId: string;
-  userId: string;
-  sourceCode: string;
-  actualOutput?: string;
-  errorOutput?: string;
-  hintCount: number;
-};
-
-type GetCodeHintResultDTO = ReturnType<ITrackerMapper['toLessonCodeHintDto']>;
-
 export interface IGetCodeHintUseCase {
-  execute(input: GetCodeHintInput): Promise<GetCodeHintResultDTO>;
+  execute(input: GetCodeHintPayloadDTO): Promise<LessonCodeHintDTO>;
 }
 
 export class GetCodeHintUseCase implements IGetCodeHintUseCase {
@@ -25,11 +17,11 @@ export class GetCodeHintUseCase implements IGetCodeHintUseCase {
       ITrackerRepository,
       'findGeneratedLessonBySubtopic' | 'findOwnedTrackerById'
     >,
-    private readonly _trackerAIGateway: ITrackerAIGateway,
+    private readonly _trackerAIGateway: Pick<ITrackerAIGateway, 'generateCodeHint'>,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: GetCodeHintInput): Promise<GetCodeHintResultDTO> {
+  async execute(input: GetCodeHintPayloadDTO): Promise<LessonCodeHintDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

@@ -4,7 +4,7 @@ import type { ZodTypeAny } from 'zod';
 
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
-import { validate, validateIdentifierParam } from '../../../../shared/middlewares/validate';
+import { validate, validateIdentifierParam } from '../../../../shared/middlewares/validate.middleware';
 import { TrackerManagementController } from './tracker-management.controller';
 import { TrackerRoadmapController } from './tracker-roadmap.controller';
 import { TrackerLessonsController } from './tracker-lessons.controller';
@@ -21,6 +21,7 @@ import {
   publishTrackerSchema,
   createTopicSchema,
   createSubtopicSchema,
+  importTrackerOutlineSchema,
   updateSubtopicProgressSchema,
   lessonChatSchema,
   generateLessonQuestionsSchema,
@@ -43,7 +44,9 @@ import {
   submitClanChallengeSchema,
   chooseClanChallengeCheckpointSchema,
   answerClanChallengeNodeSchema,
+  extendClanChallengeSchema,
   respondClanRoleInvitationSchema,
+  clanMessagesQuerySchema,
 } from './trackers.schema';
 
 export const createTrackerRoutes = (
@@ -133,8 +136,13 @@ export const createTrackerRoutes = (
 
   router.get(TRACKER_ROUTE_PATHS.ROADMAP, roadmapController.getRoadmap);
 
+  router.get(TRACKER_ROUTE_PATHS.ACTIVE_CLAN_CHALLENGE, clanChallengesController.active);
   router.get(TRACKER_ROUTE_PATHS.CLAN, clanController.getOverview);
-  router.get(TRACKER_ROUTE_PATHS.CLAN_MESSAGES, clanController.listMessages);
+  router.get(
+    TRACKER_ROUTE_PATHS.CLAN_MESSAGES,
+    validateQuery('clanMessagesQuery', clanMessagesQuerySchema),
+    clanController.listMessages
+  );
   router.post(TRACKER_ROUTE_PATHS.CLAN_JOIN, clanController.join);
   router.patch(
     TRACKER_ROUTE_PATHS.CLAN_JOIN_REQUEST,
@@ -160,6 +168,8 @@ export const createTrackerRoutes = (
   );
   router.post(TRACKER_ROUTE_PATHS.CLAN_SYNC_CLONE, clanController.syncPersonalClone);
   router.get(TRACKER_ROUTE_PATHS.CLAN_CHALLENGES, clanChallengesController.list);
+  router.get(TRACKER_ROUTE_PATHS.CLAN_CHALLENGE, clanChallengesController.get);
+  router.get(TRACKER_ROUTE_PATHS.CLAN_CHALLENGE_HISTORY, clanChallengesController.history);
   router.post(
     TRACKER_ROUTE_PATHS.CLAN_CHALLENGES,
     validate(createClanChallengeSchema),
@@ -168,6 +178,12 @@ export const createTrackerRoutes = (
   router.post(TRACKER_ROUTE_PATHS.CLAN_CHALLENGE_ACCEPT, clanChallengesController.accept);
   router.post(TRACKER_ROUTE_PATHS.CLAN_CHALLENGE_DECLINE, clanChallengesController.decline);
   router.post(TRACKER_ROUTE_PATHS.CLAN_CHALLENGE_CANCEL, clanChallengesController.cancel);
+  router.post(TRACKER_ROUTE_PATHS.CLAN_CHALLENGE_QUIT, clanChallengesController.quit);
+  router.post(
+    TRACKER_ROUTE_PATHS.CLAN_CHALLENGE_EXTEND,
+    validate(extendClanChallengeSchema),
+    clanChallengesController.extend
+  );
   router.post(
     TRACKER_ROUTE_PATHS.CLAN_CHALLENGE_SUBMIT,
     validate(submitClanChallengeSchema),
@@ -191,6 +207,12 @@ export const createTrackerRoutes = (
     TRACKER_ROUTE_PATHS.TOPICS,
     validate(createTopicSchema),
     roadmapController.createTopic
+  );
+
+  router.post(
+    TRACKER_ROUTE_PATHS.IMPORT_OUTLINE,
+    validate(importTrackerOutlineSchema),
+    roadmapController.importOutline
   );
 
   router.patch(

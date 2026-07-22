@@ -20,14 +20,19 @@ export interface IAdminMockTestQuestionVersionService {
 export class AdminMockTestQuestionVersionService
   implements IAdminMockTestQuestionVersionService
 {
-  constructor(private readonly repository: IAdminMockTestsRepository) {}
+  constructor(
+    private readonly _repository: Pick<
+      IAdminMockTestsRepository,
+      'listQuestionVersions' | 'restoreQuestionVersion'
+    >
+  ) {}
 
   list(questionId: string) {
-    return this.repository.listQuestionVersions(questionId);
+    return this._repository.listQuestionVersions(questionId);
   }
 
   async restore(questionId: string, version: number, reason: string, actor: AdminActor) {
-    const result = await this.repository.restoreQuestionVersion(questionId, version, reason, actor);
+    const result = await this._repository.restoreQuestionVersion(questionId, version, reason, actor);
     if (!result) throw AdminMockTestsApplicationError.issueNotFound();
     return result;
   }

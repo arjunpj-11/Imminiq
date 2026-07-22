@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { authenticateModerationAppeal } from '../../src/shared/middlewares/moderation-appeal-auth.middleware';
 import { createModerationAppealToken } from '../../src/shared/security/moderation-appeal-token.util';
-import type { ApiError } from '../../src/shared/utils/ApiError';
+import type { ApiError } from '../../src/shared/utils/api-error';
 import {
   createMockRequest,
   createMockResponse,

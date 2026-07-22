@@ -22,12 +22,18 @@ export const parseWebEnvironment = (source: Record<string, unknown>): WebEnviron
   const isRootRelative = apiUrl.startsWith('/') && !apiUrl.startsWith('//');
 
   if (!isRootRelative) parseAbsoluteHttpUrl(apiUrl, 'VITE_API_URL');
+  if (source.PROD === true && !isRootRelative && new URL(apiUrl).protocol !== 'https:') {
+    throw new Error('VITE_API_URL must use HTTPS in production');
+  }
 
   const rawSocketUrl = source.VITE_SOCKET_URL;
   const socketUrl =
     typeof rawSocketUrl === 'string' && rawSocketUrl.trim()
       ? parseAbsoluteHttpUrl(rawSocketUrl.trim(), 'VITE_SOCKET_URL')
       : undefined;
+  if (source.PROD === true && socketUrl && new URL(socketUrl).protocol !== 'https:') {
+    throw new Error('VITE_SOCKET_URL must use HTTPS in production');
+  }
 
   return { apiUrl, ...(socketUrl ? { socketUrl } : {}) };
 };

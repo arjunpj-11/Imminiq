@@ -14,7 +14,7 @@ import {
   adminUserBulkStatusSchema,
   adminActionPasswordSchema,
 } from './admin-users.schema';
-import { sendAdminResult } from '../../../../shared/admin';
+import { getAdminActor, sendAdminResult } from '../../../../shared/admin';
 
 type UserIdParams = { userId: string };
 type AppealIdParams = { appealId: string };
@@ -29,18 +29,20 @@ export class AdminUsersController {
   exportCsv = async (req: Request, res: Response, next: NextFunction) => {
     try { const query = adminUsersQuerySchema.parse(req.query); const content = await this._useCases.exports.users(query); res.setHeader('Content-Type', 'text/csv; charset=utf-8'); res.setHeader('Content-Disposition', 'attachment; filename="imminiq-users.csv"'); res.send(`\uFEFF${content}`); } catch (error) { next(error); }
   };
-  bulkStatus = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const input = adminUserBulkStatusSchema.parse(req.body);
-      if (input.preview) {
-        const candidates = await Promise.all(input.userIds.map(async (id) => ({ id, user: await this._useCases.getDetail.execute(id).catch(() => null) })));
-        return res.json({ success: true, message: 'Bulk action preview', data: { requested: input.userIds.length, eligible: candidates.filter((item) => item.user && item.id !== req.user!.userId).map((item) => item.id), blocked: candidates.filter((item) => !item.user || item.id === req.user!.userId).map((item) => ({ id: item.id, reason: item.id === req.user!.userId ? 'self_action' : 'not_found' })) } });
-      }
-      const actor = req.user!;
-      const settled = await Promise.allSettled(input.userIds.map((id) => this._useCases.setStatus.execute(id, input.status, { userId: actor.userId, role: actor.role as 'admin' | 'superadmin' }, { reason: input.reason, reasonCode: input.reasonCode, notifyEmail: input.notifyEmail, ipAddress: req.ip ?? '', userAgent: req.get('user-agent') ?? '' })));
-      const results = settled.map((result, index) => result.status === 'fulfilled' ? { id: input.userIds[index], success: true } : { id: input.userIds[index], success: false, error: result.reason instanceof Error ? result.reason.message : 'Failed' });
-      return res.json({ success: true, message: 'Bulk user action completed', data: { succeeded: results.filter((item) => item.success).length, failed: results.filter((item) => !item.success).length, results } });
-    } catch (error) { return next(error); }
+  bulkStatus = (req: Request, res: Response, next: NextFunction) => {
+    const actor = getAdminActor(req);
+    const input = adminUserBulkStatusSchema.parse(req.body);
+    return sendAdminResult(
+      next,
+      () =>
+        this._useCases.bulkSetStatus.execute(
+          input,
+          { userId: actor.userId, role: actor.role as 'admin' | 'superadmin' },
+          { ipAddress: actor.ipAddress, userAgent: actor.userAgent }
+      ),
+      res,
+      input.preview ? 'Bulk action preview' : 'Bulk user action completed'
+    );
   };
   listPrivacyRequests = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(next, () => this._useCases.privacyRequests.list(adminPrivacyRequestsQuerySchema.parse(req.query)), res, 'Privacy requests fetched');

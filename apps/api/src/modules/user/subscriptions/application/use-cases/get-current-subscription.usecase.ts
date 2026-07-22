@@ -9,14 +9,14 @@ export interface IGetCurrentSubscriptionUseCase {
 
 export class GetCurrentSubscriptionUseCase implements IGetCurrentSubscriptionUseCase {
   constructor(
-    private readonly repository: Pick<ISubscriptionRepository, 'expireEnded' | 'findCurrent'>,
-    private readonly mapper: ISubscriptionsMapper,
-    private readonly clock: IClock
+    private readonly _repository: Pick<ISubscriptionRepository, 'expireEnded' | 'findCurrent'>,
+    private readonly _mapper: ISubscriptionsMapper,
+    private readonly _clock: IClock
   ) {}
 
   async execute(userId: string) {
-    await this.repository.expireEnded(userId, this.clock.now());
-    const subscription = await this.repository.findCurrent(userId);
-    return subscription ? this.mapper.toUserSubscriptionDTO(subscription) : null;
+    await this._repository.expireEnded(userId, this._clock.now());
+    const subscription = await this._repository.findCurrent(userId);
+    return subscription ? this._mapper.toUserSubscriptionDTO(subscription) : null;
   }
 }

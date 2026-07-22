@@ -86,7 +86,11 @@ import {
 import { createUsersComposition, createUsersRoutes } from '../modules/user/users';
 import { createSecurityComposition, createSecurityRoutes } from '../modules/security';
 import { API_ROUTE_PATHS } from '../shared/constants/api-route-paths';
-import { createRequirePrivilegedMfa } from '../shared/middlewares/admin.middleware';
+import {
+  createRequirePrivilegedMfa,
+  requireStaffTwoFactor,
+} from '../shared/middlewares/admin.middleware';
+import { authenticate } from '../shared/middlewares/auth.middleware';
 
 export const createApiRouter = () => {
   const router = Router();
@@ -172,6 +176,7 @@ export const createApiRouter = () => {
   router.use(API_ROUTE_PATHS.dashboard, createDashboardRoutes(dashboardComposition.useCases));
 
   // 🔹 Admin routes
+  router.use(API_ROUTE_PATHS.adminRoot, authenticate, requireStaffTwoFactor);
   router.use(
     API_ROUTE_PATHS.admin.dashboard,
     createAdminDashboardRoutes(adminDashboardComposition.useCases)
@@ -202,7 +207,7 @@ export const createApiRouter = () => {
   );
   router.use(
     API_ROUTE_PATHS.admin.systemHealth,
-    createAdminSystemHealthRoutes(adminSystemHealthComposition.useCases)
+    createAdminSystemHealthRoutes(adminSystemHealthComposition.useCases, requirePrivilegedMfa)
   );
   router.use(
     API_ROUTE_PATHS.admin.supportTickets,

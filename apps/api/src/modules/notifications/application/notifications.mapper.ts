@@ -1,7 +1,16 @@
 import type { NotificationEntity } from '../domain';
-import type { ListNotificationsResponseDTO, NotificationDTO } from './notifications.dto';
+import type {
+  ListNotificationsResponseDTO,
+  NotificationDTO,
+  NotificationPageMappingInputDTO,
+} from './notifications.dto';
 
-export class NotificationsMapper {
+export interface INotificationsMapper {
+  toNotificationDTO(entity: NotificationEntity): NotificationDTO;
+  toListResponse(input: NotificationPageMappingInputDTO): ListNotificationsResponseDTO;
+}
+
+export class NotificationsMapper implements INotificationsMapper {
   toNotificationDTO(entity: NotificationEntity): NotificationDTO {
     return {
       id: entity.id,
@@ -13,13 +22,7 @@ export class NotificationsMapper {
       createdAt: entity.createdAt.toISOString(),
     };
   }
-  toListResponse(input: {
-    notifications: NotificationEntity[];
-    total: number;
-    unreadCount: number;
-    page: number;
-    limit: number;
-  }): ListNotificationsResponseDTO {
+  toListResponse(input: NotificationPageMappingInputDTO): ListNotificationsResponseDTO {
     const totalPages = Math.ceil(input.total / input.limit);
     return {
       notifications: input.notifications.map((item) => this.toNotificationDTO(item)),

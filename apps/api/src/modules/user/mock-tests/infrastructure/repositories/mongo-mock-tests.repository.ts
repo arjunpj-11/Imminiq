@@ -105,6 +105,10 @@ export class MongoMockTestsRepository implements IMockTestsRepository {
     return this._testRepository.findTestById(testId);
   }
 
+  async findTestForModerationDisplayById(testId: string) {
+    return this._testRepository.findTestForModerationDisplayById(testId);
+  }
+
   async findTestsByOwner(input: FindMockTestsByOwnerInput) {
     return this._testRepository.findTestsByOwner(input);
   }

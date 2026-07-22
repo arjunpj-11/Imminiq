@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { createHttpUrlSchema } from '../../../../shared/validators/common.schemas';
 
 const optionalCleanStringSchema = (maxLength: number, maxMessage: string) =>
   z.preprocess((value) => {
@@ -19,7 +20,7 @@ const optionalUrlSchema = z.preprocess((value) => {
   const trimmedValue = value.trim();
 
   return trimmedValue.length > 0 ? trimmedValue : undefined;
-}, z.string().url('Must be a valid URL').max(300, 'URL must not exceed 300 characters').optional());
+}, createHttpUrlSchema(300).optional());
 
 const profileTagSchema = z.string().trim().min(1).max(40);
 

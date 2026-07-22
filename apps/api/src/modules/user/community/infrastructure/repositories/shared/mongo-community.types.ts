@@ -70,7 +70,6 @@ export type MongoTrackerTopicRecord = {
   description?: string;
   order: number;
   status?: string;
-  estimatedHours?: number;
   progressPercent?: number;
   learningVideo?: Record<string, unknown> | null;
   deletedAt?: Date | string | null;
@@ -89,7 +88,6 @@ export type MongoTrackerSubtopicRecord = {
   order: number;
   depth: number;
   isLocked?: boolean;
-  estimatedMinutes?: number;
   learningVideo?: Record<string, unknown> | null;
   deletedAt?: Date | string | null;
   createdAt?: Date | string;
@@ -105,7 +103,6 @@ export type MongoVerificationReviewSubtopicRecord = {
   order: number;
   depth: number;
   isLocked: boolean;
-  estimatedMinutes: number;
 };
 
 export type MongoVerificationReviewTopicRecord = {
@@ -114,7 +111,6 @@ export type MongoVerificationReviewTopicRecord = {
   description: string;
   order: number;
   status: string;
-  estimatedHours: number;
   subtopics: MongoVerificationReviewSubtopicRecord[];
 };
 
@@ -211,7 +207,6 @@ export type MongoCommunityReviewTrackerSubtopic = {
   order: number;
   depth: number;
   isLocked: boolean;
-  estimatedMinutes: number;
 };
 
 export type MongoCommunityReviewTrackerTopic = {
@@ -220,7 +215,6 @@ export type MongoCommunityReviewTrackerTopic = {
   description: string;
   order: number;
   status: string;
-  estimatedHours: number;
   subtopics: MongoCommunityReviewTrackerSubtopic[];
 };
 

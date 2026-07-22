@@ -288,7 +288,6 @@ export class MongoCommunityMapper {
       description: this.toString(topic.description, ''),
       order: this.toNumber(topic.order, 0),
       status: this.toString(topic.status, 'active'),
-      estimatedHours: this.toNumber(topic.estimatedHours, 0),
       subtopics: (subtopicsByTopicId.get(String(topic._id)) ?? []).map((subtopic) => ({
         id: this.toId(subtopic._id),
         topicId: this.toId(subtopic.topicId),
@@ -298,7 +297,6 @@ export class MongoCommunityMapper {
         order: this.toNumber(subtopic.order, 0),
         depth: this.toNumber(subtopic.depth, 0),
         isLocked: Boolean(subtopic.isLocked),
-        estimatedMinutes: this.toNumber(subtopic.estimatedMinutes, 0),
       })),
     }));
   }
@@ -367,7 +365,6 @@ export class MongoCommunityMapper {
       description: this.toString(record.description, ''),
       order: this.toNumber(record.order, 0),
       status: this.toString(record.status, 'active'),
-      estimatedHours: this.toNumber(record.estimatedHours, 0),
       subtopics: this.toReviewSubtopics(record.subtopics),
     };
   }
@@ -393,7 +390,6 @@ export class MongoCommunityMapper {
       order: this.toNumber(record.order, 0),
       depth: this.toNumber(record.depth, 0),
       isLocked: Boolean(record.isLocked),
-      estimatedMinutes: this.toNumber(record.estimatedMinutes, 0),
     };
   }
 

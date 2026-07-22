@@ -149,7 +149,6 @@ export class MongoTrackerContentRepository extends MongoTrackerBaseRepository {
             title: data.title,
             description: data.description,
             order: data.order,
-            estimatedHours: 0,
             deletedAt: null,
           })
         );
@@ -199,7 +198,6 @@ export class MongoTrackerContentRepository extends MongoTrackerBaseRepository {
             order: data.order,
             depth: data.depth,
             isLocked: data.depth !== 1,
-            estimatedMinutes: data.estimatedMinutes || 0,
             deletedAt: null,
           })
         );

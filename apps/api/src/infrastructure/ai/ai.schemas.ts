@@ -116,8 +116,6 @@ export const generatedLessonSchema = z.object({
   tags: z.array(z.string().trim()).default([]),
 
   difficulty: z.enum(['beginner', 'intermediate', 'advanced']).default('beginner'),
-
-  estimatedMinutes: z.number().int().min(5).max(90).default(15),
 });
 
 export type GeneratedLesson = z.infer<typeof generatedLessonSchema>;
@@ -162,11 +160,26 @@ export type LessonPracticeQuestionsAIResult = z.infer<typeof lessonPracticeQuest
 // TRACKER VERIFICATION TYPES
 // ============================================================
 
+export type TrackerOutlineSuggestion = {
+  title: string;
+  description: string;
+  subtopics: TrackerOutlineSuggestion[];
+};
+
+const trackerOutlineSuggestionSchema: z.ZodType<TrackerOutlineSuggestion> = z.lazy(() =>
+  z.object({
+    title: z.string().trim().min(1),
+    description: z.string().trim().default(''),
+    subtopics: z.array(trackerOutlineSuggestionSchema).max(8).default([]),
+  })
+);
+
 export const trackerTopicVerificationSchema = z.object({
   verified: z.boolean(),
   message: z.string().trim().min(1),
   polishedTitle: z.string().trim().min(1),
   polishedDescription: z.string().trim().default(''),
+  suggestedSubtopics: z.array(trackerOutlineSuggestionSchema).max(8).default([]),
 });
 
 export const trackerSubtopicVerificationSchema = z.object({
@@ -174,6 +187,7 @@ export const trackerSubtopicVerificationSchema = z.object({
   message: z.string().trim().min(1),
   polishedTitle: z.string().trim().min(1),
   polishedDescription: z.string().trim().default(''),
+  suggestedSubtopics: z.array(trackerOutlineSuggestionSchema).max(8).default([]),
 });
 
 export type TrackerTopicVerificationResult = z.infer<typeof trackerTopicVerificationSchema>;

@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 
 import { HttpStatusCode } from '../../../../shared/constants/http-status-code.enum';
-import { ApiResponse } from '../../../../shared/utils/ApiResponse';
+import { ApiResponse } from '../../../../shared/utils/api-response';
 import type { ModerationAppealUseCases } from '../application/moderation-appeal-use-cases.contract';
 
 export class ModerationAppealController {

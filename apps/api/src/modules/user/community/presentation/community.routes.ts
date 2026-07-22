@@ -6,7 +6,7 @@ import {
   validate,
   validateIdentifierParam,
   validateQuery,
-} from '../../../../shared/middlewares/validate';
+} from '../../../../shared/middlewares/validate.middleware';
 import { CommunityController } from './community.controller';
 import type { CommunityUseCases } from '../application/community-use-cases.contract';
 import { COMMUNITY_ROUTE_PATHS } from './community.route.constants';

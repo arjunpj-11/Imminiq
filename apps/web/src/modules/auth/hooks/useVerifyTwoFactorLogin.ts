@@ -5,6 +5,8 @@ import api from '../../../lib/axios';
 import { useAuthStore } from '../store/useAuthStore';
 import { ADMIN_ROUTES, ROUTES } from '../../../routes/config/route-paths';
 import { AUTH_API_PATHS } from '../constants/auth.constants';
+import { isStaffRole } from '../../../lib/auth-roles';
+import type { IAuthUser } from '../../../store/useAuthStore';
 
 interface IVerifyTwoFactorLoginPayload {
   code: string;
@@ -16,7 +18,7 @@ interface IUser {
   username: string;
   email?: string;
   phone?: string;
-  role: string;
+  role: IAuthUser['role'];
   isPremium?: boolean;
   avatarUrl?: string;
   emailVerified?: boolean;
@@ -65,7 +67,7 @@ export const useVerifyTwoFactorLogin = () => {
     onSuccess: (response) => {
       const user = response.data?.user;
       const accessToken = response.data?.accessToken;
-      const redirectPath = ['admin', 'superadmin', 'moderator'].includes(user?.role || '')
+      const redirectPath = isStaffRole(user?.role)
         ? ADMIN_ROUTES.dashboard
         : response.data?.redirectPath || ROUTES.dashboard;
 

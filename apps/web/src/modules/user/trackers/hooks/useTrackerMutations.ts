@@ -3,6 +3,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
 import { TRACKER_API_PATHS } from '../constants/tracker-api.constants';
 import { communityKeys } from '../../community';
+import { dashboardKeys } from '../../dashboard';
+import { activityQueryKeys } from '../../activity';
+import { activityQueryKeys as profileActivityKeys } from '../../../../hooks/activity/activity.query-keys';
 import type {
   IApiResponse,
   ICreateSubtopicPayload,
@@ -19,6 +22,8 @@ import type {
   ITrackerListResponse,
 } from '../types/tracker.types';
 import { trackerKeys } from './trackers.query-keys';
+import { syncTrackerClanChallengeCache } from './syncTrackerClanChallengeCache';
+import type { TrackerOutlineNode, TrackerOutlineTopic } from '../utils/tracker-outline';
 
 export const useCreateTracker = () => {
   const queryClient = useQueryClient();
@@ -236,6 +241,35 @@ export const useCreateTrackerSubtopic = () => {
   });
 };
 
+type ImportTrackerOutlinePayload =
+  | { trackerId: string; kind: 'topics'; topics: TrackerOutlineTopic[] }
+  | {
+      trackerId: string;
+      kind: 'subtopics';
+      topicId: string;
+      parentSubtopicId?: string;
+      subtopics: TrackerOutlineNode[];
+    };
+
+export const useImportTrackerOutline = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<{ topicsAdded: number; subtopicsAdded: number }, Error, ImportTrackerOutlinePayload>({
+    mutationFn: async ({ trackerId, ...outline }) => {
+      const response = await api.post<IApiResponse<{ topicsAdded: number; subtopicsAdded: number }>>(
+        TRACKER_API_PATHS.importOutline(trackerId),
+        outline
+      );
+      return response.data.data;
+    },
+    onSettled: (_response, _error, variables) => {
+      queryClient.invalidateQueries({ queryKey: trackerKeys.roadmap(variables.trackerId) });
+      queryClient.invalidateQueries({ queryKey: trackerKeys.detail(variables.trackerId) });
+      queryClient.invalidateQueries({ queryKey: trackerKeys.all });
+    },
+  });
+};
+
 export const useCreateTopicContribution = () => {
   const queryClient = useQueryClient();
   return useMutation<
@@ -401,9 +435,11 @@ const useClanChallengeMutation = <TVariables>(
   const queryClient = useQueryClient();
   return useMutation<IApiResponse<ITrackerClanChallenge>, Error, TVariables>({
     mutationFn: operation,
-    onSuccess: (_response, variables) => {
+    onSuccess: (response, variables) => {
       const trackerId = trackerIdOf(variables);
+      syncTrackerClanChallengeCache(queryClient, trackerId, response.data);
       queryClient.invalidateQueries({ queryKey: trackerKeys.clanChallenges(trackerId) });
+      queryClient.invalidateQueries({ queryKey: trackerKeys.activeClanChallenge() });
     },
   });
 };
@@ -444,6 +480,24 @@ export const useCancelTrackerClanChallenge = () =>
     ({ trackerId }) => trackerId
   );
 
+export const useQuitTrackerClanChallenge = () =>
+  useClanChallengeMutation(
+    async ({ trackerId, challengeId }: { trackerId: string; challengeId: string }) =>
+      (await api.post<IApiResponse<ITrackerClanChallenge>>(
+        TRACKER_API_PATHS.clanChallengeQuit(trackerId, challengeId)
+      )).data,
+    ({ trackerId }) => trackerId
+  );
+
+export const useExtendTrackerClanChallenge = () =>
+  useClanChallengeMutation(
+    async ({ trackerId, challengeId, questionCount }: { trackerId: string; challengeId: string; questionCount: 10 | 20 }) =>
+      (await api.post<IApiResponse<ITrackerClanChallenge>>(
+        TRACKER_API_PATHS.clanChallengeExtend(trackerId, challengeId), { questionCount }
+      )).data,
+    ({ trackerId }) => trackerId
+  );
+
 export const useSubmitTrackerClanChallenge = () =>
   useClanChallengeMutation(
     async ({ trackerId, challengeId, answers }: { trackerId: string; challengeId: string; answers: Array<{ questionId: string; answer: string }> }) =>
@@ -464,9 +518,9 @@ export const useChooseTrackerClanCheckpoint = () =>
 
 export const useAnswerTrackerClanNode = () =>
   useClanChallengeMutation(
-    async ({ trackerId, challengeId, answer }: { trackerId: string; challengeId: string; answer: string }) =>
+    async ({ trackerId, challengeId, questionId, answer }: { trackerId: string; challengeId: string; questionId: string; answer: string }) =>
       (await api.post<IApiResponse<ITrackerClanChallenge>>(
-        TRACKER_API_PATHS.clanChallengeAnswer(trackerId, challengeId), { answer }
+        TRACKER_API_PATHS.clanChallengeAnswer(trackerId, challengeId), { questionId, answer }
       )).data,
     ({ trackerId }) => trackerId
   );
@@ -551,6 +605,10 @@ export const useUpdateSubtopicProgress = () => {
       queryClient.invalidateQueries({
         queryKey: trackerKeys.lists(),
       });
+
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
+      queryClient.invalidateQueries({ queryKey: activityQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: profileActivityKeys.all });
     },
   });
 };

@@ -10,8 +10,8 @@ import {
 } from '../domain/users.constants';
 import type { ProfileSort } from '../domain/value-objects/profile-sort.vo';
 import type { UsersUseCases } from '../application/users-use-cases.contract';
-import { ApiResponse } from '../../../../shared/utils/ApiResponse';
-import { getAuthUser } from '../../../../shared/utils/getAuthUser';
+import { ApiResponse } from '../../../../shared/utils/api-response';
+import { getAuthUser } from '../../../../shared/utils/get-auth-user';
 
 type UsernameParams = {
   username: string;

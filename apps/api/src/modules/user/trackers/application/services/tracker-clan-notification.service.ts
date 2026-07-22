@@ -27,12 +27,18 @@ type RoleResponseInput = {
   overview: TrackerClanOverview;
 };
 
-export class TrackerClanNotificationService {
-  constructor(private readonly notifier?: ITrackerClanNotificationNotifier) {}
+export interface ITrackerClanNotificationService {
+  notifyJoinReview(input: JoinReviewInput): Promise<void>;
+  notifyRoleInvitation(input: RoleInvitationInput): Promise<void>;
+  notifyRoleResponse(input: RoleResponseInput): Promise<void>;
+}
+
+export class TrackerClanNotificationService implements ITrackerClanNotificationService {
+  constructor(private readonly _notifier?: ITrackerClanNotificationNotifier) {}
 
   async notifyJoinReview(input: JoinReviewInput) {
     if (!input.request) return;
-    await this.notifier?.notify({
+    await this._notifier?.notify({
       userId: input.request.userId,
       type: 'tracker_clan_join_reviewed',
       message:
@@ -51,7 +57,7 @@ export class TrackerClanNotificationService {
         item.userId === input.userId && item.role === input.role && item.status === 'pending'
     );
     if (!invitation) return;
-    await this.notifier?.notify({
+    await this._notifier?.notify({
       userId: input.userId,
       type: 'tracker_clan_role_invitation',
       message:
@@ -71,7 +77,7 @@ export class TrackerClanNotificationService {
   async notifyRoleResponse(input: RoleResponseInput) {
     if (!input.invitation) return;
     const member = input.overview.members.find((item) => item.userId === input.userId);
-    await this.notifier?.notify({
+    await this._notifier?.notify({
       userId: input.invitation.invitedBy.userId,
       type: 'tracker_clan_role_invitation_response',
       message: `${member?.name ?? 'A guild member'} ${input.action === 'accept' ? 'accepted' : 'declined'} your ${input.invitation.role === 'owner' ? 'ownership' : 'co-owner'} invitation for “${input.overview.trackerTitle}”.`,

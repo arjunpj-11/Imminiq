@@ -54,8 +54,7 @@ Return ONLY valid JSON using this exact structure:
     "expectedAnswer": ""
   },
   "tags": ["tag1", "tag2"],
-  "difficulty": "beginner",
-  "estimatedMinutes": 15
+  "difficulty": "beginner"
 }
 
 ============================================================

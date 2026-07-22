@@ -6,6 +6,8 @@ import type {
   IModerationAppealApiErrorResponse,
   IModerationAppealStatus,
 } from './useSubmitModerationAppeal';
+import { MODERATION_APPEAL_ENDPOINTS } from './moderation.constants';
+import { moderationKeys } from './moderation.query-keys';
 
 export interface IGetModerationAppealStatusResponse {
   success: boolean;
@@ -21,13 +23,13 @@ export const useGetModerationAppealStatus = (identifier: string) => {
     IGetModerationAppealStatusResponse,
     AxiosError<IModerationAppealApiErrorResponse>
   >({
-    queryKey: ['moderation-appeal-status', identifier],
+    queryKey: moderationKeys.accountStatus(identifier),
 
     enabled: Boolean(identifier.trim() && getBlockedAppealToken()),
 
     queryFn: async () => {
       const response = await api.post<IGetModerationAppealStatusResponse>(
-        '/moderation-appeals/status',
+        MODERATION_APPEAL_ENDPOINTS.accountStatus,
         {},
         { headers: { Authorization: `Bearer ${getBlockedAppealToken()}` } }
       );

@@ -1,4 +1,5 @@
 import type { AdminUsersUseCases } from './application/admin-users-use-cases.contract';
+import { BulkSetAdminUserStatusUseCase } from './application/use-cases/bulk-set-admin-user-status.usecase';
 import { AdminUsersMapper } from './application/admin-users.mapper';
 import { GetAdminUserDetailUseCase } from './application/use-cases/get-admin-user-detail.usecase';
 import { ListAdminUsersUseCase } from './application/use-cases/list-admin-users.usecase';
@@ -21,17 +22,19 @@ export const createAdminUsersComposition = (
   passwordHasher: IAdminPasswordHasher
 ): AdminUsersComposition => {
   const mapper = new AdminUsersMapper();
+  const setStatus = new SetAdminUserStatusUseCase(
+    mongoAdminUsersRepository,
+    queuedAdminUserEmailProvider
+  );
   return {
     useCases: {
       notes: new AdminUserNotesService(),
       exports: new AdminExportService(),
       privacyRequests: new AdminDataPrivacyRequestService(),
+      bulkSetStatus: new BulkSetAdminUserStatusUseCase(mongoAdminUsersRepository, setStatus),
       list: new ListAdminUsersUseCase(mongoAdminUsersRepository, mapper),
       getDetail: new GetAdminUserDetailUseCase(mongoAdminUsersRepository, mapper),
-      setStatus: new SetAdminUserStatusUseCase(
-        mongoAdminUsersRepository,
-        queuedAdminUserEmailProvider
-      ),
+      setStatus,
       sendMessage: new SendAdminUserMessageUseCase(
         mongoAdminUsersRepository,
         queuedAdminUserEmailProvider

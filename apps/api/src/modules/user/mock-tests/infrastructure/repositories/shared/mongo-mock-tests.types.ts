@@ -33,6 +33,7 @@ export type RawMockTestDoc = {
 };
 
 export type RawMockTestQuestionDoc = {
+  bankId?: number;
   _id?: unknown;
   testId?: unknown;
   type?: QuestionType;
@@ -62,6 +63,7 @@ export type RawMockTestAttemptDoc = {
   totalQuestions?: number;
   answeredQuestions?: number;
   questionSnapshot?: Array<{
+    bankId?: number;
     _id: string;
     testId: string;
     type: QuestionType;

@@ -1,4 +1,5 @@
 import type { IListAdminUsersUseCase } from './use-cases/list-admin-users.usecase';
+import type { IBulkSetAdminUserStatusUseCase } from './use-cases/bulk-set-admin-user-status.usecase';
 import type { IGetAdminUserDetailUseCase } from './use-cases/get-admin-user-detail.usecase';
 import type { ISetAdminUserStatusUseCase } from './use-cases/set-admin-user-status.usecase';
 import type { ISendAdminUserMessageUseCase } from './use-cases/send-admin-user-message.usecase';
@@ -15,6 +16,7 @@ export type AdminUsersUseCases = {
   notes: IAdminUserNotesService;
   exports: IAdminExportService;
   privacyRequests: IAdminDataPrivacyRequestService;
+  bulkSetStatus: IBulkSetAdminUserStatusUseCase;
   list: IListAdminUsersUseCase;
   getDetail: IGetAdminUserDetailUseCase;
   setStatus: ISetAdminUserStatusUseCase;

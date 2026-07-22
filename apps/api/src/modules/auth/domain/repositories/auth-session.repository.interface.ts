@@ -13,6 +13,7 @@ export type SaveAuthSessionInput = AuthSessionMetaInput & {
 
 export type RotateAuthSessionInput = {
   sessionId: string;
+  currentRefreshTokenHash: string;
   newRefreshTokenHash: string;
   meta?: AuthSessionMetaInput;
 };

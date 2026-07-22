@@ -10,7 +10,6 @@ export interface ITrackerTopicDocument extends Document {
   description: string;
   order: number;
   status: string;
-  estimatedHours: number;
   progressPercent: number;
   learningVideo?: {
     videoId: string;
@@ -56,11 +55,6 @@ const trackerTopicSchema = new Schema<ITrackerTopicDocument>(
       type: String,
       enum: ['active', 'locked', 'completed'],
       default: 'locked',
-    },
-    estimatedHours: {
-      type: Number,
-      default: 0,
-      min: 0,
     },
     progressPercent: {
       type: Number,

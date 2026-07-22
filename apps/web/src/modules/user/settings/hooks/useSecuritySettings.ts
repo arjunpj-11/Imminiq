@@ -28,9 +28,10 @@ const unwrap = <T>(response: { data: IApiEnvelope<T> }) => {
 
 // ─── SECURITY OVERVIEW ─────────────────────────────
 
-export const useSecurityOverview = () =>
+export const useSecurityOverview = (options: { enabled?: boolean } = {}) =>
   useQuery({
     queryKey: settingsKeys.securityOverview(),
+    enabled: options.enabled ?? true,
     queryFn: async () => {
       const response = await api.get<IApiEnvelope<ISecurityOverview>>(
         SETTINGS_API_PATHS.securityOverview
@@ -64,8 +65,10 @@ export const useChangeEmail = () => {
 
 // ─── CHANGE PASSWORD ───────────────────────────────
 
-export const useChangePassword = () =>
-  useMutation({
+export const useChangePassword = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationFn: async (payload: IChangePasswordPayload) => {
       const response = await api.patch<IApiEnvelope<{ sessionsRevoked: boolean }>>(
         SETTINGS_API_PATHS.changePassword,
@@ -74,7 +77,11 @@ export const useChangePassword = () =>
 
       return unwrap(response);
     },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: settingsKeys.securityOverview() });
+    },
   });
+};
 
 // ─── TERMINATE SESSION ─────────────────────────────
 

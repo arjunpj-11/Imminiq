@@ -9,11 +9,11 @@ export interface IGetAdminSubscriptionOverviewUseCase {
 
 export class GetAdminSubscriptionOverviewUseCase implements IGetAdminSubscriptionOverviewUseCase {
   constructor(
-    private readonly repository: Pick<IAdminSubscriptionsRepository, 'getOverview'>,
-    private readonly mapper: IAdminSubscriptionsMapper
+    private readonly _repository: Pick<IAdminSubscriptionsRepository, 'getOverview'>,
+    private readonly _mapper: IAdminSubscriptionsMapper
   ) {}
 
   async execute(query: AdminSubscriptionQuery): Promise<AdminSubscriptionOverviewDTO> {
-    return this.mapper.toOverviewDTO(await this.repository.getOverview(query));
+    return this._mapper.toOverviewDTO(await this._repository.getOverview(query));
   }
 }

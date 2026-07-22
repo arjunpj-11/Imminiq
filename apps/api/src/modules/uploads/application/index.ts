@@ -8,3 +8,4 @@ export * from './use-cases/generate-ai-banner-preview.usecase';
 export * from './use-cases/remove-avatar.usecase';
 export * from './use-cases/remove-banner.usecase';
 export * from './use-cases/upload-profile-image.usecase';
+export * from './uploads-use-cases.contract';

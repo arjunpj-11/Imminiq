@@ -4,6 +4,8 @@ import { lazy, type ReactNode } from 'react';
 import { ADMIN_ROUTES } from '../config/route-paths';
 import { AdminRoleGate } from '../guards/AdminRoleGate';
 import AdminLayout from '../../components/admin/AdminLayout';
+import { ADMIN_ROUTE_ROLES } from '../config/admin-access';
+import type { AuthRole } from '../../lib/auth-roles';
 
 const AdminDashboardPage = lazy(() => import('../../modules/admin/dashboard/pages/AdminDashboardPage'));
 const AdminUsersPage = lazy(() => import('../../modules/admin/users/pages/AdminUsersPage'));
@@ -16,6 +18,7 @@ const AdminPublishedTrackersPage = lazy(() => import('../../modules/admin/tracke
 const AdminTrackerDetailPage = lazy(() => import('../../modules/admin/trackers/pages/AdminTrackerDetailPage'));
 const AdminMockTestsPage = lazy(() => import('../../modules/admin/mock-tests/pages/AdminMockTestsPage'));
 const AdminMockTestReportsPage = lazy(() => import('../../modules/admin/mock-tests/pages/AdminMockTestReportsPage'));
+const AdminQuestionBankPage = lazy(() => import('../../modules/admin/mock-tests/pages/AdminQuestionBankPage'));
 const AdminMockTestDetailPage = lazy(() => import('../../modules/admin/mock-tests/pages/AdminMockTestDetailPage'));
 const AdminAnalyticsPage = lazy(() => import('../../modules/admin/analytics/pages/AdminAnalyticsPage'));
 const AdminBroadcastPage = lazy(() => import('../../modules/admin/broadcast/pages/AdminBroadcastPage'));
@@ -26,43 +29,44 @@ const AdminSettingsPage = lazy(() => import('../../modules/admin/settings/pages/
 const AdminSubscriptionsPage = lazy(() => import('../../modules/admin/subscriptions/pages/AdminSubscriptionsPage'));
 const AdminAITokenSpendPage = lazy(() => import('../../modules/admin/ai-token-spend/pages/AdminAITokenSpendPage'));
 
-const staffOnly = (page: ReactNode) => (
-  <AdminRoleGate roles={['admin', 'superadmin']}>{page}</AdminRoleGate>
+const roleGuard = (page: ReactNode, roles: readonly AuthRole[]) => (
+  <AdminRoleGate roles={roles}>{page}</AdminRoleGate>
 );
 
 export const adminRoutes: RouteObject[] = [
   {
     element: <AdminLayout />,
     children: [
-      { path: ADMIN_ROUTES.dashboard, element: <AdminDashboardPage /> },
-      { path: ADMIN_ROUTES.users, element: staffOnly(<AdminUsersPage />) },
-      { path: ADMIN_ROUTES.userAppeals, element: staffOnly(<AdminUserAppealsPage />) },
-      { path: ADMIN_ROUTES.userDetailPattern, element: staffOnly(<AdminUserDetailPage />) },
-      { path: ADMIN_ROUTES.trackers, element: <AdminTrackersPage /> },
-      { path: ADMIN_ROUTES.trackerReports, element: <AdminTrackerReportsPage /> },
-      { path: ADMIN_ROUTES.trackerReviews, element: <AdminTrackerReviewsPage /> },
-      { path: ADMIN_ROUTES.publishedTrackers, element: <AdminPublishedTrackersPage /> },
-      { path: ADMIN_ROUTES.trackerDetailPattern, element: <AdminTrackerDetailPage /> },
-      { path: ADMIN_ROUTES.mockTests, element: <AdminMockTestsPage /> },
-      { path: ADMIN_ROUTES.mockTestReports, element: <AdminMockTestReportsPage /> },
-      { path: ADMIN_ROUTES.mockTestDetailPattern, element: <AdminMockTestDetailPage /> },
+      { path: ADMIN_ROUTES.dashboard, element: roleGuard(<AdminDashboardPage />, ADMIN_ROUTE_ROLES.dashboard) },
+      { path: ADMIN_ROUTES.users, element: roleGuard(<AdminUsersPage />, ADMIN_ROUTE_ROLES.users) },
+      { path: ADMIN_ROUTES.userAppeals, element: roleGuard(<AdminUserAppealsPage />, ADMIN_ROUTE_ROLES.users) },
+      { path: ADMIN_ROUTES.userDetailPattern, element: roleGuard(<AdminUserDetailPage />, ADMIN_ROUTE_ROLES.users) },
+      { path: ADMIN_ROUTES.trackers, element: roleGuard(<AdminTrackersPage />, ADMIN_ROUTE_ROLES.trackers) },
+      { path: ADMIN_ROUTES.trackerReports, element: roleGuard(<AdminTrackerReportsPage />, ADMIN_ROUTE_ROLES.trackers) },
+      { path: ADMIN_ROUTES.trackerReviews, element: roleGuard(<AdminTrackerReviewsPage />, ADMIN_ROUTE_ROLES.trackers) },
+      { path: ADMIN_ROUTES.publishedTrackers, element: roleGuard(<AdminPublishedTrackersPage />, ADMIN_ROUTE_ROLES.trackers) },
+      { path: ADMIN_ROUTES.trackerDetailPattern, element: roleGuard(<AdminTrackerDetailPage />, ADMIN_ROUTE_ROLES.trackers) },
+      { path: ADMIN_ROUTES.mockTests, element: roleGuard(<AdminMockTestsPage />, ADMIN_ROUTE_ROLES.mockTests) },
+      { path: ADMIN_ROUTES.mockTestReports, element: roleGuard(<AdminMockTestReportsPage />, ADMIN_ROUTE_ROLES.mockTests) },
+      { path: ADMIN_ROUTES.questionBank, element: roleGuard(<AdminQuestionBankPage />, ADMIN_ROUTE_ROLES.users) },
+      { path: ADMIN_ROUTES.mockTestDetailPattern, element: roleGuard(<AdminMockTestDetailPage />, ADMIN_ROUTE_ROLES.mockTests) },
       {
         path: ADMIN_ROUTES.legacyTrackerReviews,
         element: <Navigate to={ADMIN_ROUTES.trackerReviews} replace />,
       },
-      { path: ADMIN_ROUTES.activity, element: staffOnly(<AdminAnalyticsPage />) },
+      { path: ADMIN_ROUTES.activity, element: roleGuard(<AdminAnalyticsPage />, ADMIN_ROUTE_ROLES.analytics) },
       {
         path: ADMIN_ROUTES.legacyAnalytics,
         element: <Navigate to={ADMIN_ROUTES.activity} replace />,
       },
-      { path: ADMIN_ROUTES.broadcast, element: staffOnly(<AdminBroadcastPage />) },
-      { path: ADMIN_ROUTES.subscriptions, element: staffOnly(<AdminSubscriptionsPage />) },
-      { path: ADMIN_ROUTES.auditLogs, element: staffOnly(<AdminAuditLogsPage />) },
-      { path: ADMIN_ROUTES.systemHealth, element: staffOnly(<AdminSystemHealthPage />) },
-      { path: ADMIN_ROUTES.aiTokenSpend, element: staffOnly(<AdminAITokenSpendPage />) },
-      { path: ADMIN_ROUTES.supportTickets, element: <AdminSupportTicketsPage /> },
-      { path: ADMIN_ROUTES.settings, element: staffOnly(<AdminSettingsPage />) },
-      { path: ADMIN_ROUTES.legacySupport, element: <AdminSupportTicketsPage /> },
+      { path: ADMIN_ROUTES.broadcast, element: roleGuard(<AdminBroadcastPage />, ADMIN_ROUTE_ROLES.broadcast) },
+      { path: ADMIN_ROUTES.subscriptions, element: roleGuard(<AdminSubscriptionsPage />, ADMIN_ROUTE_ROLES.subscriptions) },
+      { path: ADMIN_ROUTES.auditLogs, element: roleGuard(<AdminAuditLogsPage />, ADMIN_ROUTE_ROLES.auditLogs) },
+      { path: ADMIN_ROUTES.systemHealth, element: roleGuard(<AdminSystemHealthPage />, ADMIN_ROUTE_ROLES.systemHealth) },
+      { path: ADMIN_ROUTES.aiTokenSpend, element: roleGuard(<AdminAITokenSpendPage />, ADMIN_ROUTE_ROLES.aiTokenSpend) },
+      { path: ADMIN_ROUTES.supportTickets, element: roleGuard(<AdminSupportTicketsPage />, ADMIN_ROUTE_ROLES.supportTickets) },
+      { path: ADMIN_ROUTES.settings, element: roleGuard(<AdminSettingsPage />, ADMIN_ROUTE_ROLES.settings) },
+      { path: ADMIN_ROUTES.legacySupport, element: roleGuard(<AdminSupportTicketsPage />, ADMIN_ROUTE_ROLES.supportTickets) },
     ],
   },
 ];

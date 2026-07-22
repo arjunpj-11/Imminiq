@@ -20,15 +20,11 @@ import {
 } from "../../../../components/admin";
 import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
 import { getUserFacingError } from "../../../../lib/user-facing-error";
-import api from "../../../../lib/axios";
-import type { ApiEnvelope } from "../../../../lib/api.types";
 import { toast } from "../../../../lib/toast";
 import Modal from "../../../../components/admin/AdminModal";
-import {
-  ADMIN_SUBSCRIPTIONS_ENDPOINTS,
-  ADMIN_SUBSCRIPTION_STATUS_OPTIONS,
-} from "../constants/admin-subscriptions.constants";
+import { ADMIN_SUBSCRIPTION_STATUS_OPTIONS } from "../constants/admin-subscriptions.constants";
 import { useAdminSubscriptions } from "../hooks/useAdminSubscriptions";
+import { useExportAdminSubscriptions } from "../hooks/useExportAdminSubscriptions";
 import { useUpdateAdminPlan } from "../hooks/useUpdateAdminPlan";
 import type {
   AdminSubscriptionPlan,
@@ -125,7 +121,8 @@ function SubscriptionView({
   const [exportFormat, setExportFormat] = useState<"csv" | "pdf" | null>(null);
   const [selectedPlan, setSelectedPlan] =
     useState<AdminSubscriptionPlan | null>(null);
-  if (query.isLoading) return <AdminLoading />;
+  const exportSubscriptions = useExportAdminSubscriptions();
+  if (query.isLoading) return <AdminLoading variant="subscriptions" />;
   if (query.isError || !query.data)
     return (
       <AdminError error={query.error} onRetry={() => void query.refetch()} />
@@ -135,25 +132,10 @@ function SubscriptionView({
   const exportLedger = async (format: "csv" | "pdf") => {
     setExportFormat(format);
     try {
-      const rows: AdminSubscriptionItem[] = [];
-      let nextPage = 1;
-      let pages = 1;
-      do {
-        const response = await api.get<ApiEnvelope<AdminSubscriptionOverview>>(
-          ADMIN_SUBSCRIPTIONS_ENDPOINTS.overview,
-          {
-            params: {
-              search: exportSearch || undefined,
-              status,
-              page: nextPage,
-              limit: 50,
-            },
-          },
-        );
-        rows.push(...response.data.data.subscriptions.items);
-        pages = response.data.data.subscriptions.pagination.pages;
-        nextPage += 1;
-      } while (nextPage <= pages);
+      const rows: AdminSubscriptionItem[] = await exportSubscriptions.mutateAsync({
+        search: exportSearch,
+        status,
+      });
       const date = new Date().toISOString().slice(0, 10);
       if (format === "csv") {
         downloadCsv(`subscription-ledger-${date}.csv`, [

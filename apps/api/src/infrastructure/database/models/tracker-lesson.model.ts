@@ -102,11 +102,6 @@ const trackerLessonSchema = new Schema(
       default: 'beginner',
     },
 
-    estimatedMinutes: {
-      type: Number,
-      default: 15,
-    },
-
     deletedAt: {
       type: Date,
       default: null,

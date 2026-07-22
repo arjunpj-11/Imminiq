@@ -9,11 +9,11 @@ export interface IListAdminTrackersUseCase {
 
 export class ListAdminTrackersUseCase implements IListAdminTrackersUseCase {
   constructor(
-    private readonly repository: Pick<IAdminTrackersRepository, 'list'>,
-    private readonly mapper: IAdminTrackersMapper
+    private readonly _repository: Pick<IAdminTrackersRepository, 'list'>,
+    private readonly _mapper: IAdminTrackersMapper
   ) {}
 
   async execute(query: AdminListQuery): Promise<AdminPage<AdminTrackerDTO>> {
-    return this.mapper.toPageDTO(await this.repository.list(query));
+    return this._mapper.toPageDTO(await this._repository.list(query));
   }
 }

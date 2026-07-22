@@ -4,6 +4,7 @@ import { systemClock } from '../../infrastructure/time/system-clock';
 import { sha256RefreshTokenHasher } from '../../infrastructure/security/sha256-refresh-token-hasher';
 import { AuthAccountPolicy } from './application/auth-account-policy.policy';
 import { AuthNotificationCoordinator } from './application/services/auth-notification.service';
+import { AuthLoginFinalizer } from './application/services/auth-login-finalizer.service';
 import { AuthRedirectResolver } from './application/services/auth-redirect.service';
 import {
   AuthSessionIssuer,
@@ -113,6 +114,12 @@ export const createAuthComposition = (): AuthComposition => {
     authToken,
     sha256RefreshTokenHasher
   );
+  const authLoginFinalizer = new AuthLoginFinalizer(
+    authRepository,
+    authRedirectResolver,
+    authSessionIssuer,
+    authUserMapper
+  );
 
   return {
     useCases: {
@@ -128,39 +135,33 @@ export const createAuthComposition = (): AuthComposition => {
       loginUser: new LoginUserUseCase(
         authRepository,
         authNotification,
-        authRedirectResolver,
         identifierNormalizer,
         authAccountPolicy,
-        authSessionIssuer,
+        authLoginFinalizer,
         authToken,
         passwordHasher,
         securityAttemptStore,
-        authUserMapper,
         jwtModerationAppealToken,
         runtimePolicy
       ),
 
       handleOAuthLogin: new HandleOAuthLoginUseCase(
         authRepository,
-        authRedirectResolver,
         authToken,
         authAccountPolicy,
-        authSessionIssuer,
-        authUserMapper,
+        authLoginFinalizer,
         runtimePolicy
       ),
 
       verifyTwoFactorLogin: new VerifyTwoFactorLoginUseCase(
         authRepository,
-        authRedirectResolver,
         authToken,
         authAccountPolicy,
-        authSessionIssuer,
+        authLoginFinalizer,
         securityAttemptStore,
         twoFactorCodeVerifier,
         backupCodeNormalizer,
-        passwordHasher,
-        authUserMapper
+        passwordHasher
       ),
 
       logoutUser: new LogoutUserUseCase(authRepository, sha256RefreshTokenHasher),
@@ -171,7 +172,8 @@ export const createAuthComposition = (): AuthComposition => {
         retiredRefreshTokenStore,
         auditLogger,
         authAccountPolicy,
-        sha256RefreshTokenHasher
+        sha256RefreshTokenHasher,
+        authUserMapper
       ),
 
       getCurrentUser: new GetCurrentUserUseCase(authRepository, authAccountPolicy, authUserMapper),

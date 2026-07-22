@@ -7,6 +7,8 @@ import {
   OnboardingRoadmapEvaluationScorePage,
   OnboardingRoadmapReadyPage,
   OnboardingStepOnePage,
+  TrackerCreationChoicePage,
+  ManualTrackerCreationPage,
 } from '../config/tracker-creation-pages';
 import { ROUTES } from '../config/route-paths';
 import LegacyTrackerCreationRedirect from '../components/LegacyTrackerCreationRedirect';
@@ -16,7 +18,15 @@ const legacyRedirect = (element: ReactNode, path: string): RouteObject => ({ pat
 export const trackerCreationRoutes: RouteObject[] = [
   {
     path: ROUTES.trackerCreate,
+    element: <TrackerCreationChoicePage />,
+  },
+  {
+    path: ROUTES.trackerCreateAi,
     element: <OnboardingStepOnePage />,
+  },
+  {
+    path: ROUTES.trackerCreateManual,
+    element: <ManualTrackerCreationPage />,
   },
   {
     path: ROUTES.trackerCreateGeneratingPattern,

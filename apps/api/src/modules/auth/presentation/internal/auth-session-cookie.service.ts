@@ -21,15 +21,22 @@ const crossSiteCookieOptions: Pick<CookieOptions, 'secure' | 'sameSite' | 'path'
   path: AUTH_COOKIE_PATH,
 };
 
+const productionCookieDomain =
+  env.NODE_ENV === 'production' ? env.AUTH_COOKIE_DOMAIN : undefined;
+
 const refreshCookieOptions: CookieOptions = {
   httpOnly: true,
   ...crossSiteCookieOptions,
+  ...(productionCookieDomain ? { domain: productionCookieDomain } : {}),
+  priority: 'high',
   maxAge: env.REFRESH_TOKEN_TTL_MS,
 };
 
 const twoFactorCookieOptions: CookieOptions = {
   httpOnly: true,
   ...crossSiteCookieOptions,
+  ...(productionCookieDomain ? { domain: productionCookieDomain } : {}),
+  priority: 'high',
   maxAge: env.TWO_FACTOR_CHALLENGE_TTL_MINUTES * 60 * 1000,
 };
 

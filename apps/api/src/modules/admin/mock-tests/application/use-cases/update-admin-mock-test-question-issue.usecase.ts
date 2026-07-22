@@ -18,13 +18,13 @@ export class UpdateAdminMockTestQuestionIssueUseCase
   implements IUpdateAdminMockTestQuestionIssueUseCase
 {
   constructor(
-    private readonly repository: Pick<IAdminMockTestsRepository, 'updateQuestionIssue'>,
-    private readonly mapper: IAdminMockTestsMapper,
-    private readonly emailProvider: IAdminMockTestEmailProvider
+    private readonly _repository: Pick<IAdminMockTestsRepository, 'updateQuestionIssue'>,
+    private readonly _mapper: IAdminMockTestsMapper,
+    private readonly _emailProvider: IAdminMockTestEmailProvider
   ) {}
 
   async execute(id: string, input: AdminMockTestIssueUpdateInput, actor: AdminActor) {
-    const result = await this.repository.updateQuestionIssue(id, input, actor);
+    const result = await this._repository.updateQuestionIssue(id, input, actor);
     if (!result) throw AdminMockTestsApplicationError.issueNotFound();
 
     if (
@@ -32,7 +32,7 @@ export class UpdateAdminMockTestQuestionIssueUseCase
       (input.resolutionAction === 'test_suspended' || input.resolutionAction === 'test_deleted')
     ) {
       try {
-        await this.emailProvider.queueModerationEmail({
+        await this._emailProvider.queueModerationEmail({
           to: result.testOwnerEmail,
           ownerName: result.testOwner,
           testTitle: result.testTitle,
@@ -43,6 +43,6 @@ export class UpdateAdminMockTestQuestionIssueUseCase
         // The in-app notification and audit event remain authoritative if email is unavailable.
       }
     }
-    return this.mapper.toIssueDTO(result);
+    return this._mapper.toIssueDTO(result);
   }
 }

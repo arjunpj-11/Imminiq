@@ -30,7 +30,6 @@ export type CommunityPublicTrackerSubtopicViewDTO = {
   order: number;
   depth: number;
   isLocked: boolean;
-  estimatedMinutes: number;
 };
 
 export type CommunityPublicTrackerTopicViewDTO = {
@@ -39,7 +38,6 @@ export type CommunityPublicTrackerTopicViewDTO = {
   description: string;
   order: number;
   status: string;
-  estimatedHours: number;
   subtopics: CommunityPublicTrackerSubtopicViewDTO[];
 };
 

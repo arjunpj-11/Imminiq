@@ -9,6 +9,7 @@ import { ClearLessonChatHistoryUseCase } from './application/use-cases/clear-les
 import { ClearLessonQuestionSolutionDoubtsUseCase } from './application/use-cases/clear-lesson-question-solution-doubts.usecase';
 import { CreateTrackerSubtopicUseCase } from './application/use-cases/create-tracker-subtopic.usecase';
 import { CreateTrackerTopicUseCase } from './application/use-cases/create-tracker-topic.usecase';
+import { ImportTrackerOutlineUseCase } from './application/use-cases/import-tracker-outline.usecase';
 import { CreateTrackerUseCase } from './application/use-cases/create-tracker.usecase';
 import { CreateTopicContributionUseCase } from './application/use-cases/create-topic-contribution.usecase';
 import { DeleteTrackerUseCase } from './application/use-cases/delete-tracker.usecase';
@@ -43,6 +44,7 @@ import { VerifyLessonAnswerUseCase } from './application/use-cases/verify-lesson
 import { VerifyTrackerSubtopicUseCase } from './application/use-cases/verify-tracker-subtopic.usecase';
 import { VerifyTrackerTopicUseCase } from './application/use-cases/verify-tracker-topic.usecase';
 import { TrackerClanService } from './application/services/tracker-clan.service';
+import { TrackerClanNotificationService } from './application/services/tracker-clan-notification.service';
 import { TrackerClanChallengeService } from './application/services/tracker-clan-challenge.service';
 import type { ITrackerRepository } from './domain/repositories/tracker.repository.interface';
 import { mongoPlatformPolicyReader } from '../../../infrastructure/mongo-platform-policy.reader';
@@ -60,66 +62,6 @@ import { trackerClanChallengeQuestionGateway } from './infrastructure/gateways/t
 import { TrackerClanNotificationGateway } from './infrastructure/gateways/tracker-clan-notification.gateway';
 import { MongoTrackerClanRepository } from './infrastructure/repositories/mongo-tracker-clan.repository';
 import type { ITrackerPersonalCloneProvisioner } from './domain/services/tracker-personal-clone-provisioner.interface';
-
-export type TrackerListInput = Parameters<ListTrackersUseCase['execute']>[0];
-
-export type CreateTrackerInput = Parameters<CreateTrackerUseCase['execute']>[0];
-
-export type UpdateTrackerInput = Parameters<UpdateTrackerUseCase['execute']>[0];
-
-export type CreateTopicInput = Parameters<CreateTrackerTopicUseCase['execute']>[0];
-
-export type CreateSubtopicInput = Parameters<CreateTrackerSubtopicUseCase['execute']>[0];
-
-export type UpdateSubtopicProgressInput = Parameters<UpdateSubtopicProgressUseCase['execute']>[0];
-
-export type ChatWithLessonTutorInput = Parameters<ChatWithLessonTutorUseCase['execute']>[0];
-
-export type GenerateLessonQuestionsInput = Parameters<GenerateLessonQuestionsUseCase['execute']>[0];
-
-export type GetLessonQuestionSolutionInput = Parameters<
-  GetLessonQuestionSolutionUseCase['execute']
->[0];
-
-export type GenerateLessonQuestionSolutionInput = Parameters<
-  GenerateLessonQuestionSolutionUseCase['execute']
->[0];
-
-export type GetLessonQuestionSolutionDoubtsInput = Parameters<
-  GetLessonQuestionSolutionDoubtsUseCase['execute']
->[0];
-
-export type AskLessonQuestionSolutionDoubtInput = Parameters<
-  AskLessonQuestionSolutionDoubtUseCase['execute']
->[0];
-
-export type VerifyLessonAnswerInput = Parameters<VerifyLessonAnswerUseCase['execute']>[0];
-
-export type RunLessonCodeInput = Parameters<RunLessonCodeUseCase['execute']>[0];
-
-export type SubmitLessonCodeInput = Parameters<SubmitLessonCodeUseCase['execute']>[0];
-
-export type GetCodeHintInput = Parameters<GetCodeHintUseCase['execute']>[0];
-
-export type GetOptimizedSolutionInput = Parameters<GetOptimizedSolutionUseCase['execute']>[0];
-
-export type ClearLessonQuestionSolutionDoubtsInput = Parameters<
-  ClearLessonQuestionSolutionDoubtsUseCase['execute']
->[0];
-
-export type VerifyTopicInput = Parameters<VerifyTrackerTopicUseCase['execute']>[0];
-
-export type VerifySubtopicInput = Parameters<VerifyTrackerSubtopicUseCase['execute']>[0];
-
-export type AddMissingEvaluationTopicInput = Parameters<
-  AddMissingEvaluationTopicUseCase['execute']
->[0];
-
-export type GenerateLessonVisualizationInput = Parameters<
-  GenerateLessonVisualizationUseCase['execute']
->[0];
-
-export type PublishTrackerInput = Parameters<PublishTrackerUseCase['execute']>[0];
 
 export type TrackerServiceHelpers = {
   trackerRepository: ITrackerRepository;
@@ -148,38 +90,43 @@ export const createTrackerComposition = (
   const trackerClanNotifications = new TrackerClanNotificationGateway(notificationCreator);
   const trackerClanRepository = new MongoTrackerClanRepository(personalCloneProvisioner);
 
-  const _trackerMapper = new TrackerMapper();
+  const trackerMapper = new TrackerMapper();
   const missingEvaluationTopicPlacement = new MissingEvaluationTopicPlacementService(
     trackerRepository
   );
+  const createTrackerTopic = new CreateTrackerTopicUseCase(trackerRepository, trackerMapper);
+  const createTrackerSubtopic = new CreateTrackerSubtopicUseCase(trackerRepository, trackerMapper);
 
   return {
     useCases: {
-      getTrackerSummary: new GetTrackerSummaryUseCase(trackerRepository, _trackerMapper),
+      getTrackerSummary: new GetTrackerSummaryUseCase(trackerRepository, trackerMapper),
 
-      listTrackers: new ListTrackersUseCase(trackerRepository, _trackerMapper),
+      listTrackers: new ListTrackersUseCase(trackerRepository, trackerMapper),
 
       listTrackerDomains: new ListTrackerDomainsUseCase(trackerRepository),
 
-      createTracker: new CreateTrackerUseCase(trackerRepository, _trackerMapper),
+      createTracker: new CreateTrackerUseCase(trackerRepository, trackerMapper),
 
-      getTrackerDetails: new GetTrackerDetailsUseCase(trackerRepository, _trackerMapper),
+      getTrackerDetails: new GetTrackerDetailsUseCase(trackerRepository, trackerMapper),
 
-      updateTracker: new UpdateTrackerUseCase(trackerRepository, _trackerMapper),
+      updateTracker: new UpdateTrackerUseCase(trackerRepository, trackerMapper),
 
-      deleteTracker: new DeleteTrackerUseCase(trackerRepository, _trackerMapper),
+      deleteTracker: new DeleteTrackerUseCase(trackerRepository, trackerMapper),
 
-      archiveTracker: new ArchiveTrackerUseCase(trackerRepository, _trackerMapper),
+      archiveTracker: new ArchiveTrackerUseCase(trackerRepository, trackerMapper),
 
-      restoreTracker: new RestoreTrackerUseCase(trackerRepository, _trackerMapper),
+      restoreTracker: new RestoreTrackerUseCase(trackerRepository, trackerMapper),
 
-      publishTracker: new PublishTrackerUseCase(trackerRepository, _trackerMapper),
+      publishTracker: new PublishTrackerUseCase(trackerRepository, trackerMapper),
 
-      unpublishTracker: new UnpublishTrackerUseCase(trackerRepository, _trackerMapper),
+      unpublishTracker: new UnpublishTrackerUseCase(trackerRepository, trackerMapper),
 
       reportTracker: new ReportTrackerUseCase(trackerRepository),
 
-      trackerClan: new TrackerClanService(trackerClanRepository, trackerClanNotifications),
+      trackerClan: new TrackerClanService(
+        trackerClanRepository,
+        new TrackerClanNotificationService(trackerClanNotifications)
+      ),
 
       trackerClanChallenges: new TrackerClanChallengeService(
         trackerClanRepository,
@@ -188,11 +135,16 @@ export const createTrackerComposition = (
         trackerClanNotifications
       ),
 
-      getTrackerRoadmap: new GetTrackerRoadmapUseCase(trackerRepository, _trackerMapper),
+      getTrackerRoadmap: new GetTrackerRoadmapUseCase(trackerRepository, trackerMapper),
 
-      createTrackerTopic: new CreateTrackerTopicUseCase(trackerRepository, _trackerMapper),
+      createTrackerTopic,
 
-      createTrackerSubtopic: new CreateTrackerSubtopicUseCase(trackerRepository, _trackerMapper),
+      createTrackerSubtopic,
+
+      importTrackerOutline: new ImportTrackerOutlineUseCase(
+        createTrackerTopic,
+        createTrackerSubtopic
+      ),
 
       createTopicContribution: new CreateTopicContributionUseCase(
         mongoTrackerTopicContributionRepository,
@@ -211,128 +163,128 @@ export const createTrackerComposition = (
       updateSubtopicProgress: new UpdateSubtopicProgressUseCase(
         trackerRepository,
         trackerActivityRecorder,
-        _trackerMapper,
+        trackerMapper,
         mongoPlatformPolicyReader
       ),
 
       addMissingEvaluationTopic: new AddMissingEvaluationTopicUseCase(
         trackerRepository,
         missingEvaluationTopicPlacement,
-        _trackerMapper
+        trackerMapper
       ),
 
       getTrackerLesson: new GetTrackerLessonUseCase(
         trackerRepository,
         trackerAIGateway,
-        _trackerMapper
+        trackerMapper
       ),
 
       chatWithLessonTutor: new ChatWithLessonTutorUseCase(
         trackerRepository,
         trackerAIGateway,
-        _trackerMapper
+        trackerMapper
       ),
 
       generateLessonQuestions: new GenerateLessonQuestionsUseCase(
         trackerRepository,
         trackerAIGateway,
         trackerQuestionHasher,
-        _trackerMapper
+        trackerMapper
       ),
 
       generateLessonQuestionSolution: new GenerateLessonQuestionSolutionUseCase(
         trackerRepository,
         trackerAIGateway,
         trackerQuestionHasher,
-        _trackerMapper
+        trackerMapper
       ),
 
       askLessonQuestionSolutionDoubt: new AskLessonQuestionSolutionDoubtUseCase(
         trackerRepository,
         trackerAIGateway,
         trackerQuestionHasher,
-        _trackerMapper
+        trackerMapper
       ),
 
       generateLessonVisualization: new GenerateLessonVisualizationUseCase(
         trackerRepository,
         trackerAIGateway,
-        _trackerMapper
+        trackerMapper
       ),
 
-      getCodeHint: new GetCodeHintUseCase(trackerRepository, trackerAIGateway, _trackerMapper),
+      getCodeHint: new GetCodeHintUseCase(trackerRepository, trackerAIGateway, trackerMapper),
 
       getOptimizedSolution: new GetOptimizedSolutionUseCase(
         trackerRepository,
         trackerAIGateway,
-        _trackerMapper
+        trackerMapper
       ),
 
       verifyLessonAnswer: new VerifyLessonAnswerUseCase(
         trackerRepository,
         trackerAIGateway,
-        _trackerMapper
+        trackerMapper
       ),
 
       verifyTrackerTopic: new VerifyTrackerTopicUseCase(
         trackerRepository,
         trackerAIGateway,
-        _trackerMapper
+        trackerMapper
       ),
 
       verifyTrackerSubtopic: new VerifyTrackerSubtopicUseCase(
         trackerRepository,
         trackerAIGateway,
-        _trackerMapper
+        trackerMapper
       ),
 
       runLessonCode: new RunLessonCodeUseCase(
         trackerRepository,
         trackerCodeExecutor,
-        _trackerMapper
+        trackerMapper
       ),
 
       submitLessonCode: new SubmitLessonCodeUseCase(
         trackerRepository,
         trackerCodeExecutor,
-        _trackerMapper
+        trackerMapper
       ),
 
-      getLessonChatHistory: new GetLessonChatHistoryUseCase(trackerRepository, _trackerMapper),
+      getLessonChatHistory: new GetLessonChatHistoryUseCase(trackerRepository, trackerMapper),
 
       getLessonAnswerAttempts: new GetLessonAnswerAttemptsUseCase(
         trackerRepository,
-        _trackerMapper
+        trackerMapper
       ),
 
       getLessonCodeSubmissions: new GetLessonCodeSubmissionsUseCase(
         trackerRepository,
-        _trackerMapper
+        trackerMapper
       ),
 
       getLessonGeneratedQuestions: new GetLessonGeneratedQuestionsUseCase(
         trackerRepository,
-        _trackerMapper
+        trackerMapper
       ),
 
       getLessonQuestionSolution: new GetLessonQuestionSolutionUseCase(
         trackerRepository,
         trackerQuestionHasher,
-        _trackerMapper
+        trackerMapper
       ),
 
       getLessonQuestionSolutionDoubts: new GetLessonQuestionSolutionDoubtsUseCase(
         trackerRepository,
         trackerQuestionHasher,
-        _trackerMapper
+        trackerMapper
       ),
 
-      clearLessonChatHistory: new ClearLessonChatHistoryUseCase(trackerRepository, _trackerMapper),
+      clearLessonChatHistory: new ClearLessonChatHistoryUseCase(trackerRepository, trackerMapper),
 
       clearLessonQuestionSolutionDoubts: new ClearLessonQuestionSolutionDoubtsUseCase(
         trackerRepository,
         trackerQuestionHasher,
-        _trackerMapper
+        trackerMapper
       ),
     },
 

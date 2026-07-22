@@ -7,14 +7,9 @@ import {
 } from './blockedAppealSession';
 import { getUserFacingError } from './user-facing-error';
 import { webEnvironment } from '../config/env';
-
-interface IRefreshTokenResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    accessToken?: string;
-  };
-}
+import { getCsrfToken, refreshAuthSession } from './auth-session-refresh';
+import { resetClientState } from '../store/reset-client-state';
+import { ROUTES } from '../routes/config/route-paths';
 
 interface IApiErrorResponse {
   success?: false;
@@ -30,25 +25,10 @@ interface IRetryableRequestConfig extends InternalAxiosRequestConfig {
 const api = axios.create({
   baseURL: webEnvironment.apiUrl,
   withCredentials: true,
+  timeout: 45_000,
 });
 
 const UNSAFE_METHODS = new Set(['post', 'put', 'patch', 'delete']);
-
-const getCookieValue = (cookieName: string): string | null => {
-  const prefix = `${cookieName}=`;
-
-  const cookie = document.cookie.split('; ').find((entry) => entry.startsWith(prefix));
-
-  if (!cookie) {
-    return null;
-  }
-
-  return decodeURIComponent(cookie.slice(prefix.length));
-};
-
-const getCsrfToken = (): string | null => {
-  return getCookieValue('csrfToken');
-};
 
 const isRestrictedAccountError = (status?: number, code?: string) => {
   return (
@@ -86,8 +66,14 @@ const normalizeApiError = (error: AxiosError<IApiErrorResponse>) => {
  * Add a CSRF header to unsafe requests when the backend-issued CSRF cookie exists.
  */
 api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const accessToken = useAuthStore.getState().accessToken;
+  async (config: InternalAxiosRequestConfig) => {
+    let accessToken = useAuthStore.getState().accessToken;
+    const requestUrl = config.url || '';
+    const isAuthRequest = requestUrl.includes('/auth/');
+
+    if (!accessToken && useAuthStore.getState().isAuthenticated && !isAuthRequest) {
+      accessToken = (await refreshAuthSession()).accessToken;
+    }
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
@@ -154,10 +140,10 @@ api.interceptors.response.use(
         saveBlockedAppealIdentifier(restrictedIdentifier);
       }
 
-      useAuthStore.getState().clearAuth();
+      resetClientState();
 
-      if (window.location.pathname !== '/blocked') {
-        window.location.replace('/blocked');
+      if (window.location.pathname !== ROUTES.blocked) {
+        window.location.replace(ROUTES.blocked);
       }
 
       return Promise.reject(error);
@@ -172,7 +158,7 @@ api.interceptors.response.use(
 
     if (status !== 401 || originalRequest._retry || shouldSkipRefresh) {
       if (status === 401 && shouldSkipRefresh) {
-        useAuthStore.getState().clearAuth();
+        resetClientState();
       }
 
       return Promise.reject(error);
@@ -181,28 +167,7 @@ api.interceptors.response.use(
     originalRequest._retry = true;
 
     try {
-      const csrfToken = getCsrfToken();
-
-      const refreshResponse = await axios.post<IRefreshTokenResponse>(
-        `${webEnvironment.apiUrl}/auth/refresh-token`,
-        {},
-        {
-          withCredentials: true,
-          headers: csrfToken
-            ? {
-                'X-CSRF-Token': csrfToken,
-              }
-            : undefined,
-        }
-      );
-
-      const newAccessToken = refreshResponse.data.data?.accessToken;
-
-      if (!newAccessToken) {
-        throw new Error('Refresh succeeded but no access token was returned');
-      }
-
-      useAuthStore.getState().setAccessToken(newAccessToken);
+      const { accessToken: newAccessToken } = await refreshAuthSession();
 
       originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
@@ -227,11 +192,11 @@ api.interceptors.response.use(
         );
       }
 
-      useAuthStore.getState().clearAuth();
+      resetClientState();
 
       if (isRestrictedAccountError(refreshStatus, refreshErrorCode)) {
-        if (window.location.pathname !== '/blocked') {
-          window.location.replace('/blocked');
+        if (window.location.pathname !== ROUTES.blocked) {
+          window.location.replace(ROUTES.blocked);
         }
 
         return Promise.reject(axiosRefreshError);

@@ -12,7 +12,7 @@ export interface IUsernameGenerator {
 
 export class UsernameGenerator implements IUsernameGenerator {
   constructor(
-    private readonly _authRepository: IAuthUserRepository,
+    private readonly _authRepository: Pick<IAuthUserRepository, 'usernameExists'>,
     private readonly _randomNumberGenerator: IRandomNumberGenerator
   ) {}
 

@@ -1,4 +1,7 @@
 import type {
+  AddMissingEvaluationTopicDTO,
+} from '../tracker.dto';
+import type {
   AddMissingEvaluationTopicInput,
   MissingTopicSuggestion,
 } from '../../domain/trackers.types';
@@ -7,17 +10,15 @@ import type { IMissingEvaluationTopicReader } from '../missing-evaluation-topic.
 import type { IMissingEvaluationTopicPlacementService } from '../services/missing-evaluation-topic-placement.service';
 import { TrackerApplicationError } from '../tracker-application.error';
 
-type AddMissingEvaluationTopicDTO = ReturnType<ITrackerMapper['toAddMissingEvaluationTopicDto']>;
-
 export interface IAddMissingEvaluationTopicUseCase {
   execute(input: AddMissingEvaluationTopicInput): Promise<AddMissingEvaluationTopicDTO>;
 }
 
 export class AddMissingEvaluationTopicUseCase implements IAddMissingEvaluationTopicUseCase {
   constructor(
-    private readonly reader: IMissingEvaluationTopicReader,
-    private readonly placement: IMissingEvaluationTopicPlacementService,
-    private readonly mapper: ITrackerMapper
+    private readonly _reader: IMissingEvaluationTopicReader,
+    private readonly _placement: IMissingEvaluationTopicPlacementService,
+    private readonly _mapper: ITrackerMapper
   ) {}
 
   async execute({
@@ -28,8 +29,8 @@ export class AddMissingEvaluationTopicUseCase implements IAddMissingEvaluationTo
   }: AddMissingEvaluationTopicInput): Promise<AddMissingEvaluationTopicDTO> {
     const parsedTopicIndex = this.parseTopicIndex(topicIndex);
     const [tracker, evaluationJob] = await Promise.all([
-      this.reader.findOwnedTrackerById({ trackerId, userId }),
-      this.reader.findEvaluationJobById({ evaluationJobId, userId }),
+      this._reader.findOwnedTrackerById({ trackerId, userId }),
+      this._reader.findEvaluationJobById({ evaluationJobId, userId }),
     ]);
 
     if (!tracker) throw TrackerApplicationError.trackerNotFound('Tracker not found');
@@ -50,10 +51,10 @@ export class AddMissingEvaluationTopicUseCase implements IAddMissingEvaluationTo
       parsedTopicIndex
     );
     const [trackerTopics, trackerSubtopics] = await Promise.all([
-      this.reader.getTopicsForTracker(trackerId),
-      this.reader.getSubtopicsForTracker(trackerId),
+      this._reader.getTopicsForTracker(trackerId),
+      this._reader.getSubtopicsForTracker(trackerId),
     ]);
-    const result = await this.placement.place({
+    const result = await this._placement.place({
       trackerId,
       evaluationJobId,
       topicIndex: parsedTopicIndex,
@@ -63,7 +64,7 @@ export class AddMissingEvaluationTopicUseCase implements IAddMissingEvaluationTo
       trackerSubtopics,
     });
 
-    return this.mapper.toAddMissingEvaluationTopicDto(result);
+    return this._mapper.toAddMissingEvaluationTopicDto(result);
   }
 
   private parseTopicIndex(topicIndex: string | number): number {

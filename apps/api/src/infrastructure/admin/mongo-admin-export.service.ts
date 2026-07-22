@@ -21,7 +21,7 @@ export class AdminExportService implements IAdminExportService {
     return csv([['ID', 'Name', 'Username', 'Email', 'Phone', 'Role', 'Status', 'Created', 'Last active'], ...rows.map((row) => [row._id, row.fullName, row.username, row.email, row.phone, row.role, row.status, row.createdAt.toISOString(), row.lastActiveAt.toISOString()])]);
   }
   async trackers(query: { search: string; status: string }) {
-    const filter: Record<string, unknown> = { ...search(query.search, ['title', 'description', 'tags']) };
+    const filter: Record<string, unknown> = { sourceTrackerId: null, ...search(query.search, ['title', 'description', 'tags']) };
     if (['suspended', 'deleted'].includes(query.status)) filter.moderationStatus = query.status;
     else if (query.status !== 'all') filter.status = query.status;
     const rows = await Tracker.find(filter).populate('ownerId', 'fullName username email').sort({ createdAt: -1 }).limit(50_000).lean();

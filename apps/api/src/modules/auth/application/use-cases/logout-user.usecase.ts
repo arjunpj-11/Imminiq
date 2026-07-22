@@ -7,7 +7,10 @@ export interface ILogoutUserUseCase {
 
 export class LogoutUserUseCase implements ILogoutUserUseCase {
   constructor(
-    private readonly _authRepository: IAuthSessionRepository,
+    private readonly _authRepository: Pick<
+      IAuthSessionRepository,
+      'revokeSessionByRefreshTokenHash'
+    >,
     private readonly _refreshTokenHasher: IRefreshTokenHasher
   ) {}
 

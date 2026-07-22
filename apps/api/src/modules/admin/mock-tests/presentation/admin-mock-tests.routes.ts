@@ -4,7 +4,7 @@ import {
   requireAdminPermission,
 } from '../../../../shared/middlewares/admin.middleware';
 import type { PrivilegedAdminMiddleware } from '../../../../shared/middlewares/admin.middleware';
-import { validateIdentifierParam } from '../../../../shared/middlewares/validate';
+import { validateIdentifierParam } from '../../../../shared/middlewares/validate.middleware';
 import type { AdminMockTestsUseCases } from '../application/admin-mock-tests-use-cases.contract';
 import { AdminMockTestsController } from './admin-mock-tests.controller';
 import { ADMIN_MOCK_TESTS_ROUTE_PATHS } from './admin-mock-tests.route.constants';
@@ -23,6 +23,20 @@ export const createAdminMockTestsRoutes = (
   router.get(ADMIN_MOCK_TESTS_ROUTE_PATHS.EXPORT, controller.exportCsv);
   router.post(ADMIN_MOCK_TESTS_ROUTE_PATHS.BULK_LIFECYCLE, requireAdminPermission('content:delete'), requirePrivilegedMfa, controller.bulkLifecycle);
   router.get(ADMIN_MOCK_TESTS_ROUTE_PATHS.ISSUES, controller.listQuestionIssues);
+  router.get(ADMIN_MOCK_TESTS_ROUTE_PATHS.QUESTION_BANK, controller.listQuestionBank);
+  router.get(ADMIN_MOCK_TESTS_ROUTE_PATHS.QUESTION_BANK_ITEM, controller.getQuestionBankItem);
+  router.delete(
+    ADMIN_MOCK_TESTS_ROUTE_PATHS.QUESTION_BANK_ITEM,
+    requireAdminPermission('content:delete'),
+    requirePrivilegedMfa,
+    controller.deleteQuestionBankItem
+  );
+  router.patch(
+    ADMIN_MOCK_TESTS_ROUTE_PATHS.QUESTION_BANK_RESTORE,
+    requireAdminPermission('content:moderate'),
+    requirePrivilegedMfa,
+    controller.restoreQuestionBankItem
+  );
   router.get(ADMIN_MOCK_TESTS_ROUTE_PATHS.APPEALS, controller.listAppeals);
   router.patch(ADMIN_MOCK_TESTS_ROUTE_PATHS.APPEAL_DETAIL, requireAdminPermission('content:moderate'), requirePrivilegedMfa, controller.updateAppeal);
   router.patch(

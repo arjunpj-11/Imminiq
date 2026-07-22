@@ -7,7 +7,7 @@ import type { PrivilegedAdminMiddleware } from '../../../../shared/middlewares/a
 import type { AdminTrackersUseCases } from '../application/admin-trackers-use-cases.contract';
 import { AdminTrackersController } from './admin-trackers.controller';
 import { ADMIN_TRACKERS_ROUTE_PATHS } from './admin-trackers.route.constants';
-import { validateIdentifierParam } from '../../../../shared/middlewares/validate';
+import { validateIdentifierParam } from '../../../../shared/middlewares/validate.middleware';
 export const createAdminTrackersRoutes = (
   useCases: AdminTrackersUseCases,
   requirePrivilegedMfa: PrivilegedAdminMiddleware

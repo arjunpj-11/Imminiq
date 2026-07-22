@@ -8,6 +8,7 @@ import { ROUTES } from "../../../../routes/config/route-paths";
 
 import { AppShellBoundary } from "../../../../components/layout/AppShell";
 import PageHero from "../../../../components/layout/PageHero";
+import Modal from "../../../../components/overlays/Modal";
 import { useTrackers, useUnpublishTracker } from "../hooks/useTrackers";
 import type { ITracker } from "../types/tracker.types";
 
@@ -270,22 +271,16 @@ function UnpublishConfirmModal({
   onConfirm,
   onCancel,
 }: UnpublishConfirmModalProps) {
-  if (!tracker) return null;
-
   return (
-    // Backdrop
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center"
-      style={{
-        backgroundColor: "rgba(20,18,16,0.60)",
-        backdropFilter: "blur(6px)",
-      }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onCancel();
-      }}
+    <Modal
+      open={Boolean(tracker)}
+      onClose={onCancel}
+      preventClose={isUnpublishing}
+      ariaLabel="Unpublish tracker"
+      overlayClassName="z-200 bg-(--surface-canvas)/98 backdrop-blur-xl"
+      contentClassName="max-h-[calc(100dvh-2rem)] max-w-100 overflow-y-auto border-[rgba(200,50,50,0.18)] p-0"
     >
-      {/* Panel */}
-      <div className="w-full max-w-100 overflow-hidden rounded-xl border-[1.5px] border-[rgba(200,50,50,0.18)] bg-(--surface-card) shadow-[0_24px_64px_rgba(20,18,16,0.28)] dark:border-[rgba(255,120,120,0.14)] dark:bg-(--surface-card)">
+      {tracker && <div className="w-full bg-(--surface-card) dark:bg-(--surface-card)">
         {/* Red accent top bar */}
         <div className="h-0.5 w-full bg-linear-to-r from-[#c83232] to-[#e05555]" />
 
@@ -367,8 +362,8 @@ function UnpublishConfirmModal({
             {isUnpublishing ? "Unpublishing…" : "Yes, unpublish"}
           </button>
         </div>
-      </div>
-    </div>
+      </div>}
+    </Modal>
   );
 }
 
@@ -438,7 +433,7 @@ function PublishedTrackerCard({
   };
 
   return (
-    <article className="group relative flex min-h-[430px] flex-col overflow-hidden rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) transition duration-200 hover:-translate-y-1 hover:border-[rgba(45,106,71,0.28)] hover:shadow-(--shadow-2)">
+    <article className="group relative flex min-h-107.5 flex-col overflow-hidden rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) transition duration-200 hover:-translate-y-1 hover:border-[rgba(45,106,71,0.28)] hover:shadow-(--shadow-2)">
       <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[rgba(45,106,71,0.08)] blur-3xl dark:bg-[rgba(92,201,138,0.08)]" />
       <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-linear-to-r from-transparent via-(--success) to-transparent opacity-45" />
 
@@ -575,12 +570,14 @@ function PublishedTrackerCard({
 function PageSkeleton() {
   return (
     <AppShellBoundary>
-      <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full flex-col gap-6 pb-24 max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))]">
-        <div className="animate-pulse">
-          <SkeletonBlock className="mb-3 h-5 w-28 rounded-full" />
-          <SkeletonBlock className="h-9 w-72 rounded-2xl" />
-          <SkeletonBlock className="mt-3 h-4 w-96" />
-        </div>
+      <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
+        <header className="relative overflow-hidden rounded-3xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) sm:p-6">
+          <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(15rem,0.65fr)]">
+            <div className="min-w-0"><SkeletonBlock className="h-7 w-36 rounded-full" /><SkeletonBlock className="mt-3 h-10 w-[min(34rem,86%)] rounded-xl" /><SkeletonBlock className="mt-3 h-4 w-[min(42rem,96%)]" /><SkeletonBlock className="mt-2 h-4 w-[min(32rem,76%)]" /><SkeletonBlock className="mt-5 h-10 w-32 rounded-lg" /></div>
+            <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-elevated) p-4.5"><SkeletonBlock className="h-3 w-36" /><SkeletonBlock className="mt-3 h-9 w-14 rounded-lg" /><SkeletonBlock className="mt-3 h-3 w-52" /></div>
+          </div>
+        </header>
+        <div className="flex items-center gap-3 rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-3"><SkeletonBlock className="h-10 w-10 shrink-0 rounded-xl" /><SkeletonBlock className="h-4 w-[min(28rem,72%)]" /></div>
         <div className="grid grid-cols-3 gap-5 max-[1220px]:grid-cols-2 max-[760px]:grid-cols-1">
           {Array.from({ length: 6 }).map((_, index) => (
             <PublishedCardSkeleton key={index} />

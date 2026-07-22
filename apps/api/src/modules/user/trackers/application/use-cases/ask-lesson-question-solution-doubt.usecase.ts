@@ -5,16 +5,15 @@ import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface';
 import type { IQuestionHasher } from '../../domain/services/question-hasher.interface';
-import type { AskLessonQuestionSolutionDoubtPayloadDTO } from '../tracker.dto';
-
-type AskLessonQuestionSolutionDoubtResultDTO = ReturnType<
-  ITrackerMapper['toLessonQuestionSolutionDoubtAnswerDto']
->;
+import type {
+  AskLessonQuestionSolutionDoubtPayloadDTO,
+  LessonQuestionSolutionDoubtAnswerDTO,
+} from '../tracker.dto';
 
 export interface IAskLessonQuestionSolutionDoubtUseCase {
   execute(
     input: AskLessonQuestionSolutionDoubtPayloadDTO
-  ): Promise<AskLessonQuestionSolutionDoubtResultDTO>;
+  ): Promise<LessonQuestionSolutionDoubtAnswerDTO>;
 }
 
 export class AskLessonQuestionSolutionDoubtUseCase implements IAskLessonQuestionSolutionDoubtUseCase {
@@ -27,14 +26,17 @@ export class AskLessonQuestionSolutionDoubtUseCase implements IAskLessonQuestion
       | 'findOwnedTrackerById'
       | 'getLessonQuestionSolutionDoubts'
     >,
-    private readonly _trackerAIGateway: ITrackerAIGateway,
+    private readonly _trackerAIGateway: Pick<
+      ITrackerAIGateway,
+      'chatWithLessonQuestionSolutionDoubt'
+    >,
     private readonly _questionHasher: IQuestionHasher,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
   async execute(
     input: AskLessonQuestionSolutionDoubtPayloadDTO
-  ): Promise<AskLessonQuestionSolutionDoubtResultDTO> {
+  ): Promise<LessonQuestionSolutionDoubtAnswerDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

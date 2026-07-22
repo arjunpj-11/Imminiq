@@ -9,13 +9,13 @@ export interface IGetAdminTrackerDetailUseCase {
 
 export class GetAdminTrackerDetailUseCase implements IGetAdminTrackerDetailUseCase {
   constructor(
-    private readonly repository: Pick<IAdminTrackersRepository, 'getDetail'>,
-    private readonly mapper: IAdminTrackersMapper
+    private readonly _repository: Pick<IAdminTrackersRepository, 'getDetail'>,
+    private readonly _mapper: IAdminTrackersMapper
   ) {}
 
   async execute(id: string) {
-    const result = await this.repository.getDetail(id);
+    const result = await this._repository.getDetail(id);
     if (!result) throw AdminTrackersApplicationError.trackerNotFound();
-    return this.mapper.toDetailDTO(result);
+    return this._mapper.toDetailDTO(result);
   }
 }

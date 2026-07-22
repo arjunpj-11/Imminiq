@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import SettingsShell from '../components/SettingsShell';
 import SettingsContentLoading from '../components/SettingsContentLoading';
 import { SaveBar, SettingsCard, ToggleRow } from '../components/SettingsUi';
 import {
@@ -15,8 +14,8 @@ import type { DataPrivacyRequest, IPrivacySettings } from '../types/settings.typ
 
 export default function PrivacySettingsPage() {
   const query = usePrivacySettings();
-  if (query.isLoading) return <SettingsShell title="Privacy" subtitle="Control the profile information other learners can see."><SettingsContentLoading eyebrow="Loading privacy" title="Preparing privacy controls" description="Fetching the visibility rules enforced by public profile APIs." /></SettingsShell>;
-  if (!query.data) return <SettingsShell title="Privacy" subtitle="Control the profile information other learners can see."><p>Unable to load privacy settings.</p></SettingsShell>;
+  if (query.isLoading) return <SettingsContentLoading variant="privacy" title="Preparing privacy controls" />;
+  if (!query.data) return <p>Unable to load privacy settings.</p>;
   return <PrivacyForm key={query.dataUpdatedAt} initial={query.data} />;
 }
 
@@ -30,7 +29,7 @@ function PrivacyForm({ initial }: { initial: IPrivacySettings }) {
     try { await update.mutateAsync(form); toast.showToast('Privacy settings saved.', 'success'); return true; }
     catch { toast.showToast('Unable to save privacy settings.', 'error'); return false; }
   };
-  return <SettingsShell title="Privacy" subtitle="Control the profile information other learners can see.">
+  return <>
     <div className="space-y-5">
       <SettingsCard title="Public profile" description="Every setting below is enforced when another learner requests your public profile." icon="🛡️">
         <ToggleRow title="Allow public profile" description="If disabled, other learners cannot open your profile." checked={form.showProfile} onChange={(showProfile) => setForm((current) => ({ ...current, showProfile }))} />
@@ -40,7 +39,7 @@ function PrivacyForm({ initial }: { initial: IPrivacySettings }) {
       <SaveBar isSaving={update.isPending} isDirty={dirty} onSave={save} onReset={async () => { await reset.mutateAsync(); toast.showToast('Settings reset.', 'success'); }} />
       <DataRightsPanel />
     </div>
-  </SettingsShell>;
+  </>;
 }
 
 function DataRightsPanel() {

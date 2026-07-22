@@ -14,7 +14,10 @@ export interface IRequestEmailChangeUseCase {
 
 export class RequestEmailChangeUseCase implements IRequestEmailChangeUseCase {
   constructor(
-    private readonly _securityUserRepository: ISecurityUserRepository,
+    private readonly _securityUserRepository: Pick<
+      ISecurityUserRepository,
+      'findUserById' | 'emailExists' | 'savePendingEmailChange'
+    >,
     private readonly _securityEmailProvider: ISecurityEmailProvider,
     private readonly _sensitiveActionAuthorizer: ISensitiveActionAuthorizer,
     private readonly _emailChangeToken: ISecurityEmailChangeToken,

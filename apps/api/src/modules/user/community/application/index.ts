@@ -13,3 +13,5 @@ export * from './use-cases/toggle-community-review-helpful.usecase';
 export * from './use-cases/toggle-community-tracker-like.usecase';
 export * from './use-cases/upsert-community-tracker-review.usecase';
 export * from './use-cases/vote-verification-submission.usecase';
+export * from './community-use-cases.contract';
+export * from './community-verification.policy';

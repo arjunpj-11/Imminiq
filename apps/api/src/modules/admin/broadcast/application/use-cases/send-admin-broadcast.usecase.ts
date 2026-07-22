@@ -11,13 +11,13 @@ export interface ISendAdminBroadcastUseCase {
 
 export class SendAdminBroadcastUseCase implements ISendAdminBroadcastUseCase {
   constructor(
-    private readonly repository: IAdminBroadcastRepository,
-    private readonly mapper: IAdminBroadcastMapper
+    private readonly _repository: IAdminBroadcastRepository,
+    private readonly _mapper: IAdminBroadcastMapper
   ) {}
 
   async execute(input: AdminBroadcastInput, actor: AdminActor): Promise<AdminBroadcastResultDTO> {
-    const result = await this.repository.send(input, actor);
+    const result = await this._repository.send(input, actor);
     if (!result) throw AdminBroadcastApplicationError.disabled();
-    return this.mapper.toResultDTO(result);
+    return this._mapper.toResultDTO(result);
   }
 }

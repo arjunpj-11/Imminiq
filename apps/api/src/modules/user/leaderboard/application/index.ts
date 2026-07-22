@@ -8,3 +8,4 @@ export * from './use-cases/get-leaderboard-rewards.usecase';
 export * from './use-cases/get-leaderboard.usecase';
 export * from './use-cases/record-leaderboard-xp.usecase';
 export * from './use-cases/replace-leaderboard-friends.usecase';
+export * from './leaderboard-use-cases.contract';

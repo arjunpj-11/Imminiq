@@ -1,7 +1,7 @@
 import jwt, { type SignOptions, type VerifyOptions } from 'jsonwebtoken';
 
 import { env } from '../../config/env';
-import { ApiError } from '../utils/ApiError';
+import { ApiError } from '../utils/api-error';
 
 type AppealTokenPayload = {
   userId: string;

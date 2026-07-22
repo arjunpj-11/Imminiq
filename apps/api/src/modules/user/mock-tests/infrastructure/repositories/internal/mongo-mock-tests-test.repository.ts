@@ -35,6 +35,21 @@ export class MongoMockTestsTestRepository extends MongoMockTestsBaseRepository {
     });
   }
 
+  async findTestForModerationDisplayById(testId: string) {
+    return this.execute('MOCK_TEST_READ_FAILED', 'Failed to read moderated mock test', async () => {
+      const safeTestId = MongoMockTestsObjectId.toObjectId(testId);
+
+      if (!safeTestId) return null;
+
+      const doc = await MockTestModel.findOne({
+        _id: safeTestId,
+        moderationStatus: { $in: ['suspended', 'deleted'] },
+      }).lean();
+
+      return doc ? this._mapper.toMockTestEntity(doc as RawMockTestDoc) : null;
+    });
+  }
+
   async findTestsByOwner(input: FindMockTestsByOwnerInput) {
     return this.execute('MOCK_TEST_READ_FAILED', 'Failed to read owner mock tests', async () => {
       const { ownerId, page = 1, limit = 6 } = input;

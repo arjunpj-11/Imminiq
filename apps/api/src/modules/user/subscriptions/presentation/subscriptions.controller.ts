@@ -1,15 +1,15 @@
 import type { NextFunction, Request, Response } from 'express';
-import { ApiResponse } from '../../../../shared/utils/ApiResponse';
+import { ApiResponse } from '../../../../shared/utils/api-response';
 import type { SubscriptionsUseCases } from '../application/subscriptions-use-cases.contract';
 import { subscriptionOrderSchema, subscriptionVerificationSchema } from './subscriptions.schema';
 
 export class SubscriptionsController {
-  constructor(private readonly useCases: SubscriptionsUseCases) {}
+  constructor(private readonly _useCases: SubscriptionsUseCases) {}
 
   listPlans = async (_req: Request, res: Response, next: NextFunction) => {
     try {
       res.json(
-        new ApiResponse('Subscription plans fetched', await this.useCases.listPlans.execute())
+        new ApiResponse('Subscription plans fetched', await this._useCases.listPlans.execute())
       );
     } catch (error) {
       next(error);
@@ -21,7 +21,7 @@ export class SubscriptionsController {
       res.json(
         new ApiResponse(
           'Current subscription fetched',
-          await this.useCases.getCurrent.execute(req.user!.userId)
+          await this._useCases.getCurrent.execute(req.user!.userId)
         )
       );
     } catch (error) {
@@ -35,7 +35,7 @@ export class SubscriptionsController {
       res.json(
         new ApiResponse(
           'Subscription order created',
-          await this.useCases.createOrder.execute(
+          await this._useCases.createOrder.execute(
             req.user!.userId,
             input.planId,
             input.billingCycle
@@ -53,7 +53,7 @@ export class SubscriptionsController {
       res.json(
         new ApiResponse(
           'Payment verified and premium activated',
-          await this.useCases.verifyPayment.execute({ userId: req.user!.userId, ...input })
+          await this._useCases.verifyPayment.execute({ userId: req.user!.userId, ...input })
         )
       );
     } catch (error) {

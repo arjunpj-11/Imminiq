@@ -1,8 +1,6 @@
 import { useState } from "react";
 import {
   ArrowLeft,
-  Clock3,
-  History,
   RotateCcw,
   ShieldAlert,
   Trash2,
@@ -24,16 +22,13 @@ import type {
 import { ADMIN_TRACKERS_ROUTES } from "../constants/admin-trackers.constants";
 import AdminTrackerModerationDialog from "../components/AdminTrackerModerationDialog";
 import { useAuthStore } from "../../../../store/useAuthStore";
-import AdminTrackerVersionsDialog from "../components/AdminTrackerVersionsDialog";
+import { isAdminRole } from "../../../../lib/auth-roles";
 
 export default function AdminTrackerDetailPage() {
   const [moderating, setModerating] = useState<
     AdminTrackerLifecyclePayload["action"] | null
   >(null);
-  const [versionsOpen, setVersionsOpen] = useState(false);
-  const canManageLifecycle = useAuthStore(
-    (state) => state.user?.role !== "moderator",
-  );
+  const canManageLifecycle = useAuthStore((state) => isAdminRole(state.user?.role));
   const { trackerId } = useParams();
   const location = useLocation();
   const fromTrackerReview = Boolean(
@@ -42,7 +37,7 @@ export default function AdminTrackerDetailPage() {
   );
   const { data, isLoading, isError, error, refetch } =
     useAdminTrackerDetail(trackerId);
-  if (isLoading) return <AdminLoading />;
+  if (isLoading) return <main className="mx-auto max-w-275 px-5 py-8 sm:px-8"><AdminLoading variant="detail" /></main>;
   if (isError || !data)
     return <AdminError error={error} onRetry={() => void refetch()} />;
   return (
@@ -66,13 +61,6 @@ export default function AdminTrackerDetailPage() {
             <AdminStatusBadge value={data.status} />
             <AdminStatusBadge value={data.visibility} />
             <AdminStatusBadge value={data.moderationStatus} />
-            <button
-              type="button"
-              onClick={() => setVersionsOpen(true)}
-              className="admin-button inline-flex items-center gap-2"
-            >
-              <History size={15} /> History
-            </button>
             {canManageLifecycle && data.moderationStatus === "active" && (
               <button
                 type="button"
@@ -103,7 +91,7 @@ export default function AdminTrackerDetailPage() {
           </div>
         }
       />
-      <div className="mt-6 grid gap-4 sm:grid-cols-5">
+      <div className="mt-6 grid gap-4 sm:grid-cols-6">
         <Info
           label="Owner"
           value={`${data.owner}${data.ownerEmail ? ` · ${data.ownerEmail}` : ""}`}
@@ -120,6 +108,7 @@ export default function AdminTrackerDetailPage() {
           label="Reports"
           value={`${data.openReportCount} open · ${data.reportCount} total`}
         />
+        <Info label="Personal clones" value={String(data.cloneCount)} />
         <Info label="Moderation" value={data.moderationStatus} />
       </div>
       {data.moderationReason && (
@@ -149,10 +138,6 @@ export default function AdminTrackerDetailPage() {
                       {topic.description || "No description"}
                     </p>
                   </div>
-                  <span className="flex items-center gap-1 text-xs text-[#817c75]">
-                    <Clock3 size={13} />
-                    {topic.estimatedHours}h
-                  </span>
                 </div>
                 <SubtopicTree items={topic.subtopics} parentId={null} />
               </section>
@@ -199,10 +184,6 @@ export default function AdminTrackerDetailPage() {
           void refetch();
         }}
       />
-      <AdminTrackerVersionsDialog
-        trackerId={versionsOpen ? data.id : null}
-        onClose={() => setVersionsOpen(false)}
-      />
     </main>
   );
 }
@@ -224,9 +205,6 @@ function SubtopicTree({
           <div className="rounded-lg border border-white/10 bg-[#1c1a18] p-3">
             <div className="flex justify-between gap-3">
               <span className="font-medium">{item.title}</span>
-              <span className="text-[10px] text-[#817c75]">
-                {item.estimatedMinutes} min
-              </span>
             </div>
             {item.description && (
               <p className="mt-1 text-xs text-[#aaa59d]">{item.description}</p>

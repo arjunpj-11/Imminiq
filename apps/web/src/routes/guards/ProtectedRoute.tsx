@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
-import { RouteSkeleton } from '../../components/feedback/RouteSkeleton';
+import AuthLoadingScreen from '../../components/feedback/AuthLoadingScreen';
 import { useAuthStore } from '../../store/useAuthStore';
 import { ROUTES } from '../config/route-paths';
 
@@ -17,7 +17,7 @@ export function ProtectedRoute({ children }: IProtectedRouteProps) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const authReady = useAuthStore((state) => state.authReady);
 
-  if (!authReady) return <RouteSkeleton withChrome />;
+  if (!authReady && (!user || !isAuthenticated)) return <AuthLoadingScreen />;
   if (isRestrictedStatus(user?.status)) return <Navigate to={ROUTES.blocked} replace />;
   if (!user || !isAuthenticated) return <Navigate to={ROUTES.login} replace />;
 

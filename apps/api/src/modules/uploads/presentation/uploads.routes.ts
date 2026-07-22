@@ -2,12 +2,12 @@ import { Router } from 'express';
 
 import { authenticate } from '../../../shared/middlewares/auth.middleware';
 import { validateUploadedImageSignature } from '../../../shared/middlewares/image-upload-signature.middleware';
-import { avatarUpload, bannerUpload } from '../../../shared/middlewares/profile-image-upload';
+import { avatarUpload, bannerUpload } from '../../../shared/middlewares/profile-image-upload.middleware';
 import {
   authenticatedApiIpLimiter,
   profileImageUploadIpLimiter,
 } from '../../../shared/middlewares/security-rate-limit.middleware';
-import { validate } from '../../../shared/middlewares/validate';
+import { validate } from '../../../shared/middlewares/validate.middleware';
 import { UploadsController } from './uploads.controller';
 import type { UploadsUseCases } from '../application/uploads-use-cases.contract';
 import { UPLOAD_ROUTE_PATHS } from './uploads.route.constants';

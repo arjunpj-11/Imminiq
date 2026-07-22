@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { ITrackerLessonResponse } from '../types/tracker.types';
-import { cn, formatMinutes } from '../utils/tracker-ui';
+import { cn } from '../utils/tracker-ui';
 
 interface ILessonLayoutProps {
   data: ITrackerLessonResponse;
@@ -12,7 +12,6 @@ export default function LessonLayout({ data, onComplete, isCompleting }: ILesson
   const {
     tracker,
     lessonNode: lesson,
-    generatedLesson,
     previousLesson,
     nextLesson,
     lessonRoadmap,
@@ -35,9 +34,6 @@ export default function LessonLayout({ data, onComplete, isCompleting }: ILesson
           <div className="mt-5 flex flex-wrap gap-2">
             <span className="rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.12em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
               {lesson.status.replace('_', ' ')}
-            </span>
-            <span className="rounded-full border border-(--border-subtle) px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.12em] text-(--text-secondary) dark:border-(--border-subtle) dark:text-(--text-secondary)">
-              {formatMinutes(generatedLesson.estimatedMinutes)}
             </span>
           </div>
         </div>

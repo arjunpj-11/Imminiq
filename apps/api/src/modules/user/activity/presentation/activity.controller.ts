@@ -1,9 +1,9 @@
 import type { NextFunction, Request, Response } from 'express';
 
 import { HttpStatusCode } from '../../../../shared/constants/http-status-code.enum';
-import { ApiError } from '../../../../shared/utils/ApiError';
-import { ApiResponse } from '../../../../shared/utils/ApiResponse';
-import { getAuthUser } from '../../../../shared/utils/getAuthUser';
+import { ApiError } from '../../../../shared/utils/api-error';
+import { ApiResponse } from '../../../../shared/utils/api-response';
+import { getAuthUser } from '../../../../shared/utils/get-auth-user';
 import type { ActivityUseCases } from '../application/activity-use-cases.contract';
 import { activityFeedQuerySchema, activityPageQuerySchema } from './activity.schema';
 

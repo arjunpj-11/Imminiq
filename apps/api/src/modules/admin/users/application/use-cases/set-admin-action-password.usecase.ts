@@ -17,11 +17,11 @@ export interface ISetAdminActionPasswordUseCase {
 
 export class SetAdminActionPasswordUseCase implements ISetAdminActionPasswordUseCase {
   constructor(
-    private readonly repository: Pick<
+    private readonly _repository: Pick<
       IAdminUsersRepository,
       'findById' | 'setAdminActionPassword'
     >,
-    private readonly passwordHasher: IAdminPasswordHasher
+    private readonly _passwordHasher: IAdminPasswordHasher
   ) {}
 
   async execute(
@@ -35,15 +35,15 @@ export class SetAdminActionPasswordUseCase implements ISetAdminActionPasswordUse
         'A super admin cannot assign an admin action password to their own account'
       );
     }
-    const target = await this.repository.findById(userId);
+    const target = await this._repository.findById(userId);
     if (!target) throw AdminUsersApplicationError.userNotFound();
     if (!['admin', 'moderator'].includes(target.role)) {
       throw AdminUsersApplicationError.protectedAdmin(
         'Admin action passwords can only be assigned to admins and moderators'
       );
     }
-    const passwordHash = await this.passwordHasher.hash(password);
-    const updated = await this.repository.setAdminActionPassword(userId, passwordHash, {
+    const passwordHash = await this._passwordHasher.hash(password);
+    const updated = await this._repository.setAdminActionPassword(userId, passwordHash, {
       actorId,
       ...context,
     });

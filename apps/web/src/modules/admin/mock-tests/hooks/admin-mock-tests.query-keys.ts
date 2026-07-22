@@ -10,6 +10,8 @@ export const adminMockTestsKeys = {
   reports: () => [...adminMockTestsKeys.all, "reports"] as const,
   reportList: (query: AdminListQuery) =>
     [...adminMockTestsKeys.reports(), query] as const,
-  versions: (questionId?: string) =>
-    [...adminMockTestsKeys.all, "question-versions", questionId] as const,
+  questionBank: (query: Record<string, unknown>) =>
+    [...adminMockTestsKeys.all, "question-bank", query] as const,
+  questionBankItem: (bankId?: number) =>
+    [...adminMockTestsKeys.all, "question-bank-item", bankId] as const,
 };

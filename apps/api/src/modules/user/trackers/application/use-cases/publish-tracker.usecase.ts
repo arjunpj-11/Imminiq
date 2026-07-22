@@ -1,12 +1,13 @@
+import type {
+  TrackerDTO,
+} from '../tracker.dto';
 import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { PublishTrackerInput } from '../../domain/trackers.types';
 
-type PublishTrackerResultDTO = ReturnType<ITrackerMapper['toTrackerDto']>;
-
 export interface IPublishTrackerUseCase {
-  execute(input: PublishTrackerInput): Promise<PublishTrackerResultDTO>;
+  execute(input: PublishTrackerInput): Promise<TrackerDTO>;
 }
 
 export class PublishTrackerUseCase implements IPublishTrackerUseCase {
@@ -18,7 +19,7 @@ export class PublishTrackerUseCase implements IPublishTrackerUseCase {
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(input: PublishTrackerInput): Promise<PublishTrackerResultDTO> {
+  async execute(input: PublishTrackerInput): Promise<TrackerDTO> {
     const ownedTracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

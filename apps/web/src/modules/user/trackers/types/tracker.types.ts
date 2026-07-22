@@ -176,6 +176,7 @@ export interface ITrackerClanChallenge {
   challengerScore: number | null;
   opponentScore: number | null;
   winnerId: string | null;
+  quitById: string | null;
   createdAt: string;
   acceptBy: string;
   startsAt: string | null;
@@ -184,6 +185,7 @@ export interface ITrackerClanChallenge {
   canAccept: boolean;
   canDecline: boolean;
   canCancel: boolean;
+  canQuit: boolean;
   canSubmit: boolean;
   submitted: boolean;
   totalNodes: number;
@@ -192,6 +194,7 @@ export interface ITrackerClanChallenge {
   opponentPosition: number;
   viewerScore: number;
   opponentLiveScore: number;
+  questionsRemaining: number;
   pushBackPowers: number;
   checkpointDecisionRequired: boolean;
   lastAnswerCorrect: boolean | null;
@@ -202,6 +205,34 @@ export interface ITrackerClanChallenge {
     topicTitle: string;
     points: number;
     isCheckpoint: boolean;
+  }>;
+}
+
+export interface ITrackerClanChallengeHistoryAnswer {
+  questionId: string;
+  prompt: string;
+  options: string[];
+  topicTitle: string;
+  answer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+  isCheckpoint: boolean;
+  positionBefore: number;
+  positionAfter: number;
+  answeredAt: string;
+}
+
+export interface ITrackerClanChallengeHistory {
+  challengeId: string;
+  trackerId: string;
+  startedAt: string | null;
+  completedAt: string;
+  winnerId: string | null;
+  quitById: string | null;
+  players: Array<{
+    user: Omit<ITrackerClanPerson, 'role' | 'joinedAt'>;
+    score: number;
+    answers: ITrackerClanChallengeHistoryAnswer[];
   }>;
 }
 
@@ -259,7 +290,6 @@ export interface IRoadmapSubtopic {
   depth: number;
   status: LessonStatus;
   isLocked: boolean;
-  estimatedMinutes?: number;
   progressPercent?: number;
   completedAt?: string | null;
   learningVideo?: ILearningVideo | null;
@@ -275,7 +305,6 @@ export interface IRoadmapTopic {
   order: number;
   status: LessonStatus;
   progressPercent?: number;
-  estimatedHours?: number;
   learningVideo?: ILearningVideo | null;
   subtopics: IRoadmapSubtopic[];
 }
@@ -297,7 +326,6 @@ export interface ICreateSubtopicPayload {
   title: string;
   description?: string;
   parentSubtopicId?: string | null;
-  estimatedMinutes?: number;
 }
 
 export interface IUpdateSubtopicProgressPayload {
@@ -311,7 +339,6 @@ export interface ILessonListItem {
   title: string;
   status: LessonStatus;
   isLocked: boolean;
-  estimatedMinutes?: number;
 }
 
 export interface ITrackerLessonNode {
@@ -354,7 +381,6 @@ export interface IGeneratedLesson {
   };
   tags: string[];
   difficulty: TrackerLevel;
-  estimatedMinutes: number;
 }
 
 export interface ILessonNavigationItem {

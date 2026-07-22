@@ -21,11 +21,22 @@ Create a Render environment group named `imminiq-production` and populate every 
 - generate `TOTP_ENCRYPTION_KEY` as exactly 32 random bytes encoded as 64 hexadecimal characters;
 - use TLS-backed MongoDB and Redis connections;
 - set `CLIENT_URL` to the exact public frontend origin and `SERVER_URL` to the exact API origin;
+- the checked-in configuration continues to use `imminiq-api.onrender.com`; do not point the
+  Vercel rewrite or `VITE_SOCKET_URL` at `api.imminiq.com` until that hostname resolves and has a
+  valid certificate;
+- for the recommended custom-domain migration, serve the frontend and API from sibling domains,
+  set `AUTH_COOKIE_DOMAIN` to their shared parent (for example `.imminiq.com`), and move the Vercel
+  rewrite and `VITE_SOCKET_URL` together so password, OAuth, CSRF, and refresh flows share one
+  cookie scope;
 - register `${SERVER_URL}/api/auth/oauth/google/callback` and the equivalent GitHub URL with each
   OAuth provider; OAuth starts received through the frontend rewrite are redirected to this
   canonical API origin before the host-only state cookie is issued;
 - restrict OAuth callback URLs, Cloudinary credentials, payment webhooks, and provider keys to production domains;
 - keep Piston isolated from the API network and never expose a privileged executor directly to the public internet.
+
+HTTP rate-limit counters are stored in Redis and shared by every API instance. Size Redis for the
+configured request windows, and alert on Redis errors because the API intentionally fails closed
+when it cannot enforce a distributed limit.
 
 The checked-in `render.yaml` builds `apps/api/Dockerfile`. Render should probe `/api/health/ready`; container liveness uses `/api/health/live`.
 
@@ -35,6 +46,10 @@ Superadmins are the password-free recovery authority. Admin and moderator accoun
 their own action password from a superadmin before they can perform protected mutations. Passwords
 are stored only as hashes and cannot be viewed after assignment. Rotate a staff member's password
 immediately when access may have been shared or compromised.
+
+Every moderator, admin, and superadmin must also have active TOTP two-factor authentication before
+any `/api/admin` route is available. Enrol existing staff through Security settings before enabling
+production traffic; action passwords remain an additional step-up control for protected mutations.
 
 The notification worker delivers broadcasts in batches. Alert on failed jobs and broadcasts that
 remain in `queued` or `processing` longer than the expected audience delivery window.

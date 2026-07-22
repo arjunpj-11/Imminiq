@@ -77,7 +77,6 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
         }).lean<MongoCommunitySubmissionRecord>();
 
         if (existingSubmission) {
-          console.log('Existing submission found:', existingSubmission);
           return this.toSubmissionWithReview(existingSubmission, null);
         }
 
@@ -641,7 +640,6 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
         description: topic.description ?? '',
         order: topic.order,
         status: topic.status ?? 'active',
-        estimatedHours: topic.estimatedHours ?? 0,
         subtopics: (subtopicsByTopicId.get(String(topic._id)) ?? []).map((subtopic) => ({
           id: String(subtopic._id),
           topicId: String(subtopic.topicId),
@@ -651,7 +649,6 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           order: subtopic.order,
           depth: subtopic.depth,
           isLocked: Boolean(subtopic.isLocked),
-          estimatedMinutes: subtopic.estimatedMinutes ?? 0,
         })),
       })),
     };

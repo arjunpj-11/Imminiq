@@ -17,6 +17,7 @@ export const API_ROUTE_PATHS = {
   activity: '/api/activity',
   friends: '/api/friends',
   notifications: '/api/notifications',
+  adminRoot: '/api/admin',
   health: '/api/health',
   healthLive: '/api/health/live',
   healthReady: '/api/health/ready',

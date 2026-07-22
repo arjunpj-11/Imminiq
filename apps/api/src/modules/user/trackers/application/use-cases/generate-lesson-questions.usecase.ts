@@ -3,12 +3,13 @@ import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface';
 import type { IQuestionHasher } from '../../domain/services/question-hasher.interface';
-import type { GenerateLessonQuestionsPayloadDTO } from '../tracker.dto';
-
-type GenerateLessonQuestionsResultDTO = ReturnType<ITrackerMapper['toLessonGeneratedQuestionsDto']>;
+import type {
+  GenerateLessonQuestionsPayloadDTO,
+  LessonGeneratedQuestionsDTO,
+} from '../tracker.dto';
 
 export interface IGenerateLessonQuestionsUseCase {
-  execute(input: GenerateLessonQuestionsPayloadDTO): Promise<GenerateLessonQuestionsResultDTO>;
+  execute(input: GenerateLessonQuestionsPayloadDTO): Promise<LessonGeneratedQuestionsDTO>;
 }
 
 export class GenerateLessonQuestionsUseCase implements IGenerateLessonQuestionsUseCase {
@@ -20,14 +21,17 @@ export class GenerateLessonQuestionsUseCase implements IGenerateLessonQuestionsU
       | 'findOwnedTrackerById'
       | 'getLessonGeneratedQuestions'
     >,
-    private readonly _trackerAIGateway: ITrackerAIGateway,
+    private readonly _trackerAIGateway: Pick<
+      ITrackerAIGateway,
+      'generateLessonPracticeQuestions'
+    >,
     private readonly _questionHasher: IQuestionHasher,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
   async execute(
     input: GenerateLessonQuestionsPayloadDTO
-  ): Promise<GenerateLessonQuestionsResultDTO> {
+  ): Promise<LessonGeneratedQuestionsDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

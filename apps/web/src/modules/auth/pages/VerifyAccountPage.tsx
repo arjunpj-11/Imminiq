@@ -1,13 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ClipboardEvent, KeyboardEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
-import api from '../../../lib/axios';
 import { STORAGE_KEYS } from '../../../lib/storage/storage-keys';
 import { safeSessionStorage } from '../../../lib/storage/safe-storage';
 import {
-  AUTH_API_PATHS,
   OTP_LENGTH,
   OTP_RESEND_WAIT_SECONDS,
   TOTAL_OTP_SECONDS,
@@ -18,6 +14,10 @@ import { cn } from '../utils/auth-ui';
 import { LogoIcon } from '../components/icons/AuthIcons';
 import ImminiqWordmark from '../../../components/ui/ImminiqWordmark';
 import { ROUTES } from '../../../routes/config/route-paths';
+import { getUserFacingError } from '../../../lib/user-facing-error';
+import { useSendAuthOtp } from '../hooks/useSendAuthOtp';
+import { useVerifyAccount } from '../hooks/useVerifyAccount';
+import { useVerifyResetCode } from '../hooks/useVerifyResetCode';
 
 export default function VerifyAccountPage() {
   const navigate = useNavigate();
@@ -49,15 +49,16 @@ export default function VerifyAccountPage() {
     }
     return Math.max(0, Math.round((Number(stored) - Date.now()) / 1000));
   });
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [isResending, setIsResending] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const verifyAccount = useVerifyAccount();
+  const verifyResetCode = useVerifyResetCode();
+  const sendOtp = useSendAuthOtp();
 
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const otp = useMemo(() => digits.join(''), [digits]);
   const destinationText = maskIdentifier(identifier);
   const progressPercent = (secondsLeft / TOTAL_OTP_SECONDS) * 100;
-  const canResend = resendLeft <= 0 && !isResending;
+  const canResend = resendLeft <= 0 && !sendOtp.isPending;
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -161,16 +162,13 @@ export default function VerifyAccountPage() {
     }
 
     try {
-      setIsVerifying(true);
       clearError();
       let resetToken: string | undefined;
 
       if (isPasswordReset) {
-        const response = await api.post(AUTH_API_PATHS.verifyResetCode, { identifier, otp });
-        resetToken = response.data?.data?.resetToken;
-        if (!resetToken) throw new Error('Reset token was not returned');
+        resetToken = await verifyResetCode.mutateAsync({ identifier, otp });
       } else {
-        await api.post(AUTH_API_PATHS.verifyAccount, { identifier, otp });
+        await verifyAccount.mutateAsync({ identifier, otp });
       }
 
       setIsSuccess(true);
@@ -188,15 +186,9 @@ export default function VerifyAccountPage() {
         });
       }, 1300);
     } catch (unknownError: unknown) {
-      let message = 'Invalid code. Please try again.';
-      if (axios.isAxiosError<{ message?: string }>(unknownError)) {
-        message = unknownError.response?.data?.message || message;
-      }
       setDigits(Array(OTP_LENGTH).fill(''));
       inputRefs.current[0]?.focus();
-      setError(message);
-    } finally {
-      setIsVerifying(false);
+      setError(getUserFacingError(unknownError, 'Invalid code. Please try again.'));
     }
   };
 
@@ -204,9 +196,8 @@ export default function VerifyAccountPage() {
     if (!identifier || !canResend) return;
 
     try {
-      setIsResending(true);
       clearError();
-      await api.post(AUTH_API_PATHS.sendOtp, { identifier, method, purpose });
+      await sendOtp.mutateAsync({ identifier, method, purpose });
       const expiry = Date.now() + TOTAL_OTP_SECONDS * 1000;
       const resendExpiry = Date.now() + OTP_RESEND_WAIT_SECONDS * 1000;
       safeSessionStorage.set(STORAGE_KEYS.otpExpiry, String(expiry));
@@ -216,13 +207,7 @@ export default function VerifyAccountPage() {
       setDigits(Array(OTP_LENGTH).fill(''));
       inputRefs.current[0]?.focus();
     } catch (unknownError: unknown) {
-      let message = 'Could not resend code. Please try again.';
-      if (axios.isAxiosError<{ message?: string }>(unknownError)) {
-        message = unknownError.response?.data?.message || message;
-      }
-      setError(message);
-    } finally {
-      setIsResending(false);
+      setError(getUserFacingError(unknownError, 'Could not resend code. Please try again.'));
     }
   };
 
@@ -338,10 +323,10 @@ export default function VerifyAccountPage() {
           <button
             type="button"
             onClick={handleVerify}
-            disabled={isVerifying || otp.length < OTP_LENGTH}
+            disabled={verifyAccount.isPending || verifyResetCode.isPending || otp.length < OTP_LENGTH}
             className="mt-6 w-full rounded-md bg-(--brand-500) p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           >
-            {isVerifying
+            {verifyAccount.isPending || verifyResetCode.isPending
               ? 'Verifying...'
               : isPasswordReset
                 ? 'Verify reset code'
@@ -360,7 +345,7 @@ export default function VerifyAccountPage() {
                   : 'cursor-not-allowed text-(--text-secondary)/70 dark:text-(--text-secondary)/70'
               )}
             >
-              {isResending ? 'Sending...' : canResend ? 'Resend code' : `Resend in ${resendLeft}s`}
+              {sendOtp.isPending ? 'Sending...' : canResend ? 'Resend code' : `Resend in ${resendLeft}s`}
             </button>
           </div>
         </main>

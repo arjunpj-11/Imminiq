@@ -79,6 +79,7 @@ export class ImportSharedMockTestUseCase implements IImportSharedMockTestUseCase
 
     await this._repository.createQuestions(
       sourceQuestions.map((question) => ({
+        bankId: question.bankId,
         testId: importedTest._id,
         type: question.type,
         question: question.question,

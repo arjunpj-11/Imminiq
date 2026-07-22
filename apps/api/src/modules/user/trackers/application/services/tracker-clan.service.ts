@@ -1,6 +1,5 @@
 import type {
   ITrackerClanRepository,
-  ITrackerClanNotificationNotifier,
   TrackerClanOverview,
 } from '../../domain';
 import type { ITrackerClanServiceContract } from '../tracker-clan.contract';
@@ -17,37 +16,33 @@ import type {
   UpdateClanTopicPayloadDTO,
 } from '../tracker.dto';
 import { TrackerApplicationError } from '../tracker-application.error';
-import { TrackerClanNotificationService } from './tracker-clan-notification.service';
+import type { ITrackerClanNotificationService } from './tracker-clan-notification.service';
 
 export class TrackerClanService implements ITrackerClanServiceContract {
-  private readonly notificationService: TrackerClanNotificationService;
-
   constructor(
-    private readonly clans: ITrackerClanRepository,
-    notifications?: ITrackerClanNotificationNotifier
-  ) {
-    this.notificationService = new TrackerClanNotificationService(notifications);
-  }
+    private readonly _clans: ITrackerClanRepository,
+    private readonly _notificationService?: ITrackerClanNotificationService
+  ) {}
 
   async getOverview(input: TrackerAccessPayloadDTO) {
-    return this.requireOverview(await this.clans.getOverview(input));
+    return this.requireOverview(await this._clans.getOverview(input));
   }
 
   async requestJoin(input: TrackerAccessPayloadDTO) {
     return this.requireOverview(
-      await this.clans.requestJoin(input),
+      await this._clans.requestJoin(input),
       'Clone this tracker into your dashboard before joining its clan'
     );
   }
 
   async reviewJoin(input: ReviewClanJoinPayloadDTO) {
-    const beforeReview = await this.clans.getOverview({
+    const beforeReview = await this._clans.getOverview({
       trackerId: input.trackerId,
       userId: input.userId,
     });
     const request = beforeReview?.joinRequests.find((item) => item.id === input.requestId);
     const overview = this.requireOverview(
-      await this.clans.reviewJoin({
+      await this._clans.reviewJoin({
         trackerId: input.trackerId,
         reviewerId: input.userId,
         requestId: input.requestId,
@@ -55,7 +50,7 @@ export class TrackerClanService implements ITrackerClanServiceContract {
       }),
       'Only the owner or a co-owner can review join requests'
     );
-    await this.notificationService.notifyJoinReview({
+    await this._notificationService?.notifyJoinReview({
       trackerId: input.trackerId,
       request,
       action: input.action,
@@ -66,7 +61,7 @@ export class TrackerClanService implements ITrackerClanServiceContract {
 
   async updateMemberRole(input: UpdateClanMemberRolePayloadDTO) {
     const overview = this.requireOverview(
-      await this.clans.updateMemberRole({
+      await this._clans.updateMemberRole({
         trackerId: input.trackerId,
         ownerId: input.userId,
         memberId: input.memberId,
@@ -75,7 +70,7 @@ export class TrackerClanService implements ITrackerClanServiceContract {
       'Only the owner can promote or demote clan members'
     );
     if (input.role === 'co_owner')
-      await this.notificationService.notifyRoleInvitation({
+      await this._notificationService?.notifyRoleInvitation({
         trackerId: input.trackerId,
         userId: input.memberId,
         role: input.role,
@@ -86,7 +81,7 @@ export class TrackerClanService implements ITrackerClanServiceContract {
 
   async removeMember(input: RemoveClanMemberPayloadDTO) {
     return this.requireOverview(
-      await this.clans.removeMember({
+      await this._clans.removeMember({
         trackerId: input.trackerId,
         actorId: input.userId,
         memberId: input.memberId,
@@ -96,28 +91,28 @@ export class TrackerClanService implements ITrackerClanServiceContract {
   }
 
   async leaveClan(input: TrackerAccessPayloadDTO) {
-    const role = await this.clans.getRole(input);
+    const role = await this._clans.getRole(input);
     if (role === 'owner') {
       throw TrackerApplicationError.forbidden(
         'Transfer ownership to another guild member before leaving'
       );
     }
     return this.requireOverview(
-      await this.clans.leaveClan(input),
+      await this._clans.leaveClan(input),
       'Only a guild member or co-owner can leave this guild'
     );
   }
 
   async transferOwnership(input: TransferClanOwnershipPayloadDTO) {
     const overview = this.requireOverview(
-      await this.clans.transferOwnership({
+      await this._clans.transferOwnership({
         trackerId: input.trackerId,
         ownerId: input.userId,
         newOwnerId: input.newOwnerId,
       }),
       'An ownership invitation can only be sent by the owner to an existing clan member'
     );
-    await this.notificationService.notifyRoleInvitation({
+    await this._notificationService?.notifyRoleInvitation({
       trackerId: input.trackerId,
       userId: input.newOwnerId,
       role: 'owner',
@@ -127,7 +122,7 @@ export class TrackerClanService implements ITrackerClanServiceContract {
   }
 
   async respondToRoleInvitation(input: RespondToClanRoleInvitationPayloadDTO) {
-    const beforeResponse = await this.clans.getOverview({
+    const beforeResponse = await this._clans.getOverview({
       trackerId: input.trackerId,
       userId: input.userId,
     });
@@ -135,10 +130,10 @@ export class TrackerClanService implements ITrackerClanServiceContract {
       (item) => item.id === input.invitationId && item.status === 'pending'
     );
     const overview = this.requireOverview(
-      await this.clans.respondToRoleInvitation(input),
+      await this._clans.respondToRoleInvitation(input),
       'This role invitation is invalid or no longer pending'
     );
-    await this.notificationService.notifyRoleResponse({
+    await this._notificationService?.notifyRoleResponse({
       trackerId: input.trackerId,
       userId: input.userId,
       invitation,
@@ -149,7 +144,7 @@ export class TrackerClanService implements ITrackerClanServiceContract {
   }
 
   async syncPersonalClone(input: TrackerAccessPayloadDTO) {
-    const result = await this.clans.syncPersonalClone(input);
+    const result = await this._clans.syncPersonalClone(input);
     if (!result) {
       throw TrackerApplicationError.forbidden(
         'A personal clone is required before guild changes can be fetched'
@@ -159,7 +154,7 @@ export class TrackerClanService implements ITrackerClanServiceContract {
   }
 
   async updateTopic(input: UpdateClanTopicPayloadDTO) {
-    const updated = await this.clans.updateTopic({
+    const updated = await this._clans.updateTopic({
       trackerId: input.trackerId,
       actorId: input.userId,
       topicId: input.topicId,
@@ -170,7 +165,7 @@ export class TrackerClanService implements ITrackerClanServiceContract {
   }
 
   async deleteTopic(input: DeleteClanTopicPayloadDTO) {
-    const deleted = await this.clans.deleteTopic({
+    const deleted = await this._clans.deleteTopic({
       trackerId: input.trackerId,
       actorId: input.userId,
       topicId: input.topicId,
@@ -179,7 +174,7 @@ export class TrackerClanService implements ITrackerClanServiceContract {
   }
 
   async deleteSubtopic(input: DeleteClanSubtopicPayloadDTO) {
-    const deleted = await this.clans.deleteSubtopic({
+    const deleted = await this._clans.deleteSubtopic({
       trackerId: input.trackerId,
       actorId: input.userId,
       subtopicId: input.subtopicId,
@@ -188,7 +183,7 @@ export class TrackerClanService implements ITrackerClanServiceContract {
   }
 
   async listMessages(input: ListClanMessagesPayloadDTO) {
-    const messages = await this.clans.listMessages({
+    const messages = await this._clans.listMessages({
       trackerId: input.trackerId,
       userId: input.userId,
       limit: Math.min(100, Math.max(1, input.limit ?? 60)),

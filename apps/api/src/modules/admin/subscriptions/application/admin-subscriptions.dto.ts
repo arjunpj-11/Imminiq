@@ -1,4 +1,13 @@
 import type { AdminPage } from '../../../../shared/admin';
+import type {
+  AdminPlanLimitField,
+  AdminSubscriptionPlanInput,
+} from '../domain/entities/admin-subscription.entity';
+
+export type AdminSubscriptionPlanUpdateInputDTO = {
+  plan: AdminSubscriptionPlanInput;
+  propagateLimitFields: AdminPlanLimitField[];
+};
 
 export interface AdminSubscriptionItemDTO {
   id: string;

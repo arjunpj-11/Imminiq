@@ -39,7 +39,10 @@ const descriptionSchema = optionalTrimmedStringSchema(500, 'Description is too l
 
 const longDescriptionSchema = optionalTrimmedStringSchema(700, 'Description is too long');
 
-const sourceCodeSchema = z.string().min(1, 'Source code is required');
+const sourceCodeSchema = z
+  .string()
+  .min(1, 'Source code is required')
+  .max(50_000, 'Source code must not exceed 50,000 characters');
 
 const lessonLanguageSchema = optionalTrimmedStringSchema(40, 'Language is too long');
 
@@ -101,8 +104,46 @@ export const createSubtopicSchema = z.object({
   title: titleSchema,
   description: longDescriptionSchema,
   parentSubtopicId: optionalTrimmedStringSchema(120, 'Parent subtopic id is too long').nullable(),
-  estimatedMinutes: z.coerce.number().int().min(0).max(1440).optional(),
 });
+
+const importOutlineNodeSchema: z.ZodTypeAny = z.lazy(() =>
+  z.object({
+    title: titleSchema,
+    description: longDescriptionSchema,
+    subtopics: z.array(importOutlineNodeSchema).max(25).default([]),
+  })
+);
+
+export const importTrackerOutlineSchema = z
+  .discriminatedUnion('kind', [
+    z.object({ kind: z.literal('topics'), topics: z.array(importOutlineNodeSchema).min(1).max(50) }),
+    z.object({
+      kind: z.literal('subtopics'),
+      topicId: z.string().trim().regex(/^[a-f\d]{24}$/i, 'Invalid topic id'),
+      parentSubtopicId: z
+        .string()
+        .trim()
+        .regex(/^[a-f\d]{24}$/i, 'Invalid parent subtopic id')
+        .nullable()
+        .optional(),
+      subtopics: z.array(importOutlineNodeSchema).min(1).max(50),
+    }),
+  ])
+  .superRefine((outline, context) => {
+    let count = 0;
+    const visit = (nodes: Array<{ subtopics?: unknown[] }>, depth: number) => {
+      if (depth > 8) {
+        context.addIssue({ code: 'custom', message: 'Outline nesting cannot exceed 8 levels' });
+        return;
+      }
+      for (const node of nodes) {
+        count += 1;
+        if (Array.isArray(node.subtopics)) visit(node.subtopics as Array<{ subtopics?: unknown[] }>, depth + 1);
+      }
+    };
+    visit((outline.kind === 'topics' ? outline.topics : outline.subtopics) as Array<{ subtopics?: unknown[] }>, 0);
+    if (count > 250) context.addIssue({ code: 'custom', message: 'Outline cannot exceed 250 items' });
+  });
 
 export const reviewTopicContributionSchema = z.object({
   action: z.enum(['approve', 'reject']),
@@ -119,6 +160,10 @@ export const transferClanOwnershipSchema = z.object({
 
 export const respondClanRoleInvitationSchema = z.object({
   action: z.enum(['accept', 'decline']),
+});
+
+export const clanMessagesQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).optional().default(60),
 });
 
 export const createClanChallengeSchema = z.object({
@@ -143,7 +188,12 @@ export const chooseClanChallengeCheckpointSchema = z.object({
 });
 
 export const answerClanChallengeNodeSchema = z.object({
+  questionId: z.string().trim().min(1),
   answer: z.string().trim().min(1).max(500),
+});
+
+export const extendClanChallengeSchema = z.object({
+  questionCount: z.union([z.literal(10), z.literal(20)]).default(10),
 });
 
 export const updateTrackerTopicSchema = z.object({
@@ -205,6 +255,7 @@ export const verifyTopicSchema = z.object({
         description: defaultTrimmedStringSchema(500, 'Topic description is too long'),
       })
     )
+    .max(100)
     .optional()
     .default([]),
 });
@@ -225,6 +276,7 @@ export const verifySubtopicSchema = z.object({
         difficulty: defaultTrimmedStringSchema(40, 'Difficulty is too long'),
       })
     )
+    .max(100)
     .optional()
     .default([]),
 });

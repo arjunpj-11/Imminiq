@@ -3,11 +3,11 @@ import { sendAdminResult } from '../../../../shared/admin';
 import type { AdminAuditLogsUseCases } from '../application/admin-audit-logs-use-cases.contract';
 import { adminAuditLogsQuerySchema } from './admin-audit-logs.schema';
 export class AdminAuditLogsController {
-  constructor(private readonly useCases: AdminAuditLogsUseCases) {}
+  constructor(private readonly _useCases: AdminAuditLogsUseCases) {}
   list = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCases.list.execute(adminAuditLogsQuerySchema.parse(req.query)),
+      () => this._useCases.list.execute(adminAuditLogsQuerySchema.parse(req.query)),
       res,
       'Audit logs fetched'
     );

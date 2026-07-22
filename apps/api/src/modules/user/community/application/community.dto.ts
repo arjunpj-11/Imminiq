@@ -156,7 +156,6 @@ export type CommunityVerificationReviewSubtopicViewDTO = {
   order: number;
   depth: number;
   isLocked: boolean;
-  estimatedMinutes: number;
 };
 
 export type CommunityVerificationReviewTopicViewDTO = {
@@ -165,7 +164,6 @@ export type CommunityVerificationReviewTopicViewDTO = {
   description: string;
   order: number;
   status: string;
-  estimatedHours: number;
   subtopics: CommunityVerificationReviewSubtopicViewDTO[];
 };
 

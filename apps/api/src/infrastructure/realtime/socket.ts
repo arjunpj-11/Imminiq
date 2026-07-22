@@ -1,19 +1,13 @@
 import { Server } from 'socket.io';
 import type { Server as HttpServer } from 'http';
 import { env } from '../../config/env';
-import jwt from 'jsonwebtoken';
 import { Types } from 'mongoose';
 import { Tracker } from '../database/models/tracker.model';
 import { TrackerClan } from '../database/models/tracker-clan.model';
 import { TrackerClanMessage } from '../database/models/tracker-clan-message.model';
 import { User } from '../database/models/user.model';
 import type { TrackerClanChallengeEvent } from '../../modules/user/trackers';
-
-type SocketAccessToken = {
-  userId: string;
-  role: 'user' | 'admin' | 'moderator' | 'superadmin';
-  type: 'access';
-};
+import { verifyActiveAccessToken } from '../../shared/middlewares/auth.middleware';
 
 let io: Server;
 
@@ -42,24 +36,12 @@ export const initSocket = (httpServer: HttpServer) => {
     perMessageDeflate: false,
   });
 
-  io.use((socket, next) => {
+  io.use(async (socket, next) => {
     const token =
       typeof socket.handshake.auth?.token === 'string' ? socket.handshake.auth.token : '';
 
     try {
-      const payload = jwt.verify(token, env.JWT_SECRET, {
-        algorithms: ['HS256'],
-        issuer: 'imminiq-api',
-        audience: 'imminiq-web',
-      }) as Partial<SocketAccessToken>;
-
-      if (
-        payload.type !== 'access' ||
-        typeof payload.userId !== 'string' ||
-        !['user', 'admin', 'moderator', 'superadmin'].includes(payload.role ?? '')
-      ) {
-        throw new Error('Invalid socket token');
-      }
+      const payload = await verifyActiveAccessToken(token);
 
       socket.data.user = {
         userId: payload.userId,

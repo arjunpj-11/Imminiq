@@ -6,6 +6,10 @@ import {
   startSecurityHttpIntegrationRuntime,
   type SecurityHttpIntegrationRuntime,
 } from '../../setup/security-http-integration-runtime';
+import {
+  createVerifiedLocalUser,
+  loginFixtureUser,
+} from '../../helpers/security-integration-fixtures';
 
 const TRUSTED_ORIGIN = 'http://localhost:5173';
 const FOREIGN_ORIGIN = 'https://evil.example';
@@ -51,6 +55,26 @@ describe('security HTTP integration flows', () => {
     expect(response.body).toMatchObject({
       success: false,
       code: 'INVALID_CREDENTIALS',
+    });
+  });
+
+  it('loads the signed-in user profile with a session-bound access token', async () => {
+    const user = await createVerifiedLocalUser();
+    const authenticated = await loginFixtureUser(app, user);
+
+    const response = await request(app)
+      .get('/api/users/me')
+      .set('Authorization', `Bearer ${authenticated.accessToken}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      success: true,
+      data: {
+        user: {
+          _id: user.userId,
+          username: user.username,
+        },
+      },
     });
   });
 

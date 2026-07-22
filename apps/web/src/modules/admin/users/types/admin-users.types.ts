@@ -137,3 +137,27 @@ export type AdminUserDetailData = {
     expiresAt: string;
   }>;
 };
+
+export type AdminUserNote = {
+  id: string;
+  note: string;
+  tags: string[];
+  author: string;
+  createdAt: string;
+};
+
+export type AdminUserNotesData = {
+  tags: string[];
+  notes: AdminUserNote[];
+};
+
+export type AdminUserNotePayload = {
+  note: string;
+  tags: string[];
+  actionPassword: string;
+};
+
+export type AdminUserTagsPayload = {
+  tags: string[];
+  actionPassword: string;
+};

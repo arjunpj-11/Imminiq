@@ -7,7 +7,7 @@ export interface IAuthAccountPolicy {
 }
 
 export class AuthAccountPolicy implements IAuthAccountPolicy {
-  constructor(private readonly clock: IClock) {}
+  constructor(private readonly _clock: IClock) {}
 
   ensureUserCanAuthenticate(user: AuthUserEntity): void {
     const reason = user.adminStatusReason ? ` Reason: ${user.adminStatusReason}` : '';
@@ -36,7 +36,7 @@ export class AuthAccountPolicy implements IAuthAccountPolicy {
     const scheduledDeletionTime = new Date(user.scheduledDeletionAt).getTime();
 
     return (
-      Number.isFinite(scheduledDeletionTime) && scheduledDeletionTime > this.clock.now().getTime()
+      Number.isFinite(scheduledDeletionTime) && scheduledDeletionTime > this._clock.now().getTime()
     );
   }
 }

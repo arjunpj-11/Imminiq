@@ -10,7 +10,6 @@ export type TrackerSubtopicEntityProps = {
   order: number;
   depth: number;
   isLocked: boolean;
-  estimatedMinutes?: number;
   status?: SubtopicStatus;
   isUnlocked?: boolean;
   progressPercent?: number;
@@ -27,7 +26,6 @@ export class TrackerSubtopicEntity {
   readonly order: number;
   readonly depth: number;
   readonly isLocked: boolean;
-  readonly estimatedMinutes: number;
   readonly status?: SubtopicStatus;
   readonly isUnlocked?: boolean;
   readonly progressPercent?: number;
@@ -43,7 +41,6 @@ export class TrackerSubtopicEntity {
     this.order = props.order;
     this.depth = props.depth;
     this.isLocked = props.isLocked;
-    this.estimatedMinutes = props.estimatedMinutes ?? 0;
     this.status = props.status;
     this.isUnlocked = props.isUnlocked;
     this.progressPercent = props.progressPercent;

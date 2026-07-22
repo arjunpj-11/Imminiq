@@ -5,6 +5,7 @@ export * from './token-payload.dto';
 export * from './auth-user.mapper';
 
 export * from './auth-account-policy.policy';
+export * from './services/auth-login-finalizer.service';
 export * from './services/auth-notification.service';
 export * from './services/auth-redirect.service';
 export * from './services/auth-session.service';
@@ -24,3 +25,4 @@ export * from './use-cases/reset-password.usecase';
 export * from './use-cases/verify-account.usecase';
 export * from './use-cases/verify-reset-code.usecase';
 export * from './use-cases/verify-two-factor-login.usecase';
+export * from './auth-use-cases.contract';

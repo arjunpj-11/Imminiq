@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import api from '../../lib/axios';
 import { getBlockedAppealToken } from '../../lib/blockedAppealSession';
+import { MODERATION_APPEAL_ENDPOINTS } from './moderation.constants';
 
 export interface ISubmitModerationAppealPayload {
   appealReason: string;
@@ -34,7 +35,7 @@ export const useSubmitModerationAppeal = () => {
   >({
     mutationFn: async (payload) => {
       const response = await api.post<ISubmitModerationAppealResponse>(
-        '/moderation-appeals',
+        MODERATION_APPEAL_ENDPOINTS.account,
         payload,
         { headers: { Authorization: `Bearer ${getBlockedAppealToken()}` } }
       );

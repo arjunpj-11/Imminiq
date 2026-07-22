@@ -101,6 +101,7 @@ export class GenerateMockTestUseCase implements IGenerateMockTestUseCase {
 
     await this._repository.createQuestions(
       questions.map((question, index) => ({
+        bankId: question.bankId,
         testId: test._id,
         type: question.type,
         question: question.question,

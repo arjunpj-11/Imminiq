@@ -23,7 +23,6 @@ export type GeneratedLessonData = {
   practiceTask: GeneratedLessonPracticeTask;
   tags: string[];
   difficulty: 'beginner' | 'intermediate' | 'advanced';
-  estimatedMinutes: number;
 };
 
 export type CodeSubmitInput = {

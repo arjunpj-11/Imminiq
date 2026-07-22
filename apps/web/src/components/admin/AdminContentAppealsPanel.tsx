@@ -1,12 +1,14 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, Eye, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import Modal from "./AdminModal";
-import api from "../../lib/axios";
-import type { ApiEnvelope } from "../../lib/api.types";
-import { toast } from "../../lib/toast";
-import { getUserFacingError } from "../../lib/user-facing-error";
-import { ADMIN_CONTENT_APPEALS_ENDPOINTS } from "../../config/admin-shared.constants";
+import {
+  useAdminContentAppeals,
+} from "../../hooks/admin/useAdminContentAppeals";
+import { useUpdateAdminContentAppeal } from "../../hooks/admin/useUpdateAdminContentAppeal";
+import type {
+  AdminContentAppeal,
+  AdminContentAppealDecision,
+} from "../../hooks/admin/admin-shared.types";
 import {
   AdminCardSkeleton,
   AdminEmpty,
@@ -20,79 +22,18 @@ import {
 import AdminActionPasswordField from "./AdminActionPasswordField";
 import { isAdminActionPasswordReady } from "../../lib/admin/admin-action-password";
 
-type Appeal = {
-  id: string;
-  title: string;
-  moderationStatus: string;
-  ownerName: string;
-  ownerEmail?: string;
-  reason: string;
-  evidenceUrls: string[];
-  status: "pending" | "under_review" | "approved" | "rejected";
-  assignedTo?: string;
-  createdAt: string;
-};
-
-type Data = {
-  items: Appeal[];
-  stats: {
-    pending: number;
-    underReview: number;
-    approved: number;
-    rejected: number;
-  };
-  pagination: { page: number; pages: number };
-};
-
-type DecisionInput = {
-  decisionStatus: "under_review" | "approved" | "rejected";
-  decisionNote: string;
-  actionPassword: string;
-};
+type DecisionInput = Omit<AdminContentAppealDecision, "id">;
 
 export function AdminContentAppealsPanel({
   kind,
 }: {
   kind: "trackers" | "mock-tests";
 }) {
-  const [status, setStatus] = useState<"all" | Appeal["status"]>("pending");
+  const [status, setStatus] = useState<"all" | AdminContentAppeal["status"]>("pending");
   const [page, setPage] = useState(1);
-  const [selected, setSelected] = useState<Appeal | null>(null);
-  const base = ADMIN_CONTENT_APPEALS_ENDPOINTS.list(kind);
-  const key = ["admin", kind, "content-appeals"] as const;
-  const client = useQueryClient();
-
-  const query = useQuery({
-    queryKey: [...key, { status, page }],
-    queryFn: async () =>
-      (
-        await api.get<ApiEnvelope<Data>>(base, {
-          params: { status, page },
-        })
-      ).data.data,
-    placeholderData: keepPreviousData,
-  });
-
-  const update = useMutation({
-    mutationFn: ({
-      id,
-      decisionStatus,
-      decisionNote,
-      actionPassword,
-    }: DecisionInput & { id: string }) =>
-      api.patch(
-        ADMIN_CONTENT_APPEALS_ENDPOINTS.detail(kind, id),
-        { status: decisionStatus, decisionNote },
-        { headers: { "X-Admin-Action-Password": actionPassword } },
-      ),
-    onSuccess: async () => {
-      toast.success("Content appeal updated");
-      setSelected(null);
-      await client.invalidateQueries({ queryKey: key });
-    },
-    onError: (error) =>
-      toast.error("Appeal update failed", getUserFacingError(error)),
-  });
+  const [selected, setSelected] = useState<AdminContentAppeal | null>(null);
+  const query = useAdminContentAppeals(kind, status, page);
+  const update = useUpdateAdminContentAppeal(kind);
 
   const data = query.data;
 
@@ -230,7 +171,11 @@ export function AdminContentAppealsPanel({
         pending={update.isPending}
         onClose={() => setSelected(null)}
         onSubmit={(payload) =>
-          selected && update.mutate({ id: selected.id, ...payload })
+          selected &&
+          update.mutate(
+            { id: selected.id, ...payload },
+            { onSuccess: () => setSelected(null) },
+          )
         }
       />
     </section>
@@ -243,7 +188,7 @@ function DecisionDialog({
   onClose,
   onSubmit,
 }: {
-  appeal: Appeal | null;
+  appeal: AdminContentAppeal | null;
   pending: boolean;
   onClose: () => void;
   onSubmit: (input: DecisionInput) => void;

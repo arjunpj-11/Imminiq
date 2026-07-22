@@ -9,11 +9,11 @@ export interface IListAdminSupportTicketsUseCase {
 
 export class ListAdminSupportTicketsUseCase implements IListAdminSupportTicketsUseCase {
   constructor(
-    private readonly repository: IAdminSupportTicketsRepository,
-    private readonly mapper: IAdminSupportTicketsMapper
+    private readonly _repository: IAdminSupportTicketsRepository,
+    private readonly _mapper: IAdminSupportTicketsMapper
   ) {}
 
   async execute(query: AdminListQuery): Promise<AdminPage<AdminSupportTicketDTO>> {
-    return this.mapper.toPageDTO(await this.repository.list(query));
+    return this._mapper.toPageDTO(await this._repository.list(query));
   }
 }

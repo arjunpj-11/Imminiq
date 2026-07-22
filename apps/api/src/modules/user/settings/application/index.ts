@@ -11,3 +11,5 @@ export * from './use-cases/reset-settings-to-defaults.usecase';
 export * from './use-cases/update-appearance.usecase';
 export * from './use-cases/update-notifications.usecase';
 export * from './use-cases/update-privacy.usecase';
+export * from './data-privacy-request.service';
+export * from './settings-use-cases.contract';

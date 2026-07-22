@@ -7,10 +7,10 @@ export interface IListAdminAuditLogsUseCase {
 }
 export class ListAdminAuditLogsUseCase implements IListAdminAuditLogsUseCase {
   constructor(
-    private readonly repository: IAdminAuditLogsRepository,
-    private readonly mapper: IAdminAuditLogsMapper
+    private readonly _repository: IAdminAuditLogsRepository,
+    private readonly _mapper: IAdminAuditLogsMapper
   ) {}
   async execute(query: AdminListQuery): Promise<AdminPage<AdminAuditLogDTO>> {
-    return this.mapper.toPageDTO(await this.repository.list(query));
+    return this._mapper.toPageDTO(await this._repository.list(query));
   }
 }

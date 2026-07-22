@@ -4,6 +4,7 @@ import type { MockTestCodingDetails } from '../value-objects/mock-test-coding.vo
 import type { QuestionType } from '../value-objects/question-type.vo';
 
 export type CreateMockTestQuestionInput = {
+  bankId?: number;
   testId: string;
   type: QuestionType;
   question: string;

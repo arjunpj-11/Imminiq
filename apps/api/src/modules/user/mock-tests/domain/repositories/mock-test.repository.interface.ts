@@ -47,6 +47,8 @@ export type MockTestListResult = {
 export interface IMockTestRepository {
   findTestById(testId: string): Promise<MockTestEntity | null>;
 
+  findTestForModerationDisplayById(testId: string): Promise<MockTestEntity | null>;
+
   findTestsByOwner(input: FindMockTestsByOwnerInput): Promise<MockTestListResult>;
 
   createTest(data: CreateMockTestInput): Promise<MockTestEntity>;

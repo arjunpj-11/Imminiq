@@ -10,6 +10,7 @@ export const adminUsersKeys = {
   list: (query: AdminUsersQuery) => [...adminUsersKeys.lists(), query] as const,
   details: () => [...adminUsersKeys.all, "detail"] as const,
   detail: (userId: string) => [...adminUsersKeys.details(), userId] as const,
+  notes: (userId: string) => [...adminUsersKeys.detail(userId), "notes"] as const,
   appeals: () => [...adminUsersKeys.all, "appeals"] as const,
   appealList: (query: AdminUserAppealsQuery) =>
     [...adminUsersKeys.appeals(), query] as const,

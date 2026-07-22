@@ -6,3 +6,5 @@ export * from './moderation-appeal-submission-policy.policy';
 export * from './services/moderation-appeal-case-id.service';
 export * from './use-cases/get-active-moderation-appeal-status.usecase';
 export * from './use-cases/submit-moderation-appeal.usecase';
+export * from './content-moderation-appeal.service';
+export * from './moderation-appeal-use-cases.contract';

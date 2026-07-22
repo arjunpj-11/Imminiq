@@ -212,17 +212,6 @@ export const executeCodeWithPiston = async ({
   const runtime = await findRuntime(pistonLanguage);
   const baseUrl = getPistonBaseUrl();
 
-  console.log('Piston execute request:', {
-    baseUrl,
-    requestedLanguage: language,
-    languageId,
-    pistonLanguage,
-    runtime: runtime.language,
-    version: runtime.version,
-    hasSourceCode: Boolean(sourceCode.trim()),
-    sourceCodePreview: sourceCode.slice(0, 100),
-  });
-
   const response = await fetch(`${baseUrl}/execute`, {
     method: 'POST',
     headers: getPistonHeaders(),

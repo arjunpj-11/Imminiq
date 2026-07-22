@@ -1,78 +1,55 @@
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2 } from "lucide-react";
-import api from "../../../../lib/axios";
-import type { ApiEnvelope } from "../../../../lib/api.types";
-import { toast } from "../../../../lib/toast";
-import { ADMIN_USERS_ENDPOINTS } from "../constants/admin-users.constants";
 import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
 import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
+import { useAdminUserNotes } from "../hooks/useAdminUserNotes";
+import { useAddAdminUserNote } from "../hooks/useAddAdminUserNote";
+import { useDeleteAdminUserNote } from "../hooks/useDeleteAdminUserNote";
+import { useUpdateAdminUserTags } from "../hooks/useUpdateAdminUserTags";
 
-type NotesData = {
-  tags: string[];
-  notes: Array<{
-    id: string;
-    note: string;
-    tags: string[];
-    author: string;
-    createdAt: string;
-  }>;
-};
 export default function AdminUserNotesPanel({ userId }: { userId: string }) {
-  const key = ["admin", "users", userId, "notes"] as const;
-  const client = useQueryClient();
-  const query = useQuery({
-    queryKey: key,
-    queryFn: async () =>
-      (
-        await api.get<ApiEnvelope<NotesData>>(
-          ADMIN_USERS_ENDPOINTS.notes(userId),
-        )
-      ).data.data,
-  });
+  const query = useAdminUserNotes(userId);
   const [note, setNote] = useState("");
   const [noteTags, setNoteTags] = useState("");
   const [accountTags, setAccountTags] = useState<string | null>(null);
   const [actionPassword, setActionPassword] = useState("");
-  const passwordHeaders = () => ({ headers: { 'x-admin-action-password': actionPassword } });
-  const refresh = () => client.invalidateQueries({ queryKey: key });
-  const add = useMutation({
-    mutationFn: () =>
-      api.post(ADMIN_USERS_ENDPOINTS.notes(userId), {
+  const add = useAddAdminUserNote(userId);
+  const remove = useDeleteAdminUserNote(userId, actionPassword);
+  const tags = useUpdateAdminUserTags(userId);
+  const addNote = () =>
+    add.mutate(
+      {
         note: note.trim(),
         tags: noteTags
           .split(",")
           .map((value) => value.trim().toLowerCase())
           .filter(Boolean),
-      }, passwordHeaders()),
-    onSuccess: async () => {
-      setNote("");
-      setNoteTags("");
-      setActionPassword("");
-      toast.success("Internal note added");
-      await refresh();
-    },
-  });
-  const remove = useMutation({
-    mutationFn: (noteId: string) =>
-      api.delete(ADMIN_USERS_ENDPOINTS.note(userId, noteId), passwordHeaders()),
-    onSuccess: refresh,
-  });
-  const tags = useMutation({
-    mutationFn: () =>
-      api.put(ADMIN_USERS_ENDPOINTS.tags(userId), {
+        actionPassword,
+      },
+      {
+        onSuccess: () => {
+          setNote("");
+          setNoteTags("");
+          setActionPassword("");
+        },
+      },
+    );
+  const updateTags = () =>
+    tags.mutate(
+      {
         tags: (accountTags ?? "")
           .split(",")
           .map((value) => value.trim().toLowerCase())
           .filter(Boolean),
-      }, passwordHeaders()),
-    onSuccess: async () => {
-      toast.success("Account tags updated");
-      setAccountTags(null);
-      setActionPassword("");
-      await refresh();
-    },
-  });
+        actionPassword,
+      },
+      {
+        onSuccess: () => {
+          setAccountTags(null);
+          setActionPassword("");
+        },
+      },
+    );
   const currentTags = accountTags ?? query.data?.tags.join(", ") ?? "";
   return (
     <div className="rounded-xl border border-white/10 bg-[#1c1a18] p-6">
@@ -94,7 +71,7 @@ export default function AdminUserNotesPanel({ userId }: { userId: string }) {
           <button
             className="admin-button"
             disabled={tags.isPending || !isAdminActionPasswordReady(actionPassword)}
-            onClick={() => tags.mutate()}
+            onClick={updateTags}
           >
             Save
           </button>
@@ -121,7 +98,7 @@ export default function AdminUserNotesPanel({ userId }: { userId: string }) {
       <button
         className="admin-primary-button mt-3 inline-flex items-center gap-2"
         disabled={note.trim().length < 3 || add.isPending || !isAdminActionPasswordReady(actionPassword)}
-        onClick={() => add.mutate()}
+        onClick={addNote}
       >
         <Plus size={15} /> Add note
       </button>

@@ -37,6 +37,15 @@ Lower the score when:
 - testing, debugging, performance, security, deployment, or architecture are missing where relevant
 - roadmap nodes are too vague
 - roadmap does not have enough concrete checklist-style items
+- any top-level topic has no subtopics beneath it
+
+Structural completeness is mandatory:
+- Every top-level topic must contain at least one concrete subtopic.
+- A topic with zero children is incomplete even if its title and description are excellent.
+- If one or more top-level topics are empty, the score must be 84 or lower and missingTopics must
+  include at least one concrete child suggestion for every empty topic.
+- For those child suggestions, suggestedParentTitle must exactly equal the empty topic's title.
+- Never return 100/100 while an empty topic exists.
 
 ============================================================
 GRADE RULES
