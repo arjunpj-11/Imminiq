@@ -50,11 +50,11 @@ export default function FinalCta() {
       >
         <div>
           <p className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
-            Start building mastery
+            Start a living learning path
           </p>
           <p className="mt-5 max-w-118 text-[15px] leading-[1.8] text-[#6b5f58] dark:text-[#b8b4aa]">
-            Create your first adaptive roadmap, learn with Scribe AI, join a guild, and turn every
-            focused session into visible progress.
+            Create a tracker for what you want to master, find people on the same path, and help build
+            the learning structure you wish you had from day one.
           </p>
         </div>
 
@@ -83,7 +83,7 @@ export default function FinalCta() {
           to={ROUTES.register}
           className="h-fit rounded-full bg-[#b84c2b] px-6 py-3 text-[13px] font-extrabold text-[#fdf8f5] transition hover:-translate-y-1 hover:bg-[#963d22] dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#f09a84]"
         >
-          Start learning
+          Create your tracker
         </Link>
       </div>
 
@@ -94,7 +94,7 @@ export default function FinalCta() {
           "relative z-10 mt-20 block text-center font-['Playfair_Display',serif] text-[clamp(70px,20vw,260px)] font-black leading-[0.8] tracking-[-0.11em] text-[#1a1714] transition-all duration-1000 hover:text-[#b84c2b] dark:text-[#f2f0eb] dark:hover:text-[#e8816a]",
           bigVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
         )}
-        aria-label="Start learning with Imminiq"
+        aria-label="Create a learning tracker with Imminiq"
       >
         {'Start now'.split('').map((char, i) => (
           <span

@@ -1,6 +1,6 @@
 export default function IntroSection() {
   const words =
-    'Imminiq brings personalized roadmaps, AI-guided lessons, collaborative guilds, live challenges, mock tests, and progress intelligence into one focused learning system.'.split(
+    'Learning should not begin with hours of scattered research. Imminiq turns a goal into a living tracker that grows more complete every time its community learns, contributes, and verifies together.'.split(
       ' '
     );
 
@@ -12,7 +12,7 @@ export default function IntroSection() {
       <div className="mx-auto max-w-340">
         <h2 className="max-w-285 font-['Playfair_Display',serif] text-[clamp(34px,6vw,76px)] font-extrabold leading-[1.02] tracking-[-0.06em]">
           <span className="mr-10 inline-block -translate-y-3 overflow-hidden font-['DM_Mono',monospace] text-[11px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a] lg:mr-80">
-            <span className="landing-reveal block">What it is</span>
+            <span className="landing-reveal block">Why Imminiq</span>
           </span>
           <span>
             {words.map((word, index) => (
@@ -31,14 +31,17 @@ export default function IntroSection() {
         <div className="mt-12 grid gap-4 sm:mt-20 md:grid-cols-3">
           {[
             [
-              'Personal by design',
-              'Every roadmap begins with your goal, level, pace, language, and learning preferences.',
+              'Start with clarity',
+              'AI organizes your goal, level, pace, and preferences into a useful first learning tracker.',
             ],
             [
-              'Built for active learning',
-              'Lessons, voice input, coding, answer checks, revision, and mock tests reinforce one another.',
+              'Discover the gaps',
+              'Real learners reveal the missing prerequisites, outdated steps, and useful topics that one generated path cannot know.',
             ],
-            ['Better together', 'Guilds let learners collaborate on roadmaps, contribute safely, and compete in real time.'],
+            [
+              'Evolve together',
+              'The community reviews contributions and strengthens the tracker for everyone learning now and everyone who comes next.',
+            ],
           ].map(([title, body], index) => (
             <article
               key={title}
