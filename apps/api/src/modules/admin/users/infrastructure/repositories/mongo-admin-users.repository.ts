@@ -197,10 +197,7 @@ export class MongoAdminUsersRepository implements IAdminUsersRepository {
         : {
             _id: appealId,
             deletedAt: null,
-            $or: [
-              { status: 'pending' },
-              { status: 'under_review', reviewedBy: input.actorId },
-            ],
+            $or: [{ status: 'pending' }, { status: 'under_review', reviewedBy: input.actorId }],
           };
     const appeal = await ModerationAppeal.findOneAndUpdate(
       appealFilter,
@@ -293,22 +290,23 @@ export class MongoAdminUsersRepository implements IAdminUsersRepository {
   async findDetailById(userId: string): Promise<AdminUserDetailEntity | null> {
     const user = await this.findById(userId);
     if (!user) return null;
-    const [trackers, reports, activity, securityEvents, failedSecurityEvents, sessions] = await Promise.all([
-      Tracker.countDocuments({ ownerId: userId, deletedAt: null, status: 'active' }),
-      MockTestReportModel.countDocuments({ userId }),
-      ActivityLog.find({ userId, deletedAt: null }).sort({ createdAt: -1 }).limit(8).lean(),
-      SecurityAuditEvent.find({ userId }).sort({ createdAt: -1 }).limit(8).lean(),
-      SecurityAuditEvent.countDocuments({ userId, outcome: 'failure' }),
-      AuthToken.find({
-        userId,
-        revokedAt: null,
-        deletedAt: null,
-        expiresAt: { $gt: new Date() },
-      })
-        .select('device ipAddress userAgent createdAt updatedAt expiresAt')
-        .sort({ updatedAt: -1 })
-        .lean(),
-    ]);
+    const [trackers, reports, activity, securityEvents, failedSecurityEvents, sessions] =
+      await Promise.all([
+        Tracker.countDocuments({ ownerId: userId, deletedAt: null, status: 'active' }),
+        MockTestReportModel.countDocuments({ userId }),
+        ActivityLog.find({ userId, deletedAt: null }).sort({ createdAt: -1 }).limit(8).lean(),
+        SecurityAuditEvent.find({ userId }).sort({ createdAt: -1 }).limit(8).lean(),
+        SecurityAuditEvent.countDocuments({ userId, outcome: 'failure' }),
+        AuthToken.find({
+          userId,
+          revokedAt: null,
+          deletedAt: null,
+          expiresAt: { $gt: new Date() },
+        })
+          .select('device ipAddress userAgent createdAt updatedAt expiresAt')
+          .sort({ updatedAt: -1 })
+          .lean(),
+      ]);
     return {
       user,
       stats: {
@@ -440,7 +438,10 @@ export class MongoAdminUsersRepository implements IAdminUsersRepository {
       Notification.create({
         userId,
         type: 'account_role_updated',
-        message: `Your Imminiq account role changed to ${role}. Reason: ${input.reason}`.slice(0, 500),
+        message: `Your Imminiq account role changed to ${role}. Reason: ${input.reason}`.slice(
+          0,
+          500
+        ),
         deepLink: '/dashboard',
         metadata: { role },
       }),
@@ -481,40 +482,49 @@ export class MongoAdminUsersRepository implements IAdminUsersRepository {
   }
 
   async recordStatusChange(input: RecordAdminStatusChangeInput): Promise<void> {
-    await Promise.all([SecurityAuditEvent.create({
-      userId: input.userId,
-      eventType:
-        input.status === 'blocked'
-          ? 'admin_user_blocked'
-          : input.status === 'paused'
-            ? 'admin_user_suspended'
-            : 'admin_user_restored',
-      outcome: 'success',
-      ipAddress: input.ipAddress,
-      userAgent: input.userAgent,
-      metadata: {
-        actorId: input.actorId,
-        targetId: input.userId,
-        targetName: input.targetName,
-        targetUsername: input.targetUsername,
-        reason: input.reason ?? '',
-        reasonCode: input.reasonCode,
-        previousStatus: input.previousStatus,
-        newStatus: input.status,
-        changes: { status: { from: input.previousStatus, to: input.status } },
-      },
-    }), Notification.create({
-      userId: input.userId,
-      type: 'account_status_updated',
-      message:
-        input.status === 'blocked'
-          ? `Your account was blocked by Imminiq administration. Reason: ${input.reason}`.slice(0, 500)
-          : input.status === 'paused'
-            ? `Your account was suspended by Imminiq administration. Reason: ${input.reason}`.slice(0, 500)
-            : `Your account access was restored. Reason: ${input.reason}`.slice(0, 500),
-      deepLink: input.status === 'active' ? '/dashboard' : '/blocked',
-      metadata: { status: input.status, reason: input.reason, reasonCode: input.reasonCode },
-    })]);
+    await Promise.all([
+      SecurityAuditEvent.create({
+        userId: input.userId,
+        eventType:
+          input.status === 'blocked'
+            ? 'admin_user_blocked'
+            : input.status === 'paused'
+              ? 'admin_user_suspended'
+              : 'admin_user_restored',
+        outcome: 'success',
+        ipAddress: input.ipAddress,
+        userAgent: input.userAgent,
+        metadata: {
+          actorId: input.actorId,
+          targetId: input.userId,
+          targetName: input.targetName,
+          targetUsername: input.targetUsername,
+          reason: input.reason ?? '',
+          reasonCode: input.reasonCode,
+          previousStatus: input.previousStatus,
+          newStatus: input.status,
+          changes: { status: { from: input.previousStatus, to: input.status } },
+        },
+      }),
+      Notification.create({
+        userId: input.userId,
+        type: 'account_status_updated',
+        message:
+          input.status === 'blocked'
+            ? `Your account was blocked by Imminiq administration. Reason: ${input.reason}`.slice(
+                0,
+                500
+              )
+            : input.status === 'paused'
+              ? `Your account was suspended by Imminiq administration. Reason: ${input.reason}`.slice(
+                  0,
+                  500
+                )
+              : `Your account access was restored. Reason: ${input.reason}`.slice(0, 500),
+        deepLink: input.status === 'active' ? '/dashboard' : '/blocked',
+        metadata: { status: input.status, reason: input.reason, reasonCode: input.reasonCode },
+      }),
+    ]);
   }
 
   async recordAdminMessage(input: RecordAdminMessageInput): Promise<void> {

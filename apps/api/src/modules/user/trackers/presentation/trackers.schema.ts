@@ -116,10 +116,16 @@ const importOutlineNodeSchema: z.ZodTypeAny = z.lazy(() =>
 
 export const importTrackerOutlineSchema = z
   .discriminatedUnion('kind', [
-    z.object({ kind: z.literal('topics'), topics: z.array(importOutlineNodeSchema).min(1).max(50) }),
+    z.object({
+      kind: z.literal('topics'),
+      topics: z.array(importOutlineNodeSchema).min(1).max(50),
+    }),
     z.object({
       kind: z.literal('subtopics'),
-      topicId: z.string().trim().regex(/^[a-f\d]{24}$/i, 'Invalid topic id'),
+      topicId: z
+        .string()
+        .trim()
+        .regex(/^[a-f\d]{24}$/i, 'Invalid topic id'),
       parentSubtopicId: z
         .string()
         .trim()
@@ -138,11 +144,18 @@ export const importTrackerOutlineSchema = z
       }
       for (const node of nodes) {
         count += 1;
-        if (Array.isArray(node.subtopics)) visit(node.subtopics as Array<{ subtopics?: unknown[] }>, depth + 1);
+        if (Array.isArray(node.subtopics))
+          visit(node.subtopics as Array<{ subtopics?: unknown[] }>, depth + 1);
       }
     };
-    visit((outline.kind === 'topics' ? outline.topics : outline.subtopics) as Array<{ subtopics?: unknown[] }>, 0);
-    if (count > 250) context.addIssue({ code: 'custom', message: 'Outline cannot exceed 250 items' });
+    visit(
+      (outline.kind === 'topics' ? outline.topics : outline.subtopics) as Array<{
+        subtopics?: unknown[];
+      }>,
+      0
+    );
+    if (count > 250)
+      context.addIssue({ code: 'custom', message: 'Outline cannot exceed 250 items' });
   });
 
 export const reviewTopicContributionSchema = z.object({

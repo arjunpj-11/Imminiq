@@ -51,10 +51,7 @@ export default function SettingsShell() {
         <div className="min-w-0" aria-live="polite">
           <Suspense
             fallback={
-              <SettingsContentLoading
-                variant={meta.loadingVariant}
-                title={meta.loadingTitle}
-              />
+              <SettingsContentLoading variant={meta.loadingVariant} title={meta.loadingTitle} />
             }
           >
             <Outlet />

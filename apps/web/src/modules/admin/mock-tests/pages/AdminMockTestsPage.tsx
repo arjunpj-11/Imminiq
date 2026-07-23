@@ -1,6 +1,6 @@
-import { Database, Download, Eye, FileText, ShieldAlert } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Database, Download, Eye, FileText, ShieldAlert } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   AdminBulkActionBar,
   AdminCardSkeleton,
@@ -15,47 +15,45 @@ import {
   AdminStatusBadge,
   downloadTablePdf,
   type AdminPageData,
-} from "../../../../components/admin";
-import { useDownloadAdminCsv } from "../../../../hooks/admin/useDownloadAdminCsv";
-import { useExportAdminItems } from "../../../../hooks/admin/useExportAdminItems";
-import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
-import { getUserFacingError } from "../../../../lib/user-facing-error";
-import { toast } from "../../../../lib/toast";
-import { useAdminMockTests } from "../hooks/useAdminMockTests";
-import type { AdminMockTest } from "../types/admin-mock-tests.types";
+} from '../../../../components/admin';
+import { useDownloadAdminCsv } from '../../../../hooks/admin/useDownloadAdminCsv';
+import { useExportAdminItems } from '../../../../hooks/admin/useExportAdminItems';
+import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { toast } from '../../../../lib/toast';
+import { useAdminMockTests } from '../hooks/useAdminMockTests';
+import type { AdminMockTest } from '../types/admin-mock-tests.types';
 import {
   ADMIN_MOCK_TESTS_ENDPOINTS,
   ADMIN_MOCK_TESTS_ROUTES,
-} from "../constants/admin-mock-tests.constants";
+} from '../constants/admin-mock-tests.constants';
 
-const validStatuses = new Set(["all", "active", "suspended", "deleted"]);
+const validStatuses = new Set(['all', 'active', 'suspended', 'deleted']);
 
 export default function AdminMockTestsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [search, setSearch] = useState(() => searchParams.get("q") || "");
+  const [search, setSearch] = useState(() => searchParams.get('q') || '');
   const [selected, setSelected] = useState<string[]>([]);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const csvExport = useDownloadAdminCsv();
   const exportItems = useExportAdminItems<AdminPageData<AdminMockTest>, AdminMockTest>();
   const debouncedSearch = useDebouncedValue(search, 300);
-  const requestedStatus = searchParams.get("status") || "all";
-  const status = validStatuses.has(requestedStatus) ? requestedStatus : "all";
-  const requestedPage = Number(searchParams.get("page") || 1);
-  const page =
-    Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const requestedStatus = searchParams.get('status') || 'all';
+  const status = validStatuses.has(requestedStatus) ? requestedStatus : 'all';
+  const requestedPage = Number(searchParams.get('page') || 1);
+  const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
   const updateParams = (updates: Record<string, string | number | null>) => {
     const next = new URLSearchParams(searchParams);
     for (const [key, value] of Object.entries(updates)) {
-      if (value === null || value === "" || value === "all" || value === 1)
-        next.delete(key);
+      if (value === null || value === '' || value === 'all' || value === 1) next.delete(key);
       else next.set(key, String(value));
     }
     setSearchParams(next, { replace: true });
   };
 
   useEffect(() => {
-    if ((searchParams.get("q") || "") === debouncedSearch) return;
+    if ((searchParams.get('q') || '') === debouncedSearch) return;
     updateParams({ q: debouncedSearch || null, page: null });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
@@ -92,31 +90,30 @@ export default function AdminMockTestsPage() {
       const date = new Date().toISOString().slice(0, 10);
       await downloadTablePdf({
         filename: `imminiq-mock-tests-${status}-${date}.pdf`,
-        title: "Mock Test Management",
-        description:
-          "Assessment inventory matching the selected administrator filters.",
+        title: 'Mock Test Management',
+        description: 'Assessment inventory matching the selected administrator filters.',
         filters: [
-          `Status: ${status === "all" ? "All statuses" : status}`,
-          `Search: ${debouncedSearch || "All mock tests"}`,
+          `Status: ${status === 'all' ? 'All statuses' : status}`,
+          `Search: ${debouncedSearch || 'All mock tests'}`,
           `Matching tests: ${tests.length}`,
         ],
         summary: [
-          { label: "Matching tests", value: tests.length },
-          { label: "Open reports", value: data?.stats?.openReports ?? 0 },
-          { label: "Learner flags", value: data?.stats?.flags ?? 0 },
-          { label: "Attempts", value: data?.stats?.attempts ?? 0 },
+          { label: 'Matching tests', value: tests.length },
+          { label: 'Open reports', value: data?.stats?.openReports ?? 0 },
+          { label: 'Learner flags', value: data?.stats?.flags ?? 0 },
+          { label: 'Attempts', value: data?.stats?.attempts ?? 0 },
         ],
         columns: [
-          { header: "Mock test", key: "title", width: 112 },
-          { header: "Owner", key: "owner", width: 78 },
-          { header: "Difficulty", key: "difficulty", width: 54 },
-          { header: "Status", key: "status", width: 58 },
-          { header: "Questions", key: "questions", width: 46 },
-          { header: "Attempts", key: "attempts", width: 46 },
-          { header: "Avg. score", key: "averageScore", width: 52 },
-          { header: "Source", key: "source", width: 48 },
-          { header: "Reports", key: "reports", width: 54 },
-          { header: "Created", key: "created", width: 72 },
+          { header: 'Mock test', key: 'title', width: 112 },
+          { header: 'Owner', key: 'owner', width: 78 },
+          { header: 'Difficulty', key: 'difficulty', width: 54 },
+          { header: 'Status', key: 'status', width: 58 },
+          { header: 'Questions', key: 'questions', width: 46 },
+          { header: 'Attempts', key: 'attempts', width: 46 },
+          { header: 'Avg. score', key: 'averageScore', width: 52 },
+          { header: 'Source', key: 'source', width: 48 },
+          { header: 'Reports', key: 'reports', width: 54 },
+          { header: 'Created', key: 'created', width: 72 },
         ],
         rows: tests.map((test) => ({
           title: test.title,
@@ -126,17 +123,14 @@ export default function AdminMockTestsPage() {
           questions: test.questionCount,
           attempts: test.attemptCount,
           averageScore: `${test.averageScore}%`,
-          source: test.isAIGenerated ? "AI" : "Manual",
+          source: test.isAIGenerated ? 'AI' : 'Manual',
           reports: `${test.openReportCount} open / ${test.reportCount} total`,
           created: new Date(test.createdAt).toLocaleDateString(),
         })),
       });
-      toast.success(
-        "Mock test PDF downloaded",
-        `${tests.length} matching assessments exported.`,
-      );
+      toast.success('Mock test PDF downloaded', `${tests.length} matching assessments exported.`);
     } catch (error) {
-      toast.error("Mock test PDF export failed", getUserFacingError(error));
+      toast.error('Mock test PDF export failed', getUserFacingError(error));
     } finally {
       setIsExportingPdf(false);
     }
@@ -149,17 +143,10 @@ export default function AdminMockTestsPage() {
         description="Inspect assessment contents, questions, correct answers, and test configuration."
         action={
           <>
-            <Link
-              to={ADMIN_MOCK_TESTS_ROUTES.questionBank}
-              className="admin-button"
-            >
+            <Link to={ADMIN_MOCK_TESTS_ROUTES.questionBank} className="admin-button">
               <Database size={16} aria-hidden="true" /> Question bank
             </Link>
-            <button
-              type="button"
-              onClick={exportCurrentView}
-              className="admin-button"
-            >
+            <button type="button" onClick={exportCurrentView} className="admin-button">
               <Download size={16} aria-hidden="true" /> Export all CSV
             </button>
             <button
@@ -169,12 +156,9 @@ export default function AdminMockTestsPage() {
               className="admin-button"
             >
               <FileText size={16} aria-hidden="true" />
-              {isExportingPdf ? "Preparing PDF…" : "Export all PDF"}
+              {isExportingPdf ? 'Preparing PDF…' : 'Export all PDF'}
             </button>
-            <Link
-              to={ADMIN_MOCK_TESTS_ROUTES.reports}
-              className="admin-primary-button"
-            >
+            <Link to={ADMIN_MOCK_TESTS_ROUTES.reports} className="admin-primary-button">
               <ShieldAlert size={16} aria-hidden="true" /> Question reports
             </Link>
           </>
@@ -188,28 +172,28 @@ export default function AdminMockTestsPage() {
       ) : (
         <AdminMetricGrid
           metrics={[
-          { label: "All tests", value: data?.pagination.total ?? 0 },
-          {
-            label: "Open reports",
-            value: data?.stats?.openReports ?? 0,
-            tone: "error",
-          },
-          {
-            label: "Learner flags",
-            value: data?.stats?.flags ?? 0,
-            tone: "info",
-          },
-          {
-            label: "Suspended",
-            value: data?.stats?.suspended ?? 0,
-            tone: "warning",
-          },
-          {
-            label: "Attempts",
-            value: data?.stats?.attempts ?? 0,
-            tone: "accent",
-          },
-        ]}
+            { label: 'All tests', value: data?.pagination.total ?? 0 },
+            {
+              label: 'Open reports',
+              value: data?.stats?.openReports ?? 0,
+              tone: 'error',
+            },
+            {
+              label: 'Learner flags',
+              value: data?.stats?.flags ?? 0,
+              tone: 'info',
+            },
+            {
+              label: 'Suspended',
+              value: data?.stats?.suspended ?? 0,
+              tone: 'warning',
+            },
+            {
+              label: 'Attempts',
+              value: data?.stats?.attempts ?? 0,
+              tone: 'accent',
+            },
+          ]}
         />
       )}
 
@@ -219,9 +203,7 @@ export default function AdminMockTestsPage() {
           <div className="flex flex-wrap gap-3">
             <select
               value={status}
-              onChange={(event) =>
-                updateParams({ status: event.target.value, page: null })
-              }
+              onChange={(event) => updateParams({ status: event.target.value, page: null })}
               className="admin-select"
               aria-label="Filter mock tests by status"
             >
@@ -230,11 +212,7 @@ export default function AdminMockTestsPage() {
               <option value="suspended">Suspended</option>
               <option value="deleted">Deleted</option>
             </select>
-            <AdminSearch
-              value={search}
-              onChange={setSearch}
-              placeholder="Search mock tests…"
-            />
+            <AdminSearch value={search} onChange={setSearch} placeholder="Search mock tests…" />
           </div>
         }
       >
@@ -258,9 +236,7 @@ export default function AdminMockTestsPage() {
           <>
             <div className="admin-table-scroll overflow-x-auto">
               <table className="admin-table w-full min-w-235 text-left text-sm">
-                <caption className="sr-only">
-                  Mock tests matching the current filters
-                </caption>
+                <caption className="sr-only">Mock tests matching the current filters</caption>
                 <thead>
                   <tr>
                     <th scope="col">
@@ -275,15 +251,9 @@ export default function AdminMockTestsPage() {
                           setSelected(
                             event.target.checked
                               ? Array.from(
-                                  new Set([
-                                    ...selected,
-                                    ...data.items.map((item) => item.id),
-                                  ]),
+                                  new Set([...selected, ...data.items.map((item) => item.id)])
                                 )
-                              : selected.filter(
-                                  (id) =>
-                                    !data.items.some((item) => item.id === id),
-                                ),
+                              : selected.filter((id) => !data.items.some((item) => item.id === id))
                           )
                         }
                       />
@@ -311,7 +281,7 @@ export default function AdminMockTestsPage() {
                             setSelected(
                               event.target.checked
                                 ? Array.from(new Set([...selected, item.id]))
-                                : selected.filter((id) => id !== item.id),
+                                : selected.filter((id) => id !== item.id)
                             )
                           }
                         />
@@ -319,9 +289,7 @@ export default function AdminMockTestsPage() {
                       <td>
                         <div className="font-semibold">{item.title}</div>
                         {item.isAIGenerated && (
-                          <span className="text-[10px] font-bold text-[#6aa9ff]">
-                            AI generated
-                          </span>
+                          <span className="text-[10px] font-bold text-[#6aa9ff]">AI generated</span>
                         )}
                       </td>
                       <td>{item.owner}</td>
@@ -330,15 +298,8 @@ export default function AdminMockTestsPage() {
                       <td>{item.attemptCount}</td>
                       <td>{Math.round(item.averageScore)}%</td>
                       <td>
-                        <span
-                          className={
-                            item.openReportCount
-                              ? "font-bold text-[#e26767]"
-                              : ""
-                          }
-                        >
-                          {item.openReportCount} open / {item.reportCount}{" "}
-                          reports
+                        <span className={item.openReportCount ? 'font-bold text-[#e26767]' : ''}>
+                          {item.openReportCount} open / {item.reportCount} reports
                         </span>
                         <div className="mt-1 text-[10px] text-[#817c75]">
                           {item.flagCount} review flags
@@ -348,10 +309,7 @@ export default function AdminMockTestsPage() {
                         <AdminStatusBadge value={item.moderationStatus} />
                       </td>
                       <td>
-                        <Link
-                          to={ADMIN_MOCK_TESTS_ROUTES.detail(item.id)}
-                          className="admin-button"
-                        >
+                        <Link to={ADMIN_MOCK_TESTS_ROUTES.detail(item.id)} className="admin-button">
                           <Eye size={14} aria-hidden="true" /> View
                         </Link>
                       </td>

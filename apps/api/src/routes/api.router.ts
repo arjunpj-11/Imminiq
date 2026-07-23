@@ -75,10 +75,7 @@ import {
   createSupportTicketsComposition,
   createSupportTicketsRoutes,
 } from '../modules/user/support-tickets';
-import {
-  createTrackerComposition,
-  createTrackerRoutes,
-} from '../modules/user/trackers';
+import { createTrackerComposition, createTrackerRoutes } from '../modules/user/trackers';
 import {
   createTrackerCreationComposition,
   createTrackerCreationRoutes,
@@ -211,10 +208,7 @@ export const createApiRouter = () => {
   );
   router.use(
     API_ROUTE_PATHS.admin.supportTickets,
-    createAdminSupportTicketsRoutes(
-      adminSupportTicketsComposition.useCases,
-      requirePrivilegedMfa
-    )
+    createAdminSupportTicketsRoutes(adminSupportTicketsComposition.useCases, requirePrivilegedMfa)
   );
   router.use(
     API_ROUTE_PATHS.admin.settings,

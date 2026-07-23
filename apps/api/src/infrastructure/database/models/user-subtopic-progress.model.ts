@@ -1,6 +1,6 @@
 // apps/api/src/infrastructure/database/models/user-subtopic-progress.model.ts
 
-import type { Document} from 'mongoose';
+import type { Document } from 'mongoose';
 import mongoose, { Schema } from 'mongoose';
 
 export type SubtopicProgressStatus = 'locked' | 'available' | 'in_progress' | 'completed';

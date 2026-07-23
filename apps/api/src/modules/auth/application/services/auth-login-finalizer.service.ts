@@ -20,10 +20,7 @@ export class AuthLoginFinalizer implements IAuthLoginFinalizer {
     private readonly _userMapper: IAuthUserMapper
   ) {}
 
-  async finalize(
-    user: AuthUserEntity,
-    meta?: RequestMetaDTO
-  ): Promise<AuthLoginSuccessResultDTO> {
+  async finalize(user: AuthUserEntity, meta?: RequestMetaDTO): Promise<AuthLoginSuccessResultDTO> {
     const authenticatedUser =
       (await this._repository.cancelScheduledDeletionIfRecoverable(user.id)) ?? user;
     const redirectPath = await this._redirectResolver.resolveRedirectPath(

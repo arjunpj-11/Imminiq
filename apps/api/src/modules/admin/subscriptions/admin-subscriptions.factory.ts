@@ -21,10 +21,7 @@ export const createAdminSubscriptionsComposition = (
   const repository = new MongoAdminSubscriptionsRepository(resolveDefaultPlan);
   return {
     useCases: {
-      getOverview: new GetAdminSubscriptionOverviewUseCase(
-        repository,
-        mapper
-      ),
+      getOverview: new GetAdminSubscriptionOverviewUseCase(repository, mapper),
       updatePlan: new UpdateAdminPlanUseCase(repository, mapper),
     },
   };

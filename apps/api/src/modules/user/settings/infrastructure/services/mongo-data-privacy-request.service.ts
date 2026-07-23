@@ -25,10 +25,7 @@ export class DataPrivacyRequestService implements IDataPrivacyRequestService {
     return rows.map((row) => output(row as unknown as Record<string, unknown>));
   }
 
-  async submit(
-    userId: string,
-    input: DataPrivacyRequestInput
-  ) {
+  async submit(userId: string, input: DataPrivacyRequestInput) {
     const duplicate = await DataPrivacyRequest.findOne({
       userId,
       type: input.type,
@@ -57,7 +54,11 @@ export class DataPrivacyRequestService implements IDataPrivacyRequestService {
       { new: true }
     ).lean();
     if (!row) {
-      throw new ServiceError('conflict', 'PRIVACY_REQUEST_NOT_CANCELLABLE', 'Only pending requests can be cancelled');
+      throw new ServiceError(
+        'conflict',
+        'PRIVACY_REQUEST_NOT_CANCELLABLE',
+        'Only pending requests can be cancelled'
+      );
     }
     return output(row as unknown as Record<string, unknown>);
   }

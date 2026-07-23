@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Download, Eye, FileText } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Download, Eye, FileText } from 'lucide-react';
 import {
   AdminCardSkeleton,
   AdminEmpty,
@@ -12,42 +12,41 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
-} from "../../../../components/admin";
-import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
-import { toast } from "../../../../lib/toast";
-import { getUserFacingError } from "../../../../lib/user-facing-error";
+} from '../../../../components/admin';
+import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
+import { toast } from '../../../../lib/toast';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
 import {
   AdminDateRangeFilter,
   downloadCsv,
   downloadTablePdf,
   redactSensitiveMetadata,
   useAdminDateRange,
-} from "../../../../components/admin";
-import Modal from "../../../../components/admin/AdminModal";
-import { useAdminAuditLogs } from "../hooks/useAdminAuditLogs";
-import { useExportAdminAuditLogs } from "../hooks/useExportAdminAuditLogs";
-import type { AdminAuditLog } from "../types/admin-audit-logs.types";
+} from '../../../../components/admin';
+import Modal from '../../../../components/admin/AdminModal';
+import { useAdminAuditLogs } from '../hooks/useAdminAuditLogs';
+import { useExportAdminAuditLogs } from '../hooks/useExportAdminAuditLogs';
+import type { AdminAuditLog } from '../types/admin-audit-logs.types';
 
 export default function AdminAuditLogsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [search, setSearch] = useState(() => searchParams.get("q") || "");
+  const [search, setSearch] = useState(() => searchParams.get('q') || '');
   const [selected, setSelected] = useState<AdminAuditLog | null>(null);
   const filteredSearch = useDebouncedValue(search, 300);
-  const requestedPage = Number(searchParams.get("page") || 1);
-  const page =
-    Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const requestedPage = Number(searchParams.get('page') || 1);
+  const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
   const updateParams = (updates: Record<string, string | number | null>) => {
     const next = new URLSearchParams(searchParams);
     Object.entries(updates).forEach(([key, value]) => {
-      if (value === null || value === "" || value === 1) next.delete(key);
+      if (value === null || value === '' || value === 1) next.delete(key);
       else next.set(key, String(value));
     });
     setSearchParams(next, { replace: true });
   };
 
   useEffect(() => {
-    if ((searchParams.get("q") || "") === filteredSearch) return;
+    if ((searchParams.get('q') || '') === filteredSearch) return;
     updateParams({ q: filteredSearch || null, page: null });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredSearch]);
@@ -59,31 +58,31 @@ export default function AdminAuditLogsPage() {
     page,
     limit: 25,
   });
-  const downloadAuditReport = async (format: "csv" | "pdf") => {
+  const downloadAuditReport = async (format: 'csv' | 'pdf') => {
     try {
       const items = await exportLogs.mutateAsync({
         search: filteredSearch,
         ...dateRange.range,
       });
       const date = new Date().toISOString().slice(0, 10);
-      if (format === "csv") {
+      if (format === 'csv') {
         downloadCsv(`audit-logs-${date}.csv`, [
-          ["AUDIT LOG REPORT"],
-          ["Date range", `${dateRange.range.from} to ${dateRange.range.to}`],
-          ["Search", filteredSearch || "All events"],
-          ["Matching events", items.length],
+          ['AUDIT LOG REPORT'],
+          ['Date range', `${dateRange.range.from} to ${dateRange.range.to}`],
+          ['Search', filteredSearch || 'All events'],
+          ['Matching events', items.length],
           [],
           [
-            "Action",
-            "Actor",
-            "Actor ID",
-            "Target",
-            "Target ID",
-            "Module",
-            "Outcome",
-            "IP address",
-            "Timestamp",
-            "Metadata",
+            'Action',
+            'Actor',
+            'Actor ID',
+            'Target',
+            'Target ID',
+            'Module',
+            'Outcome',
+            'IP address',
+            'Timestamp',
+            'Metadata',
           ],
           ...items.map((item) => [
             item.action,
@@ -101,36 +100,35 @@ export default function AdminAuditLogsPage() {
       } else {
         await downloadTablePdf({
           filename: `audit-logs-${date}.pdf`,
-          title: "Audit Logs",
-          description:
-            "Administrative and security activity matching the selected filters.",
+          title: 'Audit Logs',
+          description: 'Administrative and security activity matching the selected filters.',
           filters: [
             `Date range: ${dateRange.range.from} to ${dateRange.range.to}`,
-            `Search: ${filteredSearch || "All events"}`,
+            `Search: ${filteredSearch || 'All events'}`,
             `Matching records: ${items.length}`,
           ],
           summary: [
-            { label: "Matching events", value: items.length },
-            { label: "Product activity", value: data?.stats?.activity ?? 0 },
-            { label: "Security events", value: data?.stats?.security ?? 0 },
+            { label: 'Matching events', value: items.length },
+            { label: 'Product activity', value: data?.stats?.activity ?? 0 },
+            { label: 'Security events', value: data?.stats?.security ?? 0 },
           ],
           columns: [
-            { header: "Action", key: "action", width: 92 },
-            { header: "Actor", key: "actor", width: 76 },
-            { header: "Target", key: "target", width: 72 },
-            { header: "Module", key: "module", width: 62 },
-            { header: "Outcome", key: "outcome", width: 52 },
-            { header: "IP address", key: "ipAddress", width: 65 },
-            { header: "Timestamp", key: "timestamp", width: 82 },
-            { header: "Recorded details", key: "metadata" },
+            { header: 'Action', key: 'action', width: 92 },
+            { header: 'Actor', key: 'actor', width: 76 },
+            { header: 'Target', key: 'target', width: 72 },
+            { header: 'Module', key: 'module', width: 62 },
+            { header: 'Outcome', key: 'outcome', width: 52 },
+            { header: 'IP address', key: 'ipAddress', width: 65 },
+            { header: 'Timestamp', key: 'timestamp', width: 82 },
+            { header: 'Recorded details', key: 'metadata' },
           ],
           rows: items.map((item) => ({
             action: item.action,
-            actor: `${item.actor}${item.actorId ? `\n${item.actorId}` : ""}`,
-            target: `${item.target ?? "-"}${item.targetId ? `\n${item.targetId}` : ""}`,
+            actor: `${item.actor}${item.actorId ? `\n${item.actorId}` : ''}`,
+            target: `${item.target ?? '-'}${item.targetId ? `\n${item.targetId}` : ''}`,
             module: item.module,
             outcome: item.outcome,
-            ipAddress: item.ipAddress || "-",
+            ipAddress: item.ipAddress || '-',
             timestamp: new Date(item.createdAt).toLocaleString(),
             metadata: JSON.stringify(redactSensitiveMetadata(item.metadata)),
           })),
@@ -138,10 +136,10 @@ export default function AdminAuditLogsPage() {
       }
       toast.success(
         `Audit log ${format.toUpperCase()} downloaded`,
-        `${items.length} matching events exported.`,
+        `${items.length} matching events exported.`
       );
     } catch (error) {
-      toast.error("Audit export failed", getUserFacingError(error));
+      toast.error('Audit export failed', getUserFacingError(error));
     }
   };
   return (
@@ -154,18 +152,18 @@ export default function AdminAuditLogsPage() {
             <button
               className="admin-button inline-flex items-center gap-2"
               disabled={exportLogs.isPending}
-              onClick={() => void downloadAuditReport("csv")}
+              onClick={() => void downloadAuditReport('csv')}
             >
               <Download size={16} />
-              {exportLogs.isPending ? "Preparing…" : "Download CSV"}
+              {exportLogs.isPending ? 'Preparing…' : 'Download CSV'}
             </button>
             <button
               className="admin-primary-button inline-flex items-center gap-2"
               disabled={exportLogs.isPending}
-              onClick={() => void downloadAuditReport("pdf")}
+              onClick={() => void downloadAuditReport('pdf')}
             >
               <FileText size={16} />
-              {exportLogs.isPending ? "Preparing…" : "Download PDF"}
+              {exportLogs.isPending ? 'Preparing…' : 'Download PDF'}
             </button>
           </div>
         }
@@ -177,18 +175,18 @@ export default function AdminAuditLogsPage() {
       ) : (
         <AdminMetricGrid
           metrics={[
-          { label: "Recorded events", value: data?.pagination.total ?? 0 },
-          {
-            label: "Product activity",
-            value: data?.stats?.activity ?? 0,
-            tone: "info",
-          },
-          {
-            label: "Security events",
-            value: data?.stats?.security ?? 0,
-            tone: "warning",
-          },
-        ]}
+            { label: 'Recorded events', value: data?.pagination.total ?? 0 },
+            {
+              label: 'Product activity',
+              value: data?.stats?.activity ?? 0,
+              tone: 'info',
+            },
+            {
+              label: 'Security events',
+              value: data?.stats?.security ?? 0,
+              tone: 'warning',
+            },
+          ]}
         />
       )}
       <AdminPanel
@@ -230,9 +228,7 @@ export default function AdminAuditLogsPage() {
           <>
             <div className="admin-table-scroll overflow-x-auto">
               <table className="admin-table w-full min-w-245 text-left text-sm">
-                <caption className="sr-only">
-                  Administrative audit event stream
-                </caption>
+                <caption className="sr-only">Administrative audit event stream</caption>
                 <thead>
                   <tr>
                     <th scope="col">Action</th>
@@ -249,7 +245,7 @@ export default function AdminAuditLogsPage() {
                     <tr key={item.id}>
                       <td className="font-semibold">{item.action}</td>
                       <td>{item.actor}</td>
-                      <td>{item.target ?? "—"}</td>
+                      <td>{item.target ?? '—'}</td>
                       <td>{item.module}</td>
                       <td>
                         <AdminStatusBadge value={item.outcome} />
@@ -278,19 +274,11 @@ export default function AdminAuditLogsPage() {
           </>
         )}
       </AdminPanel>
-      {selected && (
-        <AuditDetail log={selected} close={() => setSelected(null)} />
-      )}
+      {selected && <AuditDetail log={selected} close={() => setSelected(null)} />}
     </main>
   );
 }
-function AuditDetail({
-  log,
-  close,
-}: {
-  log: AdminAuditLog;
-  close: () => void;
-}) {
+function AuditDetail({ log, close }: { log: AdminAuditLog; close: () => void }) {
   const safeMetadata = redactSensitiveMetadata(log.metadata);
   return (
     <Modal
@@ -311,19 +299,16 @@ function AuditDetail({
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Detail
           label="Administrator / actor"
-          value={`${log.actor}${log.actorId ? ` (${log.actorId})` : ""}`}
+          value={`${log.actor}${log.actorId ? ` (${log.actorId})` : ''}`}
         />
         <Detail
           label="Affected target"
-          value={`${log.target ?? "None"}${log.targetId ? ` (${log.targetId})` : ""}`}
+          value={`${log.target ?? 'None'}${log.targetId ? ` (${log.targetId})` : ''}`}
         />
         <Detail label="Module" value={log.module} />
         <Detail label="Outcome" value={log.outcome} />
-        <Detail label="IP address" value={log.ipAddress || "Not recorded"} />
-        <Detail
-          label="Timestamp"
-          value={new Date(log.createdAt).toLocaleString()}
-        />
+        <Detail label="IP address" value={log.ipAddress || 'Not recorded'} />
+        <Detail label="Timestamp" value={new Date(log.createdAt).toLocaleString()} />
         <div className="sm:col-span-2">
           <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-[#817c75]">
             Recorded change metadata
@@ -345,9 +330,7 @@ function AuditDetail({
 function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div className="admin-info-tile p-4">
-      <div className="text-[10px] font-bold uppercase tracking-wide text-[#817c75]">
-        {label}
-      </div>
+      <div className="text-[10px] font-bold uppercase tracking-wide text-[#817c75]">{label}</div>
       <div className="mt-2 wrap-break-word text-sm font-semibold">{value}</div>
     </div>
   );

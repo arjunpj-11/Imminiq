@@ -26,7 +26,8 @@ export class GenerateRoadmapUseCase implements IGenerateRoadmapUseCase {
     userId: string,
     payload: GenerateRoadmapPayloadDTO
   ): Promise<GenerateRoadmapResultDTO> {
-    const activeRoadmapJob = await this._trackerCreationRepository.findActiveRoadmapJobForUser(userId);
+    const activeRoadmapJob =
+      await this._trackerCreationRepository.findActiveRoadmapJobForUser(userId);
 
     if (activeRoadmapJob) {
       throw TrackerCreationApplicationError.roadmapJobAlreadyActive();

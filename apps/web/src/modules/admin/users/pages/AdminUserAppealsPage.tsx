@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { ArrowLeft, Eye, ShieldCheck } from "lucide-react";
-import { Link } from "react-router-dom";
-import Modal from "../../../../components/admin/AdminModal";
-import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
+import { useState } from 'react';
+import { ArrowLeft, Eye, ShieldCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import Modal from '../../../../components/admin/AdminModal';
+import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import {
   AdminCardSkeleton,
   AdminEmpty,
@@ -14,23 +14,18 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
-} from "../../../../components/admin";
-import { ADMIN_USERS_ROUTES } from "../constants/admin-users.constants";
-import { useAdminUserAppeals } from "../hooks/useAdminUserAppeals";
-import { useUpdateAdminUserAppeal } from "../hooks/useUpdateAdminUserAppeal";
-import type {
-  AdminUserAppeal,
-  AdminUserAppealUpdatePayload,
-} from "../types/admin-users.types";
-import { AdminPrivacyRequestsPanel } from "../components/AdminPrivacyRequestsPanel";
-import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
+} from '../../../../components/admin';
+import { ADMIN_USERS_ROUTES } from '../constants/admin-users.constants';
+import { useAdminUserAppeals } from '../hooks/useAdminUserAppeals';
+import { useUpdateAdminUserAppeal } from '../hooks/useUpdateAdminUserAppeal';
+import type { AdminUserAppeal, AdminUserAppealUpdatePayload } from '../types/admin-users.types';
+import { AdminPrivacyRequestsPanel } from '../components/AdminPrivacyRequestsPanel';
+import AdminActionPasswordField from '../../../../components/admin/AdminActionPasswordField';
+import { isAdminActionPasswordReady } from '../../../../lib/admin/admin-action-password';
 
 export default function AdminUserAppealsPage() {
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<"all" | AdminUserAppeal["status"]>(
-    "pending",
-  );
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState<'all' | AdminUserAppeal['status']>('pending');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<AdminUserAppeal | null>(null);
   const query = useAdminUserAppeals({
@@ -59,19 +54,19 @@ export default function AdminUserAppealsPage() {
       ) : (
         <AdminMetricGrid
           metrics={[
-          { label: "Pending", value: data?.stats.pending ?? 0, tone: "error" },
-          {
-            label: "Under review",
-            value: data?.stats.underReview ?? 0,
-            tone: "warning",
-          },
-          {
-            label: "Approved",
-            value: data?.stats.approved ?? 0,
-            tone: "success",
-          },
-          { label: "Rejected", value: data?.stats.rejected ?? 0, tone: "info" },
-        ]}
+            { label: 'Pending', value: data?.stats.pending ?? 0, tone: 'error' },
+            {
+              label: 'Under review',
+              value: data?.stats.underReview ?? 0,
+              tone: 'warning',
+            },
+            {
+              label: 'Approved',
+              value: data?.stats.approved ?? 0,
+              tone: 'success',
+            },
+            { label: 'Rejected', value: data?.stats.rejected ?? 0, tone: 'info' },
+          ]}
         />
       )}
       <AdminPanel
@@ -109,10 +104,7 @@ export default function AdminUserAppealsPage() {
             <AdminTableSkeleton columns={7} rows={8} label="Loading account appeals" />
           </div>
         ) : query.isError ? (
-          <AdminError
-            error={query.error}
-            onRetry={() => void query.refetch()}
-          />
+          <AdminError error={query.error} onRetry={() => void query.refetch()} />
         ) : !data?.items.length ? (
           <AdminEmpty>No appeals match this view.</AdminEmpty>
         ) : (
@@ -135,9 +127,7 @@ export default function AdminUserAppealsPage() {
                   {data.items.map((appeal) => (
                     <tr key={appeal.id}>
                       <td>
-                        <div className="font-mono font-semibold">
-                          {appeal.caseId}
-                        </div>
+                        <div className="font-mono font-semibold">{appeal.caseId}</div>
                         <div className="max-w-70 truncate text-xs text-[#817c75]">
                           {appeal.appealReason}
                         </div>
@@ -149,25 +139,22 @@ export default function AdminUserAppealsPage() {
                         >
                           {appeal.userName}
                         </Link>
-                        <div className="text-xs text-[#817c75]">
-                          {appeal.identifier}
-                        </div>
+                        <div className="text-xs text-[#817c75]">{appeal.identifier}</div>
                       </td>
                       <td>{new Date(appeal.createdAt).toLocaleString()}</td>
                       <td className="max-w-70 truncate">
-                        {appeal.originalReason || "No stored explanation"}
+                        {appeal.originalReason || 'No stored explanation'}
                       </td>
                       <td>
                         <AdminStatusBadge value={appeal.status} />
                       </td>
-                      <td>{appeal.reviewedBy || "—"}</td>
+                      <td>{appeal.reviewedBy || '—'}</td>
                       <td>
                         <button
                           className="admin-button inline-flex items-center gap-2"
                           onClick={() => setSelected(appeal)}
                         >
-                          <Eye size={14} />{" "}
-                          {appeal.status === "pending" ? "Claim" : "Review"}
+                          <Eye size={14} /> {appeal.status === 'pending' ? 'Claim' : 'Review'}
                         </button>
                       </td>
                     </tr>
@@ -185,7 +172,7 @@ export default function AdminUserAppealsPage() {
         )}
       </AdminPanel>
       <AppealDecisionDialog
-        key={selected?.id ?? "closed"}
+        key={selected?.id ?? 'closed'}
         appeal={selected}
         onClose={() => setSelected(null)}
       />
@@ -202,12 +189,12 @@ function AppealDecisionDialog({
   onClose: () => void;
 }) {
   const update = useUpdateAdminUserAppeal();
-  const [status, setStatus] = useState<AdminUserAppealUpdatePayload["status"]>(
-    appeal?.status === "pending" ? "under_review" : "approved",
+  const [status, setStatus] = useState<AdminUserAppealUpdatePayload['status']>(
+    appeal?.status === 'pending' ? 'under_review' : 'approved'
   );
-  const [reviewNote, setReviewNote] = useState("");
+  const [reviewNote, setReviewNote] = useState('');
   const [notifyEmail, setNotifyEmail] = useState(true);
-  const [actionPassword, setActionPassword] = useState("");
+  const [actionPassword, setActionPassword] = useState('');
   const submit = () => {
     if (!appeal || reviewNote.trim().length < 10) return;
     update.mutate(
@@ -220,7 +207,7 @@ function AppealDecisionDialog({
           actionPassword,
         },
       },
-      { onSuccess: onClose },
+      { onSuccess: onClose }
     );
   };
   return (
@@ -234,16 +221,13 @@ function AppealDecisionDialog({
       <div className="flex gap-3">
         <ShieldCheck className="text-[#e8816a]" />
         <div>
-          <h2 className="font-editorial text-2xl font-bold">
-            Appeal {appeal?.caseId}
-          </h2>
+          <h2 className="font-editorial text-2xl font-bold">Appeal {appeal?.caseId}</h2>
           <p className="text-sm text-[#aaa59d]">{appeal?.userName}</p>
         </div>
       </div>
       <section className="mt-5 space-y-4 rounded-xl border border-white/10 bg-[#24211e] p-5 text-sm leading-6">
         <div>
-          <strong>Original restriction:</strong>{" "}
-          {appeal?.originalReason || "No stored explanation"}
+          <strong>Original restriction:</strong> {appeal?.originalReason || 'No stored explanation'}
         </div>
         <div>
           <strong>User appeal:</strong> {appeal?.appealReason}
@@ -251,10 +235,7 @@ function AppealDecisionDialog({
       </section>
       <label className="admin-field mt-5 block">
         <span>Decision</span>
-        <select
-          value={status}
-          onChange={(event) => setStatus(event.target.value as typeof status)}
-        >
+        <select value={status} onChange={(event) => setStatus(event.target.value as typeof status)}>
           <option value="under_review">Claim and start review</option>
           <option value="approved">Approve and restore account</option>
           <option value="rejected">Reject appeal</option>
@@ -275,7 +256,7 @@ function AppealDecisionDialog({
           type="checkbox"
           checked={notifyEmail}
           onChange={(event) => setNotifyEmail(event.target.checked)}
-        />{" "}
+        />{' '}
         Also send the decision by email
       </label>
       <AdminActionPasswordField
@@ -296,7 +277,7 @@ function AppealDecisionDialog({
           }
           onClick={submit}
         >
-          {update.isPending ? "Saving…" : "Save decision"}
+          {update.isPending ? 'Saving…' : 'Save decision'}
         </button>
       </div>
     </Modal>

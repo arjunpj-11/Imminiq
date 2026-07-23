@@ -13,9 +13,7 @@ export interface IUpdateAdminMockTestLifecycleUseCase {
   ): Promise<AdminMockTestLifecycleResultDTO>;
 }
 
-export class UpdateAdminMockTestLifecycleUseCase
-  implements IUpdateAdminMockTestLifecycleUseCase
-{
+export class UpdateAdminMockTestLifecycleUseCase implements IUpdateAdminMockTestLifecycleUseCase {
   constructor(
     private readonly _repository: Pick<IAdminMockTestsRepository, 'updateLifecycle'>,
     private readonly _emailProvider: IAdminMockTestEmailProvider

@@ -11,21 +11,37 @@ export class SettingsController {
     try {
       const data = await this._useCases.dataPrivacyRequests.list(getAuthUser(req).userId);
       res.json(new ApiResponse('Privacy requests fetched', data));
-    } catch (error) { next(error); }
+    } catch (error) {
+      next(error);
+    }
   };
 
   submitPrivacyRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this._useCases.dataPrivacyRequests.submit(getAuthUser(req).userId, req.body);
+      const data = await this._useCases.dataPrivacyRequests.submit(
+        getAuthUser(req).userId,
+        req.body
+      );
       res.status(201).json(new ApiResponse('Privacy request submitted', data));
-    } catch (error) { next(error); }
+    } catch (error) {
+      next(error);
+    }
   };
 
-  cancelPrivacyRequest = async (req: Request<{ requestId: string }>, res: Response, next: NextFunction) => {
+  cancelPrivacyRequest = async (
+    req: Request<{ requestId: string }>,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      const data = await this._useCases.dataPrivacyRequests.cancel(getAuthUser(req).userId, req.params.requestId);
+      const data = await this._useCases.dataPrivacyRequests.cancel(
+        getAuthUser(req).userId,
+        req.params.requestId
+      );
       res.json(new ApiResponse('Privacy request cancelled', data));
-    } catch (error) { next(error); }
+    } catch (error) {
+      next(error);
+    }
   };
 
   getAllSettings = async (req: Request, res: Response, next: NextFunction) => {

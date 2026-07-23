@@ -81,7 +81,10 @@ export function MicButton({ isListening, isSupported, onToggle, size = 'md' }: I
     >
       {isListening && (
         <>
-          <span aria-hidden="true" className="absolute inset-1 animate-ping rounded-full bg-[color-mix(in_srgb,var(--danger)_10%,transparent)]" />
+          <span
+            aria-hidden="true"
+            className="absolute inset-1 animate-ping rounded-full bg-[color-mix(in_srgb,var(--danger)_10%,transparent)]"
+          />
 
           <span
             aria-hidden="true"

@@ -102,5 +102,6 @@ export class TrackerCreationApplicationError extends TrackerCreationDomainError 
   }
 }
 
-export const isTrackerCreationApplicationError = (error: unknown): error is TrackerCreationApplicationError =>
-  error instanceof TrackerCreationApplicationError;
+export const isTrackerCreationApplicationError = (
+  error: unknown
+): error is TrackerCreationApplicationError => error instanceof TrackerCreationApplicationError;

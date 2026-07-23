@@ -141,23 +141,22 @@ export default function AdaptiveLearningPage() {
           eyebrow="Adaptive learning"
           title={
             <>
-              Your learning{' '}
-              <span className="text-(--brand-500)">navigator</span>
+              Your learning <span className="text-(--brand-500)">navigator</span>
             </>
           }
           description="Ask what to study next, discover the best tracker to continue, or choose the assessment most likely to expose your current knowledge gaps."
           aside={
             <div>
-            <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-(--text-muted)">
-              Adaptive level
+              <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-(--text-muted)">
+                Adaptive level
+              </div>
+              <div className="mt-3 font-ui text-[28px] font-extrabold leading-none capitalize text-(--brand-500)">
+                {data?.profile.level ?? 'Loading'}
+              </div>
+              <div className="mt-2 text-[12px] text-(--text-secondary)">
+                {data?.profile.masteryScore ?? 0}% mastery
+              </div>
             </div>
-            <div className="mt-3 font-ui text-[28px] font-extrabold leading-none capitalize text-(--brand-500)">
-              {data?.profile.level ?? 'Loading'}
-            </div>
-            <div className="mt-2 text-[12px] text-(--text-secondary)">
-              {data?.profile.masteryScore ?? 0}% mastery
-            </div>
-          </div>
           }
         />
 
@@ -219,8 +218,8 @@ export default function AdaptiveLearningPage() {
                     {advisorAction.type === 'create_tracker'
                       ? `Generate a ${advisorAction.level} tracker for ${advisorAction.topic}.`
                       : advisorAction.type === 'browse_community_trackers'
-                      ? `Browse community trackers matching ${advisorAction.topic}.`
-                      : `Generate a ${advisorAction.difficulty} ${advisorAction.questionCount}-question mock test for ${advisorAction.topic}.`}
+                        ? `Browse community trackers matching ${advisorAction.topic}.`
+                        : `Generate a ${advisorAction.difficulty} ${advisorAction.questionCount}-question mock test for ${advisorAction.topic}.`}
                   </p>
                   <button
                     type="button"
@@ -295,9 +294,7 @@ export default function AdaptiveLearningPage() {
                     disabled={generate.isPending}
                     onClick={() =>
                       activeMockTestGeneration.data
-                        ? navigate(
-                            ROUTES.mockTestGenerating(activeMockTestGeneration.data.jobId)
-                          )
+                        ? navigate(ROUTES.mockTestGenerating(activeMockTestGeneration.data.jobId))
                         : generateExam()
                     }
                     className="mt-4 w-full rounded-xl bg-(--brand-500) py-3 text-[12px] font-bold text-white disabled:opacity-60"
@@ -305,8 +302,8 @@ export default function AdaptiveLearningPage() {
                     {activeMockTestGeneration.data
                       ? 'View generating test'
                       : generate.isPending
-                      ? 'Starting background job…'
-                      : 'Generate adaptive exam'}
+                        ? 'Starting background job…'
+                        : 'Generate adaptive exam'}
                   </button>
                   {generate.isError ? (
                     <p className="mt-3 text-[11.5px] font-semibold leading-5 text-red-600">

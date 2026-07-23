@@ -17,9 +17,7 @@ export type TrackerClanChallengePromptInput = {
 
 const clean = (value: string, limit: number) => value.trim().slice(0, limit);
 
-export const buildTrackerClanChallengePrompt = (
-  input: TrackerClanChallengePromptInput
-): string => {
+export const buildTrackerClanChallengePrompt = (input: TrackerClanChallengePromptInput): string => {
   const reference = {
     trackerTitle: clean(input.trackerTitle, 160),
     trackerDescription: clean(input.trackerDescription, 600),

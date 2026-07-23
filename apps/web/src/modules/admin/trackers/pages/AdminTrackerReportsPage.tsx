@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { ArrowLeft, Eye, ShieldAlert } from "lucide-react";
-import { Link } from "react-router-dom";
-import Modal from "../../../../components/admin/AdminModal";
+import { useState } from 'react';
+import { ArrowLeft, Eye, ShieldAlert } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import Modal from '../../../../components/admin/AdminModal';
 import {
   AdminContentAppealsPanel,
   AdminCardSkeleton,
@@ -13,21 +13,21 @@ import {
   AdminPaginationControls,
   AdminPanel,
   AdminStatusBadge,
-} from "../../../../components/admin";
-import { ADMIN_TRACKERS_ROUTES } from "../constants/admin-trackers.constants";
-import { useAdminTrackerReports } from "../hooks/useAdminTrackerReports";
-import { useUpdateAdminTrackerReport } from "../hooks/useUpdateAdminTrackerReport";
+} from '../../../../components/admin';
+import { ADMIN_TRACKERS_ROUTES } from '../constants/admin-trackers.constants';
+import { useAdminTrackerReports } from '../hooks/useAdminTrackerReports';
+import { useUpdateAdminTrackerReport } from '../hooks/useUpdateAdminTrackerReport';
 import type {
   AdminTrackerReport,
   AdminTrackerReportUpdatePayload,
-} from "../types/admin-trackers.types";
-import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
+} from '../types/admin-trackers.types';
+import AdminActionPasswordField from '../../../../components/admin/AdminActionPasswordField';
+import { isAdminActionPasswordReady } from '../../../../lib/admin/admin-action-password';
 
-const label = (value: string) => value.replaceAll("_", " ");
+const label = (value: string) => value.replaceAll('_', ' ');
 
 export default function AdminTrackerReportsPage() {
-  const [status, setStatus] = useState("open");
+  const [status, setStatus] = useState('open');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<AdminTrackerReport | null>(null);
   const { data, isLoading, isPlaceholderData, isError, error, refetch } = useAdminTrackerReports({
@@ -53,23 +53,23 @@ export default function AdminTrackerReportsPage() {
       ) : (
         <AdminMetricGrid
           metrics={[
-          { label: "Open", value: data?.stats?.open ?? 0, tone: "error" },
-          {
-            label: "Reviewing",
-            value: data?.stats?.reviewing ?? 0,
-            tone: "warning",
-          },
-          {
-            label: "Resolved",
-            value: data?.stats?.resolved ?? 0,
-            tone: "success",
-          },
-          {
-            label: "Dismissed",
-            value: data?.stats?.dismissed ?? 0,
-            tone: "info",
-          },
-        ]}
+            { label: 'Open', value: data?.stats?.open ?? 0, tone: 'error' },
+            {
+              label: 'Reviewing',
+              value: data?.stats?.reviewing ?? 0,
+              tone: 'warning',
+            },
+            {
+              label: 'Resolved',
+              value: data?.stats?.resolved ?? 0,
+              tone: 'success',
+            },
+            {
+              label: 'Dismissed',
+              value: data?.stats?.dismissed ?? 0,
+              tone: 'info',
+            },
+          ]}
         />
       )}
       <AdminPanel
@@ -104,9 +104,7 @@ export default function AdminTrackerReportsPage() {
           <>
             <div className="admin-table-scroll overflow-x-auto">
               <table className="admin-table w-full min-w-225 text-left text-sm">
-                <caption className="sr-only">
-                  Tracker moderation reports
-                </caption>
+                <caption className="sr-only">Tracker moderation reports</caption>
                 <thead>
                   <tr>
                     <th scope="col">Reported</th>
@@ -122,12 +120,8 @@ export default function AdminTrackerReportsPage() {
                     <tr key={report.id}>
                       <td>{new Date(report.createdAt).toLocaleDateString()}</td>
                       <td>
-                        <div className="font-semibold">
-                          {report.trackerTitle}
-                        </div>
-                        <div className="text-xs text-[#817c75]">
-                          Owner: {report.trackerOwner}
-                        </div>
+                        <div className="font-semibold">{report.trackerTitle}</div>
+                        <div className="text-xs text-[#817c75]">Owner: {report.trackerOwner}</div>
                       </td>
                       <td>{report.reporter}</td>
                       <td className="capitalize">{label(report.reason)}</td>
@@ -157,7 +151,7 @@ export default function AdminTrackerReportsPage() {
         )}
       </AdminPanel>
       <ReportDialog
-        key={selected?.id ?? "closed"}
+        key={selected?.id ?? 'closed'}
         report={selected}
         onClose={() => setSelected(null)}
       />
@@ -174,10 +168,9 @@ function ReportDialog({
   onClose: () => void;
 }) {
   const update = useUpdateAdminTrackerReport();
-  const [status, setStatus] =
-    useState<AdminTrackerReportUpdatePayload["status"]>("reviewing");
-  const [resolutionNote, setResolutionNote] = useState("");
-  const [actionPassword, setActionPassword] = useState("");
+  const [status, setStatus] = useState<AdminTrackerReportUpdatePayload['status']>('reviewing');
+  const [resolutionNote, setResolutionNote] = useState('');
+  const [actionPassword, setActionPassword] = useState('');
   const submit = () => {
     if (!report || resolutionNote.trim().length < 10) return;
     update.mutate(
@@ -189,7 +182,7 @@ function ReportDialog({
           actionPassword,
         },
       },
-      { onSuccess: onClose },
+      { onSuccess: onClose }
     );
   };
   return (
@@ -208,11 +201,9 @@ function ReportDialog({
         </div>
       </div>
       <div className="mt-5 rounded-xl border border-white/10 bg-[#24211e] p-4">
-        <div className="text-xs uppercase text-[#e8816a]">
-          {label(report?.reason ?? "")}
-        </div>
+        <div className="text-xs uppercase text-[#e8816a]">{label(report?.reason ?? '')}</div>
         <p className="mt-2 text-sm leading-6 text-[#aaa59d]">
-          {report?.details || "No additional details provided."}
+          {report?.details || 'No additional details provided.'}
         </p>
       </div>
       <label className="admin-field mt-5 block">
@@ -220,9 +211,7 @@ function ReportDialog({
         <select
           value={status}
           onChange={(event) =>
-            setStatus(
-              event.target.value as AdminTrackerReportUpdatePayload["status"],
-            )
+            setStatus(event.target.value as AdminTrackerReportUpdatePayload['status'])
           }
         >
           <option value="reviewing">Start reviewing</option>
@@ -231,9 +220,8 @@ function ReportDialog({
         </select>
       </label>
       <p className="mt-2 text-xs leading-5 text-[#817c75]">
-        To suspend or delete the content, open the tracker and use its moderated
-        lifecycle controls. That action resolves linked open reports
-        automatically.
+        To suspend or delete the content, open the tracker and use its moderated lifecycle controls.
+        That action resolves linked open reports automatically.
       </p>
       <label className="admin-field mt-4 block">
         <span>Note sent to reporter</span>
@@ -251,10 +239,7 @@ function ReportDialog({
       />
       <div className="mt-6 flex justify-between gap-2">
         {report && (
-          <Link
-            to={ADMIN_TRACKERS_ROUTES.detail(report.trackerId)}
-            className="admin-button"
-          >
+          <Link to={ADMIN_TRACKERS_ROUTES.detail(report.trackerId)} className="admin-button">
             Open tracker
           </Link>
         )}
@@ -271,7 +256,7 @@ function ReportDialog({
             }
             onClick={submit}
           >
-            {update.isPending ? "Saving…" : "Save decision"}
+            {update.isPending ? 'Saving…' : 'Save decision'}
           </button>
         </div>
       </div>

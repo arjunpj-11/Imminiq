@@ -29,7 +29,11 @@ export const createSubscriptionsComposition = (): SubscriptionsComposition => {
   return {
     useCases: {
       listPlans: new ListSubscriptionPlansUseCase(mongoSubscriptionRepository, mapper),
-      getCurrent: new GetCurrentSubscriptionUseCase(mongoSubscriptionRepository, mapper, systemClock),
+      getCurrent: new GetCurrentSubscriptionUseCase(
+        mongoSubscriptionRepository,
+        mapper,
+        systemClock
+      ),
       createOrder: new CreateSubscriptionOrderUseCase(
         mongoSubscriptionRepository,
         razorpaySubscriptionPaymentGateway,

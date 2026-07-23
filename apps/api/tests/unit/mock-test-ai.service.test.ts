@@ -30,13 +30,11 @@ const createResponse = (count: number) =>
 describe('mock test AI generation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.economyAIStructuredWithFallback.mockImplementation(
-      async (messages, parseResponse) => {
-        const prompt = messages[0].content as string;
-        const count = Number(prompt.match(/Number of questions: (\d+)/)?.[1]);
-        return parseResponse(createResponse(count));
-      }
-    );
+    mocks.economyAIStructuredWithFallback.mockImplementation(async (messages, parseResponse) => {
+      const prompt = messages[0].content as string;
+      const count = Number(prompt.match(/Number of questions: (\d+)/)?.[1]);
+      return parseResponse(createResponse(count));
+    });
   });
 
   it('batches a large regular mock test and merges every validated question', async () => {
@@ -100,7 +98,12 @@ describe('mock test AI generation', () => {
                 outputType: 'number',
                 starterCode: 'function answer(value) { return value; }',
                 templates: {
-                  javascript: '', typescript: '', python: '', java: '', cpp: '', c: '',
+                  javascript: '',
+                  typescript: '',
+                  python: '',
+                  java: '',
+                  cpp: '',
+                  c: '',
                 },
                 testCases: [{ input: [1], expectedOutput: 1 }],
               },

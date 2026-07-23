@@ -1,5 +1,5 @@
-import api from "../axios";
-import type { ApiEnvelope } from "../api.types";
+import api from '../axios';
+import type { ApiEnvelope } from '../api.types';
 
 type ExportQueryValue = string | number | boolean | null | undefined;
 
@@ -43,7 +43,7 @@ export async function fetchAllAdminItems<TData, TItem>({
 
     if (page > maxPages) {
       throw new Error(
-        `The export contains more than ${maxPages * pageSize} records. Use a narrower filter before exporting.`,
+        `The export contains more than ${maxPages * pageSize} records. Use a narrower filter before exporting.`
       );
     }
   }

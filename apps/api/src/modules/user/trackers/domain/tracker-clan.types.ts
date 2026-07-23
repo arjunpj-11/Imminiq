@@ -105,7 +105,14 @@ export type TrackerClanChallenge = {
   pushBackPowers: number;
   checkpointDecisionRequired: boolean;
   lastAnswerCorrect: boolean | null;
-  questions: Array<{ id: string; prompt: string; options: string[]; topicTitle: string; points: number; isCheckpoint: boolean }>;
+  questions: Array<{
+    id: string;
+    prompt: string;
+    options: string[];
+    topicTitle: string;
+    points: number;
+    isCheckpoint: boolean;
+  }>;
 };
 
 export type TrackerClanChallengeEvent = {

@@ -17,10 +17,5 @@ export interface INotificationCommandRepository {
   createNotification(input: CreateNotificationInput): Promise<void>;
   markNotificationRead(userId: string, notificationId: string): Promise<boolean>;
   markAllNotificationsRead(userId: string): Promise<number>;
-  voteForPoll(
-    userId: string,
-    notificationId: string,
-    optionIndex: number
-  ): Promise<VotePollResult>;
+  voteForPoll(userId: string, notificationId: string, optionIndex: number): Promise<VotePollResult>;
 }
-

@@ -61,7 +61,11 @@ export class FriendsApplicationError extends FriendsDomainError {
   }
 
   static requestNotFound(): FriendsApplicationError {
-    return new FriendsApplicationError('missing-resource', 'FRIEND_REQUEST_NOT_FOUND', 'Friend invite not found');
+    return new FriendsApplicationError(
+      'missing-resource',
+      'FRIEND_REQUEST_NOT_FOUND',
+      'Friend invite not found'
+    );
   }
 
   static requestForbidden(): FriendsApplicationError {
@@ -81,11 +85,19 @@ export class FriendsApplicationError extends FriendsDomainError {
   }
 
   static friendshipNotFound(): FriendsApplicationError {
-    return new FriendsApplicationError('missing-resource', 'FRIENDSHIP_NOT_FOUND', 'Friendship not found');
+    return new FriendsApplicationError(
+      'missing-resource',
+      'FRIENDSHIP_NOT_FOUND',
+      'Friendship not found'
+    );
   }
 
   static operationFailed(): FriendsApplicationError {
-    return new FriendsApplicationError('internal', 'FRIENDS_OPERATION_FAILED', 'Friends operation failed');
+    return new FriendsApplicationError(
+      'internal',
+      'FRIENDS_OPERATION_FAILED',
+      'Friends operation failed'
+    );
   }
 }
 

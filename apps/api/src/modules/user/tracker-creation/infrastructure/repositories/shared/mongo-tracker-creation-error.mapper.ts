@@ -9,7 +9,10 @@ export class MongoTrackerCreationErrorMapper {
       return null;
     }
 
-    return new TrackerCreationDomainError('DUPLICATE_TRACKER_CREATION_RECORD', 'Duplicate tracker creation record');
+    return new TrackerCreationDomainError(
+      'DUPLICATE_TRACKER_CREATION_RECORD',
+      'Duplicate tracker creation record'
+    );
   }
 
   private static isDuplicateKeyError(error: unknown): error is MongoDuplicateKeyError {

@@ -36,8 +36,18 @@ describe('tracker guild Socket.IO chat', () => {
 
   it('authenticates a guild member, joins the room, persists, and broadcasts a message', async () => {
     const [owner, member] = await User.create([
-      { fullName: 'Socket Owner', username: 'socket-owner', passwordHash: null, emailVerified: true },
-      { fullName: 'Socket Member', username: 'socket-member', passwordHash: null, emailVerified: true },
+      {
+        fullName: 'Socket Owner',
+        username: 'socket-owner',
+        passwordHash: null,
+        emailVerified: true,
+      },
+      {
+        fullName: 'Socket Member',
+        username: 'socket-member',
+        passwordHash: null,
+        emailVerified: true,
+      },
     ]);
     const tracker = await Tracker.create({
       ownerId: owner._id,

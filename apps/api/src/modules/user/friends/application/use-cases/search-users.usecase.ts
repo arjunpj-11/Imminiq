@@ -3,10 +3,7 @@ import type { FriendUsersPageViewDTO, SearchUsersPayloadDTO } from '../friends.d
 import type { IFriendsMapper } from '../friends.mapper';
 
 export interface ISearchUsersUseCase {
-  execute(
-    viewerUserId: string,
-    payload: SearchUsersPayloadDTO
-  ): Promise<FriendUsersPageViewDTO>;
+  execute(viewerUserId: string, payload: SearchUsersPayloadDTO): Promise<FriendUsersPageViewDTO>;
 }
 
 export class SearchUsersUseCase implements ISearchUsersUseCase {

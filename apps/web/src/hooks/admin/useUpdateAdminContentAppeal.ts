@@ -11,11 +11,16 @@ export const useUpdateAdminContentAppeal = (kind: AdminContentKind) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, decisionStatus, decisionNote, actionPassword }: AdminContentAppealDecision) => {
+    mutationFn: async ({
+      id,
+      decisionStatus,
+      decisionNote,
+      actionPassword,
+    }: AdminContentAppealDecision) => {
       await api.patch(
         ADMIN_CONTENT_APPEALS_ENDPOINTS.detail(kind, id),
         { status: decisionStatus, decisionNote },
-        { headers: { 'X-Admin-Action-Password': actionPassword } },
+        { headers: { 'X-Admin-Action-Password': actionPassword } }
       );
     },
     onSuccess: async () => {

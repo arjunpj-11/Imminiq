@@ -37,7 +37,9 @@ export class SetAdminUserStatusUseCase implements ISetAdminUserStatusUseCase {
     const target = await this._repository.findById(userId);
     if (!target) throw AdminUsersApplicationError.userNotFound();
     if (target.role === 'superadmin')
-      throw AdminUsersApplicationError.protectedAdmin('A super admin account status cannot be changed');
+      throw AdminUsersApplicationError.protectedAdmin(
+        'A super admin account status cannot be changed'
+      );
     if (target.role === 'admin' && actor.role !== 'superadmin')
       throw AdminUsersApplicationError.protectedAdmin(
         'Only a super admin can change another admin'

@@ -3,7 +3,7 @@ export type AdminMockTest = {
   title: string;
   owner: string;
   difficulty: string;
-  moderationStatus: "active" | "suspended" | "deleted";
+  moderationStatus: 'active' | 'suspended' | 'deleted';
   moderationReason?: string;
   questionCount: number;
   attemptCount: number;
@@ -47,7 +47,7 @@ export type AdminQuestionBankDetail = AdminQuestionBankItem & {
 export type AdminMockTestQuestion = {
   id: string;
   bankId?: number;
-  questionBankStatus?: "active" | "disabled";
+  questionBankStatus?: 'active' | 'disabled';
   order: number;
   type: string;
   question: string;
@@ -56,7 +56,7 @@ export type AdminMockTestQuestion = {
   explanation?: string;
   difficulty: string;
   points: number;
-  moderationStatus: "active" | "disabled";
+  moderationStatus: 'active' | 'disabled';
   moderationReason?: string;
   reportCount: number;
   openReportCount: number;
@@ -111,7 +111,7 @@ export type AdminMockTestQuestionIssue = {
   reporterEmail?: string;
   reason: string;
   details: string;
-  status: "open" | "reviewing" | "resolved" | "dismissed";
+  status: 'open' | 'reviewing' | 'resolved' | 'dismissed';
   resolutionAction: string;
   resolutionNote: string;
   assignedTo?: string;
@@ -121,35 +121,35 @@ export type AdminMockTestQuestionIssue = {
 };
 
 export type AdminMockTestLifecyclePayload = {
-  action: "suspend" | "delete" | "restore";
+  action: 'suspend' | 'delete' | 'restore';
   reasonCode:
-    | "incorrect_content"
-    | "unsafe_content"
-    | "copyright"
-    | "spam_or_abuse"
-    | "broken_assessment"
-    | "owner_request"
-    | "appeal_accepted"
-    | "other";
+    | 'incorrect_content'
+    | 'unsafe_content'
+    | 'copyright'
+    | 'spam_or_abuse'
+    | 'broken_assessment'
+    | 'owner_request'
+    | 'appeal_accepted'
+    | 'other';
   reason: string;
   notifyOwner: boolean;
   actionPassword?: string;
 };
 
 export type AdminMockTestIssueUpdatePayload = {
-  status: "reviewing" | "resolved" | "dismissed";
+  status: 'reviewing' | 'resolved' | 'dismissed';
   resolutionAction:
-    | "none"
-    | "question_corrected"
-    | "question_disabled"
-    | "test_suspended"
-    | "test_deleted";
+    | 'none'
+    | 'question_corrected'
+    | 'question_disabled'
+    | 'test_suspended'
+    | 'test_deleted';
   resolutionNote: string;
   correctedQuestion?: string;
   correctedAnswer?: string;
   correctedExplanation?: string;
   correctedOptions?: string[];
-  correctedDifficulty?: "easy" | "medium" | "hard";
+  correctedDifficulty?: 'easy' | 'medium' | 'hard';
   correctedPoints?: number;
   correctedCoding?: Record<string, unknown>;
   actionPassword?: string;

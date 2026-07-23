@@ -2,7 +2,12 @@ import mongoose, { Schema, type InferSchemaType } from 'mongoose';
 
 const adminBroadcastPollVoteSchema = new Schema(
   {
-    broadcastId: { type: Schema.Types.ObjectId, ref: 'AdminBroadcast', required: true, index: true },
+    broadcastId: {
+      type: Schema.Types.ObjectId,
+      ref: 'AdminBroadcast',
+      required: true,
+      index: true,
+    },
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     optionIndex: { type: Number, required: true, min: 0 },
   },

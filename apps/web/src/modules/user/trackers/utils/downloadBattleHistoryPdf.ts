@@ -1,14 +1,17 @@
 import type { ITrackerClanChallengeHistory } from '../types/tracker.types';
 
 export const getBattleHistoryQuestions = (history: ITrackerClanChallengeHistory) => {
-  const questions = new Map<string, {
-    questionId: string;
-    topicTitle: string;
-    prompt: string;
-    correctAnswer: string;
-    isCheckpoint: boolean;
-    firstAskedAt: number;
-  }>();
+  const questions = new Map<
+    string,
+    {
+      questionId: string;
+      topicTitle: string;
+      prompt: string;
+      correctAnswer: string;
+      isCheckpoint: boolean;
+      firstAskedAt: number;
+    }
+  >();
 
   history.players.forEach((player) => {
     player.answers.forEach((entry) => {
@@ -48,14 +51,14 @@ export const downloadBattleHistoryPdf = async (history: ITrackerClanChallengeHis
   const document = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
   const questions = getBattleHistoryQuestions(history);
   const rows = questions.map((question, index) => [
-      index + 1,
-      question.topicTitle,
-      question.prompt,
-      question.correctAnswer,
-      ...question.attempts.map(({ answer }) => answer
-        ? `${answer.answer}\n${answer.isCorrect ? 'Correct' : 'Incorrect'}`
-        : 'Not asked'),
-    ]);
+    index + 1,
+    question.topicTitle,
+    question.prompt,
+    question.correctAnswer,
+    ...question.attempts.map(({ answer }) =>
+      answer ? `${answer.answer}\n${answer.isCorrect ? 'Correct' : 'Incorrect'}` : 'Not asked'
+    ),
+  ]);
 
   document.setFillColor(28, 26, 24);
   document.rect(0, 0, document.internal.pageSize.getWidth(), 82, 'F');
@@ -73,19 +76,26 @@ export const downloadBattleHistoryPdf = async (history: ITrackerClanChallengeHis
   );
   autoTable(document, {
     startY: 100,
-    head: [[
-      '#',
-      'Topic',
-      'Question',
-      'Correct answer',
-      ...history.players.map((player) => `${player.user.name}'s attempt`),
-    ]],
+    head: [
+      [
+        '#',
+        'Topic',
+        'Question',
+        'Correct answer',
+        ...history.players.map((player) => `${player.user.name}'s attempt`),
+      ],
+    ],
     body: rows,
     theme: 'grid',
     styles: { fontSize: 7, cellPadding: 4, overflow: 'linebreak', valign: 'top' },
     headStyles: { fillColor: [82, 73, 66], textColor: [255, 255, 255] },
     alternateRowStyles: { fillColor: [250, 248, 246] },
-    columnStyles: { 2: { cellWidth: 210 }, 3: { cellWidth: 115 }, 4: { cellWidth: 115 }, 5: { cellWidth: 115 } },
+    columnStyles: {
+      2: { cellWidth: 210 },
+      3: { cellWidth: 115 },
+      4: { cellWidth: 115 },
+      5: { cellWidth: 115 },
+    },
     margin: { left: 30, right: 30, bottom: 30 },
   });
   document.save(`imminiq-battle-history-${history.challengeId}.pdf`);

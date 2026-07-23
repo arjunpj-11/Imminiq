@@ -13,5 +13,9 @@ export interface IAdminTrackerReviewsRepository {
     choice: AdminTrackerReviewConsensusChoice,
     actor: AdminActor
   ): Promise<AdminTrackerReviewConsensusRepositoryResult>;
-  resolve(id: string, status: string, actor: AdminActor): Promise<AdminTrackerReviewStatusResult | null>;
+  resolve(
+    id: string,
+    status: string,
+    actor: AdminActor
+  ): Promise<AdminTrackerReviewStatusResult | null>;
 }

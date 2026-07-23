@@ -1,6 +1,4 @@
-import type {
-  TrackerDTO,
-} from '../tracker.dto';
+import type { TrackerDTO } from '../tracker.dto';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { CreateTrackerInput } from '../../domain/trackers.types';

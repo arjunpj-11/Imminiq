@@ -100,9 +100,9 @@ trackerClanChallengeSchema.index(
   }
 );
 
-export type TrackerClanChallengeDocument = InferSchemaType<
-  typeof trackerClanChallengeSchema
-> & { _id: mongoose.Types.ObjectId };
+export type TrackerClanChallengeDocument = InferSchemaType<typeof trackerClanChallengeSchema> & {
+  _id: mongoose.Types.ObjectId;
+};
 
 export const TrackerClanChallenge =
   mongoose.models.TrackerClanChallenge ||

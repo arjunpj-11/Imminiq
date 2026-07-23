@@ -132,8 +132,7 @@ export class MongoAdminAuditLogsRepository implements IAdminAuditLogsRepository 
           metadata: redactMetadata(metadata) as Record<string, unknown>,
         };
       }),
-    ]
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     const start = (query.page - 1) * query.limit;
     return createAdminPage(
       normalized.slice(start, start + query.limit),

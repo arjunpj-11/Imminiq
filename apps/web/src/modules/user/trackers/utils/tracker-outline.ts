@@ -13,7 +13,11 @@ const asRecord = (value: unknown): Record<string, unknown> | null =>
     ? (value as Record<string, unknown>)
     : null;
 
-const readNodes = (value: unknown, depth: number, count: { value: number }): TrackerOutlineNode[] => {
+const readNodes = (
+  value: unknown,
+  depth: number,
+  count: { value: number }
+): TrackerOutlineNode[] => {
   if (!Array.isArray(value)) throw new Error('Every topics or subtopics field must be an array.');
   if (depth > 8) throw new Error('The outline can contain at most 8 nested levels.');
 
@@ -23,10 +27,12 @@ const readNodes = (value: unknown, depth: number, count: { value: number }): Tra
 
     const title = typeof node.title === 'string' ? node.title.trim() : '';
     if (!title) throw new Error(`Outline item ${index + 1} is missing a title.`);
-    if (title.length > 120) throw new Error(`“${title.slice(0, 30)}…” is longer than 120 characters.`);
+    if (title.length > 120)
+      throw new Error(`“${title.slice(0, 30)}…” is longer than 120 characters.`);
 
     count.value += 1;
-    if (count.value > 250) throw new Error('An import can contain at most 250 topics and subtopics.');
+    if (count.value > 250)
+      throw new Error('An import can contain at most 250 topics and subtopics.');
 
     const description = typeof node.description === 'string' ? node.description.trim() : '';
     const children = node.subtopics ?? node.children ?? [];

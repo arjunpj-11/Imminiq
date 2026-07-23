@@ -5,10 +5,7 @@ import type { Socket } from 'socket.io-client';
 import { notificationKeys } from '../modules/notifications';
 import { friendsQueryKeys } from '../modules/user/friends';
 
-const FRIEND_NOTIFICATION_TYPES = new Set([
-  'friend_request_received',
-  'friend_request_accepted',
-]);
+const FRIEND_NOTIFICATION_TYPES = new Set(['friend_request_received', 'friend_request_accepted']);
 
 type NotificationCreatedEvent = {
   type?: string;

@@ -289,8 +289,7 @@ export interface TrackerClanChallengeAnswerDTO {
   answer: string;
 }
 
-export interface SubmitTrackerClanChallengePayloadDTO
-  extends TrackerClanChallengeAccessPayloadDTO {
+export interface SubmitTrackerClanChallengePayloadDTO extends TrackerClanChallengeAccessPayloadDTO {
   answers: TrackerClanChallengeAnswerDTO[];
 }
 

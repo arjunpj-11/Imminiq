@@ -46,7 +46,11 @@ export class MockTestsApplicationError extends MockTestsDomainError {
   }
 
   static mockTestNotFound(): MockTestsApplicationError {
-    return new MockTestsApplicationError('missing-resource', 'MOCK_TEST_NOT_FOUND', 'Mock test not found');
+    return new MockTestsApplicationError(
+      'missing-resource',
+      'MOCK_TEST_NOT_FOUND',
+      'Mock test not found'
+    );
   }
 
   static generationAlreadyActive(): MockTestsApplicationError {
@@ -58,11 +62,19 @@ export class MockTestsApplicationError extends MockTestsDomainError {
   }
 
   static shareLinkFailed(): MockTestsApplicationError {
-    return new MockTestsApplicationError('internal', 'SHARE_LINK_FAILED', 'Failed to create share link');
+    return new MockTestsApplicationError(
+      'internal',
+      'SHARE_LINK_FAILED',
+      'Failed to create share link'
+    );
   }
 
   static notCompleted(): MockTestsApplicationError {
-    return new MockTestsApplicationError('invalid-input', 'NOT_COMPLETED', 'Test not completed yet');
+    return new MockTestsApplicationError(
+      'invalid-input',
+      'NOT_COMPLETED',
+      'Test not completed yet'
+    );
   }
 
   static notCodingQuestion(): MockTestsApplicationError {
@@ -106,7 +118,11 @@ export class MockTestsApplicationError extends MockTestsDomainError {
   }
 
   static invalidShareLink(): MockTestsApplicationError {
-    return new MockTestsApplicationError('invalid-input', 'INVALID_SHARE_LINK', 'Invalid share link');
+    return new MockTestsApplicationError(
+      'invalid-input',
+      'INVALID_SHARE_LINK',
+      'Invalid share link'
+    );
   }
 
   static sharedTestNotFound(): MockTestsApplicationError {
@@ -118,7 +134,11 @@ export class MockTestsApplicationError extends MockTestsDomainError {
   }
 
   static sharedTestEmpty(): MockTestsApplicationError {
-    return new MockTestsApplicationError('invalid-input', 'SHARED_TEST_EMPTY', 'Shared test has no questions');
+    return new MockTestsApplicationError(
+      'invalid-input',
+      'SHARED_TEST_EMPTY',
+      'Shared test has no questions'
+    );
   }
 }
 

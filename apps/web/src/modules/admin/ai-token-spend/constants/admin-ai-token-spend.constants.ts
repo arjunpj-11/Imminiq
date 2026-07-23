@@ -1,7 +1,7 @@
-import { ADMIN_ROUTES } from "../../../../routes/config/route-paths";
+import { ADMIN_ROUTES } from '../../../../routes/config/route-paths';
 
 export const ADMIN_AI_TOKEN_SPEND_ENDPOINTS = {
-  overview: "/admin/ai-token-spend",
+  overview: '/admin/ai-token-spend',
 } as const;
 
 export const ADMIN_AI_TOKEN_SPEND_ROUTES = {

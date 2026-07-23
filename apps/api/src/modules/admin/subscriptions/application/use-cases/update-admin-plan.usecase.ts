@@ -1,7 +1,5 @@
 import type { AdminActor } from '../../../../../shared/admin';
-import type {
-  AdminSubscriptionPlan,
-} from '../../domain/entities/admin-subscription.entity';
+import type { AdminSubscriptionPlan } from '../../domain/entities/admin-subscription.entity';
 import type { IAdminSubscriptionsRepository } from '../../domain/repositories/admin-subscriptions.repository.interface';
 import type {
   AdminSubscriptionPlanDTO,

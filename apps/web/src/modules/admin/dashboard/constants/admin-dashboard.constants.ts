@@ -1,7 +1,7 @@
-import { ADMIN_ROUTES } from "../../../../routes/config/route-paths";
+import { ADMIN_ROUTES } from '../../../../routes/config/route-paths';
 
 export const ADMIN_DASHBOARD_ENDPOINTS = {
-  overview: "/admin/dashboard",
+  overview: '/admin/dashboard',
 } as const;
 export const ADMIN_DASHBOARD_ROUTES = {
   overview: ADMIN_ROUTES.dashboard,

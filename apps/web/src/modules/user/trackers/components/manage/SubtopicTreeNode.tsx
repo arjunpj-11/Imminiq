@@ -63,7 +63,9 @@ export default function SubtopicTreeNode({
               type="button"
               onClick={() => onDelete(subtopic)}
               className="rounded-md border border-red-500/20 px-2.5 py-1.5 text-[10px] font-bold text-red-500 transition hover:bg-red-500/10"
-              title={children.length ? 'Delete this subtopic and all nested children' : 'Delete subtopic'}
+              title={
+                children.length ? 'Delete this subtopic and all nested children' : 'Delete subtopic'
+              }
             >
               Delete
             </button>

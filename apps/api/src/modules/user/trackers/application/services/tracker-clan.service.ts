@@ -1,7 +1,4 @@
-import type {
-  ITrackerClanRepository,
-  TrackerClanOverview,
-} from '../../domain';
+import type { ITrackerClanRepository, TrackerClanOverview } from '../../domain';
 import type { ITrackerClanServiceContract } from '../tracker-clan.contract';
 import type {
   DeleteClanSubtopicPayloadDTO,
@@ -179,7 +176,8 @@ export class TrackerClanService implements ITrackerClanServiceContract {
       actorId: input.userId,
       subtopicId: input.subtopicId,
     });
-    if (!deleted) throw TrackerApplicationError.forbidden('Only clan managers can delete subtopics');
+    if (!deleted)
+      throw TrackerApplicationError.forbidden('Only clan managers can delete subtopics');
   }
 
   async listMessages(input: ListClanMessagesPayloadDTO) {

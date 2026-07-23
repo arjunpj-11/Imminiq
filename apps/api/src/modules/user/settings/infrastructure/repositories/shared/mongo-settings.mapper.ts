@@ -18,7 +18,9 @@ import type {
 const PRIVACY_KEYS = ['showProfile', 'showStats', 'showActivity'] as const;
 
 export class MongoSettingsMapper {
-  toPlainRecord<T>(document: MongooseObjectLike<T>): T { return document.toObject(); }
+  toPlainRecord<T>(document: MongooseObjectLike<T>): T {
+    return document.toObject();
+  }
   toId(value: MongoIdLike | string | undefined): string | undefined {
     return value ? (typeof value === 'string' ? value : value.toString()) : undefined;
   }
@@ -30,11 +32,16 @@ export class MongoSettingsMapper {
       ...(settings.userId ? { userId: this.toId(settings.userId) } : {}),
     };
     const id = this.toId(settings._id);
-    return new UserSettingsEntity({ ...(id ? { id } : {}), userId: this.toId(settings.userId) ?? '', settings: settingsView });
+    return new UserSettingsEntity({
+      ...(id ? { id } : {}),
+      userId: this.toId(settings.userId) ?? '',
+      settings: settingsView,
+    });
   }
   toEntityOrThrow(settings: MongoUserSettingsRecord): UserSettingsEntity {
     const entity = this.toEntity(settings);
-    if (!entity) throw new SettingsDomainError('SETTINGS_MAPPING_FAILED', 'Failed to map user settings');
+    if (!entity)
+      throw new SettingsDomainError('SETTINGS_MAPPING_FAILED', 'Failed to map user settings');
     return entity;
   }
   toAppearanceUpdate(data: SettingsAppearanceUpdateInput): FlatSettingsUpdate {
@@ -53,7 +60,11 @@ export class MongoSettingsMapper {
   toPrivacyUpdate(data: SettingsPrivacyUpdateInput): FlatSettingsUpdate {
     return this.toSectionUpdate('privacy', data, PRIVACY_KEYS);
   }
-  private toSectionUpdate<TData extends object, TKey extends keyof TData>(prefix: string, data: TData, keys: readonly TKey[]) {
+  private toSectionUpdate<TData extends object, TKey extends keyof TData>(
+    prefix: string,
+    data: TData,
+    keys: readonly TKey[]
+  ) {
     const result: FlatSettingsUpdate = {};
     for (const key of keys) {
       const value = data[key] as UpdatableValue;

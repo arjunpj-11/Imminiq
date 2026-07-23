@@ -132,7 +132,9 @@ export class TrackerClanController {
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
       });
-      res.json(new ApiResponse('Latest guild changes fetched without removing personal topics', result));
+      res.json(
+        new ApiResponse('Latest guild changes fetched without removing personal topics', result)
+      );
     } catch (error) {
       next(error);
     }

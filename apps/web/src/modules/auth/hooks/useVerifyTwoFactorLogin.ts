@@ -27,7 +27,9 @@ interface IUser {
 }
 
 type LoginRedirectPath =
-  typeof ROUTES.dashboard | typeof ROUTES.trackerCreate | typeof ADMIN_ROUTES.dashboard;
+  | typeof ROUTES.dashboard
+  | typeof ROUTES.trackerCreate
+  | typeof ADMIN_ROUTES.dashboard;
 
 interface IVerifyTwoFactorLoginResponse {
   success: boolean;

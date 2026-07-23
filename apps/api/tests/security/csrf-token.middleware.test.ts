@@ -39,9 +39,7 @@ describe('validateCsrfToken', () => {
     '/api/auth/verify-reset-code',
     '/api/auth/reset-password',
   ])('allows cookie-independent auth route %s with a stale auth cookie', async (path) => {
-    const response = await request(app)
-      .post(path)
-      .set('Cookie', 'refreshToken=stale-token');
+    const response = await request(app).post(path).set('Cookie', 'refreshToken=stale-token');
 
     expect(response.status).toBe(204);
   });

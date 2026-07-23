@@ -348,7 +348,8 @@ export default function TrackerQuickRevisionPage() {
   const { total, completed } = count(allNodes);
   const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
 
-  const isMainLoading = trackerDetailsQuery.isLoading || (!trackerIsModerated && roadmapQuery.isLoading);
+  const isMainLoading =
+    trackerDetailsQuery.isLoading || (!trackerIsModerated && roadmapQuery.isLoading);
   const hasMainError = !trackerId || roadmapQuery.isError;
 
   return (

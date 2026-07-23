@@ -181,9 +181,7 @@ describe('security HTTP integration flows', () => {
       : [setCookieHeader].filter(Boolean);
 
     expect(
-      cookies.some((cookie) =>
-        String(cookie).match(/imminiq_oauth_state_google_[a-f0-9]{24}=/)
-      )
+      cookies.some((cookie) => String(cookie).match(/imminiq_oauth_state_google_[a-f0-9]{24}=/))
     ).toBe(true);
 
     expect(cookies.some((cookie) => String(cookie).toLowerCase().includes('httponly'))).toBe(true);
@@ -195,9 +193,7 @@ describe('security HTTP integration flows', () => {
       .set('X-Forwarded-Host', new URL(TRUSTED_ORIGIN).host);
 
     expect(response.status).toBe(302);
-    expect(response.headers.location).toBe(
-      `${process.env.SERVER_URL}/api/auth/oauth/google`
-    );
+    expect(response.headers.location).toBe(`${process.env.SERVER_URL}/api/auth/oauth/google`);
     expect(response.headers['set-cookie']).toBeUndefined();
   });
 

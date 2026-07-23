@@ -61,9 +61,7 @@ export const useAdminBulkAction = () => {
 
       return (
         await api.post(ADMIN_BULK_ACTION_ENDPOINTS[kind], body, {
-          headers: actionPassword
-            ? { 'X-Admin-Action-Password': actionPassword }
-            : undefined,
+          headers: actionPassword ? { 'X-Admin-Action-Password': actionPassword } : undefined,
         })
       ).data.data as AdminBulkActionResult;
     },

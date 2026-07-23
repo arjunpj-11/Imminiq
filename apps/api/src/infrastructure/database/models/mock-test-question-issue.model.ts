@@ -54,10 +54,7 @@ const mockTestQuestionIssueSchema = new Schema(
   { timestamps: true }
 );
 
-mockTestQuestionIssueSchema.index(
-  { reporterId: 1, attemptId: 1, questionId: 1 },
-  { unique: true }
-);
+mockTestQuestionIssueSchema.index({ reporterId: 1, attemptId: 1, questionId: 1 }, { unique: true });
 mockTestQuestionIssueSchema.index({ status: 1, createdAt: 1 });
 mockTestQuestionIssueSchema.index({ questionId: 1, status: 1 });
 

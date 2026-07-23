@@ -23,12 +23,20 @@ export default function LeaderboardHeader({
       aside={
         <div>
           <div className="flex items-center justify-between gap-3">
-            <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-(--text-muted)">Global rank</div>
-            <span className="text-(--brand-500)"><LiveDotIcon /></span>
+            <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-(--text-muted)">
+              Global rank
+            </div>
+            <span className="text-(--brand-500)">
+              <LiveDotIcon />
+            </span>
           </div>
-          <div className="mt-3 font-ui text-[36px] font-black leading-none tracking-[-1.5px] text-(--text-primary)">{formatRank(globalRank)}</div>
+          <div className="mt-3 font-ui text-[36px] font-black leading-none tracking-[-1.5px] text-(--text-primary)">
+            {formatRank(globalRank)}
+          </div>
           <p className="mt-3 text-[12px] leading-5 text-(--text-secondary)">
-            {globalRank === null ? 'Earn XP to enter the leaderboard' : formatRankTrendHint(globalRankTrend)}
+            {globalRank === null
+              ? 'Earn XP to enter the leaderboard'
+              : formatRankTrendHint(globalRankTrend)}
           </p>
         </div>
       }

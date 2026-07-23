@@ -29,10 +29,16 @@ export default function RaiseSupportTicketPage() {
         className="mb-7"
         aside={
           <div className="flex items-center gap-4">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--brand-500)_14%,transparent)] text-(--brand-500)"><LifeBuoy /></span>
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--brand-500)_14%,transparent)] text-(--brand-500)">
+              <LifeBuoy />
+            </span>
             <div>
-              <div className="font-mono text-[10px] font-semibold uppercase tracking-wider text-(--text-muted)">Support desk</div>
-              <div className="mt-1 text-[13px] font-bold text-(--text-primary)">Clear details get faster answers.</div>
+              <div className="font-mono text-[10px] font-semibold uppercase tracking-wider text-(--text-muted)">
+                Support desk
+              </div>
+              <div className="mt-1 text-[13px] font-bold text-(--text-primary)">
+                Clear details get faster answers.
+              </div>
             </div>
           </div>
         }

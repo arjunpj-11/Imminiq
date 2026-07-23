@@ -5,7 +5,7 @@ export type AdminSubscriptionsQuery = {
 };
 
 export const adminSubscriptionsKeys = {
-  all: ["admin", "subscriptions"] as const,
+  all: ['admin', 'subscriptions'] as const,
   overview: (query: AdminSubscriptionsQuery) =>
-    [...adminSubscriptionsKeys.all, "overview", query] as const,
+    [...adminSubscriptionsKeys.all, 'overview', query] as const,
 };

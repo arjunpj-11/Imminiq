@@ -26,10 +26,7 @@ export default function HorizontalFlow() {
           </p>
         </div>
 
-        <div
-          ref={trackRef}
-          className="grid w-full gap-4 md:flex md:w-max md:will-change-transform"
-        >
+        <div ref={trackRef} className="grid w-full gap-4 md:flex md:w-max md:will-change-transform">
           {horizontalFlowCards.map((card, index) => (
             <article
               key={card.title}

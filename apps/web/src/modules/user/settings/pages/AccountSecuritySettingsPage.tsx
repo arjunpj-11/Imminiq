@@ -93,8 +93,7 @@ export default function AccountSecuritySettingsPage() {
 
   const security = securityQuery.data;
   const isStaff = isStaffRole(user?.role);
-  const staffEnrollmentRequired =
-    isStaff && searchParams.get('staff2fa') === 'required';
+  const staffEnrollmentRequired = isStaff && searchParams.get('staff2fa') === 'required';
   const requestedReturnTo = searchParams.get('returnTo');
   const staffReturnTo = requestedReturnTo?.startsWith('/admin')
     ? requestedReturnTo

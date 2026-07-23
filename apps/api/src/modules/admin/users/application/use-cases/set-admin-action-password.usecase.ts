@@ -1,10 +1,7 @@
 import type { IAdminPasswordHasher } from '../../domain/services/admin-password-hasher.interface';
 import type { IAdminUsersRepository } from '../../domain/repositories/admin-users.repository.interface';
 import { AdminUsersApplicationError } from '../admin-users-application.error';
-import type {
-  AdminRequestContextDTO,
-  SetAdminActionPasswordResultDTO,
-} from '../admin-users.dto';
+import type { AdminRequestContextDTO, SetAdminActionPasswordResultDTO } from '../admin-users.dto';
 
 export interface ISetAdminActionPasswordUseCase {
   execute(
@@ -51,9 +48,7 @@ export class SetAdminActionPasswordUseCase implements ISetAdminActionPasswordUse
     return {
       userId,
       configured: true as const,
-      ...(updated.adminActionPasswordSetAt
-        ? { setAt: updated.adminActionPasswordSetAt }
-        : {}),
+      ...(updated.adminActionPasswordSetAt ? { setAt: updated.adminActionPasswordSetAt } : {}),
     };
   }
 }

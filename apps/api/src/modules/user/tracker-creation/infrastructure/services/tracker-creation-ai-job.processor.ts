@@ -14,18 +14,16 @@ import { Tracker } from '../../../../../infrastructure/database/models/tracker.m
 import { TrackerTopic } from '../../../../../infrastructure/database/models/tracker-topic.model';
 import { TrackerSubtopic } from '../../../../../infrastructure/database/models/tracker-subtopic.model';
 
-import type {
-  RoadmapNestedNode} from '../../../../../infrastructure/ai/ai.service';
+import type { RoadmapNestedNode } from '../../../../../infrastructure/ai/ai.service';
 import {
   generateRoadmapStructure,
   evaluateRoadmap,
-  evaluateCloneFreshness
+  evaluateCloneFreshness,
 } from '../../../../../infrastructure/ai/ai.service';
-import type {
-  LearningVideoRecommendation} from '../../../../../infrastructure/youtube/youtube-learning-video.service';
+import type { LearningVideoRecommendation } from '../../../../../infrastructure/youtube/youtube-learning-video.service';
 import {
   findTrackerSubtopicLearningVideos,
-  findTrackerTopicLearningVideos
+  findTrackerTopicLearningVideos,
 } from '../../../../../infrastructure/youtube/youtube-learning-video.service';
 
 // ============================================================
@@ -506,7 +504,6 @@ const processRoadmapEvaluation = async (
 // ============================================================
 // WORKER
 // ============================================================
-
 
 export class TrackerCreationAIJobProcessor implements ITrackerCreationAIJobProcessor {
   constructor(

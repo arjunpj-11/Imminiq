@@ -4,7 +4,9 @@ import type { ITrackerContributionNotifier } from '../../domain';
 export class TrackerContributionNotificationGateway implements ITrackerContributionNotifier {
   constructor(private readonly _createNotification: ICreateNotificationUseCase) {}
 
-  async contributionRequested(input: Parameters<ITrackerContributionNotifier['contributionRequested']>[0]) {
+  async contributionRequested(
+    input: Parameters<ITrackerContributionNotifier['contributionRequested']>[0]
+  ) {
     try {
       await this._createNotification.execute({
         userId: input.contribution.ownerId,
@@ -18,7 +20,9 @@ export class TrackerContributionNotificationGateway implements ITrackerContribut
     }
   }
 
-  async contributionReviewed(input: Parameters<ITrackerContributionNotifier['contributionReviewed']>[0]) {
+  async contributionReviewed(
+    input: Parameters<ITrackerContributionNotifier['contributionReviewed']>[0]
+  ) {
     try {
       const approved = input.contribution.status === 'approved';
       await this._createNotification.execute({
@@ -28,14 +32,10 @@ export class TrackerContributionNotificationGateway implements ITrackerContribut
           : 'tracker_topic_contribution_rejected',
         message: approved
           ? `Your topic “${input.contribution.title}” was merged into ${input.sourceTrackerTitle}.${
-              input.contribution.reviewNote
-                ? ` Review note: ${input.contribution.reviewNote}`
-                : ''
+              input.contribution.reviewNote ? ` Review note: ${input.contribution.reviewNote}` : ''
             }`
           : `Your topic proposal “${input.contribution.title}” was not accepted for ${input.sourceTrackerTitle}.${
-              input.contribution.reviewNote
-                ? ` Review note: ${input.contribution.reviewNote}`
-                : ''
+              input.contribution.reviewNote ? ` Review note: ${input.contribution.reviewNote}` : ''
             }`,
         deepLink: approved
           ? `/community/trackers/${input.contribution.sourceTrackerId}`

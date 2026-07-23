@@ -1,9 +1,9 @@
-import { useState } from "react";
-import Modal from "../../../../components/admin/AdminModal";
-import type { AdminUser } from "../types/admin-users.types";
-import { useSetAdminActionPassword } from "../hooks/useSetAdminActionPassword";
-import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
+import { useState } from 'react';
+import Modal from '../../../../components/admin/AdminModal';
+import type { AdminUser } from '../types/admin-users.types';
+import { useSetAdminActionPassword } from '../hooks/useSetAdminActionPassword';
+import AdminActionPasswordField from '../../../../components/admin/AdminActionPasswordField';
+import { isAdminActionPasswordReady } from '../../../../lib/admin/admin-action-password';
 
 export default function AdminActionPasswordDialog({
   user,
@@ -12,10 +12,10 @@ export default function AdminActionPasswordDialog({
   user: AdminUser | null;
   onClose: () => void;
 }) {
-  const update = useSetAdminActionPassword(user?._id ?? "");
-  const [password, setPassword] = useState("");
-  const [confirmation, setConfirmation] = useState("");
-  const [actionPassword, setActionPassword] = useState("");
+  const update = useSetAdminActionPassword(user?._id ?? '');
+  const [password, setPassword] = useState('');
+  const [confirmation, setConfirmation] = useState('');
+  const [actionPassword, setActionPassword] = useState('');
   const valid =
     password.length >= 10 &&
     password.length <= 128 &&
@@ -32,11 +32,11 @@ export default function AdminActionPasswordDialog({
       contentClassName="max-w-lg bg-[#1c1a18] text-[#f2f0eb]"
     >
       <h2 className="font-editorial text-2xl font-bold">
-        {user?.adminActionPasswordConfigured ? "Reset" : "Set"} action password
+        {user?.adminActionPasswordConfigured ? 'Reset' : 'Set'} action password
       </h2>
       <p className="mt-2 text-sm leading-6 text-[#aaa59d]">
-        Assign a private password to {user?.fullName}. They must enter it before
-        protected admin changes. The password cannot be viewed after saving.
+        Assign a private password to {user?.fullName}. They must enter it before protected admin
+        changes. The password cannot be viewed after saving.
       </p>
       <label className="admin-field mt-5 block">
         <span>New action password</span>
@@ -71,13 +71,15 @@ export default function AdminActionPasswordDialog({
         <p className="mt-2 text-xs text-[#e26767]">Passwords do not match.</p>
       )}
       <div className="mt-6 flex justify-end gap-2">
-        <button className="admin-button" onClick={onClose}>Cancel</button>
+        <button className="admin-button" onClick={onClose}>
+          Cancel
+        </button>
         <button
           className="admin-primary-button"
           disabled={!valid || !isAdminActionPasswordReady(actionPassword) || update.isPending}
           onClick={() => update.mutate({ password, actionPassword }, { onSuccess: onClose })}
         >
-          {update.isPending ? "Saving…" : "Save password"}
+          {update.isPending ? 'Saving…' : 'Save password'}
         </button>
       </div>
     </Modal>

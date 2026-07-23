@@ -52,11 +52,7 @@ describe('OAuth state middleware', () => {
 
   it('validates a matching state query + cookie and consumes Redis state exactly once', async () => {
     const issuedResponse = createMockResponse();
-    await issueOAuthState('github')(
-      createMockRequest(),
-      issuedResponse as never,
-      createNext()
-    );
+    await issueOAuthState('github')(createMockRequest(), issuedResponse as never, createNext());
     const issued = issuedStateCookie(issuedResponse);
 
     const req = createMockRequest({
@@ -130,11 +126,7 @@ describe('OAuth state middleware', () => {
 
   it('redirects when the OAuth callback has no matching state', async () => {
     const issuedResponse = createMockResponse();
-    await issueOAuthState('google')(
-      createMockRequest(),
-      issuedResponse as never,
-      createNext()
-    );
+    await issueOAuthState('google')(createMockRequest(), issuedResponse as never, createNext());
     const issued = issuedStateCookie(issuedResponse);
     const req = createMockRequest({
       query: {
@@ -157,11 +149,7 @@ describe('OAuth state middleware', () => {
   it('redirects when the Redis-backed OAuth state has already been consumed', async () => {
     mockedOAuthStateCache.consume.mockResolvedValue(false);
     const issuedResponse = createMockResponse();
-    await issueOAuthState('google')(
-      createMockRequest(),
-      issuedResponse as never,
-      createNext()
-    );
+    await issueOAuthState('google')(createMockRequest(), issuedResponse as never, createNext());
     const issued = issuedStateCookie(issuedResponse);
 
     const req = createMockRequest({

@@ -53,9 +53,7 @@ export class MongoTrackerCreationMapper {
       ...(typeof response.isCompleted === 'boolean' ? { isCompleted: response.isCompleted } : {}),
       ...(response.preparingFor ? { preparingFor: response.preparingFor } : {}),
       ...(response.goal ? { goal: response.goal } : {}),
-      ...(response.preferredLanguage
-        ? { preferredLanguage: response.preferredLanguage }
-        : {}),
+      ...(response.preferredLanguage ? { preferredLanguage: response.preferredLanguage } : {}),
       ...(currentLevel ? { currentLevel } : {}),
       ...(typeof response.completedStep === 'number'
         ? { completedStep: response.completedStep }
@@ -88,7 +86,10 @@ export class MongoTrackerCreationMapper {
     const entity = this.toAIJobEntity(job);
 
     if (!entity) {
-      throw new TrackerCreationDomainError('AI_JOB_MAPPING_FAILED', 'Failed to map AI generation job');
+      throw new TrackerCreationDomainError(
+        'AI_JOB_MAPPING_FAILED',
+        'Failed to map AI generation job'
+      );
     }
 
     return entity;
@@ -216,7 +217,10 @@ export class MongoTrackerCreationMapper {
       return value;
     }
 
-    throw new TrackerCreationDomainError('INVALID_AI_JOB_STATUS', 'Stored AI job status is invalid');
+    throw new TrackerCreationDomainError(
+      'INVALID_AI_JOB_STATUS',
+      'Stored AI job status is invalid'
+    );
   }
 
   private toAIJobStepStatus(value: string): AIGenerationStepStatus {

@@ -114,9 +114,7 @@ describe('AI model routing', () => {
   it('continues to the next provider when Groq rejects a request above its TPM allowance', async () => {
     mocks.groqChat.mockRejectedValueOnce(
       Object.assign(
-        new Error(
-          'Request too large for model on tokens per minute (TPM): rate_limit_exceeded'
-        ),
+        new Error('Request too large for model on tokens per minute (TPM): rate_limit_exceeded'),
         { status: 413 }
       )
     );
@@ -174,12 +172,9 @@ describe('AI model routing', () => {
     mocks.cerebrasChat.mockResolvedValue('not-json');
 
     await expect(
-      economyAIStructuredWithFallback(
-        [{ role: 'user', content: 'return json' }],
-        () => {
-          throw ServiceError.dependencyFailure('AI_INVALID_JSON', 'malformed JSON');
-        }
-      )
+      economyAIStructuredWithFallback([{ role: 'user', content: 'return json' }], () => {
+        throw ServiceError.dependencyFailure('AI_INVALID_JSON', 'malformed JSON');
+      })
     ).rejects.toMatchObject({
       code: 'AI_PROVIDERS_INVALID_RESPONSE',
       kind: 'dependency-failure',

@@ -5,8 +5,7 @@ import type { ITrackerProgressRepository } from './tracker-progress.repository.i
 import type { ITrackerQueryRepository } from './tracker-query.repository.interface';
 
 export interface ITrackerRepository
-  extends
-    ITrackerQueryRepository,
+  extends ITrackerQueryRepository,
     ITrackerCommandRepository,
     ITrackerContentRepository,
     ITrackerProgressRepository,

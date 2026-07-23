@@ -1,7 +1,7 @@
-import { ADMIN_ROUTES } from "../../../../routes/config/route-paths";
+import { ADMIN_ROUTES } from '../../../../routes/config/route-paths';
 
 export const ADMIN_SUBSCRIPTIONS_ENDPOINTS = {
-  overview: "/admin/subscriptions",
+  overview: '/admin/subscriptions',
   plan: (planId: string) => `/admin/subscriptions/plans/${planId}`,
 } as const;
 
@@ -11,10 +11,10 @@ export const ADMIN_SUBSCRIPTIONS_ROUTES = {
 
 export const ADMIN_SUBSCRIPTIONS_STALE_TIME_MS = 30_000;
 export const ADMIN_SUBSCRIPTION_STATUS_OPTIONS = [
-  "all",
-  "active",
-  "pending",
-  "expired",
-  "canceled",
-  "failed",
+  'all',
+  'active',
+  'pending',
+  'expired',
+  'canceled',
+  'failed',
 ] as const;

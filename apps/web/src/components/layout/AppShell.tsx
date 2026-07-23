@@ -56,10 +56,7 @@ export function AppShell({
     enabled: !isGuest && isAuthenticated,
   });
   const notificationsQuery = useNotifications(1, !isGuest && isAuthenticated);
-  const friendRequestsQuery = useReceivedFriendRequests(
-    { limit: 1 },
-    !isGuest && isAuthenticated
-  );
+  const friendRequestsQuery = useReceivedFriendRequests({ limit: 1 }, !isGuest && isAuthenticated);
   useRealtimeAppEvents(accessToken, !isGuest && isAuthenticated);
 
   const [pageViewer, setPageViewer] = useState<IAppShellViewer | null>(initialViewer ?? null);

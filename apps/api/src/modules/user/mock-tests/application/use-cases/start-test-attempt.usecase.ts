@@ -29,7 +29,9 @@ export class StartTestAttemptUseCase implements IStartTestAttemptUseCase {
     }
 
     if (test.moderationStatus !== 'active') {
-      throw MockTestsApplicationError.forbidden('This mock test is unavailable after an administrative review.');
+      throw MockTestsApplicationError.forbidden(
+        'This mock test is unavailable after an administrative review.'
+      );
     }
 
     if (test.ownerId !== userId) {

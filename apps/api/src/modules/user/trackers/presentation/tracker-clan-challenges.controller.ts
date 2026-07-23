@@ -162,7 +162,9 @@ export class TrackerClanChallengesController {
         decision: req.body.decision,
       });
       res.json(new ApiResponse('Checkpoint decision saved', result));
-    } catch (error) { next(error); }
+    } catch (error) {
+      next(error);
+    }
   };
 
   answerNode = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
@@ -175,7 +177,9 @@ export class TrackerClanChallengesController {
         answer: req.body.answer,
       });
       res.json(new ApiResponse('Node answer checked', result));
-    } catch (error) { next(error); }
+    } catch (error) {
+      next(error);
+    }
   };
 
   usePower = async (req: Request<ChallengeParams>, res: Response, next: NextFunction) => {
@@ -186,6 +190,8 @@ export class TrackerClanChallengesController {
         userId: getAuthUser(req).userId,
       });
       res.json(new ApiResponse('Push-back power used', result));
-    } catch (error) { next(error); }
+    } catch (error) {
+      next(error);
+    }
   };
 }

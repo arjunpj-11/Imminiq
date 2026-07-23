@@ -23,7 +23,10 @@ export class BullMqAIJobQueueGateway implements IAIJobQueueGateway {
     try {
       await aiQueue.add(jobName, payload, this.getQueueOptions());
     } catch {
-      throw new TrackerCreationDomainError('AI_QUEUE_ERROR', 'Failed to enqueue tracker creation AI job');
+      throw new TrackerCreationDomainError(
+        'AI_QUEUE_ERROR',
+        'Failed to enqueue tracker creation AI job'
+      );
     }
   }
 

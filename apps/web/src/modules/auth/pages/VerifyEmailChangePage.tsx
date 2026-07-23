@@ -82,10 +82,7 @@ export default function VerifyEmailChangePage() {
 
         <div className="px-6 py-8 text-center sm:px-10 sm:py-10">
           <div className="mb-7">
-            <ImminiqWordmark
-              lowercase
-              className="text-[30px] font-black tracking-[-0.8px]"
-            />
+            <ImminiqWordmark lowercase className="text-[30px] font-black tracking-[-0.8px]" />
           </div>
 
           <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">

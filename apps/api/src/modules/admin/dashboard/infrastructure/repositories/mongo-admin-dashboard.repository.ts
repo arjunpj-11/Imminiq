@@ -37,40 +37,45 @@ export class MongoAdminDashboardRepository implements IAdminDashboardRepository 
       recentActivity,
       recentSecurityActivity,
       weeklyActivity,
-    ] =
-      await Promise.all([
-        User.countDocuments({ deletedAt: null }),
-        User.countDocuments({ deletedAt: null, lastActiveAt: { $gte: sinceToday } }),
-        User.countDocuments({ deletedAt: null, status: 'blocked' }),
-        User.countDocuments({ deletedAt: null, status: 'paused' }),
-        Tracker.countDocuments({ deletedAt: null }),
-        MockTestQuestionIssueModel.countDocuments({ status: 'open' }),
-        MockTestQuestionIssueModel.countDocuments({ status: 'reviewing' }),
-        SupportTicket.countDocuments({
-          priority: 'urgent',
-          status: { $in: ['open', 'in_progress'] },
-        }),
-        MockTestModel.countDocuments({ moderationStatus: 'suspended', deletedAt: null }),
-        TrackerReport.countDocuments({ status: { $in: ['open', 'reviewing'] } }),
-        Tracker.countDocuments({ moderationStatus: 'suspended', deletedAt: null }),
-        MockTestQuestionIssueModel.countDocuments({
-          status: { $in: ['open', 'reviewing'] },
-          createdAt: { $lt: moderationSlaCutoff },
-        }),
-        TrackerReport.countDocuments({
-          status: { $in: ['open', 'reviewing'] },
-          createdAt: { $lt: moderationSlaCutoff },
-        }),
-        ContentModerationAppeal.countDocuments({ status: { $in: ['pending', 'under_review'] }, deletedAt: null }),
-        DataPrivacyRequest.countDocuments({ status: { $in: ['pending', 'in_progress'] } }),
-        DataPrivacyRequest.countDocuments({ status: { $in: ['pending', 'in_progress'] }, dueAt: { $lt: new Date() } }),
-        ActivityLog.find({ deletedAt: null }).sort({ createdAt: -1 }).limit(8).lean(),
-        SecurityAuditEvent.find({}).sort({ createdAt: -1 }).limit(8).lean(),
-        ActivityLog.aggregate<{ _id: number; count: number }>([
-          { $match: { deletedAt: null, createdAt: { $gte: sinceWeek } } },
-          { $group: { _id: { $dayOfWeek: '$createdAt' }, count: { $sum: 1 } } },
-        ]),
-      ]);
+    ] = await Promise.all([
+      User.countDocuments({ deletedAt: null }),
+      User.countDocuments({ deletedAt: null, lastActiveAt: { $gte: sinceToday } }),
+      User.countDocuments({ deletedAt: null, status: 'blocked' }),
+      User.countDocuments({ deletedAt: null, status: 'paused' }),
+      Tracker.countDocuments({ deletedAt: null }),
+      MockTestQuestionIssueModel.countDocuments({ status: 'open' }),
+      MockTestQuestionIssueModel.countDocuments({ status: 'reviewing' }),
+      SupportTicket.countDocuments({
+        priority: 'urgent',
+        status: { $in: ['open', 'in_progress'] },
+      }),
+      MockTestModel.countDocuments({ moderationStatus: 'suspended', deletedAt: null }),
+      TrackerReport.countDocuments({ status: { $in: ['open', 'reviewing'] } }),
+      Tracker.countDocuments({ moderationStatus: 'suspended', deletedAt: null }),
+      MockTestQuestionIssueModel.countDocuments({
+        status: { $in: ['open', 'reviewing'] },
+        createdAt: { $lt: moderationSlaCutoff },
+      }),
+      TrackerReport.countDocuments({
+        status: { $in: ['open', 'reviewing'] },
+        createdAt: { $lt: moderationSlaCutoff },
+      }),
+      ContentModerationAppeal.countDocuments({
+        status: { $in: ['pending', 'under_review'] },
+        deletedAt: null,
+      }),
+      DataPrivacyRequest.countDocuments({ status: { $in: ['pending', 'in_progress'] } }),
+      DataPrivacyRequest.countDocuments({
+        status: { $in: ['pending', 'in_progress'] },
+        dueAt: { $lt: new Date() },
+      }),
+      ActivityLog.find({ deletedAt: null }).sort({ createdAt: -1 }).limit(8).lean(),
+      SecurityAuditEvent.find({}).sort({ createdAt: -1 }).limit(8).lean(),
+      ActivityLog.aggregate<{ _id: number; count: number }>([
+        { $match: { deletedAt: null, createdAt: { $gte: sinceWeek } } },
+        { $group: { _id: { $dayOfWeek: '$createdAt' }, count: { $sum: 1 } } },
+      ]),
+    ]);
     const mergedActivity = [
       ...recentActivity.map((item) => ({
         id: String(item._id),

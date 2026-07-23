@@ -37,7 +37,9 @@ export default function ArenaPreview() {
               <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.18em] text-[#e8816a]">
                 Community Tracker Preview
               </p>
-              <h3 className="mt-1 text-xl font-bold">One shared path. A community growing around it.</h3>
+              <h3 className="mt-1 text-xl font-bold">
+                One shared path. A community growing around it.
+              </h3>
             </div>
             <span className="rounded-full border border-[#e8816a]/30 bg-[#e8816a]/10 px-3 py-1 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#e8816a]">
               Always evolving
@@ -46,10 +48,22 @@ export default function ArenaPreview() {
 
           <div className="relative z-1 mt-6 grid gap-4 md:grid-cols-2">
             {[
-              ['Structured beginning', 'AI creates a practical first version from the community’s shared learning goal.'],
-              ['Learning guild', 'People following the tracker discuss, practise, support, and challenge one another.'],
-              ['Open contribution', 'Learners propose a missing topic or a better step when experience reveals a gap.'],
-              ['Verified evolution', 'Trusted contributions strengthen the tracker and benefit everyone who follows it.'],
+              [
+                'Structured beginning',
+                'AI creates a practical first version from the community’s shared learning goal.',
+              ],
+              [
+                'Learning guild',
+                'People following the tracker discuss, practise, support, and challenge one another.',
+              ],
+              [
+                'Open contribution',
+                'Learners propose a missing topic or a better step when experience reveals a gap.',
+              ],
+              [
+                'Verified evolution',
+                'Trusted contributions strengthen the tracker and benefit everyone who follows it.',
+              ],
             ].map(([title, body], index) => (
               <article
                 key={title}

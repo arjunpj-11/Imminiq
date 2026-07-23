@@ -74,7 +74,10 @@ export default function UserAvatar({
         <img
           src={src ?? undefined}
           alt={`${name}'s avatar`}
-          className={cn('aspect-square h-full w-full rounded-[inherit] object-cover object-center', imageClassName)}
+          className={cn(
+            'aspect-square h-full w-full rounded-[inherit] object-cover object-center',
+            imageClassName
+          )}
           loading={imageLoading}
           decoding="async"
           draggable={false}

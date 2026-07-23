@@ -1,6 +1,6 @@
 // apps/api/src/infrastructure/database/models/tracker-progress.model.ts
 
-import type { Document} from 'mongoose';
+import type { Document } from 'mongoose';
 import mongoose, { Schema } from 'mongoose';
 
 export interface ITrackerProgressDocument extends Document {

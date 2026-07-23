@@ -54,7 +54,8 @@ export const emailWorker = new Worker<
   async (job) => {
     if (job.data.kind === 'admin_user_status') {
       const { to, userName, status, reason } = job.data;
-      const action = status === 'active' ? 'restored' : status === 'paused' ? 'suspended' : 'blocked';
+      const action =
+        status === 'active' ? 'restored' : status === 'paused' ? 'suspended' : 'blocked';
       await sendMail(
         to,
         `Your Imminiq account access was ${action}`,

@@ -6,5 +6,8 @@ export interface IAIJobQuotaConsumeResult {
 }
 
 export interface IAIJobQuotaStore {
-  consume(purpose: TrackerCreationAIJobQuotaPurpose, userId: string): Promise<IAIJobQuotaConsumeResult>;
+  consume(
+    purpose: TrackerCreationAIJobQuotaPurpose,
+    userId: string
+  ): Promise<IAIJobQuotaConsumeResult>;
 }

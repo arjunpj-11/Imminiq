@@ -53,8 +53,8 @@ export default function FinalCta() {
             Start a living learning path
           </p>
           <p className="mt-5 max-w-118 text-[15px] leading-[1.8] text-[#6b5f58] dark:text-[#b8b4aa]">
-            Create a tracker for what you want to master, find people on the same path, and help build
-            the learning structure you wish you had from day one.
+            Create a tracker for what you want to master, find people on the same path, and help
+            build the learning structure you wish you had from day one.
           </p>
         </div>
 

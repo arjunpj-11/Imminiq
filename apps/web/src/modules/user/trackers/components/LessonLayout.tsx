@@ -9,13 +9,7 @@ interface ILessonLayoutProps {
 }
 
 export default function LessonLayout({ data, onComplete, isCompleting }: ILessonLayoutProps) {
-  const {
-    tracker,
-    lessonNode: lesson,
-    previousLesson,
-    nextLesson,
-    lessonRoadmap,
-  } = data;
+  const { tracker, lessonNode: lesson, previousLesson, nextLesson, lessonRoadmap } = data;
 
   return (
     <div className="grid grid-cols-[1fr_340px] gap-5 max-[1100px]:grid-cols-1">

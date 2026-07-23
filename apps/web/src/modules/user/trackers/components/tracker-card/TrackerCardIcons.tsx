@@ -1,13 +1,13 @@
-import type { SVGProps } from "react";
+import type { SVGProps } from 'react';
 
 type IconProps = SVGProps<SVGSVGElement>;
 
 const baseProps = {
   width: 16,
   height: 16,
-  viewBox: "0 0 24 24",
-  fill: "none",
-  "aria-hidden": true,
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  'aria-hidden': true,
 } as const;
 
 export function ArrowUpRightIcon(props: IconProps) {
@@ -34,12 +34,7 @@ export function ArchiveIcon(props: IconProps) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path
-        d="M9 11h6"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-      />
+      <path d="M9 11h6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
     </svg>
   );
 }
@@ -106,12 +101,7 @@ export function InfoIcon(props: IconProps) {
   return (
     <svg {...baseProps} {...props}>
       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.7" />
-      <path
-        d="M12 10.5V16"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-      />
+      <path d="M12 10.5V16" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
       <circle cx="12" cy="7.5" r="1" fill="currentColor" />
     </svg>
   );
@@ -198,19 +188,8 @@ export function ShieldIcon(props: IconProps) {
 
 export function SpinnerIcon(props: IconProps) {
   return (
-    <svg
-      {...baseProps}
-      className={`animate-spin ${props.className ?? ""}`}
-      {...props}
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="9"
-        stroke="currentColor"
-        strokeWidth="3"
-      />
+    <svg {...baseProps} className={`animate-spin ${props.className ?? ''}`} {...props}>
+      <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
       <path
         className="opacity-80"
         fill="currentColor"

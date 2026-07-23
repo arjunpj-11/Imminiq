@@ -2,4 +2,5 @@ import type { ICommunityTrackerRepository } from './community-tracker.repository
 import type { ICommunityVerificationRepository } from './community-verification.repository.interface';
 
 export interface ICommunityRepository
-  extends ICommunityTrackerRepository, ICommunityVerificationRepository {}
+  extends ICommunityTrackerRepository,
+    ICommunityVerificationRepository {}

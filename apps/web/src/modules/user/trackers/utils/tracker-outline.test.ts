@@ -4,12 +4,16 @@ import { allOutlinePaths, parseTrackerOutlineJson, selectedOutline } from './tra
 
 describe('tracker outline JSON', () => {
   it('normalizes recursive subtopics and children aliases', () => {
-    const outline = parseTrackerOutlineJson(JSON.stringify({
-      topics: [{
-        title: 'Topic',
-        children: [{ title: 'Child', subtopics: [{ title: 'Grandchild' }] }],
-      }],
-    }));
+    const outline = parseTrackerOutlineJson(
+      JSON.stringify({
+        topics: [
+          {
+            title: 'Topic',
+            children: [{ title: 'Child', subtopics: [{ title: 'Grandchild' }] }],
+          },
+        ],
+      })
+    );
 
     expect(outline[0]?.subtopics[0]?.title).toBe('Child');
     expect(outline[0]?.subtopics[0]?.subtopics[0]?.title).toBe('Grandchild');
@@ -21,10 +25,9 @@ describe('tracker outline JSON', () => {
   });
 
   it('keeps only confirmed AI suggestions and their confirmed descendants', () => {
-    const nodes = parseTrackerOutlineJson(JSON.stringify([
-      { title: 'One', subtopics: [{ title: 'One child' }] },
-      { title: 'Two' },
-    ]));
+    const nodes = parseTrackerOutlineJson(
+      JSON.stringify([{ title: 'One', subtopics: [{ title: 'One child' }] }, { title: 'Two' }])
+    );
 
     expect(allOutlinePaths(nodes)).toEqual(['0', '0.0', '1']);
     expect(selectedOutline(nodes, new Set(['0', '0.0']))).toHaveLength(1);

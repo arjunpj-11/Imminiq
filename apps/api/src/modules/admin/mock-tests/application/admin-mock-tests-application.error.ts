@@ -10,7 +10,11 @@ export class AdminMockTestsApplicationError extends Error {
   }
 
   static notFound() {
-    return new AdminMockTestsApplicationError('missing-resource', 'MOCK_TEST_NOT_FOUND', 'Mock test not found');
+    return new AdminMockTestsApplicationError(
+      'missing-resource',
+      'MOCK_TEST_NOT_FOUND',
+      'Mock test not found'
+    );
   }
 
   static issueNotFound() {

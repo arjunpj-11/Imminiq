@@ -73,11 +73,7 @@ interface IOnboardingContextCardProps {
   rows: IOnboardingContextRow[];
 }
 
-export function OnboardingContextCard({
-  title,
-  description,
-  rows,
-}: IOnboardingContextCardProps) {
+export function OnboardingContextCard({ title, description, rows }: IOnboardingContextCardProps) {
   return (
     <article className="h-full rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-[0_12px_36px_rgba(26,23,20,0.06)] dark:border-white/15 dark:bg-(--surface-card) sm:p-6">
       <div className="mb-5">

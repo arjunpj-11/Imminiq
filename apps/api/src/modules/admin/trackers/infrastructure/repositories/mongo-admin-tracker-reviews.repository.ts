@@ -2,7 +2,11 @@ import mongoose from 'mongoose';
 import { CommunityVerificationSubmission } from '../../../../../infrastructure/database/models/community-verification-submission.model';
 import { Tracker } from '../../../../../infrastructure/database/models/tracker.model';
 import type { AdminActor, AdminListQuery } from '../../../../../shared/admin';
-import { createAdminPage, escapeAdminSearch, recordAdminAction } from '../../../../../infrastructure/admin';
+import {
+  createAdminPage,
+  escapeAdminSearch,
+  recordAdminAction,
+} from '../../../../../infrastructure/admin';
 import type { AdminTrackerReviewConsensusChoice } from '../../domain/entities/admin-tracker-review.entity';
 import type { IAdminTrackerReviewsRepository } from '../../domain/repositories/admin-tracker-reviews.repository.interface';
 
@@ -10,9 +14,18 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
   async list(query: AdminListQuery) {
     const filter: Record<string, unknown> = { deletedAt: null };
     if (query.status && query.status !== 'all') filter.status = query.status;
-    if (query.search) filter.$or = [{ title: new RegExp(escapeAdminSearch(query.search), 'i') }, { category: new RegExp(escapeAdminSearch(query.search), 'i') }];
+    if (query.search)
+      filter.$or = [
+        { title: new RegExp(escapeAdminSearch(query.search), 'i') },
+        { category: new RegExp(escapeAdminSearch(query.search), 'i') },
+      ];
     const [rows, total, open, approved, rejected] = await Promise.all([
-      CommunityVerificationSubmission.find(filter).sort({ urgent: -1, createdAt: -1 }).skip((query.page - 1) * query.limit).limit(query.limit).populate('ownerId', 'fullName username').lean(),
+      CommunityVerificationSubmission.find(filter)
+        .sort({ urgent: -1, createdAt: -1 })
+        .skip((query.page - 1) * query.limit)
+        .limit(query.limit)
+        .populate('ownerId', 'fullName username')
+        .lean(),
       CommunityVerificationSubmission.countDocuments(filter),
       CommunityVerificationSubmission.countDocuments({ deletedAt: null, status: 'open' }),
       CommunityVerificationSubmission.countDocuments({ deletedAt: null, status: 'approved' }),
@@ -20,7 +33,18 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
     ]);
     const items = rows.map((row) => {
       const owner = row.ownerId as unknown as { fullName?: string; username?: string };
-      return { id: String(row._id), trackerId: String(row.trackerId), title: row.title, owner: owner?.fullName ?? owner?.username ?? 'Unknown', category: row.category, status: row.status, urgent: row.urgent, passVotes: row.passVotes, failVotes: row.failVotes, createdAt: row.createdAt };
+      return {
+        id: String(row._id),
+        trackerId: String(row.trackerId),
+        title: row.title,
+        owner: owner?.fullName ?? owner?.username ?? 'Unknown',
+        category: row.category,
+        status: row.status,
+        urgent: row.urgent,
+        passVotes: row.passVotes,
+        failVotes: row.failVotes,
+        createdAt: row.createdAt,
+      };
     });
     return createAdminPage(items, query, total, { open, approved, rejected });
   }
@@ -33,8 +57,10 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
         | { kind: 'not_open' }
         | { kind: 'not_found' } = { kind: 'not_found' };
       await session.withTransaction(async () => {
-        const review = await CommunityVerificationSubmission.findOne({ _id: id, deletedAt: null })
-          .session(session);
+        const review = await CommunityVerificationSubmission.findOne({
+          _id: id,
+          deletedAt: null,
+        }).session(session);
         if (!review) return;
         if (review.status !== 'open') {
           response = { kind: 'not_open' };
@@ -56,7 +82,11 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
           existing.choice = choice;
           existing.votedAt = new Date();
         } else {
-          review.adminVotes.push({ userId: new mongoose.Types.ObjectId(actor.userId), choice, votedAt: new Date() });
+          review.adminVotes.push({
+            userId: new mongoose.Types.ObjectId(actor.userId),
+            choice,
+            votedAt: new Date(),
+          });
         }
         if (choice === 'pass') review.passVotes += 1;
         else review.failVotes += 1;
@@ -67,12 +97,23 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
         await review.save({ session });
         await recordAdminAction(
           actor,
-          existing ? 'admin_tracker_review_consensus_vote_changed' : 'admin_tracker_review_consensus_vote_added',
+          existing
+            ? 'admin_tracker_review_consensus_vote_changed'
+            : 'admin_tracker_review_consensus_vote_added',
           'admin.trackers',
-          { reviewId: id, trackerId: String(review.trackerId), choice, passVotes: review.passVotes, failVotes: review.failVotes },
+          {
+            reviewId: id,
+            trackerId: String(review.trackerId),
+            choice,
+            passVotes: review.passVotes,
+            failVotes: review.failVotes,
+          },
           session
         );
-        response = { kind: 'success', value: { id, passVotes: review.passVotes, failVotes: review.failVotes } };
+        response = {
+          kind: 'success',
+          value: { id, passVotes: review.passVotes, failVotes: review.failVotes },
+        };
       });
       return response;
     } finally {
@@ -93,10 +134,21 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
         if (!review) return;
         await Tracker.updateOne(
           { _id: review.trackerId },
-          { $set: { verificationStatus: status === 'approved' ? 'verified' : 'rejected', verifiedAt: status === 'approved' ? new Date() : null } },
+          {
+            $set: {
+              verificationStatus: status === 'approved' ? 'verified' : 'rejected',
+              verifiedAt: status === 'approved' ? new Date() : null,
+            },
+          },
           { session }
         );
-        await recordAdminAction(actor, 'admin_tracker_review_resolved', 'admin.trackers', { reviewId: id, status, trackerId: String(review.trackerId) }, session);
+        await recordAdminAction(
+          actor,
+          'admin_tracker_review_resolved',
+          'admin.trackers',
+          { reviewId: id, status, trackerId: String(review.trackerId) },
+          session
+        );
         result = { id, status: review.status };
       });
       return result;

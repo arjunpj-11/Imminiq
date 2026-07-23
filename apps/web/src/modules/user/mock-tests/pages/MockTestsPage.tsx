@@ -167,8 +167,7 @@ export default function MockTestsPage() {
           eyebrow="Assessment studio"
           title={
             <>
-              Practice{' '}
-              <span className="text-(--brand-500)">under pressure</span>
+              Practice <span className="text-(--brand-500)">under pressure</span>
             </>
           }
           description="Generate focused assessments from your learning paths, test recall under realistic timing, and turn every result into a smarter next step."
@@ -187,9 +186,15 @@ export default function MockTestsPage() {
           }
           aside={
             <div>
-              <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-(--text-muted)">Adaptive mode</div>
-              <div className="mt-3 font-ui text-[24px] font-extrabold text-(--text-primary)">{generationBlocked ? 'Generation active' : 'Ready to test'}</div>
-              <p className="mt-2 text-[12px] leading-5 text-(--text-secondary)">Questions adjust to your roadmap, level, and recent weak areas.</p>
+              <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-(--text-muted)">
+                Adaptive mode
+              </div>
+              <div className="mt-3 font-ui text-[24px] font-extrabold text-(--text-primary)">
+                {generationBlocked ? 'Generation active' : 'Ready to test'}
+              </div>
+              <p className="mt-2 text-[12px] leading-5 text-(--text-secondary)">
+                Questions adjust to your roadmap, level, and recent weak areas.
+              </p>
             </div>
           }
         />

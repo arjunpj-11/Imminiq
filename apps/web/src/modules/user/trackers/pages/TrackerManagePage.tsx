@@ -11,9 +11,7 @@ import TrackerModerationNotice from '../components/TrackerModerationNotice';
 import { useUnsavedChangesGuard } from '../../../../hooks/useUnsavedChangesGuard';
 import SubtopicTreeNode from '../components/manage/SubtopicTreeNode';
 import OutlineSuggestionPicker from '../components/manage/OutlineSuggestionPicker';
-import {
-  TrackerManageEmptyState as EmptyPanel,
-} from '../components/manage/TrackerManageStates';
+import { TrackerManageEmptyState as EmptyPanel } from '../components/manage/TrackerManageStates';
 
 import {
   useImportTrackerOutline,
@@ -93,8 +91,7 @@ export default function TrackerManagePage() {
   const roadmapData = roadmapQuery.data as TrackerRoadmapLike | undefined;
   const tracker = trackerDetailsQuery.data || extractRoadmapTracker(roadmapData);
   const isClonedTracker = Boolean(tracker?.sourceTrackerId);
-  const isPublishedTracker =
-    tracker?.visibility === 'public' || Boolean(tracker?.publishedAt);
+  const isPublishedTracker = tracker?.visibility === 'public' || Boolean(tracker?.publishedAt);
   const clanQuery = useTrackerClan(trackerId, Boolean(trackerId && isPublishedTracker));
   const canManageTracker = isPublishedTracker
     ? Boolean(clanQuery.data?.canManage)
@@ -138,9 +135,9 @@ export default function TrackerManagePage() {
     useState<SubtopicDifficulty>('beginner');
   const [newSubtopicParentId, setNewSubtopicParentId] = useState<string | null>(null);
   const [subtopicSuggestions, setSubtopicSuggestions] = useState<TrackerOutlineNode[]>([]);
-  const [selectedSubtopicSuggestionPaths, setSelectedSubtopicSuggestionPaths] = useState<Set<string>>(
-    () => new Set()
-  );
+  const [selectedSubtopicSuggestionPaths, setSelectedSubtopicSuggestionPaths] = useState<
+    Set<string>
+  >(() => new Set());
   const [importJson, setImportJson] = useState('');
   const [showJsonImport, setShowJsonImport] = useState(false);
 
@@ -199,13 +196,13 @@ export default function TrackerManagePage() {
 
   const hasUnsavedDrafts = Boolean(
     (trackerTitleDraft !== null && trackerTitleDraft.trim() !== (tracker?.title ?? '').trim()) ||
-    newTopicTitle.trim() ||
-    newTopicDescription.trim() ||
-    newSubtopicTitle.trim() ||
-    newSubtopicDescription.trim() ||
-    importJson.trim() ||
-    newSubtopicParentId ||
-    newSubtopicDifficulty !== 'beginner'
+      newTopicTitle.trim() ||
+      newTopicDescription.trim() ||
+      newSubtopicTitle.trim() ||
+      newSubtopicDescription.trim() ||
+      importJson.trim() ||
+      newSubtopicParentId ||
+      newSubtopicDifficulty !== 'beginner'
   );
 
   const unsavedChangesGuard = useUnsavedChangesGuard({
@@ -216,9 +213,7 @@ export default function TrackerManagePage() {
   const subtopicTitleReady = Boolean(newSubtopicTitle.trim());
 
   const canAddTopic =
-    topicTitleReady &&
-    topicVerification.status === 'approved' &&
-    !importOutlineMutation.isPending;
+    topicTitleReady && topicVerification.status === 'approved' && !importOutlineMutation.isPending;
 
   const canAddSubtopic =
     Boolean(activeTopic?._id) &&
@@ -437,11 +432,13 @@ export default function TrackerManagePage() {
       await importOutlineMutation.mutateAsync({
         trackerId,
         kind: 'topics',
-        topics: [{
-          title: newTopicTitle.trim(),
-          description: newTopicDescription.trim(),
-          subtopics: selectedOutline(topicSuggestions, selectedTopicSuggestionPaths),
-        }],
+        topics: [
+          {
+            title: newTopicTitle.trim(),
+            description: newTopicDescription.trim(),
+            subtopics: selectedOutline(topicSuggestions, selectedTopicSuggestionPaths),
+          },
+        ],
       });
 
       setNewTopicTitle('');
@@ -478,11 +475,13 @@ export default function TrackerManagePage() {
         kind: 'subtopics',
         topicId: activeTopic._id,
         parentSubtopicId: newSubtopicParentId || undefined,
-        subtopics: [{
-          title: newSubtopicTitle.trim(),
-          description: newSubtopicDescription.trim(),
-          subtopics: selectedOutline(subtopicSuggestions, selectedSubtopicSuggestionPaths),
-        }],
+        subtopics: [
+          {
+            title: newSubtopicTitle.trim(),
+            description: newSubtopicDescription.trim(),
+            subtopics: selectedOutline(subtopicSuggestions, selectedSubtopicSuggestionPaths),
+          },
+        ],
       });
 
       setNewSubtopicTitle('');
@@ -584,7 +583,8 @@ export default function TrackerManagePage() {
   };
 
   // ── Loading / error flags ──
-  const isLoading = trackerDetailsQuery.isLoading || (!trackerIsModerated && roadmapQuery.isLoading);
+  const isLoading =
+    trackerDetailsQuery.isLoading || (!trackerIsModerated && roadmapQuery.isLoading);
 
   const hasError = !trackerId || trackerDetailsQuery.isError || roadmapQuery.isError;
 
@@ -650,9 +650,7 @@ export default function TrackerManagePage() {
               {tracker.clonedFrom && (
                 <button
                   type="button"
-                  onClick={() =>
-                    navigate(`/community/trackers/${tracker.clonedFrom?.trackerId}`)
-                  }
+                  onClick={() => navigate(`/community/trackers/${tracker.clonedFrom?.trackerId}`)}
                   className="cursor-pointer pt-1 text-xs font-semibold text-[#f2f0eb]/70 transition hover:text-[#fdf8f5] hover:underline"
                   title="Open the original published tracker"
                 >
@@ -683,17 +681,24 @@ export default function TrackerManagePage() {
         {isPublishedTracker && !isClonedTracker && clanQuery.data?.canManage && (
           <section className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[#d6ad47]/30 bg-[linear-gradient(135deg,rgba(244,201,93,.12),rgba(184,76,43,.05))] px-5 py-4 dark:border-[#d6ad47]/20">
             <div className="flex items-center gap-3">
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-[#171512] text-lg text-white">🛡</span>
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-[#171512] text-lg text-white">
+                🛡
+              </span>
               <div>
                 <p className="font-mono text-[8px] font-bold uppercase tracking-[.16em] text-[#8a6509] dark:text-[#f4c95d]">
-                  {clanQuery.data.role === 'owner' ? 'Guild owner' : 'Guild co-owner'} · shared original
+                  {clanQuery.data.role === 'owner' ? 'Guild owner' : 'Guild co-owner'} · shared
+                  original
                 </p>
                 <p className="mt-1 text-[12px] text-(--text-secondary)">
                   Changes made here update the public guild tracker immediately for every member.
                 </p>
               </div>
             </div>
-            <button type="button" onClick={() => navigate(`/trackers/${trackerId}/clan`)} className={subtleButtonClass}>
+            <button
+              type="button"
+              onClick={() => navigate(`/trackers/${trackerId}/clan`)}
+              className={subtleButtonClass}
+            >
               Open guild &amp; merge requests
             </button>
           </section>
@@ -720,9 +725,7 @@ export default function TrackerManagePage() {
                 <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-(--brand-500)">
                   Clone changes
                 </p>
-                <h2 className="mt-1 font-serif text-2xl font-extrabold">
-                  Changes after cloning
-                </h2>
+                <h2 className="mt-1 font-serif text-2xl font-extrabold">Changes after cloning</h2>
                 <p className="mt-2 text-[13px] text-(--text-secondary)">
                   Only topics added to your copy can be proposed to the original tracker.
                 </p>
@@ -779,9 +782,7 @@ export default function TrackerManagePage() {
                       {!requestSent && (
                         <button
                           type="button"
-                          onClick={() =>
-                            void handleCreateContribution(topic._id, topic.title)
-                          }
+                          onClick={() => void handleCreateContribution(topic._id, topic.title)}
                           disabled={createContributionMutation.isPending}
                           className={cn(buttonClass, 'mt-4')}
                         >
@@ -919,7 +920,10 @@ export default function TrackerManagePage() {
                                   nestedCount: countNestedSubtopics(getChildren(activeTopic)),
                                 })
                               }
-                              className={cn(subtleButtonClass, 'px-3 py-2 text-[11px] hover:border-red-500 hover:text-red-500')}
+                              className={cn(
+                                subtleButtonClass,
+                                'px-3 py-2 text-[11px] hover:border-red-500 hover:text-red-500'
+                              )}
                             >
                               Delete topic
                             </button>
@@ -957,10 +961,21 @@ export default function TrackerManagePage() {
                           placeholder="Topic description"
                         />
                         <div className="flex gap-2">
-                          <button type="button" onClick={() => void handleUpdateTopic()} disabled={updateTopicMutation.isPending} className={buttonClass}>
+                          <button
+                            type="button"
+                            onClick={() => void handleUpdateTopic()}
+                            disabled={updateTopicMutation.isPending}
+                            className={buttonClass}
+                          >
                             {updateTopicMutation.isPending ? 'Saving...' : 'Save topic'}
                           </button>
-                          <button type="button" onClick={() => setEditingTopic(null)} className={subtleButtonClass}>Cancel</button>
+                          <button
+                            type="button"
+                            onClick={() => setEditingTopic(null)}
+                            className={subtleButtonClass}
+                          >
+                            Cancel
+                          </button>
                         </div>
                       </div>
                     )}
@@ -1020,15 +1035,22 @@ export default function TrackerManagePage() {
             <section className="rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="font-mono text-[9px] uppercase tracking-[.14em] text-(--brand-500)">Fast build</p>
+                  <p className="font-mono text-[9px] uppercase tracking-[.14em] text-(--brand-500)">
+                    Fast build
+                  </p>
                   <h3 className="mt-1 font-serif text-[18px] font-bold">Import JSON</h3>
                 </div>
-                <button type="button" onClick={() => setShowJsonImport((value) => !value)} className={cn(subtleButtonClass, 'px-3 py-2 text-[11px]')}>
+                <button
+                  type="button"
+                  onClick={() => setShowJsonImport((value) => !value)}
+                  className={cn(subtleButtonClass, 'px-3 py-2 text-[11px]')}
+                >
                   {showJsonImport ? 'Close' : 'Import'}
                 </button>
               </div>
               <p className="mt-2 text-[12px] leading-relaxed text-(--text-secondary)">
-                Paste a complete recursive outline. Nested <code>subtopics</code> are created at every level.
+                Paste a complete recursive outline. Nested <code>subtopics</code> are created at
+                every level.
               </p>
               {showJsonImport && (
                 <div className="mt-4 grid gap-3">
@@ -1040,13 +1062,25 @@ export default function TrackerManagePage() {
                     spellCheck={false}
                   />
                   <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={() => setImportJson(trackerOutlineExample)} className={cn(subtleButtonClass, 'px-3 py-2 text-[11px]')}>Use example</button>
-                    <button type="button" onClick={() => void handleImportJson()} disabled={!importJson.trim() || importOutlineMutation.isPending} className={cn(buttonClass, 'px-3 py-2 text-[11px]')}>
+                    <button
+                      type="button"
+                      onClick={() => setImportJson(trackerOutlineExample)}
+                      className={cn(subtleButtonClass, 'px-3 py-2 text-[11px]')}
+                    >
+                      Use example
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void handleImportJson()}
+                      disabled={!importJson.trim() || importOutlineMutation.isPending}
+                      className={cn(buttonClass, 'px-3 py-2 text-[11px]')}
+                    >
                       {importOutlineMutation.isPending ? 'Importing tree...' : 'Validate & import'}
                     </button>
                   </div>
                   <p className="text-[10.5px] leading-relaxed text-(--text-secondary)">
-                    Accepted root: <code>{'{ "topics": [...] }'}</code> or a direct topics array. Up to 250 items and 8 nested levels.
+                    Accepted root: <code>{'{ "topics": [...] }'}</code> or a direct topics array. Up
+                    to 250 items and 8 nested levels.
                   </p>
                 </div>
               )}
@@ -1090,7 +1124,9 @@ export default function TrackerManagePage() {
                 {topicVerification.status === 'approved' && topicSuggestions.length > 0 && (
                   <div className="rounded-xl border border-[rgba(184,76,43,.22)] bg-[rgba(184,76,43,.06)] p-3">
                     <div className="mb-3">
-                      <p className="text-[12px] font-bold text-(--text-primary)">Choose suggested subtopics</p>
+                      <p className="text-[12px] font-bold text-(--text-primary)">
+                        Choose suggested subtopics
+                      </p>
                       <p className="mt-1 text-[10.5px] leading-relaxed text-(--text-secondary)">
                         AI found useful children. Only checked items will be added with the topic.
                       </p>
@@ -1241,7 +1277,9 @@ export default function TrackerManagePage() {
 
                 {subtopicVerification.status === 'approved' && subtopicSuggestions.length > 0 && (
                   <div className="rounded-xl border border-[rgba(184,76,43,.22)] bg-[rgba(184,76,43,.06)] p-3">
-                    <p className="text-[12px] font-bold text-(--text-primary)">Add child suggestions?</p>
+                    <p className="text-[12px] font-bold text-(--text-primary)">
+                      Add child suggestions?
+                    </p>
                     <p className="mb-3 mt-1 text-[10.5px] leading-relaxed text-(--text-secondary)">
                       Keep the useful children checked. Unchecked suggestions will not be created.
                     </p>

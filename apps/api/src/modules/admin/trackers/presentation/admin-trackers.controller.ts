@@ -16,7 +16,20 @@ import {
 } from './admin-trackers.schema';
 export class AdminTrackersController {
   constructor(private readonly _useCases: AdminTrackersUseCases) {}
-  exportCsv = async (req: Request, res: Response, next: NextFunction) => { try { const query = adminTrackersQuerySchema.parse(req.query); const content = await this._useCases.exports.trackers({ search: query.search ?? '', status: query.status ?? 'all' }); res.setHeader('Content-Type', 'text/csv; charset=utf-8'); res.setHeader('Content-Disposition', 'attachment; filename="imminiq-trackers.csv"'); res.send(`\uFEFF${content}`); } catch (error) { next(error); } };
+  exportCsv = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const query = adminTrackersQuerySchema.parse(req.query);
+      const content = await this._useCases.exports.trackers({
+        search: query.search ?? '',
+        status: query.status ?? 'all',
+      });
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename="imminiq-trackers.csv"');
+      res.send(`\uFEFF${content}`);
+    } catch (error) {
+      next(error);
+    }
+  };
   bulkLifecycle = (req: Request, res: Response, next: NextFunction) => {
     const input = adminTrackerBulkLifecycleSchema.parse(req.body);
     return sendAdminResult(
@@ -26,10 +39,50 @@ export class AdminTrackersController {
       input.preview ? 'Bulk action preview' : 'Bulk tracker action completed'
     );
   };
-  listAppeals = (req: Request, res: Response, next: NextFunction) => sendAdminResult(next, () => this._useCases.contentAppeals.list('tracker', adminContentAppealsQuerySchema.parse(req.query)), res, 'Tracker appeals fetched');
-  updateAppeal = (req: Request, res: Response, next: NextFunction) => sendAdminResult(next, () => this._useCases.contentAppeals.update('tracker', String(req.params.appealId), adminContentAppealUpdateSchema.parse(req.body), getAdminActor(req)), res, 'Tracker appeal updated');
-  listVersions = (req: Request, res: Response, next: NextFunction) => sendAdminResult(next, () => this._useCases.versions.list(String(req.params.id)), res, 'Tracker versions fetched');
-  restoreVersion = (req: Request, res: Response, next: NextFunction) => sendAdminResult(next, () => this._useCases.versions.restore(String(req.params.id), adminTrackerVersionParamSchema.parse(req.params.version), adminTrackerVersionRestoreSchema.parse(req.body).reason, getAdminActor(req)), res, 'Tracker version restored');
+  listAppeals = (req: Request, res: Response, next: NextFunction) =>
+    sendAdminResult(
+      next,
+      () =>
+        this._useCases.contentAppeals.list(
+          'tracker',
+          adminContentAppealsQuerySchema.parse(req.query)
+        ),
+      res,
+      'Tracker appeals fetched'
+    );
+  updateAppeal = (req: Request, res: Response, next: NextFunction) =>
+    sendAdminResult(
+      next,
+      () =>
+        this._useCases.contentAppeals.update(
+          'tracker',
+          String(req.params.appealId),
+          adminContentAppealUpdateSchema.parse(req.body),
+          getAdminActor(req)
+        ),
+      res,
+      'Tracker appeal updated'
+    );
+  listVersions = (req: Request, res: Response, next: NextFunction) =>
+    sendAdminResult(
+      next,
+      () => this._useCases.versions.list(String(req.params.id)),
+      res,
+      'Tracker versions fetched'
+    );
+  restoreVersion = (req: Request, res: Response, next: NextFunction) =>
+    sendAdminResult(
+      next,
+      () =>
+        this._useCases.versions.restore(
+          String(req.params.id),
+          adminTrackerVersionParamSchema.parse(req.params.version),
+          adminTrackerVersionRestoreSchema.parse(req.body).reason,
+          getAdminActor(req)
+        ),
+      res,
+      'Tracker version restored'
+    );
   list = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,

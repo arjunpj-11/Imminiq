@@ -25,12 +25,12 @@ const visibleStates: JobState[] = ['waiting', 'active', 'delayed', 'completed', 
 
 export class BullMqAdminJobWorklistService implements IAdminJobWorklistService {
   async list(query: AdminJobWorklistQuery) {
-    const selectedQueues = query.queue && query.queue !== 'all'
-      ? [this.requireQueue(query.queue)]
-      : [...queues.values()];
-    const requestedStates = query.status && query.status !== 'all'
-      ? [query.status as JobState]
-      : visibleStates;
+    const selectedQueues =
+      query.queue && query.queue !== 'all'
+        ? [this.requireQueue(query.queue)]
+        : [...queues.values()];
+    const requestedStates =
+      query.status && query.status !== 'all' ? [query.status as JobState] : visibleStates;
     const jobs = (
       await Promise.all(
         selectedQueues.map(async (queue) => {

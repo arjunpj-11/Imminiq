@@ -14,7 +14,7 @@ export const useUpdateAdminUserTags = (userId: string) => {
       await api.put(
         ADMIN_USERS_ENDPOINTS.tags(userId),
         { tags },
-        { headers: { 'X-Admin-Action-Password': actionPassword } },
+        { headers: { 'X-Admin-Action-Password': actionPassword } }
       );
     },
     onSuccess: async () => {

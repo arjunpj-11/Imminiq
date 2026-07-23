@@ -149,17 +149,33 @@ const LoadingPanel = () => {
           <SkeletonBlock className="h-3 w-28" />
           <SkeletonBlock className="mt-4 h-9 w-[min(34rem,80%)] rounded-xl" />
           <SkeletonBlock className="mt-3 h-4 w-[min(42rem,95%)]" />
-          <div className="mt-6 flex gap-3"><SkeletonBlock className="h-9 w-28 rounded-md" /><SkeletonBlock className="h-9 w-32 rounded-md" /></div>
+          <div className="mt-6 flex gap-3">
+            <SkeletonBlock className="h-9 w-28 rounded-md" />
+            <SkeletonBlock className="h-9 w-32 rounded-md" />
+          </div>
         </div>
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_19rem]">
           <div className="space-y-4">
             {Array.from({ length: 5 }, (_, index) => (
-              <div key={index} className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5">
-                <div className="flex items-center gap-4"><SkeletonBlock className="h-11 w-11 shrink-0 rounded-full" /><div className="flex-1"><SkeletonBlock className="h-5 w-2/5" /><SkeletonBlock className="mt-2 h-3 w-4/5" /></div><SkeletonBlock className="h-8 w-16 rounded-md" /></div>
+              <div
+                key={index}
+                className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5"
+              >
+                <div className="flex items-center gap-4">
+                  <SkeletonBlock className="h-11 w-11 shrink-0 rounded-full" />
+                  <div className="flex-1">
+                    <SkeletonBlock className="h-5 w-2/5" />
+                    <SkeletonBlock className="mt-2 h-3 w-4/5" />
+                  </div>
+                  <SkeletonBlock className="h-8 w-16 rounded-md" />
+                </div>
               </div>
             ))}
           </div>
-          <div className="space-y-4"><SkeletonBlock className="h-44 w-full rounded-2xl" /><SkeletonBlock className="h-64 w-full rounded-2xl" /></div>
+          <div className="space-y-4">
+            <SkeletonBlock className="h-44 w-full rounded-2xl" />
+            <SkeletonBlock className="h-64 w-full rounded-2xl" />
+          </div>
         </div>
       </div>
     </div>
@@ -337,8 +353,15 @@ export default function OnboardingRoadmapReadyPage() {
               ) : null}
 
               <div className="mt-5 flex flex-wrap gap-2">
-                {[tracker.field || 'AI-generated field', capitalize(tracker.level), capitalize(tracker.visibility || 'private')].map((label) => (
-                  <span key={label} className="inline-flex max-w-full items-center rounded-lg border border-white/10 bg-white/[0.07] px-3 py-1.5 text-[11px] font-semibold text-[#f2f0eb]/72">
+                {[
+                  tracker.field || 'AI-generated field',
+                  capitalize(tracker.level),
+                  capitalize(tracker.visibility || 'private'),
+                ].map((label) => (
+                  <span
+                    key={label}
+                    className="inline-flex max-w-full items-center rounded-lg border border-white/10 bg-white/[0.07] px-3 py-1.5 text-[11px] font-semibold text-[#f2f0eb]/72"
+                  >
                     {label}
                   </span>
                 ))}
@@ -351,9 +374,16 @@ export default function OnboardingRoadmapReadyPage() {
                 ['Subtopics', totalSubtopics],
                 ['Nodes', totalPreviewNodes],
               ].map(([label, value]) => (
-                <div key={label} className="rounded-2xl border border-white/10 bg-white/6 px-3 py-4 text-center backdrop-blur">
-                  <span className="block text-[9px] font-bold uppercase tracking-widest text-[#f2f0eb]/45">{label}</span>
-                  <span className="mt-1 block font-serif text-[30px] font-black leading-none text-(--warning)">{value}</span>
+                <div
+                  key={label}
+                  className="rounded-2xl border border-white/10 bg-white/6 px-3 py-4 text-center backdrop-blur"
+                >
+                  <span className="block text-[9px] font-bold uppercase tracking-widest text-[#f2f0eb]/45">
+                    {label}
+                  </span>
+                  <span className="mt-1 block font-serif text-[30px] font-black leading-none text-(--warning)">
+                    {value}
+                  </span>
                 </div>
               ))}
             </div>
@@ -365,10 +395,16 @@ export default function OnboardingRoadmapReadyPage() {
             <div className="border-b border-(--border-subtle) px-4 py-4 dark:border-white/15 sm:px-6">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-500)">Roadmap structure</p>
-                  <h2 className="mt-1 font-serif text-[22px] font-black tracking-[-0.4px]">Explore generated topics</h2>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-500)">
+                    Roadmap structure
+                  </p>
+                  <h2 className="mt-1 font-serif text-[22px] font-black tracking-[-0.4px]">
+                    Explore generated topics
+                  </h2>
                 </div>
-                <span className="hidden rounded-full bg-(--surface-canvas) px-3 py-1.5 text-[10px] font-bold text-(--text-secondary) sm:inline-flex">{topics.length} topic groups</span>
+                <span className="hidden rounded-full bg-(--surface-canvas) px-3 py-1.5 text-[10px] font-bold text-(--text-secondary) sm:inline-flex">
+                  {topics.length} topic groups
+                </span>
               </div>
 
               <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
@@ -394,9 +430,16 @@ export default function OnboardingRoadmapReadyPage() {
             </div>
 
             <div className="border-b border-(--border-subtle) bg-[rgba(184,76,43,0.045)] px-4 py-5 dark:border-white/15 dark:bg-[rgba(232,129,106,0.05)] sm:px-6">
-              <p className="text-[10px] font-bold uppercase tracking-[0.11em] text-(--brand-500)">Selected topic</p>
-              <h3 className="mt-1 font-serif text-[clamp(20px,3vw,26px)] font-black tracking-[-0.4px] text-(--text-primary)">{activeTopic?.title || 'Generated Topic'}</h3>
-              <p className="mt-2 max-w-3xl text-[12.5px] leading-6 text-(--text-secondary)">{activeTopic?.description || 'Explore the generated sections and learning nodes inside this topic.'}</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.11em] text-(--brand-500)">
+                Selected topic
+              </p>
+              <h3 className="mt-1 font-serif text-[clamp(20px,3vw,26px)] font-black tracking-[-0.4px] text-(--text-primary)">
+                {activeTopic?.title || 'Generated Topic'}
+              </h3>
+              <p className="mt-2 max-w-3xl text-[12.5px] leading-6 text-(--text-secondary)">
+                {activeTopic?.description ||
+                  'Explore the generated sections and learning nodes inside this topic.'}
+              </p>
             </div>
 
             {sections.length ? (
@@ -406,25 +449,53 @@ export default function OnboardingRoadmapReadyPage() {
                   const open = sectionOverrides[section.id] ?? defaultOpen;
 
                   return (
-                    <div key={section.id} className="mb-3 overflow-hidden rounded-2xl border border-(--border-subtle) last:mb-0 dark:border-white/12">
-                      <button type="button" onClick={() => toggleSection(section.id, defaultOpen)} aria-expanded={open} className="flex w-full items-center justify-between gap-4 bg-(--surface-canvas)/45 px-4 py-4 text-left transition hover:bg-[rgba(184,76,43,0.06)] dark:bg-(--surface-canvas)/35 dark:hover:bg-[rgba(232,129,106,0.06)] sm:px-5">
+                    <div
+                      key={section.id}
+                      className="mb-3 overflow-hidden rounded-2xl border border-(--border-subtle) last:mb-0 dark:border-white/12"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => toggleSection(section.id, defaultOpen)}
+                        aria-expanded={open}
+                        className="flex w-full items-center justify-between gap-4 bg-(--surface-canvas)/45 px-4 py-4 text-left transition hover:bg-[rgba(184,76,43,0.06)] dark:bg-(--surface-canvas)/35 dark:hover:bg-[rgba(232,129,106,0.06)] sm:px-5"
+                      >
                         <div className="flex min-w-0 items-center gap-3">
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[13px] text-(--brand-500)">✦</span>
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[13px] text-(--brand-500)">
+                            ✦
+                          </span>
                           <div className="min-w-0">
-                            <span className="block truncate text-[13.5px] font-black text-(--text-primary)">{section.title}</span>
-                            <span className="mt-0.5 block text-[10px] font-semibold text-(--text-secondary)">{section.items.length} learning items</span>
+                            <span className="block truncate text-[13.5px] font-black text-(--text-primary)">
+                              {section.title}
+                            </span>
+                            <span className="mt-0.5 block text-[10px] font-semibold text-(--text-secondary)">
+                              {section.items.length} learning items
+                            </span>
                           </div>
                         </div>
-                        <span className={cn('text-(--text-secondary) transition-transform', open && 'rotate-180')}><ChevronDownIcon /></span>
+                        <span
+                          className={cn(
+                            'text-(--text-secondary) transition-transform',
+                            open && 'rotate-180'
+                          )}
+                        >
+                          <ChevronDownIcon />
+                        </span>
                       </button>
 
                       {open ? (
                         <div className="space-y-1 border-t border-(--border-subtle) p-3 dark:border-white/10 sm:p-4">
                           {section.items.map((item, itemIndex) => (
-                            <div key={item._id || `${section.id}-${itemIndex}`} className="flex items-center justify-between gap-3 rounded-xl px-3 py-3 transition hover:bg-(--surface-canvas)/55">
+                            <div
+                              key={item._id || `${section.id}-${itemIndex}`}
+                              className="flex items-center justify-between gap-3 rounded-xl px-3 py-3 transition hover:bg-(--surface-canvas)/55"
+                            >
                               <div className="flex min-w-0 flex-1 items-center gap-3">
-                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-(--surface-canvas) text-[10px] font-black text-(--text-secondary)">{itemIndex + 1}</span>
-                                <span className="min-w-0 text-[13px] font-semibold leading-5 text-(--text-primary)">{item.title}</span>
+                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-(--surface-canvas) text-[10px] font-black text-(--text-secondary)">
+                                  {itemIndex + 1}
+                                </span>
+                                <span className="min-w-0 text-[13px] font-semibold leading-5 text-(--text-primary)">
+                                  {item.title}
+                                </span>
                               </div>
                               <SectionDifficultyBadge item={item} />
                             </div>
@@ -437,9 +508,15 @@ export default function OnboardingRoadmapReadyPage() {
               </div>
             ) : (
               <div className="px-6 py-12 text-center">
-                <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(184,76,43,0.08)] text-(--brand-500)">✦</div>
-                <p className="mt-3 text-[13px] font-bold text-(--text-primary)">No preview items yet</p>
-                <p className="mt-1 text-[12px] text-(--text-secondary)">This topic does not contain preview subtopics in the result payload.</p>
+                <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(184,76,43,0.08)] text-(--brand-500)">
+                  ✦
+                </div>
+                <p className="mt-3 text-[13px] font-bold text-(--text-primary)">
+                  No preview items yet
+                </p>
+                <p className="mt-1 text-[12px] text-(--text-secondary)">
+                  This topic does not contain preview subtopics in the result payload.
+                </p>
               </div>
             )}
           </div>
@@ -448,10 +525,16 @@ export default function OnboardingRoadmapReadyPage() {
             <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-[0_12px_36px_rgba(26,23,20,0.05)] dark:border-white/15">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-500)">Coverage</p>
-                  <h3 className="mt-1 font-serif text-[20px] font-black tracking-[-0.3px]">Topic distribution</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-500)">
+                    Coverage
+                  </p>
+                  <h3 className="mt-1 font-serif text-[20px] font-black tracking-[-0.3px]">
+                    Topic distribution
+                  </h3>
                 </div>
-                <span className="font-serif text-[28px] font-black text-(--brand-500)">{totalPreviewNodes}</span>
+                <span className="font-serif text-[28px] font-black text-(--brand-500)">
+                  {totalPreviewNodes}
+                </span>
               </div>
 
               <div className="mt-5 space-y-4">
@@ -459,10 +542,15 @@ export default function OnboardingRoadmapReadyPage() {
                   <div key={row.id}>
                     <div className="mb-2 flex items-center justify-between gap-2">
                       <span className="truncate text-[12px] font-bold">{row.title}</span>
-                      <span className="text-[10px] font-bold text-(--text-secondary)">{row.count} nodes</span>
+                      <span className="text-[10px] font-bold text-(--text-secondary)">
+                        {row.count} nodes
+                      </span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-black/8 dark:bg-white/10">
-                      <div className="h-full rounded-full bg-(--brand-500)" style={{ width: `${row.percent}%` }} />
+                      <div
+                        className="h-full rounded-full bg-(--brand-500)"
+                        style={{ width: `${row.percent}%` }}
+                      />
                     </div>
                   </div>
                 ))}
@@ -471,26 +559,45 @@ export default function OnboardingRoadmapReadyPage() {
 
             <div className="rounded-2xl border border-[rgba(184,76,43,0.20)] bg-[linear-gradient(145deg,var(--surface-card),rgba(184,76,43,0.07))] p-5 dark:border-[rgba(232,129,106,0.22)] dark:bg-[linear-gradient(145deg,var(--surface-card),rgba(232,129,106,0.07))]">
               <div className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-(--brand-500) text-white dark:text-[#141412]">✦</span>
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-(--brand-500) text-white dark:text-[#141412]">
+                  ✦
+                </span>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-500)">AI insight</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-500)">
+                    AI insight
+                  </p>
                   <p className="text-[12px] font-black text-(--text-primary)">Before evaluation</p>
                 </div>
               </div>
               <p className="mt-4 text-[12.5px] leading-6 text-(--text-secondary)">{aiInsight}</p>
             </div>
 
-            <button type="button" onClick={handleRunAiEvaluation} disabled={runRoadmapEvaluation.isPending} className="flex w-full items-center justify-center gap-2 rounded-xl bg-(--brand-500) px-4 py-3.5 text-[13px] font-black text-white shadow-[0_10px_28px_rgba(184,76,43,0.22)] transition hover:-translate-y-0.5 hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-70 dark:text-[#141412]">
-              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/16 dark:bg-black/10"><PulseIcon /></span>
+            <button
+              type="button"
+              onClick={handleRunAiEvaluation}
+              disabled={runRoadmapEvaluation.isPending}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-(--brand-500) px-4 py-3.5 text-[13px] font-black text-white shadow-[0_10px_28px_rgba(184,76,43,0.22)] transition hover:-translate-y-0.5 hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-70 dark:text-[#141412]"
+            >
+              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/16 dark:bg-black/10">
+                <PulseIcon />
+              </span>
               {runRoadmapEvaluation.isPending ? 'Evaluating roadmap…' : 'Run AI Evaluation'}
             </button>
 
-            <button type="button" onClick={() => navigate(ROUTES.dashboard)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-(--border-subtle) bg-(--surface-card) px-4 py-3.5 text-[13px] font-black text-(--text-secondary) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:text-(--brand-500) dark:border-white/15">
+            <button
+              type="button"
+              onClick={() => navigate(ROUTES.dashboard)}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-(--border-subtle) bg-(--surface-card) px-4 py-3.5 text-[13px] font-black text-(--text-secondary) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:text-(--brand-500) dark:border-white/15"
+            >
               <DashboardIcon />
               Go to dashboard
             </button>
 
-            {evaluationError ? <p className="rounded-xl border border-red-300 bg-red-50 px-3 py-3 text-center text-[12px] font-semibold text-red-600 dark:border-red-400/30 dark:bg-red-400/10 dark:text-red-300">{evaluationError}</p> : null}
+            {evaluationError ? (
+              <p className="rounded-xl border border-red-300 bg-red-50 px-3 py-3 text-center text-[12px] font-semibold text-red-600 dark:border-red-400/30 dark:bg-red-400/10 dark:text-red-300">
+                {evaluationError}
+              </p>
+            ) : null}
           </aside>
         </section>
       </main>

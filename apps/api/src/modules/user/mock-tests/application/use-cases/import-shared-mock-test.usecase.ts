@@ -2,10 +2,7 @@ import type { IMockTestQuestionRepository } from '../../domain/repositories/mock
 import type { IMockTestSharingRepository } from '../../domain/repositories/mock-test-sharing.repository.interface';
 import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
-import type {
-  ImportSharedMockTestDTO,
-  ImportSharedMockTestPayloadDTO,
-} from '../mock-tests.dto';
+import type { ImportSharedMockTestDTO, ImportSharedMockTestPayloadDTO } from '../mock-tests.dto';
 import type { IMockTestsMapper } from '../mock-tests.mapper';
 
 type ImportSharedMockTestRepository = IMockTestRepository &

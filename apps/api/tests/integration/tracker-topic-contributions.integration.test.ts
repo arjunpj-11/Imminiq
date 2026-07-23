@@ -505,7 +505,10 @@ describe('tracker topic contributions', () => {
         limit: 20,
       })
     ).resolves.toEqual([
-      expect.objectContaining({ text: 'Hello guild!', user: expect.objectContaining({ username: 'clan-member' }) }),
+      expect.objectContaining({
+        text: 'Hello guild!',
+        user: expect.objectContaining({ username: 'clan-member' }),
+      }),
     ]);
 
     const pending = await TrackerTopicContribution.create({
@@ -517,8 +520,22 @@ describe('tracker topic contributions', () => {
       title: 'Caching Strategies',
       description: 'Reliable cache design and invalidation.',
       subtopics: [
-        { sourceId: 'cache-1', title: 'Cache patterns', description: 'Read-through and write-through', order: 1, depth: 1, estimatedMinutes: 30 },
-        { sourceId: 'cache-2', title: 'Invalidation', description: 'Expiry and active invalidation', order: 2, depth: 1, estimatedMinutes: 40 },
+        {
+          sourceId: 'cache-1',
+          title: 'Cache patterns',
+          description: 'Read-through and write-through',
+          order: 1,
+          depth: 1,
+          estimatedMinutes: 30,
+        },
+        {
+          sourceId: 'cache-2',
+          title: 'Invalidation',
+          description: 'Expiry and active invalidation',
+          order: 2,
+          depth: 1,
+          estimatedMinutes: 40,
+        },
       ],
     });
     const contributions = new MongoTrackerTopicContributionRepository();
@@ -583,9 +600,7 @@ describe('tracker topic contributions', () => {
       })
     ).resolves.toBe(true);
     await expect(TrackerTopic.findById(mergedTopic!._id)).resolves.toBeNull();
-    await expect(
-      TrackerSubtopic.countDocuments({ topicId: mergedTopic?._id })
-    ).resolves.toBe(0);
+    await expect(TrackerSubtopic.countDocuments({ topicId: mergedTopic?._id })).resolves.toBe(0);
     await expect(
       TrackerSubtopic.countDocuments({ topicId: mergedTopic?._id, deletedAt: null })
     ).resolves.toBe(0);
@@ -621,10 +636,7 @@ describe('tracker topic contributions', () => {
       depth: 1,
       isLocked: false,
     });
-    await Tracker.updateOne(
-      { _id: tracker._id },
-      { $set: { topicsCount: 1, subtopicsCount: 1 } }
-    );
+    await Tracker.updateOne({ _id: tracker._id }, { $set: { topicsCount: 1, subtopicsCount: 1 } });
 
     const openBattle = await clans.createChallenge({
       trackerId: tracker._id.toString(),
@@ -743,10 +755,12 @@ describe('tracker topic contributions', () => {
       totalNodes: 10,
       questionsRemaining: 20,
     });
-    const cancelledInvitation = (await clans.listChallenges({
-      trackerId: tracker._id.toString(),
-      userId: member._id.toString(),
-    }))?.find((challenge) => challenge.id === memberInvitation!.id);
+    const cancelledInvitation = (
+      await clans.listChallenges({
+        trackerId: tracker._id.toString(),
+        userId: member._id.toString(),
+      })
+    )?.find((challenge) => challenge.id === memberInvitation!.id);
     expect(cancelledInvitation?.status).toBe('cancelled');
 
     const firstQuestionId = race!.questions[0]!.id;
@@ -757,7 +771,11 @@ describe('tracker topic contributions', () => {
       questionId: firstQuestionId,
       answer: 'B',
     });
-    expect(race).toMatchObject({ viewerPosition: 0, questionsRemaining: 19, lastAnswerCorrect: false });
+    expect(race).toMatchObject({
+      viewerPosition: 0,
+      questionsRemaining: 19,
+      lastAnswerCorrect: false,
+    });
     expect(race!.questions[0]!.id).not.toBe(firstQuestionId);
 
     for (let index = 0; index < 4; index += 1) {
@@ -786,21 +804,25 @@ describe('tracker topic contributions', () => {
       answer: 'B',
     });
     expect(race).toMatchObject({ viewerPosition: 1, lastAnswerCorrect: false });
-    await expect(clans.answerChallengeNode({
-      trackerId: tracker._id.toString(),
-      challengeId: raceInvitation!.id,
-      userId: member._id.toString(),
-      questionId: checkpointQuestionId,
-      answer: 'A',
-    })).resolves.toBeNull();
+    await expect(
+      clans.answerChallengeNode({
+        trackerId: tracker._id.toString(),
+        challengeId: raceInvitation!.id,
+        userId: member._id.toString(),
+        questionId: checkpointQuestionId,
+        answer: 'A',
+      })
+    ).resolves.toBeNull();
     await expect(clans.getActiveChallenge(member._id.toString())).resolves.toMatchObject({
       id: raceInvitation!.id,
     });
-    await expect(clans.quitChallenge({
-      trackerId: tracker._id.toString(),
-      challengeId: raceInvitation!.id,
-      userId: member._id.toString(),
-    })).resolves.toMatchObject({
+    await expect(
+      clans.quitChallenge({
+        trackerId: tracker._id.toString(),
+        challengeId: raceInvitation!.id,
+        userId: member._id.toString(),
+      })
+    ).resolves.toMatchObject({
       status: 'completed',
       winnerId: owner._id.toString(),
       quitById: member._id.toString(),
@@ -926,17 +948,25 @@ describe('tracker topic contributions', () => {
     });
     expect(leftGuild).toMatchObject({ role: 'outsider' });
     expect(leftGuild?.members).not.toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ userId: owner._id.toString() }),
-      ])
+      expect.arrayContaining([expect.objectContaining({ userId: owner._id.toString() })])
     );
     await expect(Tracker.findById(retainedClone?._id)).resolves.not.toBeNull();
   });
 
   it('reuses one generated lesson across an original tracker and its clones', async () => {
     const [owner, learner] = await User.create([
-      { fullName: 'Lesson Author', username: 'lesson-author', passwordHash: null, emailVerified: true },
-      { fullName: 'Lesson Learner', username: 'lesson-learner', passwordHash: null, emailVerified: true },
+      {
+        fullName: 'Lesson Author',
+        username: 'lesson-author',
+        passwordHash: null,
+        emailVerified: true,
+      },
+      {
+        fullName: 'Lesson Learner',
+        username: 'lesson-learner',
+        passwordHash: null,
+        emailVerified: true,
+      },
     ]);
     const original = await Tracker.create({
       ownerId: owner._id,

@@ -53,9 +53,7 @@ describe('backend module conventions', () => {
       .map((path) => portable(relative(sourceRoot, path)))
       .filter((path) => {
         const filename = path.split('/').at(-1) ?? '';
-        return !/^[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*\.ts$/.test(
-          filename
-        );
+        return !/^[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*\.ts$/.test(filename);
       });
 
     expect(violations).toEqual([]);
@@ -77,12 +75,13 @@ describe('backend module conventions', () => {
         const indexSource = readFileSync(join(layerRoot, 'index.ts'), 'utf8');
 
         return readdirSync(layerRoot, { withFileTypes: true })
-          .filter((entry) => entry.isFile() && entry.name.endsWith('.ts') && entry.name !== 'index.ts')
+          .filter(
+            (entry) => entry.isFile() && entry.name.endsWith('.ts') && entry.name !== 'index.ts'
+          )
           .map((entry) => `./${entry.name.slice(0, -3)}`)
           .filter((path) => !exportPath(indexSource, path))
           .map(
-            (path) =>
-              `${portable(relative(modulesRoot, moduleRoot))}/${layer}/index.ts -> ${path}`
+            (path) => `${portable(relative(modulesRoot, moduleRoot))}/${layer}/index.ts -> ${path}`
           );
       })
     );
@@ -101,8 +100,7 @@ describe('backend module conventions', () => {
         .map((entry) => `./use-cases/${entry.name.slice(0, -3)}`)
         .filter((path) => !exportPath(indexSource, path))
         .map(
-          (path) =>
-            `${portable(relative(modulesRoot, moduleRoot))}/application/index.ts -> ${path}`
+          (path) => `${portable(relative(modulesRoot, moduleRoot))}/application/index.ts -> ${path}`
         );
     });
 
@@ -127,7 +125,9 @@ describe('backend module conventions', () => {
   it('keeps exported input and output types in DTO or contract owners', () => {
     const violations = collectFiles(modulesRoot)
       .filter((path) => path.endsWith('.usecase.ts'))
-      .filter((path) => /^export\s+(?:type|enum|const|function)\b/m.test(readFileSync(path, 'utf8')))
+      .filter((path) =>
+        /^export\s+(?:type|enum|const|function)\b/m.test(readFileSync(path, 'utf8'))
+      )
       .map((path) => portable(relative(modulesRoot, path)));
 
     expect(violations).toEqual([]);
@@ -164,7 +164,10 @@ describe('backend module conventions', () => {
       if (/export\s+class\s+\w+ApplicationError\b/.test(source) && !path.endsWith('.error.ts')) {
         issues.push(`${relativePath}: application error`);
       }
-      if (/export\s+type\s+\w+UseCases\s*=/.test(source) && !path.endsWith('-use-cases.contract.ts')) {
+      if (
+        /export\s+type\s+\w+UseCases\s*=/.test(source) &&
+        !path.endsWith('-use-cases.contract.ts')
+      ) {
         issues.push(`${relativePath}: use-case map`);
       }
 
@@ -178,16 +181,20 @@ describe('backend module conventions', () => {
     const concreteCollaborators = collectFiles(modulesRoot).flatMap((path) => {
       if (!path.endsWith('.ts')) return [];
       const source = readFileSync(path, 'utf8');
-      return [...source.matchAll(/export\s+class\s+(\w+(?:Mapper|UseCase|Repository|Service|Gateway|Provider|Store))\b/g)].map(
-        (match) => match[1]
-      );
+      return [
+        ...source.matchAll(
+          /export\s+class\s+(\w+(?:Mapper|UseCase|Repository|Service|Gateway|Provider|Store))\b/g
+        ),
+      ].map((match) => match[1]);
     });
 
     const violations = collectFiles(modulesRoot).flatMap((path) => {
       if (!portable(path).includes('/application/') || !path.endsWith('.ts')) return [];
       const source = readFileSync(path, 'utf8');
       return concreteCollaborators
-        .filter((name) => new RegExp(`private\\s+readonly\\s+_\\w+\\s*:\\s*${name}\\b`).test(source))
+        .filter((name) =>
+          new RegExp(`private\\s+readonly\\s+_\\w+\\s*:\\s*${name}\\b`).test(source)
+        )
         .map((name) => `${portable(relative(modulesRoot, path))}: ${name}`);
     });
 
@@ -221,9 +228,7 @@ describe('backend module conventions', () => {
     for (const path of collectFiles(modulesRoot).filter((file) => file.endsWith('.ts'))) {
       for (const contract of exportedInterfaceBodies(readFileSync(path, 'utf8'))) {
         if (!/(?:Repository|Gateway)$/.test(contract.name)) continue;
-        const methods = [...contract.body.matchAll(/^\s*(\w+)\s*\(/gm)].map(
-          (match) => match[1]
-        );
+        const methods = [...contract.body.matchAll(/^\s*(\w+)\s*\(/gm)].map((match) => match[1]);
         if (methods.length > 6) broadPorts.set(contract.name, methods);
       }
     }
@@ -231,7 +236,9 @@ describe('backend module conventions', () => {
     const violations = collectFiles(modulesRoot).flatMap((path) => {
       if (!portable(path).includes('/application/') || !path.endsWith('.ts')) return [];
       const source = readFileSync(path, 'utf8');
-      return [...source.matchAll(/private\s+readonly\s+(_\w+)\??\s*:\s*(I\w+(?:Repository|Gateway))\b/g)]
+      return [
+        ...source.matchAll(/private\s+readonly\s+(_\w+)\??\s*:\s*(I\w+(?:Repository|Gateway))\b/g),
+      ]
         .filter((match) => {
           const methods = broadPorts.get(match[2]);
           if (!methods) return false;

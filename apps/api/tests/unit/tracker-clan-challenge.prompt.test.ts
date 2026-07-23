@@ -18,7 +18,9 @@ describe('tracker guild challenge prompt', () => {
         {
           title: 'Calculus',
           description: 'Limits, derivatives, and integrals',
-          subtopics: [{ title: 'Definite integration', description: 'Properties and applications' }],
+          subtopics: [
+            { title: 'Definite integration', description: 'Properties and applications' },
+          ],
         },
       ],
     });

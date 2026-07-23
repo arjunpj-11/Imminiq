@@ -1,4 +1,4 @@
-import type { AdminPageData } from "../../../../components/admin";
+import type { AdminPageData } from '../../../../components/admin';
 
 export type AdminSubscriptionItem = {
   id: string;
@@ -42,22 +42,19 @@ export type AdminPlanLimits = {
 };
 export type AdminPlanLimitField = keyof AdminPlanLimits;
 export type AdminSubscriptionPlan = {
-  planId: "free" | "pro" | "premium";
+  planId: 'free' | 'pro' | 'premium';
   name: string;
   description: string;
   monthlyAmount: number;
   annualAmount: number;
-  currency: "INR";
+  currency: 'INR';
   features: string[];
   highlighted: boolean;
   limits: AdminPlanLimits;
   updatedAt: string | null;
 };
 
-export type AdminSubscriptionPlanInput = Omit<
-  AdminSubscriptionPlan,
-  "planId" | "updatedAt"
->;
+export type AdminSubscriptionPlanInput = Omit<AdminSubscriptionPlan, 'planId' | 'updatedAt'>;
 export type AdminSubscriptionPlanUpdateInput = {
   plan: AdminSubscriptionPlanInput;
   propagateLimitFields: AdminPlanLimitField[];

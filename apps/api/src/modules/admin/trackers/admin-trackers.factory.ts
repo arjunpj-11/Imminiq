@@ -48,10 +48,7 @@ export const createAdminTrackersComposition = (): AdminTrackersComposition => {
           mongoAdminTrackerReviewsRepository,
           mapper
         ),
-        resolve: new ResolveAdminTrackerReviewUseCase(
-          mongoAdminTrackerReviewsRepository,
-          mapper
-        ),
+        resolve: new ResolveAdminTrackerReviewUseCase(mongoAdminTrackerReviewsRepository, mapper),
       },
     },
   };

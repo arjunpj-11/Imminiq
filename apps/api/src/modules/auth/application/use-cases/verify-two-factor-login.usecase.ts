@@ -17,10 +17,7 @@ import type { IAuthAccountPolicy } from '../auth-account-policy.policy';
 import type { IAuthLoginFinalizer } from '../services/auth-login-finalizer.service';
 import type { IBackupCodeNormalizer } from '../services/backup-code-normalizer.service';
 
-type TwoFactorLoginRepository = Pick<
-  IAuthUserRepository,
-  'findById'
-> &
+type TwoFactorLoginRepository = Pick<IAuthUserRepository, 'findById'> &
   Pick<
     IAuthTwoFactorRepository,
     'findActiveTwoFactorForLogin' | 'touchTwoFactorLastUsed' | 'markBackupCodeUsed'

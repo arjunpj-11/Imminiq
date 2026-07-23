@@ -1,10 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
-import type {
-  IApiResponse,
-  ICommunityBrowseData,
-  ICommunityTracker,
-} from '../../community';
+import type { IApiResponse, ICommunityBrowseData, ICommunityTracker } from '../../community';
 import { ONBOARDING_API_PATHS } from '../constants/onboarding.constants';
 import { trackerCreationKeys } from './tracker-creation.query-keys';
 

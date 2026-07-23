@@ -14,9 +14,7 @@ export default function TrackerModerationNotice({ tracker }: { tracker: ITracker
         <span className="inline-flex rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.13em] text-amber-800 dark:text-amber-200">
           {wasRemoved ? 'Tracker blocked' : 'Tracker under review'}
         </span>
-        <h1 className="mt-4 font-ui text-2xl font-black text-(--text-primary)">
-          {tracker.title}
-        </h1>
+        <h1 className="mt-4 font-ui text-2xl font-black text-(--text-primary)">{tracker.title}</h1>
         <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-(--text-secondary)">
           {wasRemoved
             ? 'An administrator removed this tracker. Its roadmap, lessons, clan, and editing tools are unavailable.'

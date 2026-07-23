@@ -1,7 +1,7 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "../../../../lib/axios";
-import { ADMIN_SYSTEM_HEALTH_ENDPOINTS } from "../constants/admin-system-health.constants";
-import { adminSystemHealthKeys } from "./admin-system-health.query-keys";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '../../../../lib/axios';
+import { ADMIN_SYSTEM_HEALTH_ENDPOINTS } from '../constants/admin-system-health.constants';
+import { adminSystemHealthKeys } from './admin-system-health.query-keys';
 
 export const useAdminJobAction = () => {
   const client = useQueryClient();
@@ -9,7 +9,7 @@ export const useAdminJobAction = () => {
     mutationFn: (input: {
       queue: string;
       jobId: string;
-      action: "cancel" | "retry" | "remove";
+      action: 'cancel' | 'retry' | 'remove';
       actionPassword: string;
     }) =>
       api.patch(
@@ -17,9 +17,9 @@ export const useAdminJobAction = () => {
         { action: input.action },
         {
           headers: input.actionPassword
-            ? { "X-Admin-Action-Password": input.actionPassword }
+            ? { 'X-Admin-Action-Password': input.actionPassword }
             : undefined,
-        },
+        }
       ),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: adminSystemHealthKeys.all });

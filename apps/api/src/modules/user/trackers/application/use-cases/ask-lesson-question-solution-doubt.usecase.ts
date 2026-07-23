@@ -16,7 +16,9 @@ export interface IAskLessonQuestionSolutionDoubtUseCase {
   ): Promise<LessonQuestionSolutionDoubtAnswerDTO>;
 }
 
-export class AskLessonQuestionSolutionDoubtUseCase implements IAskLessonQuestionSolutionDoubtUseCase {
+export class AskLessonQuestionSolutionDoubtUseCase
+  implements IAskLessonQuestionSolutionDoubtUseCase
+{
   constructor(
     private readonly _trackerRepository: Pick<
       ITrackerRepository,

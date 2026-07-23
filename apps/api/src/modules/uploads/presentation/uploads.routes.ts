@@ -2,7 +2,10 @@ import { Router } from 'express';
 
 import { authenticate } from '../../../shared/middlewares/auth.middleware';
 import { validateUploadedImageSignature } from '../../../shared/middlewares/image-upload-signature.middleware';
-import { avatarUpload, bannerUpload } from '../../../shared/middlewares/profile-image-upload.middleware';
+import {
+  avatarUpload,
+  bannerUpload,
+} from '../../../shared/middlewares/profile-image-upload.middleware';
 import {
   authenticatedApiIpLimiter,
   profileImageUploadIpLimiter,

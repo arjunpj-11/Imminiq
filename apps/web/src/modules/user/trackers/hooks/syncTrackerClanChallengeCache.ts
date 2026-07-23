@@ -19,17 +19,10 @@ export const syncTrackerClanChallengeCache = (
         : [...current, challenge];
     }
   );
-  queryClient.setQueryData(
-    trackerKeys.clanChallenge(trackerId, challenge.id),
-    challenge
-  );
+  queryClient.setQueryData(trackerKeys.clanChallenge(trackerId, challenge.id), challenge);
   queryClient.setQueryData<ITrackerClanChallenge | null>(
     trackerKeys.activeClanChallenge(),
     (current) =>
-      challenge.status === 'active'
-        ? challenge
-        : current?.id === challenge.id
-          ? null
-          : current
+      challenge.status === 'active' ? challenge : current?.id === challenge.id ? null : current
   );
 };

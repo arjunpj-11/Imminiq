@@ -308,7 +308,7 @@ describe('frontend feature-module architecture', () => {
         return (
           /queryKey:\s*\[/.test(source) ||
           /(?:invalidateQueries|removeQueries|resetQueries|cancelQueries)\(\{\s*queryKey:\s*\[/.test(
-            source,
+            source
           ) ||
           /(?:setQueryData|getQueryData)\(\s*\[/.test(source)
         );
@@ -325,7 +325,10 @@ describe('frontend feature-module architecture', () => {
         if (!existsSync(storeRoot)) return [];
         return collectFiles(storeRoot).filter((file) => {
           const source = readFileSync(file, 'utf8');
-          return /from\s+['"]zustand/.test(source) && !/^use[A-Z]\w*Store\.ts$/.test(file.split(sep).at(-1) ?? '');
+          return (
+            /from\s+['"]zustand/.test(source) &&
+            !/^use[A-Z]\w*Store\.ts$/.test(file.split(sep).at(-1) ?? '')
+          );
         });
       })
       .map((file) => file.replace(`${modulesRoot}/`, ''));

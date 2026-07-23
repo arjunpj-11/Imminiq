@@ -12,7 +12,11 @@ export type AdminTrackerReview = {
 };
 export type AdminTrackerReviewStatusResult = { id: string; status: string };
 export type AdminTrackerReviewConsensusChoice = 'pass' | 'fail';
-export type AdminTrackerReviewConsensusResult = { id: string; passVotes: number; failVotes: number };
+export type AdminTrackerReviewConsensusResult = {
+  id: string;
+  passVotes: number;
+  failVotes: number;
+};
 export type AdminTrackerReviewConsensusRepositoryResult =
   | { kind: 'success'; value: AdminTrackerReviewConsensusResult }
   | { kind: 'not_found' }

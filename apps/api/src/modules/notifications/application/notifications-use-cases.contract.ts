@@ -6,4 +6,3 @@ export type NotificationsUseCases = {
   markAllNotificationsRead: Application.IMarkAllNotificationsReadUseCase;
   voteForPoll: Application.IVoteNotificationPollUseCase;
 };
-

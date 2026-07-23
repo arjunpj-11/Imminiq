@@ -10,7 +10,11 @@ import { QuestionBankModel } from '../../../../../infrastructure/database/models
 import { User } from '../../../../../infrastructure/database/models/user.model';
 import { ActivityLog } from '../../../../../infrastructure/database/models/activity-log.model';
 import type { AdminActor, AdminListQuery } from '../../../../../shared/admin';
-import { createAdminPage, escapeAdminSearch, recordAdminAction } from '../../../../../infrastructure/admin';
+import {
+  createAdminPage,
+  escapeAdminSearch,
+  recordAdminAction,
+} from '../../../../../infrastructure/admin';
 import type {
   AdminMockTestIssueUpdateInput,
   AdminMockTestLifecycleInput,
@@ -25,8 +29,7 @@ type PopulatedUser = {
   email?: string;
 };
 
-const displayName = (user?: PopulatedUser | null) =>
-  user?.fullName ?? user?.username ?? 'Unknown';
+const displayName = (user?: PopulatedUser | null) => user?.fullName ?? user?.username ?? 'Unknown';
 
 const legacyQuestionKey = (question: {
   type?: string;
@@ -43,49 +46,47 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
   async list(query: AdminListQuery) {
     const filter: Record<string, unknown> = {};
     if (query.status && query.status !== 'all') {
-      if (['active', 'suspended', 'deleted'].includes(query.status)) filter.moderationStatus = query.status;
+      if (['active', 'suspended', 'deleted'].includes(query.status))
+        filter.moderationStatus = query.status;
     }
     if (query.search) {
       const search = new RegExp(escapeAdminSearch(query.search), 'i');
       filter.$or = [{ title: search }, { description: search }, { tags: search }];
     }
 
-    const [rows, total, attempts, suspended, deleted, issueTotals, flagTotals] =
-      await Promise.all([
-        MockTestModel.find(filter)
-          .sort({ createdAt: -1 })
-          .skip((query.page - 1) * query.limit)
-          .limit(query.limit)
-          .populate('ownerId', 'fullName username email')
-          .lean(),
-        MockTestModel.countDocuments(filter),
-        MockTestAttemptModel.countDocuments(),
-        MockTestModel.countDocuments({ moderationStatus: 'suspended', deletedAt: null }),
-        MockTestModel.countDocuments({ moderationStatus: 'deleted' }),
-        MockTestQuestionIssueModel.aggregate<{
-          _id: unknown;
-          reportCount: number;
-          openReportCount: number;
-        }>([
-          {
-            $group: {
-              _id: '$testId',
-              reportCount: { $sum: 1 },
-              openReportCount: {
-                $sum: { $cond: [{ $in: ['$status', ['open', 'reviewing']] }, 1, 0] },
-              },
+    const [rows, total, attempts, suspended, deleted, issueTotals, flagTotals] = await Promise.all([
+      MockTestModel.find(filter)
+        .sort({ createdAt: -1 })
+        .skip((query.page - 1) * query.limit)
+        .limit(query.limit)
+        .populate('ownerId', 'fullName username email')
+        .lean(),
+      MockTestModel.countDocuments(filter),
+      MockTestAttemptModel.countDocuments(),
+      MockTestModel.countDocuments({ moderationStatus: 'suspended', deletedAt: null }),
+      MockTestModel.countDocuments({ moderationStatus: 'deleted' }),
+      MockTestQuestionIssueModel.aggregate<{
+        _id: unknown;
+        reportCount: number;
+        openReportCount: number;
+      }>([
+        {
+          $group: {
+            _id: '$testId',
+            reportCount: { $sum: 1 },
+            openReportCount: {
+              $sum: { $cond: [{ $in: ['$status', ['open', 'reviewing']] }, 1, 0] },
             },
           },
-        ]),
-        MockTestAttemptModel.aggregate<{ _id: unknown; flagCount: number }>([
-          { $unwind: '$flaggedQuestions' },
-          { $group: { _id: '$testId', flagCount: { $sum: 1 } } },
-        ]),
-      ]);
+        },
+      ]),
+      MockTestAttemptModel.aggregate<{ _id: unknown; flagCount: number }>([
+        { $unwind: '$flaggedQuestions' },
+        { $group: { _id: '$testId', flagCount: { $sum: 1 } } },
+      ]),
+    ]);
 
-    const issueByTest = new Map(
-      issueTotals.map((item) => [String(item._id), item] as const)
-    );
+    const issueByTest = new Map(issueTotals.map((item) => [String(item._id), item] as const));
     const flagsByTest = new Map(flagTotals.map((item) => [String(item._id), item.flagCount]));
     const items = rows.map((row) => {
       const owner = row.ownerId as unknown as PopulatedUser;
@@ -118,66 +119,74 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
   }
 
   async getDetail(id: string) {
-    const [test, questions, attempts, activeAttemptCount, questionIssues, answerStats, flagStats, history] =
-      await Promise.all([
-        MockTestModel.findById(id).populate('ownerId', 'fullName username email').lean(),
-        MockTestQuestionModel.find({ testId: id }).sort({ order: 1 }).lean(),
-        MockTestAttemptModel.countDocuments({ testId: id }),
-        MockTestAttemptModel.countDocuments({ testId: id, status: 'in_progress' }),
-        MockTestQuestionIssueModel.aggregate<{
-          _id: unknown;
-          reportCount: number;
-          openReportCount: number;
-        }>([
-          { $match: { testId: this.objectId(id) } },
-          {
-            $group: {
-              _id: '$questionId',
-              reportCount: { $sum: 1 },
-              openReportCount: {
-                $sum: { $cond: [{ $in: ['$status', ['open', 'reviewing']] }, 1, 0] },
-              },
+    const [
+      test,
+      questions,
+      attempts,
+      activeAttemptCount,
+      questionIssues,
+      answerStats,
+      flagStats,
+      history,
+    ] = await Promise.all([
+      MockTestModel.findById(id).populate('ownerId', 'fullName username email').lean(),
+      MockTestQuestionModel.find({ testId: id }).sort({ order: 1 }).lean(),
+      MockTestAttemptModel.countDocuments({ testId: id }),
+      MockTestAttemptModel.countDocuments({ testId: id, status: 'in_progress' }),
+      MockTestQuestionIssueModel.aggregate<{
+        _id: unknown;
+        reportCount: number;
+        openReportCount: number;
+      }>([
+        { $match: { testId: this.objectId(id) } },
+        {
+          $group: {
+            _id: '$questionId',
+            reportCount: { $sum: 1 },
+            openReportCount: {
+              $sum: { $cond: [{ $in: ['$status', ['open', 'reviewing']] }, 1, 0] },
             },
           },
-        ]),
-        MockTestAnswerModel.aggregate<{
-          _id: unknown;
-          answerCount: number;
-          correctCount: number;
-        }>([
-          {
-            $lookup: {
-              from: 'mocktestquestions',
-              localField: 'questionId',
-              foreignField: '_id',
-              as: 'question',
-            },
+        },
+      ]),
+      MockTestAnswerModel.aggregate<{
+        _id: unknown;
+        answerCount: number;
+        correctCount: number;
+      }>([
+        {
+          $lookup: {
+            from: 'mocktestquestions',
+            localField: 'questionId',
+            foreignField: '_id',
+            as: 'question',
           },
-          { $unwind: '$question' },
-          { $match: { 'question.testId': this.objectId(id) } },
-          {
-            $group: {
-              _id: '$questionId',
-              answerCount: { $sum: 1 },
-              correctCount: { $sum: { $cond: ['$isCorrect', 1, 0] } },
-            },
+        },
+        { $unwind: '$question' },
+        { $match: { 'question.testId': this.objectId(id) } },
+        {
+          $group: {
+            _id: '$questionId',
+            answerCount: { $sum: 1 },
+            correctCount: { $sum: { $cond: ['$isCorrect', 1, 0] } },
           },
-        ]),
-        MockTestAttemptModel.aggregate<{ _id: unknown; flagCount: number }>([
-          { $match: { testId: this.objectId(id) } },
-          { $unwind: '$flaggedQuestions' },
-          { $group: { _id: '$flaggedQuestions', flagCount: { $sum: 1 } } },
-        ]),
-        ActivityLog.find({
-          module: 'admin.mock-tests',
-          deletedAt: null,
-          $or: [{ 'metadata.targetId': id }, { 'metadata.testId': id }],
-        })
-          .sort({ createdAt: -1 })
-          .limit(20)
-          .populate('userId', 'fullName username')
-          .lean(),
-      ]);
+        },
+      ]),
+      MockTestAttemptModel.aggregate<{ _id: unknown; flagCount: number }>([
+        { $match: { testId: this.objectId(id) } },
+        { $unwind: '$flaggedQuestions' },
+        { $group: { _id: '$flaggedQuestions', flagCount: { $sum: 1 } } },
+      ]),
+      ActivityLog.find({
+        module: 'admin.mock-tests',
+        deletedAt: null,
+        $or: [{ 'metadata.targetId': id }, { 'metadata.testId': id }],
+      })
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .populate('userId', 'fullName username')
+        .lean(),
+    ]);
     if (!test) return null;
 
     const legacyQuestions = questions.filter((question) => question.bankId == null);
@@ -276,9 +285,7 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
           difficulty: question.difficulty,
           points: question.points,
           moderationStatus: (question.moderationStatus ?? 'active') as 'active' | 'disabled',
-          ...(question.moderationReason
-            ? { moderationReason: question.moderationReason }
-            : {}),
+          ...(question.moderationReason ? { moderationReason: question.moderationReason } : {}),
           version: question.version ?? 1,
           reportCount: issues?.reportCount ?? 0,
           openReportCount: issues?.openReportCount ?? 0,
@@ -325,7 +332,10 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
         .skip((query.page - 1) * query.limit)
         .limit(query.limit)
         .populate('testId', 'title ownerId')
-        .populate('questionId', 'question order type options correctAnswer explanation difficulty points coding')
+        .populate(
+          'questionId',
+          'question order type options correctAnswer explanation difficulty points coding'
+        )
         .populate('reporterId', 'fullName username email')
         .populate('assignedTo', 'fullName username')
         .lean(),
@@ -339,7 +349,9 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
     const ownerIds = issues
       .map((issue) => (issue.testId as unknown as { ownerId?: unknown })?.ownerId)
       .filter(Boolean);
-    const owners = await User.find({ _id: { $in: ownerIds } }).select('fullName username').lean();
+    const owners = await User.find({ _id: { $in: ownerIds } })
+      .select('fullName username')
+      .lean();
     const ownerById = new Map(owners.map((owner) => [String(owner._id), displayName(owner)]));
 
     const items = issues.map((issue) => {
@@ -391,18 +403,11 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
     return createAdminPage(items, query, total, { open, reviewing, resolved, dismissed });
   }
 
-  async updateQuestionIssue(
-    id: string,
-    input: AdminMockTestIssueUpdateInput,
-    actor: AdminActor
-  ) {
+  async updateQuestionIssue(id: string, input: AdminMockTestIssueUpdateInput, actor: AdminActor) {
     let issue = await MockTestQuestionIssueModel.findOneAndUpdate(
       {
         _id: id,
-        $or: [
-          { status: 'open' },
-          { status: 'reviewing', assignedTo: actor.userId },
-        ],
+        $or: [{ status: 'open' }, { status: 'reviewing', assignedTo: actor.userId }],
       },
       {
         $set: {
@@ -417,7 +422,10 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
       { returnDocument: 'after' }
     )
       .populate('testId', 'title ownerId')
-      .populate('questionId', 'question order type options correctAnswer explanation difficulty points coding')
+      .populate(
+        'questionId',
+        'question order type options correctAnswer explanation difficulty points coding'
+      )
       .populate('reporterId', 'fullName username email')
       .populate('assignedTo', 'fullName username')
       .lean();
@@ -426,9 +434,7 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
     const action = input.resolutionAction ?? 'none';
     if (input.status !== 'reviewing' && action !== 'none') {
       try {
-        const testId = String(
-          (issue.testId as unknown as { _id?: unknown })?._id ?? issue.testId
-        );
+        const testId = String((issue.testId as unknown as { _id?: unknown })?._id ?? issue.testId);
         const questionId = String(
           (issue.questionId as unknown as { _id?: unknown })?._id ?? issue.questionId
         );
@@ -449,7 +455,10 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
 
         const refreshed = await MockTestQuestionIssueModel.findById(id)
           .populate('testId', 'title ownerId')
-          .populate('questionId', 'question order type options correctAnswer explanation difficulty points coding')
+          .populate(
+            'questionId',
+            'question order type options correctAnswer explanation difficulty points coding'
+          )
           .populate('reporterId', 'fullName username email')
           .populate('assignedTo', 'fullName username')
           .lean();
@@ -606,8 +615,7 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
               {
                 $set: {
                   status: 'resolved',
-                  resolutionAction:
-                    input.action === 'delete' ? 'test_deleted' : 'test_suspended',
+                  resolutionAction: input.action === 'delete' ? 'test_deleted' : 'test_suspended',
                   resolutionNote: input.reason,
                   resolvedBy: actor.userId,
                   resolvedAt: now,
@@ -852,7 +860,10 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
       deletedAt: null,
       moderationStatus: { $in: ['active', null] },
     });
-    await MockTestModel.updateOne({ _id: testId }, { $set: { questionCount: activeQuestionCount } });
+    await MockTestModel.updateOne(
+      { _id: testId },
+      { $set: { questionCount: activeQuestionCount } }
+    );
 
     const test = await MockTestModel.findById(testId).select('ownerId title').lean();
     if (test?.ownerId) {

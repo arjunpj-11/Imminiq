@@ -1,18 +1,18 @@
-import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
-import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
-import { useAdminUserNotes } from "../hooks/useAdminUserNotes";
-import { useAddAdminUserNote } from "../hooks/useAddAdminUserNote";
-import { useDeleteAdminUserNote } from "../hooks/useDeleteAdminUserNote";
-import { useUpdateAdminUserTags } from "../hooks/useUpdateAdminUserTags";
+import { useState } from 'react';
+import { Plus, Trash2 } from 'lucide-react';
+import AdminActionPasswordField from '../../../../components/admin/AdminActionPasswordField';
+import { isAdminActionPasswordReady } from '../../../../lib/admin/admin-action-password';
+import { useAdminUserNotes } from '../hooks/useAdminUserNotes';
+import { useAddAdminUserNote } from '../hooks/useAddAdminUserNote';
+import { useDeleteAdminUserNote } from '../hooks/useDeleteAdminUserNote';
+import { useUpdateAdminUserTags } from '../hooks/useUpdateAdminUserTags';
 
 export default function AdminUserNotesPanel({ userId }: { userId: string }) {
   const query = useAdminUserNotes(userId);
-  const [note, setNote] = useState("");
-  const [noteTags, setNoteTags] = useState("");
+  const [note, setNote] = useState('');
+  const [noteTags, setNoteTags] = useState('');
   const [accountTags, setAccountTags] = useState<string | null>(null);
-  const [actionPassword, setActionPassword] = useState("");
+  const [actionPassword, setActionPassword] = useState('');
   const add = useAddAdminUserNote(userId);
   const remove = useDeleteAdminUserNote(userId, actionPassword);
   const tags = useUpdateAdminUserTags(userId);
@@ -21,24 +21,24 @@ export default function AdminUserNotesPanel({ userId }: { userId: string }) {
       {
         note: note.trim(),
         tags: noteTags
-          .split(",")
+          .split(',')
           .map((value) => value.trim().toLowerCase())
           .filter(Boolean),
         actionPassword,
       },
       {
         onSuccess: () => {
-          setNote("");
-          setNoteTags("");
-          setActionPassword("");
+          setNote('');
+          setNoteTags('');
+          setActionPassword('');
         },
-      },
+      }
     );
   const updateTags = () =>
     tags.mutate(
       {
-        tags: (accountTags ?? "")
-          .split(",")
+        tags: (accountTags ?? '')
+          .split(',')
           .map((value) => value.trim().toLowerCase())
           .filter(Boolean),
         actionPassword,
@@ -46,16 +46,14 @@ export default function AdminUserNotesPanel({ userId }: { userId: string }) {
       {
         onSuccess: () => {
           setAccountTags(null);
-          setActionPassword("");
+          setActionPassword('');
         },
-      },
+      }
     );
-  const currentTags = accountTags ?? query.data?.tags.join(", ") ?? "";
+  const currentTags = accountTags ?? query.data?.tags.join(', ') ?? '';
   return (
     <div className="rounded-xl border border-white/10 bg-[#1c1a18] p-6">
-      <h2 className="font-editorial text-2xl font-bold">
-        Internal notes & tags
-      </h2>
+      <h2 className="font-editorial text-2xl font-bold">Internal notes & tags</h2>
       <p className="mt-1 text-xs text-[#aaa59d]">
         Visible only to authorized administrators; every change is audited.
       </p>
@@ -97,17 +95,16 @@ export default function AdminUserNotesPanel({ userId }: { userId: string }) {
       </label>
       <button
         className="admin-primary-button mt-3 inline-flex items-center gap-2"
-        disabled={note.trim().length < 3 || add.isPending || !isAdminActionPasswordReady(actionPassword)}
+        disabled={
+          note.trim().length < 3 || add.isPending || !isAdminActionPasswordReady(actionPassword)
+        }
         onClick={addNote}
       >
         <Plus size={15} /> Add note
       </button>
       <div className="mt-5 space-y-3">
         {query.data?.notes.map((item) => (
-          <article
-            key={item.id}
-            className="rounded-lg border border-white/10 bg-[#24211e] p-4"
-          >
+          <article key={item.id} className="rounded-lg border border-white/10 bg-[#24211e] p-4">
             <div className="flex justify-between gap-3">
               <div className="text-xs text-[#aaa59d]">
                 {item.author} · {new Date(item.createdAt).toLocaleString()}
@@ -121,15 +118,10 @@ export default function AdminUserNotesPanel({ userId }: { userId: string }) {
                 <Trash2 size={15} />
               </button>
             </div>
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-6">
-              {item.note}
-            </p>
+            <p className="mt-2 whitespace-pre-wrap text-sm leading-6">{item.note}</p>
             <div className="mt-2 flex gap-1">
               {item.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded bg-white/5 px-2 py-1 text-[10px]"
-                >
+                <span key={tag} className="rounded bg-white/5 px-2 py-1 text-[10px]">
                   {tag}
                 </span>
               ))}

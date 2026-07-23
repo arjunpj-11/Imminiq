@@ -11,11 +11,8 @@ import { MongoModerationAppealMapper } from '../shared/mongo-moderation-appeal.m
 import { MongoModerationAppealNormalizer } from '../shared/mongo-moderation-appeal-normalizer';
 import { MongoModerationAppealObjectId } from '../shared/mongo-moderation-appeal-object-id';
 import type { MongoModerationAppealRecord } from '../shared/mongo-moderation-appeal.types';
-import type {
-  MongoModerationAppealRestrictedUserReader} from './mongo-moderation-appeal-restricted-user.reader';
-import {
-  mongoModerationAppealRestrictedUserReader,
-} from './mongo-moderation-appeal-restricted-user.reader';
+import type { MongoModerationAppealRestrictedUserReader } from './mongo-moderation-appeal-restricted-user.reader';
+import { mongoModerationAppealRestrictedUserReader } from './mongo-moderation-appeal-restricted-user.reader';
 
 export class MongoModerationAppealCaseRepository extends MongoModerationAppealBaseRepository {
   constructor(

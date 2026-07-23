@@ -1,13 +1,13 @@
-import api from "../axios";
+import api from '../axios';
 
 export async function downloadServerCsv(
   path: string,
   filename: string,
-  params?: Record<string, string>,
+  params?: Record<string, string>
 ) {
-  const response = await api.get<Blob>(path, { params, responseType: "blob" });
+  const response = await api.get<Blob>(path, { params, responseType: 'blob' });
   const url = URL.createObjectURL(response.data);
-  const anchor = document.createElement("a");
+  const anchor = document.createElement('a');
   anchor.href = url;
   anchor.download = filename;
   anchor.click();

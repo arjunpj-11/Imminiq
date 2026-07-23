@@ -16,13 +16,17 @@ export class AdminDataPrivacyRequestService implements IAdminDataPrivacyRequestS
     if (query.status !== 'all') filter.status = query.status;
     if (query.type !== 'all') filter.type = query.type;
     if (query.search) {
-      const users = await mongoose.model('User').find({
-        $or: [
-          { fullName: { $regex: query.search, $options: 'i' } },
-          { email: { $regex: query.search, $options: 'i' } },
-          { username: { $regex: query.search, $options: 'i' } },
-        ],
-      }).select('_id').lean();
+      const users = await mongoose
+        .model('User')
+        .find({
+          $or: [
+            { fullName: { $regex: query.search, $options: 'i' } },
+            { email: { $regex: query.search, $options: 'i' } },
+            { username: { $regex: query.search, $options: 'i' } },
+          ],
+        })
+        .select('_id')
+        .lean();
       filter.userId = { $in: users.map((user) => user._id) };
     }
     const [rows, total, stats] = await Promise.all([
@@ -41,39 +45,70 @@ export class AdminDataPrivacyRequestService implements IAdminDataPrivacyRequestS
     const counts = Object.fromEntries(stats.map((row) => [row._id, row.count]));
     return {
       items: rows.map((row) => {
-        const user = row.userId as unknown as { _id: unknown; fullName?: string; username?: string; email?: string; phone?: string };
-        const assignee = row.assignedTo as unknown as { fullName?: string; username?: string } | null;
+        const user = row.userId as unknown as {
+          _id: unknown;
+          fullName?: string;
+          username?: string;
+          email?: string;
+          phone?: string;
+        };
+        const assignee = row.assignedTo as unknown as {
+          fullName?: string;
+          username?: string;
+        } | null;
         return {
-          id: String(row._id), userId: String(user?._id ?? ''), userName: user?.fullName ?? 'Unknown user',
-          identifier: user?.email ?? user?.phone ?? user?.username ?? '', type: row.type,
-          details: row.details, status: row.status, assignedTo: assignee?.fullName ?? assignee?.username,
-          resolutionNote: row.resolutionNote, downloadUrl: row.downloadUrl, dueAt: row.dueAt,
-          completedAt: row.completedAt, createdAt: row.createdAt, updatedAt: row.updatedAt,
+          id: String(row._id),
+          userId: String(user?._id ?? ''),
+          userName: user?.fullName ?? 'Unknown user',
+          identifier: user?.email ?? user?.phone ?? user?.username ?? '',
+          type: row.type,
+          details: row.details,
+          status: row.status,
+          assignedTo: assignee?.fullName ?? assignee?.username,
+          resolutionNote: row.resolutionNote,
+          downloadUrl: row.downloadUrl,
+          dueAt: row.dueAt,
+          completedAt: row.completedAt,
+          createdAt: row.createdAt,
+          updatedAt: row.updatedAt,
         };
       }),
       stats: {
         pending: counts.pending ?? 0,
         inProgress: counts.in_progress ?? 0,
         completed: counts.completed ?? 0,
-        overdue: await DataPrivacyRequest.countDocuments({ status: { $in: ['pending', 'in_progress'] }, dueAt: { $lt: new Date() } }),
+        overdue: await DataPrivacyRequest.countDocuments({
+          status: { $in: ['pending', 'in_progress'] },
+          dueAt: { $lt: new Date() },
+        }),
       },
-      pagination: { page: query.page, limit: query.limit, total, pages: Math.max(1, Math.ceil(total / query.limit)) },
+      pagination: {
+        page: query.page,
+        limit: query.limit,
+        total,
+        pages: Math.max(1, Math.ceil(total / query.limit)),
+      },
     };
   }
 
-  async update(
-    id: string,
-    input: AdminPrivacyRequestUpdateInput,
-    actor: AdminActor
-  ) {
+  async update(id: string, input: AdminPrivacyRequestUpdateInput, actor: AdminActor) {
     const session = await mongoose.startSession();
     try {
       let result: AdminPrivacyRequestUpdateResult | undefined;
       await session.withTransaction(async () => {
         const row = await DataPrivacyRequest.findById(id).session(session);
-        if (!row) throw new ServiceError('missing-resource', 'PRIVACY_REQUEST_NOT_FOUND', 'Privacy request not found');
+        if (!row)
+          throw new ServiceError(
+            'missing-resource',
+            'PRIVACY_REQUEST_NOT_FOUND',
+            'Privacy request not found'
+          );
         if (['completed', 'rejected', 'cancelled'].includes(row.status)) {
-          throw new ServiceError('conflict', 'PRIVACY_REQUEST_FINAL', 'This request has already reached a final state');
+          throw new ServiceError(
+            'conflict',
+            'PRIVACY_REQUEST_FINAL',
+            'This request has already reached a final state'
+          );
         }
         row.status = input.status;
         row.assignedTo = new mongoose.Types.ObjectId(actor.userId);
@@ -81,9 +116,18 @@ export class AdminDataPrivacyRequestService implements IAdminDataPrivacyRequestS
         row.downloadUrl = input.downloadUrl ?? null;
         row.completedAt = ['completed', 'rejected'].includes(input.status) ? new Date() : null;
         await row.save({ session });
-        await recordAdminAction(actor, 'privacy_request.updated', 'users', {
-          requestId: id, userId: String(row.userId), status: input.status, type: row.type,
-        }, session);
+        await recordAdminAction(
+          actor,
+          'privacy_request.updated',
+          'users',
+          {
+            requestId: id,
+            userId: String(row.userId),
+            status: input.status,
+            type: row.type,
+          },
+          session
+        );
         result = { id: String(row._id), status: row.status, updatedAt: row.updatedAt };
       });
       if (!result) {
@@ -94,6 +138,8 @@ export class AdminDataPrivacyRequestService implements IAdminDataPrivacyRequestS
         );
       }
       return result;
-    } finally { await session.endSession(); }
+    } finally {
+      await session.endSession();
+    }
   }
 }

@@ -28,24 +28,27 @@ export class MongoAdminBroadcastRepository implements IAdminBroadcastRepository 
         { $group: { _id: null, count: { $sum: '$recipientCount' } } },
       ]),
     ]);
-    const items = await Promise.all(rows.map(async (row) => {
-      const sender = row.sentBy as unknown as { fullName?: string; username?: string };
-      const poll = row.poll?.question && row.poll.options?.length
-        ? await this.getPollSummary(String(row._id), row.poll.question, row.poll.options)
-        : undefined;
-      return {
-        id: String(row._id),
-        title: row.title,
-        message: row.message,
-        audience: row.audience,
-        deepLink: row.deepLink,
-        sender: sender?.fullName ?? sender?.username ?? 'Admin',
-        recipientCount: row.recipientCount,
-        status: row.status,
-        sentAt: row.sentAt,
-        ...(poll ? { poll } : {}),
-      };
-    }));
+    const items = await Promise.all(
+      rows.map(async (row) => {
+        const sender = row.sentBy as unknown as { fullName?: string; username?: string };
+        const poll =
+          row.poll?.question && row.poll.options?.length
+            ? await this.getPollSummary(String(row._id), row.poll.question, row.poll.options)
+            : undefined;
+        return {
+          id: String(row._id),
+          title: row.title,
+          message: row.message,
+          audience: row.audience,
+          deepLink: row.deepLink,
+          sender: sender?.fullName ?? sender?.username ?? 'Admin',
+          recipientCount: row.recipientCount,
+          status: row.status,
+          sentAt: row.sentAt,
+          ...(poll ? { poll } : {}),
+        };
+      })
+    );
     return createAdminPage(items, query, total, {
       sent: total,
       recipients: recipients[0]?.count ?? 0,
@@ -90,7 +93,12 @@ export class MongoAdminBroadcastRepository implements IAdminBroadcastRepository 
       { $group: { _id: '$optionIndex', count: { $sum: 1 } } },
     ]);
     const totals = options.map((_, index) => votes.find((vote) => vote._id === index)?.count ?? 0);
-    return { question, options, votes: totals, totalVotes: totals.reduce((sum, value) => sum + value, 0) };
+    return {
+      question,
+      options,
+      votes: totals,
+      totalVotes: totals.reduce((sum, value) => sum + value, 0),
+    };
   }
 }
 export const mongoAdminBroadcastRepository = new MongoAdminBroadcastRepository();

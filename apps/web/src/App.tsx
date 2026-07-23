@@ -12,7 +12,7 @@ import { useAuthStore } from './store/useAuthStore';
 import { useThemeStore } from './store/useThemeStore';
 
 const GlobalNavigationController = lazy(
-  () => import('./components/navigation/GlobalNavigationController'),
+  () => import('./components/navigation/GlobalNavigationController')
 );
 
 export default function App() {

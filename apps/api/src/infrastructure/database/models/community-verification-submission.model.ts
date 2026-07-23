@@ -1,8 +1,12 @@
-import type { Document} from 'mongoose';
+import type { Document } from 'mongoose';
 import mongoose, { Schema } from 'mongoose';
 
 export type CommunityVerificationSubmissionStatus =
-  'open' | 'closed' | 'approved' | 'rejected' | 'expired';
+  | 'open'
+  | 'closed'
+  | 'approved'
+  | 'rejected'
+  | 'expired';
 
 export type CommunityVerificationConsensusChoice = 'pass' | 'fail';
 

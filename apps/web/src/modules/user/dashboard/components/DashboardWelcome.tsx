@@ -12,9 +12,7 @@ export default function DashboardWelcome({ summary }: DashboardWelcomeProps) {
       title={
         <>
           Welcome back,{' '}
-          <span className="text-(--brand-500)">
-            {summary.user.fullName.split(' ')[0]}
-          </span>
+          <span className="text-(--brand-500)">{summary.user.fullName.split(' ')[0]}</span>
         </>
       }
       description="Every focused session compounds. Continue your roadmap, protect your streak, and turn today’s work into measurable progress."
@@ -30,7 +28,9 @@ export default function DashboardWelcome({ summary }: DashboardWelcomeProps) {
             <div className="mt-1 font-ui text-[30px] font-extrabold leading-none tracking-[-1.5px] text-(--text-primary)">
               {summary.streak.current} days
             </div>
-            <div className="mt-1.5 text-[11px] text-(--text-secondary)">Keep the learning loop alive.</div>
+            <div className="mt-1.5 text-[11px] text-(--text-secondary)">
+              Keep the learning loop alive.
+            </div>
           </div>
         </div>
       }

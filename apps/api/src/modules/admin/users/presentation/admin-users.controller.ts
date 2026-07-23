@@ -22,12 +22,70 @@ type SessionParams = { userId: string; sessionId: string };
 
 export class AdminUsersController {
   constructor(private readonly _useCases: AdminUsersUseCases) {}
-  listNotes = (req: Request<UserIdParams>, res: Response, next: NextFunction) => sendAdminResult(next, () => this._useCases.notes.list(req.params.userId), res, 'User notes fetched');
-  addNote = (req: Request<UserIdParams>, res: Response, next: NextFunction) => sendAdminResult(next, () => this._useCases.notes.add(req.params.userId, adminUserNoteSchema.parse(req.body), { userId: req.user!.userId, role: req.user!.role as 'admin' | 'superadmin', ipAddress: req.ip ?? '', userAgent: req.get('user-agent') ?? '' }), res, 'User note added');
-  removeNote = (req: Request<{ userId: string; noteId: string }>, res: Response, next: NextFunction) => sendAdminResult(next, () => this._useCases.notes.remove(req.params.userId, req.params.noteId, { userId: req.user!.userId, role: req.user!.role as 'admin' | 'superadmin', ipAddress: req.ip ?? '', userAgent: req.get('user-agent') ?? '' }), res, 'User note removed');
-  updateTags = (req: Request<UserIdParams>, res: Response, next: NextFunction) => sendAdminResult(next, () => this._useCases.notes.updateTags(req.params.userId, adminUserTagsSchema.parse(req.body).tags, { userId: req.user!.userId, role: req.user!.role as 'admin' | 'superadmin', ipAddress: req.ip ?? '', userAgent: req.get('user-agent') ?? '' }), res, 'User tags updated');
+  listNotes = (req: Request<UserIdParams>, res: Response, next: NextFunction) =>
+    sendAdminResult(
+      next,
+      () => this._useCases.notes.list(req.params.userId),
+      res,
+      'User notes fetched'
+    );
+  addNote = (req: Request<UserIdParams>, res: Response, next: NextFunction) =>
+    sendAdminResult(
+      next,
+      () =>
+        this._useCases.notes.add(req.params.userId, adminUserNoteSchema.parse(req.body), {
+          userId: req.user!.userId,
+          role: req.user!.role as 'admin' | 'superadmin',
+          ipAddress: req.ip ?? '',
+          userAgent: req.get('user-agent') ?? '',
+        }),
+      res,
+      'User note added'
+    );
+  removeNote = (
+    req: Request<{ userId: string; noteId: string }>,
+    res: Response,
+    next: NextFunction
+  ) =>
+    sendAdminResult(
+      next,
+      () =>
+        this._useCases.notes.remove(req.params.userId, req.params.noteId, {
+          userId: req.user!.userId,
+          role: req.user!.role as 'admin' | 'superadmin',
+          ipAddress: req.ip ?? '',
+          userAgent: req.get('user-agent') ?? '',
+        }),
+      res,
+      'User note removed'
+    );
+  updateTags = (req: Request<UserIdParams>, res: Response, next: NextFunction) =>
+    sendAdminResult(
+      next,
+      () =>
+        this._useCases.notes.updateTags(
+          req.params.userId,
+          adminUserTagsSchema.parse(req.body).tags,
+          {
+            userId: req.user!.userId,
+            role: req.user!.role as 'admin' | 'superadmin',
+            ipAddress: req.ip ?? '',
+            userAgent: req.get('user-agent') ?? '',
+          }
+        ),
+      res,
+      'User tags updated'
+    );
   exportCsv = async (req: Request, res: Response, next: NextFunction) => {
-    try { const query = adminUsersQuerySchema.parse(req.query); const content = await this._useCases.exports.users(query); res.setHeader('Content-Type', 'text/csv; charset=utf-8'); res.setHeader('Content-Disposition', 'attachment; filename="imminiq-users.csv"'); res.send(`\uFEFF${content}`); } catch (error) { next(error); }
+    try {
+      const query = adminUsersQuerySchema.parse(req.query);
+      const content = await this._useCases.exports.users(query);
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename="imminiq-users.csv"');
+      res.send(`\uFEFF${content}`);
+    } catch (error) {
+      next(error);
+    }
   };
   bulkStatus = (req: Request, res: Response, next: NextFunction) => {
     const actor = getAdminActor(req);
@@ -39,21 +97,41 @@ export class AdminUsersController {
           input,
           { userId: actor.userId, role: actor.role as 'admin' | 'superadmin' },
           { ipAddress: actor.ipAddress, userAgent: actor.userAgent }
-      ),
+        ),
       res,
       input.preview ? 'Bulk action preview' : 'Bulk user action completed'
     );
   };
   listPrivacyRequests = (req: Request, res: Response, next: NextFunction) =>
-    sendAdminResult(next, () => this._useCases.privacyRequests.list(adminPrivacyRequestsQuerySchema.parse(req.query)), res, 'Privacy requests fetched');
+    sendAdminResult(
+      next,
+      () => this._useCases.privacyRequests.list(adminPrivacyRequestsQuerySchema.parse(req.query)),
+      res,
+      'Privacy requests fetched'
+    );
 
-  updatePrivacyRequest = (req: Request<{ requestId: string }>, res: Response, next: NextFunction) => {
+  updatePrivacyRequest = (
+    req: Request<{ requestId: string }>,
+    res: Response,
+    next: NextFunction
+  ) => {
     const actor = req.user!;
-    return sendAdminResult(next, () => this._useCases.privacyRequests.update(
-      req.params.requestId,
-      adminPrivacyRequestUpdateSchema.parse(req.body),
-      { userId: actor.userId, role: actor.role as 'admin' | 'superadmin', ipAddress: req.ip ?? '', userAgent: req.get('user-agent') ?? '' }
-    ), res, 'Privacy request updated');
+    return sendAdminResult(
+      next,
+      () =>
+        this._useCases.privacyRequests.update(
+          req.params.requestId,
+          adminPrivacyRequestUpdateSchema.parse(req.body),
+          {
+            userId: actor.userId,
+            role: actor.role as 'admin' | 'superadmin',
+            ipAddress: req.ip ?? '',
+            userAgent: req.get('user-agent') ?? '',
+          }
+        ),
+      res,
+      'Privacy request updated'
+    );
   };
   list = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(

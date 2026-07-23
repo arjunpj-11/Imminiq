@@ -1,6 +1,6 @@
-import type { RefObject } from "react";
+import type { RefObject } from 'react';
 
-import { cn } from "../../../../../lib/cn";
+import { cn } from '../../../../../lib/cn';
 import {
   ArchiveIcon,
   DeleteIcon,
@@ -9,7 +9,7 @@ import {
   RevisionIcon,
   ShieldIcon,
   SpinnerIcon,
-} from "./TrackerCardIcons";
+} from './TrackerCardIcons';
 
 type TrackerCardMenuProps = {
   menuRef: RefObject<HTMLDivElement | null>;
@@ -31,7 +31,7 @@ type TrackerCardMenuProps = {
 };
 
 const menuItemClass =
-  "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[13px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(184,76,43,0.20)]";
+  'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[13px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(184,76,43,0.20)]';
 
 export default function TrackerCardMenu({
   menuRef,
@@ -89,7 +89,7 @@ export default function TrackerCardMenu({
             onClick={() => runAction(onInfo)}
             className={cn(
               menuItemClass,
-              "text-(--text-primary) hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500)",
+              'text-(--text-primary) hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500)'
             )}
           >
             <InfoIcon />
@@ -102,7 +102,7 @@ export default function TrackerCardMenu({
             onClick={() => runAction(onQuickRevision)}
             className={cn(
               menuItemClass,
-              "text-(--text-primary) hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500)",
+              'text-(--text-primary) hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500)'
             )}
           >
             <RevisionIcon />
@@ -117,10 +117,10 @@ export default function TrackerCardMenu({
               onClick={() => runAction(onSendForVerification)}
               className={cn(
                 menuItemClass,
-                "disabled:cursor-not-allowed disabled:opacity-50",
+                'disabled:cursor-not-allowed disabled:opacity-50',
                 canSendForVerification || (!isPublished && !isArchived)
-                  ? "text-(--text-primary) hover:bg-[rgba(45,106,71,0.08)] hover:text-(--success)"
-                  : "text-(--text-secondary)",
+                  ? 'text-(--text-primary) hover:bg-[rgba(45,106,71,0.08)] hover:text-(--success)'
+                  : 'text-(--text-secondary)'
               )}
             >
               {isSendingVerification ? <SpinnerIcon /> : <ShieldIcon />}
@@ -128,9 +128,7 @@ export default function TrackerCardMenu({
             </button>
           )}
 
-          {(onArchive || !isSharedCoOwner) && (
-            <div className="my-1.5 h-px bg-(--border-subtle)" />
-          )}
+          {(onArchive || !isSharedCoOwner) && <div className="my-1.5 h-px bg-(--border-subtle)" />}
 
           {onArchive && !isSharedCoOwner && (
             <button
@@ -140,12 +138,12 @@ export default function TrackerCardMenu({
               className={cn(
                 menuItemClass,
                 isArchived
-                  ? "text-(--success) hover:bg-[rgba(45,106,71,0.08)]"
-                  : "text-(--text-primary) hover:bg-[rgba(26,23,20,0.05)] dark:hover:bg-white/5",
+                  ? 'text-(--success) hover:bg-[rgba(45,106,71,0.08)]'
+                  : 'text-(--text-primary) hover:bg-[rgba(26,23,20,0.05)] dark:hover:bg-white/5'
               )}
             >
               <ArchiveIcon />
-              {isArchived ? "Restore tracker" : "Archive tracker"}
+              {isArchived ? 'Restore tracker' : 'Archive tracker'}
             </button>
           )}
 
@@ -156,7 +154,7 @@ export default function TrackerCardMenu({
               onClick={() => runAction(onDelete)}
               className={cn(
                 menuItemClass,
-                "text-[#b83232] hover:bg-[rgba(200,50,50,0.08)] dark:text-[#ff8c8c]",
+                'text-[#b83232] hover:bg-[rgba(200,50,50,0.08)] dark:text-[#ff8c8c]'
               )}
             >
               <DeleteIcon />

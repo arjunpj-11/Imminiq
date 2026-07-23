@@ -1,6 +1,6 @@
 // apps/api/src/modules/user/trackers/roadmap-evaluation.model.ts
 
-import type { Document} from 'mongoose';
+import type { Document } from 'mongoose';
 import mongoose, { Schema } from 'mongoose';
 
 export type RoadmapEvaluationType = 'ai_quality' | 'reviewer_check' | 'self_review';

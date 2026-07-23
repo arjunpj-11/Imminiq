@@ -23,10 +23,11 @@ describe('AdminTrackerReviewsUseCase', () => {
     };
 
     await expect(
-      new AddAdminTrackerReviewConsensusUseCase(
-        repository,
-        new AdminTrackersMapper()
-      ).execute('review-id', 'pass', actor)
+      new AddAdminTrackerReviewConsensusUseCase(repository, new AdminTrackersMapper()).execute(
+        'review-id',
+        'pass',
+        actor
+      )
     ).resolves.toEqual({ id: 'review-id', passVotes: 4, failVotes: 2 });
     expect(repository.addConsensusVote).toHaveBeenCalledWith('review-id', 'pass', actor);
   });
@@ -45,10 +46,11 @@ describe('AdminTrackerReviewsUseCase', () => {
     };
 
     await expect(
-      new AddAdminTrackerReviewConsensusUseCase(
-        repository,
-        new AdminTrackersMapper()
-      ).execute('review-id', 'fail', actor)
+      new AddAdminTrackerReviewConsensusUseCase(repository, new AdminTrackersMapper()).execute(
+        'review-id',
+        'fail',
+        actor
+      )
     ).rejects.toMatchObject({ kind: 'conflict', code: 'TRACKER_REVIEW_NOT_OPEN' });
   });
 

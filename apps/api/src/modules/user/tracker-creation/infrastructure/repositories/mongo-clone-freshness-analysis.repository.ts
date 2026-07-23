@@ -6,13 +6,8 @@ import type {
   ICloneFreshnessAnalysisRepository,
 } from '../../domain/repositories/clone-freshness-analysis.repository.interface';
 
-export class MongoCloneFreshnessAnalysisRepository
-  implements ICloneFreshnessAnalysisRepository
-{
-  async claim(input: {
-    trackerId: string;
-    userId: string;
-  }): Promise<CloneFreshnessAnalysisClaim> {
+export class MongoCloneFreshnessAnalysisRepository implements ICloneFreshnessAnalysisRepository {
+  async claim(input: { trackerId: string; userId: string }): Promise<CloneFreshnessAnalysisClaim> {
     if (!Types.ObjectId.isValid(input.trackerId) || !Types.ObjectId.isValid(input.userId)) {
       return { status: 'not_found' };
     }
@@ -101,5 +96,4 @@ export class MongoCloneFreshnessAnalysisRepository
   }
 }
 
-export const mongoCloneFreshnessAnalysisRepository =
-  new MongoCloneFreshnessAnalysisRepository();
+export const mongoCloneFreshnessAnalysisRepository = new MongoCloneFreshnessAnalysisRepository();

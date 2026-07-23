@@ -1,8 +1,5 @@
 import type { ICreateNotificationUseCase } from '../../../../notifications';
-import type {
-  ITrackerClanNotificationNotifier,
-  TrackerClanNotificationInput,
-} from '../../domain';
+import type { ITrackerClanNotificationNotifier, TrackerClanNotificationInput } from '../../domain';
 
 export class TrackerClanNotificationGateway implements ITrackerClanNotificationNotifier {
   constructor(private readonly _createNotification: ICreateNotificationUseCase) {}

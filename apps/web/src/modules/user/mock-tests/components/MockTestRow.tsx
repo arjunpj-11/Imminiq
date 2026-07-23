@@ -107,7 +107,9 @@ export function MockTestRow({
           type="button"
           onClick={onShare}
           disabled={isUnavailable}
-          title={isUnavailable ? 'Sharing is disabled while this test is under moderation.' : undefined}
+          title={
+            isUnavailable ? 'Sharing is disabled while this test is under moderation.' : undefined
+          }
           className="inline-flex items-center gap-2 rounded-md border border-(--border-subtle) bg-white/35 px-3 py-2 text-[12px] font-bold text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle) dark:bg-transparent dark:text-(--text-secondary) dark:hover:border-white/20 dark:hover:text-[#f2f0eb]"
         >
           <ShareIcon />

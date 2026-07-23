@@ -57,7 +57,10 @@ export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean
       <div className="relative z-10 mx-auto flex w-full max-w-295 flex-col items-center justify-center gap-7 md:gap-10">
         {/* Row 1 — IMMINIQ */}
         <div className="flex w-full flex-col items-center gap-4 md:ml-[-16%] md:flex-row md:justify-center">
-          <div aria-hidden="true" className="font-['Playfair_Display',serif] text-[clamp(64px,12vw,164px)] font-black leading-[0.78] tracking-[-0.09em] text-[#1a1714] dark:text-[#f7f2ec]">
+          <div
+            aria-hidden="true"
+            className="font-['Playfair_Display',serif] text-[clamp(64px,12vw,164px)] font-black leading-[0.78] tracking-[-0.09em] text-[#1a1714] dark:text-[#f7f2ec]"
+          >
             <ScrambleWord
               text="IMMINIQ"
               delay={skipIntro ? 0 : 320}
@@ -79,7 +82,8 @@ export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean
             AI starts the tracker. The community makes it better.
           </p>
           <p className="mt-4 text-[18px] font-semibold leading-[1.45] text-[#3f3732] dark:text-[#d8d6cf]">
-            Start with a structured path, learn alongside others, and improve it for everyone who follows.
+            Start with a structured path, learn alongside others, and improve it for everyone who
+            follows.
           </p>
           <div className="mt-7 flex items-center justify-center gap-3">
             <Link
@@ -99,7 +103,10 @@ export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean
 
         {/* Row 2 — LEARN */}
         <div className="hidden w-full text-center md:block">
-          <div aria-hidden="true" className="font-['Playfair_Display',serif] text-[clamp(64px,12vw,164px)] font-black leading-[0.78] tracking-[-0.09em] text-[#1a1714] dark:text-[#f7f2ec]">
+          <div
+            aria-hidden="true"
+            className="font-['Playfair_Display',serif] text-[clamp(64px,12vw,164px)] font-black leading-[0.78] tracking-[-0.09em] text-[#1a1714] dark:text-[#f7f2ec]"
+          >
             {wordStep >= 1 && (
               <ScrambleWord
                 text="LEARN"
@@ -119,7 +126,10 @@ export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean
           >
             Learn together, contribute what is missing, and leave a stronger path behind
           </p>
-          <div aria-hidden="true" className="font-['Playfair_Display',serif] text-[clamp(64px,12vw,164px)] font-black leading-[0.78] tracking-[-0.09em] text-[#1a1714] dark:text-[#f7f2ec]">
+          <div
+            aria-hidden="true"
+            className="font-['Playfair_Display',serif] text-[clamp(64px,12vw,164px)] font-black leading-[0.78] tracking-[-0.09em] text-[#1a1714] dark:text-[#f7f2ec]"
+          >
             {wordStep >= 2 && (
               <ScrambleWord
                 text="EVOLVE"

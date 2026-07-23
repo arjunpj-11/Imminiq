@@ -31,7 +31,9 @@ export class ContentModerationAppealService implements IContentModerationAppealS
     const target =
       input.targetType === 'tracker'
         ? await Tracker.findById(input.targetId).select('ownerId moderationStatus title').lean()
-        : await MockTestModel.findById(input.targetId).select('ownerId moderationStatus title').lean();
+        : await MockTestModel.findById(input.targetId)
+            .select('ownerId moderationStatus title')
+            .lean();
     const isOwner = Boolean(target && String(target.ownerId) === input.userId);
     const hasMockTestAttempt =
       input.targetType === 'mock_test' && target

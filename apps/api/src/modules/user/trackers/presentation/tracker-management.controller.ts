@@ -178,6 +178,4 @@ export class TrackerManagementController {
       next(error);
     }
   };
-
 }
-

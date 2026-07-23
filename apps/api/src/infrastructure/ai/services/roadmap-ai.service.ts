@@ -100,7 +100,8 @@ export const enforceRoadmapStructuralCompleteness = (
     if (!parentTitle) continue;
 
     const alreadySuggested = missingTopics.some(
-      (suggestion) => suggestion.suggestedParentTitle.trim().toLowerCase() === parentTitle.toLowerCase()
+      (suggestion) =>
+        suggestion.suggestedParentTitle.trim().toLowerCase() === parentTitle.toLowerCase()
     );
     if (alreadySuggested) continue;
 
@@ -114,7 +115,15 @@ export const enforceRoadmapStructuralCompleteness = (
 
   const score = Math.min(evaluation.score, 84);
   const grade: RoadmapEvaluation['grade'] =
-    score >= 90 ? 'Excellent' : score >= 75 ? 'Very Good' : score >= 60 ? 'Good' : score >= 40 ? 'Fair' : 'Poor';
+    score >= 90
+      ? 'Excellent'
+      : score >= 75
+        ? 'Very Good'
+        : score >= 60
+          ? 'Good'
+          : score >= 40
+            ? 'Fair'
+            : 'Poor';
 
   return {
     ...evaluation,

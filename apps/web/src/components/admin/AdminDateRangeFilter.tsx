@@ -1,7 +1,7 @@
-import { CalendarDays } from "lucide-react";
+import { CalendarDays } from 'lucide-react';
 
-import type { AdminDatePreset } from "../../hooks/useAdminDateRange";
-import type { useAdminDateRange } from "../../hooks/useAdminDateRange";
+import type { AdminDatePreset } from '../../hooks/useAdminDateRange';
+import type { useAdminDateRange } from '../../hooks/useAdminDateRange';
 
 export function AdminDateRangeFilter({
   preset,
@@ -22,9 +22,9 @@ export function AdminDateRangeFilter({
           value={preset}
           onChange={(event) =>
             setPreset(
-              event.target.value === "custom"
-                ? "custom"
-                : (Number(event.target.value) as AdminDatePreset),
+              event.target.value === 'custom'
+                ? 'custom'
+                : (Number(event.target.value) as AdminDatePreset)
             )
           }
           className="admin-select"
@@ -43,9 +43,7 @@ export function AdminDateRangeFilter({
             type="date"
             value={range.from}
             max={range.to}
-            onChange={(event) =>
-              event.target.value && setFrom(event.target.value)
-            }
+            onChange={(event) => event.target.value && setFrom(event.target.value)}
             className="admin-select"
           />
         </label>
@@ -58,9 +56,7 @@ export function AdminDateRangeFilter({
             type="date"
             value={range.to}
             min={range.from}
-            onChange={(event) =>
-              event.target.value && setTo(event.target.value)
-            }
+            onChange={(event) => event.target.value && setTo(event.target.value)}
             className="admin-select"
           />
         </label>
