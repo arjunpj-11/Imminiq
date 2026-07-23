@@ -68,6 +68,20 @@ const envSchema = z
     GEMINI_API_KEY: z.string().min(1),
     CEREBRAS_API_KEY: z.string().min(1),
     YOUTUBE_DATA_API_KEY: z.string().optional().default(''),
+    METERED_TURN_API_BASE_URL: z.string().url().optional(),
+    METERED_TURN_SECRET_KEY: z.string().min(1).optional(),
+    METERED_TURN_CREDENTIAL_TTL_SECONDS: z.coerce
+      .number()
+      .int()
+      .min(600)
+      .max(86_400)
+      .default(RUNTIME_DEFAULTS.METERED_TURN_CREDENTIAL_TTL_SECONDS),
+    METERED_TURN_REQUEST_TIMEOUT_MS: z.coerce
+      .number()
+      .int()
+      .min(1_000)
+      .max(30_000)
+      .default(RUNTIME_DEFAULTS.METERED_TURN_REQUEST_TIMEOUT_MS),
 
     RAZORPAY_KEY_ID: z.string().min(1),
     RAZORPAY_KEY_SECRET: z.string().min(1),
@@ -392,6 +406,14 @@ const envSchema = z
     message: 'JWT secrets must be different',
     path: ['JWT_REFRESH_SECRET'],
   })
+  .refine(
+    (value) =>
+      Boolean(value.METERED_TURN_API_BASE_URL) === Boolean(value.METERED_TURN_SECRET_KEY),
+    {
+      message: 'Metered TURN API base URL and secret key must be configured together',
+      path: ['METERED_TURN_SECRET_KEY'],
+    }
+  )
   .superRefine((value, context) => {
     if (value.NODE_ENV !== 'production') return;
 
@@ -461,6 +483,20 @@ const envSchema = z
         code: 'custom',
         path: ['BCRYPT_ROUNDS'],
         message: 'BCRYPT_ROUNDS must be at least 12 in production',
+      });
+    }
+
+    if (!value.METERED_TURN_API_BASE_URL || !value.METERED_TURN_SECRET_KEY) {
+      context.addIssue({
+        code: 'custom',
+        path: ['METERED_TURN_SECRET_KEY'],
+        message: 'Metered TURN configuration is required in production',
+      });
+    } else if (new URL(value.METERED_TURN_API_BASE_URL).protocol !== 'https:') {
+      context.addIssue({
+        code: 'custom',
+        path: ['METERED_TURN_API_BASE_URL'],
+        message: 'METERED_TURN_API_BASE_URL must use HTTPS in production',
       });
     }
   });

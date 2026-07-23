@@ -35,6 +35,7 @@ import {
 } from '../hooks/useCalls';
 import { useCallLauncherStore } from '../store/useCallLauncherStore';
 import type { CallSignal, ICall } from '../types/call.types';
+import { loadCallIceServers } from '../utils/load-call-ice-servers';
 import { WebRtcCallService } from '../utils/web-rtc-call.service';
 
 const terminalStatuses = new Set(['declined', 'ended', 'missed', 'cancelled']);
@@ -147,7 +148,8 @@ export default function CallManager() {
     async (call: ICall) => {
       setMediaPending(true);
       try {
-        const stream = await callService.prepare(call.type);
+        const iceServers = await loadCallIceServers();
+        const stream = await callService.prepare(call.type, iceServers);
         setLocalStream(stream);
         return true;
       } catch (error) {

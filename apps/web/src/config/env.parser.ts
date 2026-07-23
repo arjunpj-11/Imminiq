@@ -2,9 +2,6 @@ export type WebEnvironment = {
   apiUrl: string;
   socketUrl?: string;
   webrtcStunUrl: string;
-  webrtcTurnUrl?: string;
-  webrtcTurnUsername?: string;
-  webrtcTurnCredential?: string;
 };
 
 const parseAbsoluteHttpUrl = (value: string, key: string) => {
@@ -45,32 +42,9 @@ export const parseWebEnvironment = (source: Record<string, unknown>): WebEnviron
       ? rawStunUrl.trim()
       : 'stun:stun.l.google.com:19302';
 
-  const rawTurnUrl = source.VITE_WEBRTC_TURN_URL;
-  const webrtcTurnUrl =
-    typeof rawTurnUrl === 'string' && rawTurnUrl.trim() ? rawTurnUrl.trim() : undefined;
-  if (webrtcTurnUrl && !/^turns?:/i.test(webrtcTurnUrl)) {
-    throw new Error('VITE_WEBRTC_TURN_URL must use TURN or TURNS');
-  }
-  const rawTurnUsername = source.VITE_WEBRTC_TURN_USERNAME;
-  const rawTurnCredential = source.VITE_WEBRTC_TURN_CREDENTIAL;
-  const webrtcTurnUsername =
-    typeof rawTurnUsername === 'string' && rawTurnUsername.trim()
-      ? rawTurnUsername.trim()
-      : undefined;
-  const webrtcTurnCredential =
-    typeof rawTurnCredential === 'string' && rawTurnCredential.trim()
-      ? rawTurnCredential.trim()
-      : undefined;
-  if (Boolean(webrtcTurnUsername) !== Boolean(webrtcTurnCredential)) {
-    throw new Error('WebRTC TURN username and credential must be configured together');
-  }
-
   return {
     apiUrl,
     ...(socketUrl ? { socketUrl } : {}),
     webrtcStunUrl,
-    ...(webrtcTurnUrl ? { webrtcTurnUrl } : {}),
-    ...(webrtcTurnUsername ? { webrtcTurnUsername } : {}),
-    ...(webrtcTurnCredential ? { webrtcTurnCredential } : {}),
   };
 };

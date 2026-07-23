@@ -52,6 +52,8 @@ export const RUNTIME_DEFAULTS = {
   GROQ_FAST_MODEL: 'openai/gpt-oss-20b',
   GROQ_MAX_TOKENS: 4_096,
   GROQ_TRANSCRIPTION_MODEL: 'whisper-large-v3-turbo',
+  METERED_TURN_CREDENTIAL_TTL_SECONDS: 4 * 60 * 60,
+  METERED_TURN_REQUEST_TIMEOUT_MS: 8_000,
   GEMINI_DEFAULT_MODEL: 'gemini-2.5-flash',
   GEMINI_FAST_MODEL: 'gemini-2.5-flash-lite',
   GEMINI_NEXT_MODEL: 'gemini-3.1-flash-lite',

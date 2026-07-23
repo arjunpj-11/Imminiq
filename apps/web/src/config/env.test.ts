@@ -51,31 +51,6 @@ describe('parseWebEnvironment', () => {
     });
   });
 
-  it('accepts an authenticated WebRTC TURN relay for restrictive networks', () => {
-    expect(
-      parseWebEnvironment({
-        VITE_API_URL: '/api',
-        VITE_WEBRTC_TURN_URL: 'turns:rtc.imminiq.com:5349',
-        VITE_WEBRTC_TURN_USERNAME: 'imminiq-user',
-        VITE_WEBRTC_TURN_CREDENTIAL: 'relay-secret',
-      })
-    ).toMatchObject({
-      webrtcTurnUrl: 'turns:rtc.imminiq.com:5349',
-      webrtcTurnUsername: 'imminiq-user',
-      webrtcTurnCredential: 'relay-secret',
-    });
-  });
-
-  it('rejects incomplete WebRTC TURN credentials', () => {
-    expect(() =>
-      parseWebEnvironment({
-        VITE_API_URL: '/api',
-        VITE_WEBRTC_TURN_URL: 'turn:rtc.imminiq.com:3478',
-        VITE_WEBRTC_TURN_USERNAME: 'imminiq-user',
-      })
-    ).toThrow('WebRTC TURN username and credential must be configured together');
-  });
-
   it('rejects unsupported Socket.IO URL protocols', () => {
     expect(() =>
       parseWebEnvironment({ VITE_API_URL: '/api', VITE_SOCKET_URL: 'javascript:alert(1)' })

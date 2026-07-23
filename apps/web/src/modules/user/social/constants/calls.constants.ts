@@ -1,6 +1,7 @@
 export const CALL_ENDPOINTS = {
   root: '/calls',
   active: '/calls/active',
+  iceServers: '/calls/ice-servers',
   respond: (callId: string) => `/calls/${callId}/respond`,
   end: (callId: string) => `/calls/${callId}/end`,
 } as const;

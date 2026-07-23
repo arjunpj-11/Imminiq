@@ -13,6 +13,8 @@ const productionEnvironment = (overrides: Record<string, unknown> = {}) => ({
   JWT_SECRET: 'production-access-secret-with-more-than-thirty-two-random-characters',
   JWT_REFRESH_SECRET: 'production-refresh-secret-with-more-than-thirty-two-random-characters',
   BCRYPT_ROUNDS: '12',
+  METERED_TURN_API_BASE_URL: 'https://imminiq.metered.live',
+  METERED_TURN_SECRET_KEY: 'production-metered-secret',
   ...overrides,
 });
 
@@ -49,5 +51,16 @@ describe('production environment policy', () => {
     expect(() =>
       parseApiEnvironment(productionEnvironment({ AUTH_COOKIE_DOMAIN: '.unrelated.example' }))
     ).toThrow('AUTH_COOKIE_DOMAIN must be a shared parent');
+  });
+
+  it('requires server-side Metered TURN configuration in production', () => {
+    expect(() =>
+      parseApiEnvironment(
+        productionEnvironment({
+          METERED_TURN_API_BASE_URL: undefined,
+          METERED_TURN_SECRET_KEY: undefined,
+        })
+      )
+    ).toThrow('Metered TURN configuration is required in production');
   });
 });

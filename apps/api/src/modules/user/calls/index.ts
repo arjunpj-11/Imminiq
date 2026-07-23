@@ -1,5 +1,7 @@
 export type {
   CallPageDTO,
+  CallIceConfigurationDTO,
+  CallIceServerDTO,
   CallParticipantDTO,
   CallViewDTO,
   EndCallInputDTO,
