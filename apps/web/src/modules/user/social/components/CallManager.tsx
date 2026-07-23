@@ -423,7 +423,7 @@ export default function CallManager() {
   if (minimized) {
     return (
       <div className="fixed bottom-4 left-1/2 z-190 w-[min(94vw,560px)] -translate-x-1/2 rounded-xl border border-(--border-subtle) bg-(--surface-elevated) p-3 shadow-(--shadow-3)">
-        <audio ref={remoteAudioRef} autoPlay playsInline />
+        <audio ref={remoteAudioRef} playsInline />
         <div className="flex items-center gap-3">
           <span className="relative">
             <UserAvatar

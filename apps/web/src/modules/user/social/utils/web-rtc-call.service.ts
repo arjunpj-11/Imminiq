@@ -27,7 +27,11 @@ export class WebRtcCallService {
     }
     if (!this._localStream) {
       this._localStream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
         video: type === 'video',
       });
     }
