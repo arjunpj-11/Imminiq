@@ -109,10 +109,11 @@ describe('LangChainAdaptiveLearningAgent advisor recovery', () => {
       },
     });
 
-    await expect(new LangChainAdaptiveLearningAgent().answer(input('What should I create?'))).resolves
-      .toEqual({
-        content:
-          'You already have “Data Structures”, which covers Computer Science. Continue that tracker instead of creating another one for the same subject.',
-      });
+    await expect(
+      new LangChainAdaptiveLearningAgent().answer(input('What should I create?'))
+    ).resolves.toEqual({
+      content:
+        'You already have “Data Structures”, which covers Computer Science. Continue that tracker instead of creating another one for the same subject.',
+    });
   });
 });

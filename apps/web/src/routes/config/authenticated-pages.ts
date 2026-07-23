@@ -72,6 +72,8 @@ export const SubscriptionPlansPage = lazy(
 
 export const FriendsPage = lazy(() => import('../../modules/user/friends/pages/FriendsPage'));
 
+export const SocialPage = lazy(() => import('../../modules/user/social/pages/SocialPage'));
+
 export const FriendsSearchPage = lazy(
   () => import('../../modules/user/friends/pages/FriendsSearchPage')
 );

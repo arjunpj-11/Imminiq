@@ -66,8 +66,7 @@ export default function MockTestAttemptPage() {
       )
   );
   const [reportOpen, setReportOpen] = useState(false);
-  const [reportReason, setReportReason] =
-    useState<MockTestQuestionIssueReason>('incorrect_answer');
+  const [reportReason, setReportReason] = useState<MockTestQuestionIssueReason>('incorrect_answer');
   const [reportDetails, setReportDetails] = useState('');
 
   const [languageByQuestion, setLanguageByQuestion] = useState<
@@ -274,8 +273,7 @@ export default function MockTestAttemptPage() {
             'The moderation team can now review this question and its test context.'
           );
         },
-        onError: (error) =>
-          toast.error('Could not report question', getUserFacingError(error)),
+        onError: (error) => toast.error('Could not report question', getUserFacingError(error)),
       }
     );
   };
@@ -795,8 +793,8 @@ export default function MockTestAttemptPage() {
         >
           <h2 className="text-lg font-bold">Report a problem</h2>
           <p className="mt-1 text-sm text-(--text-secondary)">
-            This creates a moderation report. Use the Flag button only to mark a question for
-            review during your attempt.
+            This creates a moderation report. Use the Flag button only to mark a question for review
+            during your attempt.
           </p>
           <label className="mt-5 block text-sm font-semibold">
             Problem type

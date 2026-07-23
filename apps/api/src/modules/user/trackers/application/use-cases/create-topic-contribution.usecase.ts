@@ -23,7 +23,8 @@ export class CreateTopicContributionUseCase implements ICreateTopicContributionU
       requesterId: input.userId,
     });
     if (!result.ok) {
-      if (result.reason === 'not-a-clone') throw TrackerApplicationError.contributionRequiresClone();
+      if (result.reason === 'not-a-clone')
+        throw TrackerApplicationError.contributionRequiresClone();
       if (result.reason === 'not-a-change') throw TrackerApplicationError.contributionNotAChange();
       if (result.reason === 'source-unavailable') {
         throw TrackerApplicationError.contributionSourceUnavailable();

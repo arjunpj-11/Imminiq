@@ -258,7 +258,10 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
       level: tracker.level,
       visibility: tracker.visibility,
       status: tracker.status,
-      moderationStatus: (tracker.moderationStatus ?? 'active') as 'active' | 'suspended' | 'deleted',
+      moderationStatus: (tracker.moderationStatus ?? 'active') as
+        | 'active'
+        | 'suspended'
+        | 'deleted',
       ...(tracker.moderationReason ? { moderationReason: tracker.moderationReason } : {}),
       verificationStatus: tracker.verificationStatus ?? null,
       topicsCount: tracker.topicsCount,
@@ -318,13 +321,24 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
     const ownerIds = rows
       .map((row) => (row.trackerId as unknown as { ownerId?: unknown })?.ownerId)
       .filter(Boolean);
-    const owners = await User.find({ _id: { $in: ownerIds } }).select('fullName username').lean();
+    const owners = await User.find({ _id: { $in: ownerIds } })
+      .select('fullName username')
+      .lean();
     const ownerById = new Map(
       owners.map((owner) => [String(owner._id), owner.fullName ?? owner.username ?? 'Unknown'])
     );
     const items = rows.map((row) => {
-      const tracker = row.trackerId as unknown as { _id?: unknown; title?: string; ownerId?: unknown };
-      const reporter = row.reporterId as unknown as { _id?: unknown; fullName?: string; username?: string; email?: string };
+      const tracker = row.trackerId as unknown as {
+        _id?: unknown;
+        title?: string;
+        ownerId?: unknown;
+      };
+      const reporter = row.reporterId as unknown as {
+        _id?: unknown;
+        fullName?: string;
+        username?: string;
+        email?: string;
+      };
       const assigned = row.assignedTo as unknown as { fullName?: string; username?: string } | null;
       return {
         id: String(row._id),
@@ -352,10 +366,7 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
     const report = await TrackerReport.findOneAndUpdate(
       {
         _id: id,
-        $or: [
-          { status: 'open' },
-          { status: 'reviewing', assignedTo: actor.userId },
-        ],
+        $or: [{ status: 'open' }, { status: 'reviewing', assignedTo: actor.userId }],
       },
       {
         $set: {
@@ -390,13 +401,18 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
       }),
     ]);
     const [tracker, reporter, assigned] = await Promise.all([
-      Tracker.findById(report.trackerId).select('title ownerId').populate('ownerId', 'fullName username').lean(),
+      Tracker.findById(report.trackerId)
+        .select('title ownerId')
+        .populate('ownerId', 'fullName username')
+        .lean(),
       User.findById(report.reporterId).select('fullName username email').lean(),
       report.assignedTo
         ? User.findById(report.assignedTo).select('fullName username').lean()
         : Promise.resolve(null),
     ]);
-    const owner = tracker?.ownerId as unknown as { fullName?: string; username?: string } | undefined;
+    const owner = tracker?.ownerId as unknown as
+      | { fullName?: string; username?: string }
+      | undefined;
     return {
       id: String(report._id),
       trackerId: String(report.trackerId),
@@ -500,10 +516,11 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
               affectedReporterIds.map((reporterId) => ({
                 userId: reporterId,
                 type: 'tracker_report_resolved',
-                message: `A tracker you reported was ${moderationStatus}. The moderation note was: ${input.reason}`.slice(
-                  0,
-                  500
-                ),
+                message:
+                  `A tracker you reported was ${moderationStatus}. The moderation note was: ${input.reason}`.slice(
+                    0,
+                    500
+                  ),
                 deepLink: '/community',
                 metadata: { trackerId: id, moderationStatus, reasonCode: input.reasonCode },
               })),

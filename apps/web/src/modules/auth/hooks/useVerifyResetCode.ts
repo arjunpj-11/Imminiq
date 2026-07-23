@@ -19,7 +19,7 @@ export const useVerifyResetCode = () =>
     mutationFn: async (payload: IVerifyResetCodePayload) => {
       const response = await api.post<IVerifyResetCodeResponse>(
         AUTH_API_PATHS.verifyResetCode,
-        payload,
+        payload
       );
       const resetToken = response.data.data?.resetToken;
       if (!resetToken) throw new Error('Reset token was not returned');

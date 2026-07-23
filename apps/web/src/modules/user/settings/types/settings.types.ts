@@ -13,6 +13,7 @@ export interface IPrivacySettings {
   showProfile: boolean;
   showActivity: boolean;
   showStats: boolean;
+  showOnlineStatus: boolean;
 }
 
 export interface IUserSettings {
@@ -45,6 +46,7 @@ export interface IUpdatePrivacyPayload {
   showProfile?: boolean;
   showActivity?: boolean;
   showStats?: boolean;
+  showOnlineStatus?: boolean;
 }
 
 /* ─── Account Security ─── */

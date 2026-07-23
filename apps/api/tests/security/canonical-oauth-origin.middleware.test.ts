@@ -49,9 +49,7 @@ describe('canonical OAuth origin middleware', () => {
 
     useCanonicalOAuthOrigin(req, res as never, next);
 
-    expect(res.redirectedTo).toBe(
-      'http://localhost:5009/api/auth/oauth/github?source=login'
-    );
+    expect(res.redirectedTo).toBe('http://localhost:5009/api/auth/oauth/github?source=login');
     expect(next).not.toHaveBeenCalled();
   });
 });

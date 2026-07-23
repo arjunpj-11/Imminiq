@@ -3,7 +3,9 @@ import type { ISecurityTwoFactorRepository } from './security-two-factor.reposit
 import type { ISecurityUserRepository } from './security-user.repository.interface';
 
 export interface ISecurityRepository
-  extends ISecurityUserRepository, ISecuritySessionRepository, ISecurityTwoFactorRepository {}
+  extends ISecurityUserRepository,
+    ISecuritySessionRepository,
+    ISecurityTwoFactorRepository {}
 
 export type { RevokeSecuritySessionInput } from './security-session.repository.interface';
 

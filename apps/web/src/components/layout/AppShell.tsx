@@ -1,12 +1,15 @@
 import { useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { useStreak } from '../../hooks/progress/useStreak';
 import { useRealtimeAppEvents } from '../../hooks/useRealtimeAppEvents';
 import { cn } from '../../lib/cn';
+import { getTemporaryUserNavItem } from '../../lib/current-page-navigation';
 import { useAppShellStore } from '../../store/useAppShellStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useNotifications } from '../../modules/notifications';
 import { useReceivedFriendRequests } from '../../modules/user/friends';
+import { useChatConversations } from '../../modules/user/social';
 import AppNoiseOverlay from './AppNoiseOverlay';
 import {
   AppShellContext,
@@ -51,15 +54,14 @@ export function AppShell({
   const authUser = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const accessToken = useAuthStore((state) => state.accessToken);
+  const location = useLocation();
 
   const streakQuery = useStreak(undefined, {
     enabled: !isGuest && isAuthenticated,
   });
   const notificationsQuery = useNotifications(1, !isGuest && isAuthenticated);
-  const friendRequestsQuery = useReceivedFriendRequests(
-    { limit: 1 },
-    !isGuest && isAuthenticated
-  );
+  const friendRequestsQuery = useReceivedFriendRequests({ limit: 1 }, !isGuest && isAuthenticated);
+  const chatQuery = useChatConversations(30, !isGuest && isAuthenticated);
   useRealtimeAppEvents(accessToken, !isGuest && isAuthenticated);
 
   const [pageViewer, setPageViewer] = useState<IAppShellViewer | null>(initialViewer ?? null);
@@ -73,6 +75,8 @@ export function AppShell({
   const closeMobileSidebar = useAppShellStore((state) => state.closeMobileSidebar);
 
   const toggleSidebarCollapsed = useAppShellStore((state) => state.toggleSidebarCollapsed);
+
+  const setSidebarCollapsed = useAppShellStore((state) => state.setSidebarCollapsed);
 
   const routeRefreshVersion = useAppShellStore((state) => state.routeRefreshVersion);
 
@@ -96,6 +100,14 @@ export function AppShell({
     pageViewer?.levelLabel ||
     initialViewer?.levelLabel ||
     (isPremium ? 'Imminiq Pro' : 'Free Scholar');
+
+  useEffect(() => {
+    const hasTemporaryNavItem = Boolean(getTemporaryUserNavItem(location.pathname));
+    if (!hasTemporaryNavItem) return;
+
+    closeMobileSidebar();
+    setSidebarCollapsed(true);
+  }, [closeMobileSidebar, location.pathname, setSidebarCollapsed]);
 
   return (
     <AppShellContext.Provider value={contextValue}>
@@ -147,7 +159,14 @@ export function AppShell({
                   initialViewer?.notificationCount ??
                   0
                 }
-                messageCount={pageViewer?.messageCount ?? initialViewer?.messageCount ?? 0}
+                messageCount={
+                  chatQuery.data?.pages
+                    .flatMap((page) => page.items)
+                    .reduce((total, conversation) => total + conversation.unreadCount, 0) ??
+                  pageViewer?.messageCount ??
+                  initialViewer?.messageCount ??
+                  0
+                }
                 friendRequestCount={
                   friendRequestsQuery.data?.pages[0]?.pendingReceivedCount ??
                   pageViewer?.friendRequestCount ??

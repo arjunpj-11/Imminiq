@@ -23,9 +23,7 @@ const rootModuleServiceFiles = sourceFiles.filter((path) =>
 const applicationContractFiles = sourceFiles.filter(
   (path) =>
     /[/\\]application[/\\]/.test(path) &&
-    (path.endsWith('.usecase.ts') ||
-      path.endsWith('.service.ts') ||
-      path.endsWith('.contract.ts'))
+    (path.endsWith('.usecase.ts') || path.endsWith('.service.ts') || path.endsWith('.contract.ts'))
 );
 const applicationFiles = sourceFiles.filter((path) => /[/\\]application[/\\]/.test(path));
 
@@ -98,9 +96,7 @@ describe('use-case input ports', () => {
   it('requires named use-case inputs and outputs', () => {
     for (const path of useCaseFiles) {
       const source = readFileSync(path, 'utf8');
-      const inputPort = source.match(
-        /export\s+interface\s+I\w+UseCase\s*\{([\s\S]*?)\n\}/
-      )?.[1];
+      const inputPort = source.match(/export\s+interface\s+I\w+UseCase\s*\{([\s\S]*?)\n\}/)?.[1];
 
       expect(inputPort, `Missing use-case input port body in ${path}`).toBeDefined();
       expect(inputPort, `Anonymous execute parameter in ${path}`).not.toMatch(/:\s*\{/);

@@ -5,7 +5,8 @@ import { TrackerCreationApplicationError } from '../tracker-creation-application
 import type { ITrackerCreationMapper } from '../tracker-creation.mapper';
 import type { ITrackerCreationJobOutputReader } from '../services/tracker-creation-job-output-reader.service';
 
-type RoadmapJobResultRepository = ITrackerCreationAIJobQueryRepository & ITrackerCreationRoadmapRepository;
+type RoadmapJobResultRepository = ITrackerCreationAIJobQueryRepository &
+  ITrackerCreationRoadmapRepository;
 
 export interface IGetRoadmapJobResultUseCase {
   execute(jobId: string, userId: string): Promise<RoadmapTreeResultDTO>;
@@ -30,7 +31,9 @@ export class GetRoadmapJobResultUseCase implements IGetRoadmapJobResultUseCase {
     }
 
     if (!job.isRoadmapJob()) {
-      throw TrackerCreationApplicationError.invalidJobType('This job is not a roadmap generation job');
+      throw TrackerCreationApplicationError.invalidJobType(
+        'This job is not a roadmap generation job'
+      );
     }
 
     if (!job.isCompleted()) {

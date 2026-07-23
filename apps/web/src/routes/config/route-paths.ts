@@ -44,6 +44,7 @@ export const ROUTES = {
   activity: '/activity',
   pricing: '/pricing',
   support: '/support',
+  chat: '/chat',
   friends: '/friends',
   friendsSearch: '/friends/search',
   mockTests: '/mock-tests',
@@ -72,8 +73,7 @@ export const ROUTES = {
   trackerCreateEvaluationPattern: '/trackers/create/evaluation/:jobId',
   trackerCreateEvaluation: (jobId: string) => `/trackers/create/evaluation/${jobId}`,
   trackerCreateEvaluationScorePattern: '/trackers/create/evaluation/:jobId/score',
-  trackerCreateEvaluationScore: (jobId: string) =>
-    `/trackers/create/evaluation/${jobId}/score`,
+  trackerCreateEvaluationScore: (jobId: string) => `/trackers/create/evaluation/${jobId}/score`,
 } as const;
 
 export const ADMIN_ROUTES = {

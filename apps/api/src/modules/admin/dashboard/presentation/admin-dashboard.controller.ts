@@ -9,9 +9,7 @@ export class AdminDashboardController {
     sendAdminResult(
       next,
       () =>
-        this._useCases.getOverview.execute(
-          req.user!.role as 'moderator' | 'admin' | 'superadmin'
-        ),
+        this._useCases.getOverview.execute(req.user!.role as 'moderator' | 'admin' | 'superadmin'),
       res,
       'Admin dashboard fetched'
     );

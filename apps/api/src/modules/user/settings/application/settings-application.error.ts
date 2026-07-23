@@ -13,7 +13,11 @@ export class SettingsApplicationError extends SettingsDomainError {
   }
 
   static notFound(): SettingsApplicationError {
-    return new SettingsApplicationError('missing-resource', 'SETTINGS_NOT_FOUND', 'Settings not found');
+    return new SettingsApplicationError(
+      'missing-resource',
+      'SETTINGS_NOT_FOUND',
+      'Settings not found'
+    );
   }
 }
 

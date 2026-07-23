@@ -34,6 +34,7 @@ const globalApiLimiter = rateLimit({
   store: new RedisRateLimitStore(redis, 'global'),
   standardHeaders: 'draft-8',
   legacyHeaders: false,
+  skip: () => env.NODE_ENV === 'development',
   handler: (_req, _res, next) => {
     next(
       new ApiError(

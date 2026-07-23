@@ -2,4 +2,5 @@ import type { INotificationCommandRepository } from './notification-command.repo
 import type { INotificationQueryRepository } from './notification-query.repository.interface';
 
 export interface INotificationRepository
-  extends INotificationQueryRepository, INotificationCommandRepository {}
+  extends INotificationQueryRepository,
+    INotificationCommandRepository {}

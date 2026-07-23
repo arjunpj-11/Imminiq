@@ -115,9 +115,7 @@ export class TrackerMapper implements ITrackerMapper {
     return history;
   }
 
-  toLessonTutorChatResponseDto(
-    response: LessonTutorChatResponseDTO
-  ): LessonTutorChatResponseDTO {
+  toLessonTutorChatResponseDto(response: LessonTutorChatResponseDTO): LessonTutorChatResponseDTO {
     return response;
   }
 

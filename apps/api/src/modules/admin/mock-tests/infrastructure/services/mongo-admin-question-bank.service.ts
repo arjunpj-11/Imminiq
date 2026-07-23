@@ -3,7 +3,11 @@ import { MockTestModel } from '../../../../../infrastructure/database/models/moc
 import { MockTestQuestionModel } from '../../../../../infrastructure/database/models/mock-test-question.model';
 import { MockTestAnswerModel } from '../../../../../infrastructure/database/models/mock-test-answer.model';
 import { MockTestAttemptModel } from '../../../../../infrastructure/database/models/mock-test-attempt.model';
-import { createAdminPage, escapeAdminSearch, recordAdminAction } from '../../../../../infrastructure/admin';
+import {
+  createAdminPage,
+  escapeAdminSearch,
+  recordAdminAction,
+} from '../../../../../infrastructure/admin';
 import { ServiceError } from '../../../../../shared/errors/service.error';
 import type {
   AdminQuestionBankMutationInput,
@@ -65,7 +69,11 @@ export class MongoAdminQuestionBankService implements IAdminQuestionBankService 
   async get(bankId: number) {
     const question = await QuestionBankModel.findOne({ bankId, deletedAt: null }).lean();
     if (!question) {
-      throw new ServiceError('missing-resource', 'QUESTION_NOT_FOUND', 'Question bank item not found');
+      throw new ServiceError(
+        'missing-resource',
+        'QUESTION_NOT_FOUND',
+        'Question bank item not found'
+      );
     }
 
     const linkedQuestions = await MockTestQuestionModel.find({
@@ -118,7 +126,7 @@ export class MongoAdminQuestionBankService implements IAdminQuestionBankService 
           ]),
           MockTestAttemptModel.countDocuments({ flaggedQuestions: { $in: questionIds } }),
         ])
-      : [[], 0] as const;
+      : ([[], 0] as const);
     const stats = answerStats[0];
 
     return {
@@ -147,7 +155,11 @@ export class MongoAdminQuestionBankService implements IAdminQuestionBankService 
   async remove({ bankId, reason, actor }: AdminQuestionBankMutationInput) {
     const question = await QuestionBankModel.findOne({ bankId, deletedAt: null }).lean();
     if (!question) {
-      throw new ServiceError('missing-resource', 'QUESTION_NOT_FOUND', 'Question bank item not found');
+      throw new ServiceError(
+        'missing-resource',
+        'QUESTION_NOT_FOUND',
+        'Question bank item not found'
+      );
     }
 
     const linkedQuestions = await MockTestQuestionModel.find({
@@ -269,8 +281,7 @@ export class MongoAdminQuestionBankService implements IAdminQuestionBankService 
         ]);
         const wasAutomaticallySuspended =
           test?.moderationStatus === 'suspended' &&
-          test.moderationReason ===
-            'All questions were removed during question-bank moderation.';
+          test.moderationReason === 'All questions were removed during question-bank moderation.';
         await MockTestModel.updateOne(
           { _id: testId },
           {

@@ -14,7 +14,7 @@ export const useAddAdminUserNote = (userId: string) => {
       await api.post(
         ADMIN_USERS_ENDPOINTS.notes(userId),
         { note, tags },
-        { headers: { 'X-Admin-Action-Password': actionPassword } },
+        { headers: { 'X-Admin-Action-Password': actionPassword } }
       );
     },
     onSuccess: async () => {

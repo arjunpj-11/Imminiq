@@ -5,14 +5,94 @@ import { Types } from 'mongoose';
 import { Tracker } from '../database/models/tracker.model';
 import { TrackerClan } from '../database/models/tracker-clan.model';
 import { TrackerClanMessage } from '../database/models/tracker-clan-message.model';
+import { ChatConversation } from '../database/models/chat-conversation.model';
+import { Call } from '../database/models/call.model';
 import { User } from '../database/models/user.model';
+import { UserBlock } from '../database/models/user-block.model';
+import { UserSettings } from '../database/models/user-settings.model';
 import type { TrackerClanChallengeEvent } from '../../modules/user/trackers';
+import { chatPresenceProvider } from './chat-presence.provider';
 import { verifyActiveAccessToken } from '../../shared/middlewares/auth.middleware';
 
 let io: Server;
 
 const guildRoom = (trackerId: string) => `tracker-clan:${trackerId}`;
 const userRoom = (userId: string) => `user:${userId}`;
+
+type ChatPresenceEvent = {
+  userId: string;
+  isOnline: boolean;
+  lastActiveAt: Date | null;
+  presenceVisible: boolean;
+};
+
+const canShareChatPresence = async (userId: string) => {
+  const settings = await UserSettings.findOne({ userId })
+    .select('privacy.showOnlineStatus')
+    .lean<{ privacy?: { showOnlineStatus?: boolean } } | null>();
+  return settings?.privacy?.showOnlineStatus ?? true;
+};
+
+const publishChatPresence = async (event: ChatPresenceEvent) => {
+  const [conversations, blocks] = await Promise.all([
+    ChatConversation.find({
+      participantIds: event.userId,
+      deletedAt: null,
+    })
+      .select('participantIds')
+      .lean<Array<{ participantIds: Types.ObjectId[] }>>(),
+    UserBlock.find({
+      $or: [
+        { blockerUserId: event.userId },
+        { blockedUserId: event.userId },
+      ],
+      deletedAt: null,
+    })
+      .select('blockerUserId blockedUserId')
+      .lean<
+        Array<{
+          blockerUserId: Types.ObjectId;
+          blockedUserId: Types.ObjectId;
+        }>
+      >(),
+  ]);
+  const blockedParticipantIds = new Set(
+    blocks.map((block) =>
+      String(block.blockerUserId) === event.userId
+        ? String(block.blockedUserId)
+        : String(block.blockerUserId)
+    )
+  );
+  const recipientIds = new Set(
+    conversations.flatMap((conversation) =>
+      conversation.participantIds
+        .map(String)
+        .filter(
+          (participantId) =>
+            participantId !== event.userId &&
+            !blockedParticipantIds.has(participantId)
+        )
+    )
+  );
+  for (const recipientId of recipientIds) {
+    io.to(userRoom(recipientId)).emit('chat:presence', event);
+  }
+};
+
+const refreshChatPresence = async (userId: string, isOnline: boolean) => {
+  const lastActiveAt = new Date();
+  const presenceVisible = await canShareChatPresence(userId);
+  await User.updateOne({ _id: userId, deletedAt: null }, { $set: { lastActiveAt } });
+  await publishChatPresence({
+    userId,
+    isOnline: presenceVisible && isOnline,
+    lastActiveAt: presenceVisible ? lastActiveAt : null,
+    presenceVisible,
+  });
+};
+
+const safelyRefreshChatPresence = (userId: string, isOnline: boolean) =>
+  refreshChatPresence(userId, isOnline).catch(() => undefined);
 
 const getGuildRole = async (trackerId: string, userId: string) => {
   if (!Types.ObjectId.isValid(trackerId) || !Types.ObjectId.isValid(userId)) return null;
@@ -57,7 +137,23 @@ export const initSocket = (httpServer: HttpServer) => {
     const userId = String(socket.data.user?.userId ?? '');
     let lastMessageAt = 0;
 
-    if (userId) void socket.join(userRoom(userId));
+    if (userId) {
+      void socket.join(userRoom(userId));
+      const becameOnline = chatPresenceProvider.connect(userId, socket.id);
+      if (becameOnline) void safelyRefreshChatPresence(userId, true);
+    }
+
+    socket.on(
+      'chat:presence:refresh',
+      async (_payload: unknown, acknowledge?: (result: unknown) => void) => {
+        try {
+          await refreshChatPresence(userId, chatPresenceProvider.isOnline(userId));
+          acknowledge?.({ ok: true });
+        } catch {
+          acknowledge?.({ ok: false });
+        }
+      }
+    );
 
     socket.on(
       'tracker-clan:join',
@@ -81,6 +177,113 @@ export const initSocket = (httpServer: HttpServer) => {
       const trackerId = String(payload?.trackerId ?? '');
       if (trackerId) await socket.leave(guildRoom(trackerId));
     });
+
+    socket.on(
+      'chat:typing',
+      async (
+        payload: { conversationId?: string; isTyping?: boolean },
+        acknowledge?: (result: unknown) => void
+      ) => {
+        try {
+          const conversationId = String(payload?.conversationId ?? '');
+          if (!Types.ObjectId.isValid(conversationId)) {
+            acknowledge?.({ ok: false });
+            return;
+          }
+          const conversation = await ChatConversation.findOne({
+            _id: conversationId,
+            participantIds: userId,
+            deletedAt: null,
+          })
+            .select('participantIds')
+            .lean<{ participantIds: Types.ObjectId[] } | null>();
+          const recipientId = conversation?.participantIds
+            .map(String)
+            .find((participantId) => participantId !== userId);
+          if (!recipientId) {
+            acknowledge?.({ ok: false });
+            return;
+          }
+          const blocked = await UserBlock.exists({
+            $or: [
+              { blockerUserId: userId, blockedUserId: recipientId },
+              { blockerUserId: recipientId, blockedUserId: userId },
+            ],
+            deletedAt: null,
+          });
+          if (blocked) {
+            acknowledge?.({ ok: false });
+            return;
+          }
+          io.to(userRoom(recipientId)).emit('chat:typing', {
+            conversationId,
+            userId,
+            isTyping: Boolean(payload?.isTyping),
+          });
+          acknowledge?.({ ok: true });
+        } catch {
+          acknowledge?.({ ok: false });
+        }
+      }
+    );
+
+    socket.on(
+      'call:signal',
+      async (
+        payload: {
+          callId?: string;
+          signal?: { type?: string; [key: string]: unknown };
+        },
+        acknowledge?: (result: unknown) => void
+      ) => {
+        try {
+          const callId = String(payload?.callId ?? '');
+          const signal = payload?.signal;
+          if (
+            !Types.ObjectId.isValid(callId) ||
+            !signal ||
+            !['offer', 'answer', 'ice-candidate'].includes(String(signal.type)) ||
+            JSON.stringify(signal).length > 14_000
+          ) {
+            acknowledge?.({ ok: false });
+            return;
+          }
+          const call = await Call.findOne({
+            _id: callId,
+            participantIds: userId,
+            status: 'accepted',
+            deletedAt: null,
+          })
+            .select('callerId calleeId')
+            .lean<{ callerId: Types.ObjectId; calleeId: Types.ObjectId } | null>();
+          if (!call) {
+            acknowledge?.({ ok: false });
+            return;
+          }
+          const recipientId =
+            String(call.callerId) === userId ? String(call.calleeId) : String(call.callerId);
+          const blocked = await UserBlock.exists({
+            $or: [
+              { blockerUserId: userId, blockedUserId: recipientId },
+              { blockerUserId: recipientId, blockedUserId: userId },
+            ],
+            deletedAt: null,
+          });
+          if (blocked) {
+            acknowledge?.({ ok: false });
+            return;
+          }
+          io.to(userRoom(recipientId)).emit('call:signal', {
+            callId,
+            fromUserId: userId,
+            signal,
+          });
+          acknowledge?.({ ok: true });
+        } catch {
+          acknowledge?.({ ok: false });
+        }
+      }
+    );
 
     socket.on(
       'tracker-clan:message',
@@ -129,6 +332,12 @@ export const initSocket = (httpServer: HttpServer) => {
         }
       }
     );
+
+    socket.on('disconnect', () => {
+      if (!userId) return;
+      const becameOffline = chatPresenceProvider.disconnect(userId, socket.id);
+      if (becameOffline) void safelyRefreshChatPresence(userId, false);
+    });
   });
 
   console.log('✅ Socket.io ready');
@@ -148,6 +357,37 @@ export const emitTrackerClanChallenge = (event: TrackerClanChallengeEvent) => {
 export const emitNotificationCreated = (userId: string, type: string) => {
   if (!io || !userId) return;
   io.to(userRoom(userId)).emit('notification:created', { type });
+};
+
+export const emitChatMessageCreated = (userIds: string[], message: unknown) => {
+  if (!io) return;
+  for (const userId of userIds) {
+    io.to(userRoom(userId)).emit('chat:message', message);
+  }
+};
+
+export const emitChatConversationRead = (userIds: string[], event: unknown) => {
+  if (!io) return;
+  for (const userId of userIds) {
+    io.to(userRoom(userId)).emit('chat:read', event);
+  }
+};
+
+export const emitChatBlockStateChanged = (userIds: string[], event: unknown) => {
+  if (!io) return;
+  for (const userId of userIds) {
+    io.to(userRoom(userId)).emit('chat:block-updated', event);
+  }
+};
+
+export const emitCallIncoming = (userId: string, call: unknown) => {
+  if (!io || !userId) return;
+  io.to(userRoom(userId)).emit('call:incoming', call);
+};
+
+export const emitCallUpdated = (userId: string, call: unknown) => {
+  if (!io || !userId) return;
+  io.to(userRoom(userId)).emit('call:updated', call);
 };
 
 export const closeSocket = async () => {

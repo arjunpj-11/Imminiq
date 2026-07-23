@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { Check, Eye, ThumbsDown, ThumbsUp, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useState } from 'react';
+import { Check, Eye, ThumbsDown, ThumbsUp, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import {
   AdminCardSkeleton,
   AdminEmpty,
@@ -11,22 +11,22 @@ import {
   AdminPaginationControls,
   AdminSearch,
   AdminStatusBadge,
-} from "../../../../components/admin";
-import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
-import { toast } from "../../../../lib/toast";
-import { getUserFacingError } from "../../../../lib/user-facing-error";
-import { useAdminTrackerReviews } from "../hooks/useAdminTrackerReviews";
-import { useAddAdminTrackerReviewConsensus } from "../hooks/useAddAdminTrackerReviewConsensus";
-import { useResolveAdminTrackerReview } from "../hooks/useResolveAdminTrackerReview";
-import { ADMIN_TRACKERS_ROUTES } from "../constants/admin-trackers.constants";
-import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
+} from '../../../../components/admin';
+import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
+import { toast } from '../../../../lib/toast';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { useAdminTrackerReviews } from '../hooks/useAdminTrackerReviews';
+import { useAddAdminTrackerReviewConsensus } from '../hooks/useAddAdminTrackerReviewConsensus';
+import { useResolveAdminTrackerReview } from '../hooks/useResolveAdminTrackerReview';
+import { ADMIN_TRACKERS_ROUTES } from '../constants/admin-trackers.constants';
+import AdminActionPasswordField from '../../../../components/admin/AdminActionPasswordField';
+import { isAdminActionPasswordReady } from '../../../../lib/admin/admin-action-password';
 
 export default function AdminTrackerReviewsPanel() {
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("all");
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('all');
   const [page, setPage] = useState(1);
-  const [actionPassword, setActionPassword] = useState("");
+  const [actionPassword, setActionPassword] = useState('');
   const query = useAdminTrackerReviews({
     search: useDebouncedValue(search, 300),
     status,
@@ -45,19 +45,19 @@ export default function AdminTrackerReviewsPanel() {
       ) : (
         <AdminMetricGrid
           metrics={[
-          { label: "All reviews", value: data?.pagination.total ?? 0 },
-          { label: "Open", value: data?.stats?.open ?? 0, tone: "warning" },
-          {
-            label: "Approved",
-            value: data?.stats?.approved ?? 0,
-            tone: "success",
-          },
-          {
-            label: "Rejected",
-            value: data?.stats?.rejected ?? 0,
-            tone: "error",
-          },
-        ]}
+            { label: 'All reviews', value: data?.pagination.total ?? 0 },
+            { label: 'Open', value: data?.stats?.open ?? 0, tone: 'warning' },
+            {
+              label: 'Approved',
+              value: data?.stats?.approved ?? 0,
+              tone: 'success',
+            },
+            {
+              label: 'Rejected',
+              value: data?.stats?.rejected ?? 0,
+              tone: 'error',
+            },
+          ]}
         />
       )}
       <AdminPanel
@@ -95,26 +95,23 @@ export default function AdminTrackerReviewsPanel() {
             onChange={setActionPassword}
             className="admin-field block max-w-md"
           />
-          <p className="mt-2 text-xs text-[#817c75]">Required for consensus votes and final decisions.</p>
+          <p className="mt-2 text-xs text-[#817c75]">
+            Required for consensus votes and final decisions.
+          </p>
         </div>
         {query.isLoading || query.isPlaceholderData ? (
           <div className="admin-table-scroll overflow-x-auto">
             <AdminTableSkeleton columns={7} rows={7} label="Loading tracker reviews" />
           </div>
         ) : query.isError ? (
-          <AdminError
-            error={query.error}
-            onRetry={() => void query.refetch()}
-          />
+          <AdminError error={query.error} onRetry={() => void query.refetch()} />
         ) : !data?.items.length ? (
           <AdminEmpty>No community reviews match this view.</AdminEmpty>
         ) : (
           <>
             <div className="admin-table-scroll overflow-x-auto">
               <table className="admin-table w-full min-w-275 text-left text-sm">
-                <caption className="sr-only">
-                  Tracker publication review queue
-                </caption>
+                <caption className="sr-only">Tracker publication review queue</caption>
                 <thead>
                   <tr>
                     <th scope="col">Tracker</th>
@@ -132,39 +129,33 @@ export default function AdminTrackerReviewsPanel() {
                       <td>
                         <div className="font-semibold">{item.title}</div>
                         {item.urgent && (
-                          <span className="text-[10px] font-bold text-[#e26767]">
-                            URGENT
-                          </span>
+                          <span className="text-[10px] font-bold text-[#e26767]">URGENT</span>
                         )}
                       </td>
                       <td>{item.owner}</td>
                       <td>{item.category}</td>
                       <td>
                         <div>
-                          <span className="text-[#52c58c]">
-                            {item.passVotes} pass
-                          </span>{" "}
-                          ·{" "}
-                          <span className="text-[#e26767]">
-                            {item.failVotes} fail
-                          </span>
+                          <span className="text-[#52c58c]">{item.passVotes} pass</span> ·{' '}
+                          <span className="text-[#e26767]">{item.failVotes} fail</span>
                         </div>
-                        {item.status === "open" && (
+                        {item.status === 'open' && (
                           <div className="mt-2 flex gap-2">
                             <button
-                              disabled={consensus.isPending || !isAdminActionPasswordReady(actionPassword)}
+                              disabled={
+                                consensus.isPending || !isAdminActionPasswordReady(actionPassword)
+                              }
                               onClick={() =>
                                 consensus.mutate(
-                                  { id: item.id, choice: "pass", actionPassword },
+                                  { id: item.id, choice: 'pass', actionPassword },
                                   {
-                                    onSuccess: () =>
-                                      toast.success("Pass vote added"),
+                                    onSuccess: () => toast.success('Pass vote added'),
                                     onError: (error) =>
                                       toast.error(
-                                        "Could not add the pass vote",
-                                        getUserFacingError(error),
+                                        'Could not add the pass vote',
+                                        getUserFacingError(error)
                                       ),
-                                  },
+                                  }
                                 )
                               }
                               className="admin-button inline-flex items-center gap-1 text-[#52c58c]"
@@ -173,19 +164,20 @@ export default function AdminTrackerReviewsPanel() {
                               <ThumbsUp size={13} /> + Pass
                             </button>
                             <button
-                              disabled={consensus.isPending || !isAdminActionPasswordReady(actionPassword)}
+                              disabled={
+                                consensus.isPending || !isAdminActionPasswordReady(actionPassword)
+                              }
                               onClick={() =>
                                 consensus.mutate(
-                                  { id: item.id, choice: "fail", actionPassword },
+                                  { id: item.id, choice: 'fail', actionPassword },
                                   {
-                                    onSuccess: () =>
-                                      toast.success("Fail vote added"),
+                                    onSuccess: () => toast.success('Fail vote added'),
                                     onError: (error) =>
                                       toast.error(
-                                        "Could not add the fail vote",
-                                        getUserFacingError(error),
+                                        'Could not add the fail vote',
+                                        getUserFacingError(error)
                                       ),
-                                  },
+                                  }
                                 )
                               }
                               className="admin-button inline-flex items-center gap-1 text-[#e26767]"
@@ -209,24 +201,23 @@ export default function AdminTrackerReviewsPanel() {
                         </Link>
                       </td>
                       <td>
-                        {item.status === "open" ? (
+                        {item.status === 'open' ? (
                           <div className="flex gap-2">
                             <button
-                              disabled={resolve.isPending || !isAdminActionPasswordReady(actionPassword)}
+                              disabled={
+                                resolve.isPending || !isAdminActionPasswordReady(actionPassword)
+                              }
                               onClick={() =>
                                 resolve.mutate(
-                                  { id: item.id, status: "approved", actionPassword },
+                                  { id: item.id, status: 'approved', actionPassword },
                                   {
-                                    onSuccess: () =>
-                                      toast.success(
-                                        "Community review approved",
-                                      ),
+                                    onSuccess: () => toast.success('Community review approved'),
                                     onError: (error) =>
                                       toast.error(
-                                        "Could not approve the community review",
-                                        getUserFacingError(error),
+                                        'Could not approve the community review',
+                                        getUserFacingError(error)
                                       ),
-                                  },
+                                  }
                                 )
                               }
                               className="admin-icon-button text-[#52c58c]"
@@ -236,21 +227,20 @@ export default function AdminTrackerReviewsPanel() {
                               <Check size={16} />
                             </button>
                             <button
-                              disabled={resolve.isPending || !isAdminActionPasswordReady(actionPassword)}
+                              disabled={
+                                resolve.isPending || !isAdminActionPasswordReady(actionPassword)
+                              }
                               onClick={() =>
                                 resolve.mutate(
-                                  { id: item.id, status: "rejected", actionPassword },
+                                  { id: item.id, status: 'rejected', actionPassword },
                                   {
-                                    onSuccess: () =>
-                                      toast.success(
-                                        "Community review rejected",
-                                      ),
+                                    onSuccess: () => toast.success('Community review rejected'),
                                     onError: (error) =>
                                       toast.error(
-                                        "Could not reject the community review",
-                                        getUserFacingError(error),
+                                        'Could not reject the community review',
+                                        getUserFacingError(error)
                                       ),
-                                  },
+                                  }
                                 )
                               }
                               className="admin-icon-button text-[#e26767]"
@@ -261,7 +251,7 @@ export default function AdminTrackerReviewsPanel() {
                             </button>
                           </div>
                         ) : (
-                          "—"
+                          '—'
                         )}
                       </td>
                     </tr>

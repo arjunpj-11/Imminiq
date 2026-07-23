@@ -3,10 +3,7 @@ import type { RecentActivityPageDTO } from '../users.dto';
 import type { IUsersMapper } from '../users.mapper';
 
 export interface IGetMyRecentActivityUseCase {
-  execute(
-    userId: string,
-    limit?: number
-  ): Promise<RecentActivityPageDTO>;
+  execute(userId: string, limit?: number): Promise<RecentActivityPageDTO>;
 }
 
 export class GetMyRecentActivityUseCase implements IGetMyRecentActivityUseCase {

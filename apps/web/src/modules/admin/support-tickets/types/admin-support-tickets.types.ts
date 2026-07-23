@@ -4,7 +4,7 @@ export type AdminSupportTicket = {
   description: string;
   category: string;
   priority: string;
-  status: "open" | "in_progress" | "resolved" | "closed";
+  status: 'open' | 'in_progress' | 'resolved' | 'closed';
   requester: string;
   assignedTo: string;
   resolutionNote: string;

@@ -1,6 +1,4 @@
-import type {
-  AddMissingEvaluationTopicDTO,
-} from '../tracker.dto';
+import type { AddMissingEvaluationTopicDTO } from '../tracker.dto';
 import type {
   AddMissingEvaluationTopicInput,
   MissingTopicSuggestion,

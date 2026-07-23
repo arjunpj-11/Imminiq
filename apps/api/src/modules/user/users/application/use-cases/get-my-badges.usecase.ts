@@ -3,11 +3,7 @@ import type { EarnedBadgesPageDTO } from '../users.dto';
 import type { IUsersMapper } from '../users.mapper';
 
 export interface IGetMyBadgesUseCase {
-  execute(
-    userId: string,
-    page: number,
-    limit: number
-  ): Promise<EarnedBadgesPageDTO>;
+  execute(userId: string, page: number, limit: number): Promise<EarnedBadgesPageDTO>;
 }
 
 export class GetMyBadgesUseCase implements IGetMyBadgesUseCase {

@@ -21,8 +21,7 @@ const crossSiteCookieOptions: Pick<CookieOptions, 'secure' | 'sameSite' | 'path'
   path: AUTH_COOKIE_PATH,
 };
 
-const productionCookieDomain =
-  env.NODE_ENV === 'production' ? env.AUTH_COOKIE_DOMAIN : undefined;
+const productionCookieDomain = env.NODE_ENV === 'production' ? env.AUTH_COOKIE_DOMAIN : undefined;
 
 const refreshCookieOptions: CookieOptions = {
   httpOnly: true,

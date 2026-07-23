@@ -1,178 +1,179 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-type SpeechRecognitionResultEvent = Event & {
-  resultIndex: number;
-  results: {
-    length: number;
-    [index: number]: {
-      isFinal: boolean;
-      [index: number]: {
-        transcript: string;
-      };
-    };
+import api from '../lib/axios';
+import { toast } from '../lib/toast';
+import { VOICE_INPUT_ENDPOINTS } from './voice-input.constants';
+
+type VoiceTranscriptResponse = {
+  success: boolean;
+  data: {
+    text: string;
+    language: string | null;
   };
 };
 
-type BrowserSpeechRecognition = {
-  lang: string;
-  continuous: boolean;
-  interimResults: boolean;
-  maxAlternatives: number;
-  onstart: (() => void) | null;
-  onend: (() => void) | null;
-  onerror: ((event: Event) => void) | null;
-  onresult: ((event: SpeechRecognitionResultEvent) => void) | null;
-  start: () => void;
-  stop: () => void;
-  abort: () => void;
+const selectRecordingMimeType = () => {
+  const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
+  return candidates.find((value) => MediaRecorder.isTypeSupported(value)) ?? '';
 };
 
-type BrowserSpeechRecognitionConstructor = new () => BrowserSpeechRecognition;
-
-type SpeechRecognitionWindow = Window &
-  typeof globalThis & {
-    SpeechRecognition?: BrowserSpeechRecognitionConstructor;
-    webkitSpeechRecognition?: BrowserSpeechRecognitionConstructor;
-  };
-
-const getSpeechRecognitionConstructor = () => {
-  if (typeof window === 'undefined') return null;
-
-  const speechWindow = window as SpeechRecognitionWindow;
-  return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition ?? null;
-};
+const recordingExtension = (mimeType: string) =>
+  mimeType.includes('mp4') ? 'm4a' : 'webm';
 
 export const useVoiceInput = (onTranscript: (text: string) => void) => {
   const [isListening, setIsListening] = useState(false);
-  const [isSupported] = useState(() => Boolean(getSpeechRecognitionConstructor()));
-
+  const [isSupported] = useState(
+    () =>
+      typeof MediaRecorder !== 'undefined' &&
+      typeof navigator !== 'undefined' &&
+      Boolean(navigator.mediaDevices?.getUserMedia)
+  );
   const transcriptHandlerRef = useRef(onTranscript);
-  const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
-  const shouldListenRef = useRef(false);
-  const restartTimeoutRef = useRef<number | null>(null);
-  const startListeningRef = useRef<() => void>(() => undefined);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const stopTimerRef = useRef<number | null>(null);
+  const startPendingRef = useRef(false);
+  const processingRef = useRef(false);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
     transcriptHandlerRef.current = onTranscript;
   }, [onTranscript]);
 
-  const clearRestartTimeout = useCallback(() => {
-    if (restartTimeoutRef.current === null) return;
-
-    window.clearTimeout(restartTimeoutRef.current);
-    restartTimeoutRef.current = null;
+  const clearTimer = useCallback(() => {
+    if (stopTimerRef.current !== null) {
+      window.clearTimeout(stopTimerRef.current);
+      stopTimerRef.current = null;
+    }
   }, []);
 
-  const scheduleRestart = useCallback(
-    (delay: number) => {
-      if (!shouldListenRef.current) return;
+  const releaseStream = useCallback(() => {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+  }, []);
 
-      clearRestartTimeout();
-      restartTimeoutRef.current = window.setTimeout(() => {
-        if (shouldListenRef.current) {
-          startListeningRef.current();
-        }
-      }, delay);
-    },
-    [clearRestartTimeout]
-  );
-
-  const startListening = useCallback(() => {
-    const SpeechRecognitionConstructor = getSpeechRecognitionConstructor();
-    if (!SpeechRecognitionConstructor || !isSupported) return;
-
-    shouldListenRef.current = true;
-    clearRestartTimeout();
-
+  const transcribe = useCallback(async (blob: Blob, mimeType: string) => {
+    if (!blob.size) return;
+    processingRef.current = true;
     try {
-      recognitionRef.current?.abort();
+      const form = new FormData();
+      form.set(
+        'audio',
+        new File(
+          [blob],
+          `voice-input-${Date.now()}.${recordingExtension(mimeType)}`,
+          { type: mimeType.split(';')[0] }
+        )
+      );
+      const response = await api.post<VoiceTranscriptResponse>(
+        VOICE_INPUT_ENDPOINTS.transcriptions,
+        form
+      );
+      const transcript = response.data.data.text.trim();
+      if (transcript && mountedRef.current) transcriptHandlerRef.current(transcript);
     } catch {
-      recognitionRef.current = null;
-    }
-
-    const recognition = new SpeechRecognitionConstructor();
-    recognition.lang = 'en-US';
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.maxAlternatives = 1;
-
-    recognition.onstart = () => setIsListening(true);
-    recognition.onend = () => {
-      setIsListening(false);
-      recognitionRef.current = null;
-      scheduleRestart(250);
-    };
-    recognition.onerror = () => {
-      setIsListening(false);
-      recognitionRef.current = null;
-      scheduleRestart(450);
-    };
-    recognition.onresult = (event) => {
-      let finalTranscript = '';
-
-      for (let index = event.resultIndex; index < event.results.length; index += 1) {
-        const result = event.results[index];
-        const transcript = result?.[0]?.transcript?.trim();
-
-        if (result?.isFinal && transcript) {
-          finalTranscript += ` ${transcript}`;
-        }
+      if (mountedRef.current) {
+        toast.error(
+          'Voice input could not be transcribed',
+          'Please check your connection and try again.'
+        );
       }
-
-      const cleanedTranscript = finalTranscript.trim();
-      if (cleanedTranscript) {
-        transcriptHandlerRef.current(cleanedTranscript);
-      }
-    };
-
-    recognitionRef.current = recognition;
-
-    try {
-      recognition.start();
-    } catch {
-      setIsListening(false);
-      recognitionRef.current = null;
+    } finally {
+      processingRef.current = false;
+      if (mountedRef.current) setIsListening(false);
     }
-  }, [clearRestartTimeout, isSupported, scheduleRestart]);
-
-  useEffect(() => {
-    startListeningRef.current = startListening;
-  }, [startListening]);
+  }, []);
 
   const stopListening = useCallback(() => {
-    shouldListenRef.current = false;
-    clearRestartTimeout();
-
-    try {
-      recognitionRef.current?.stop();
-    } catch {
-      recognitionRef.current = null;
+    clearTimer();
+    const recorder = recorderRef.current;
+    if (recorder?.state === 'recording') {
+      recorder.stop();
+      return;
     }
-
+    releaseStream();
     setIsListening(false);
-  }, [clearRestartTimeout]);
+  }, [clearTimer, releaseStream]);
+
+  const startListening = useCallback(async () => {
+    if (
+      !isSupported ||
+      startPendingRef.current ||
+      processingRef.current ||
+      recorderRef.current?.state === 'recording'
+    ) {
+      return;
+    }
+    startPendingRef.current = true;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = selectRecordingMimeType();
+      const recorder = new MediaRecorder(
+        stream,
+        mimeType ? { mimeType, audioBitsPerSecond: 64_000 } : undefined
+      );
+      streamRef.current = stream;
+      recorderRef.current = recorder;
+      chunksRef.current = [];
+      recorder.ondataavailable = (event) => {
+        if (event.data.size) chunksRef.current.push(event.data);
+      };
+      recorder.onstop = () => {
+        clearTimer();
+        const resolvedMimeType = recorder.mimeType || mimeType || 'audio/webm';
+        const blob = new Blob(chunksRef.current, { type: resolvedMimeType });
+        chunksRef.current = [];
+        recorderRef.current = null;
+        releaseStream();
+        void transcribe(blob, resolvedMimeType);
+      };
+      recorder.onerror = () => {
+        clearTimer();
+        recorderRef.current = null;
+        releaseStream();
+        setIsListening(false);
+        toast.error('Microphone recording stopped', 'Please try voice input again.');
+      };
+      recorder.start(250);
+      setIsListening(true);
+      stopTimerRef.current = window.setTimeout(() => stopListening(), 60_000);
+    } catch {
+      setIsListening(false);
+      toast.error(
+        'Microphone unavailable',
+        'Allow microphone access to use voice input.'
+      );
+    } finally {
+      startPendingRef.current = false;
+    }
+  }, [clearTimer, isSupported, releaseStream, stopListening, transcribe]);
 
   const toggle = useCallback(() => {
-    if (shouldListenRef.current || isListening) {
+    if (isListening) {
       stopListening();
       return;
     }
-
-    startListening();
+    void startListening();
   }, [isListening, startListening, stopListening]);
 
   useEffect(() => {
-    return () => {
-      shouldListenRef.current = false;
-      clearRestartTimeout();
+    mountedRef.current = true;
 
-      try {
-        recognitionRef.current?.abort();
-      } catch {
-        recognitionRef.current = null;
+    return () => {
+      mountedRef.current = false;
+      startPendingRef.current = false;
+      clearTimer();
+      const recorder = recorderRef.current;
+      if (recorder?.state === 'recording') {
+        recorder.ondataavailable = null;
+        recorder.onstop = null;
+        recorder.onerror = null;
+        recorder.stop();
       }
+      releaseStream();
     };
-  }, [clearRestartTimeout]);
+  }, [clearTimer, releaseStream]);
 
   return { isListening, isSupported, toggle };
 };

@@ -1,22 +1,18 @@
-import { ADMIN_ROUTES } from "../../../../routes/config/route-paths";
+import { ADMIN_ROUTES } from '../../../../routes/config/route-paths';
 
 export const ADMIN_TRACKERS_ENDPOINTS = {
-  list: "/admin/trackers",
-  exportCsv: "/admin/trackers/export.csv",
+  list: '/admin/trackers',
+  exportCsv: '/admin/trackers/export.csv',
   detail: (trackerId: string) => `/admin/trackers/${trackerId}`,
-  published: "/admin/trackers/published",
-  reports: "/admin/trackers/reports",
+  published: '/admin/trackers/published',
+  reports: '/admin/trackers/reports',
   updateReport: (reportId: string) => `/admin/trackers/reports/${reportId}`,
-  reviews: "/admin/trackers/reviews",
-  reviewStatus: (reviewId: string) =>
-    `/admin/trackers/reviews/${reviewId}/status`,
-  reviewConsensus: (reviewId: string) =>
-    `/admin/trackers/reviews/${reviewId}/consensus`,
+  reviews: '/admin/trackers/reviews',
+  reviewStatus: (reviewId: string) => `/admin/trackers/reviews/${reviewId}/status`,
+  reviewConsensus: (reviewId: string) => `/admin/trackers/reviews/${reviewId}/consensus`,
   lifecycle: (trackerId: string) => `/admin/trackers/${trackerId}/lifecycle`,
-  likePublished: (trackerId: string) =>
-    `/admin/trackers/published/${trackerId}/like`,
-  ratePublished: (trackerId: string) =>
-    `/admin/trackers/published/${trackerId}/rating`,
+  likePublished: (trackerId: string) => `/admin/trackers/published/${trackerId}/like`,
+  ratePublished: (trackerId: string) => `/admin/trackers/published/${trackerId}/rating`,
 } as const;
 
 export const ADMIN_TRACKERS_ROUTES = {

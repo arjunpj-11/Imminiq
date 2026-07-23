@@ -3,16 +3,15 @@ import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface';
 import type { IQuestionHasher } from '../../domain/services/question-hasher.interface';
-import type {
-  LessonQuestionPayloadDTO,
-  LessonQuestionSolutionDTO,
-} from '../tracker.dto';
+import type { LessonQuestionPayloadDTO, LessonQuestionSolutionDTO } from '../tracker.dto';
 
 export interface IGenerateLessonQuestionSolutionUseCase {
   execute(input: LessonQuestionPayloadDTO): Promise<LessonQuestionSolutionDTO>;
 }
 
-export class GenerateLessonQuestionSolutionUseCase implements IGenerateLessonQuestionSolutionUseCase {
+export class GenerateLessonQuestionSolutionUseCase
+  implements IGenerateLessonQuestionSolutionUseCase
+{
   constructor(
     private readonly _trackerRepository: Pick<
       ITrackerRepository,
@@ -21,10 +20,7 @@ export class GenerateLessonQuestionSolutionUseCase implements IGenerateLessonQue
       | 'findLessonQuestionSolution'
       | 'findOwnedTrackerById'
     >,
-    private readonly _trackerAIGateway: Pick<
-      ITrackerAIGateway,
-      'generateLessonQuestionSolution'
-    >,
+    private readonly _trackerAIGateway: Pick<ITrackerAIGateway, 'generateLessonQuestionSolution'>,
     private readonly _questionHasher: IQuestionHasher,
     private readonly _trackerMapper: ITrackerMapper
   ) {}

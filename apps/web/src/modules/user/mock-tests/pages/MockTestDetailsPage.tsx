@@ -48,7 +48,11 @@ export default function MockTestDetailsPage() {
           <SkeletonBlock className="mt-4 h-11 w-[min(38rem,88%)] rounded-xl max-[640px]:h-9" />
           <SkeletonBlock className="mt-4 h-4 w-full" />
           <SkeletonBlock className="mt-2 h-4 w-4/5" />
-          <div className="mt-5 flex flex-wrap gap-2"><SkeletonBlock className="h-7 w-24 rounded-full" /><SkeletonBlock className="h-7 w-28 rounded-full" /><SkeletonBlock className="h-7 w-20 rounded-full" /></div>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <SkeletonBlock className="h-7 w-24 rounded-full" />
+            <SkeletonBlock className="h-7 w-28 rounded-full" />
+            <SkeletonBlock className="h-7 w-20 rounded-full" />
+          </div>
           <SkeletonBlock className="mt-6 h-12 w-32 rounded-md max-[480px]:w-full" />
         </section>
 
@@ -60,7 +64,12 @@ export default function MockTestDetailsPage() {
             >
               <SkeletonBlock className="h-3 w-40" />
               <SkeletonBlock className="mt-3 h-5 w-[min(36rem,84%)]" />
-              <div className="mt-3 grid gap-2 sm:grid-cols-2"><SkeletonBlock className="h-10 w-full rounded-md" /><SkeletonBlock className="h-10 w-full rounded-md" /><SkeletonBlock className="h-10 w-full rounded-md" /><SkeletonBlock className="h-10 w-full rounded-md" /></div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <SkeletonBlock className="h-10 w-full rounded-md" />
+                <SkeletonBlock className="h-10 w-full rounded-md" />
+                <SkeletonBlock className="h-10 w-full rounded-md" />
+                <SkeletonBlock className="h-10 w-full rounded-md" />
+              </div>
             </div>
           ))}
         </div>
@@ -114,7 +123,10 @@ export default function MockTestDetailsPage() {
         )}
 
         {isUnavailable ? (
-          <div className="mt-5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-6 text-amber-800 dark:text-amber-200" role="status">
+          <div
+            className="mt-5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-6 text-amber-800 dark:text-amber-200"
+            role="status"
+          >
             <strong>
               {data.test.moderationStatus === 'deleted'
                 ? 'This mock test was removed by an administrator.'
@@ -129,8 +141,7 @@ export default function MockTestDetailsPage() {
 
         {/* tags */}
         <div className="mt-5 flex flex-wrap gap-2">
-          <span className="rounded-full border border-(--border-subtle) bg-(--surface-canvas) px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--text-secondary)">
-          </span>
+          <span className="rounded-full border border-(--border-subtle) bg-(--surface-canvas) px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--text-secondary)"></span>
 
           <span className="rounded-full border border-(--border-subtle) bg-(--surface-canvas) px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--text-secondary)">
             {data.test.isAIGenerated ? 'AI generated' : 'Manual'}
@@ -159,10 +170,10 @@ export default function MockTestDetailsPage() {
           {isUnavailable
             ? 'Unavailable after admin review'
             : startMutation.isPending
-            ? 'Preparing...'
-            : isContinuing
-              ? 'Continue attempt'
-              : 'Start test'}
+              ? 'Preparing...'
+              : isContinuing
+                ? 'Continue attempt'
+                : 'Start test'}
         </button>
       </section>
 

@@ -4,10 +4,7 @@ import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface';
-import type {
-  ChatWithLessonTutorPayloadDTO,
-  LessonTutorChatResponseDTO,
-} from '../tracker.dto';
+import type { ChatWithLessonTutorPayloadDTO, LessonTutorChatResponseDTO } from '../tracker.dto';
 
 export interface IChatWithLessonTutorUseCase {
   execute(input: ChatWithLessonTutorPayloadDTO): Promise<LessonTutorChatResponseDTO>;

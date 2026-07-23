@@ -8,8 +8,7 @@ import type { IDashboardTrackerRepository } from './dashboard-tracker.repository
 import type { IDashboardUserRepository } from './dashboard-user.repository.interface';
 
 export interface IDashboardRepository
-  extends
-    IDashboardUserRepository,
+  extends IDashboardUserRepository,
     IDashboardProfileRepository,
     IDashboardStreakRepository,
     IDashboardTrackerRepository,

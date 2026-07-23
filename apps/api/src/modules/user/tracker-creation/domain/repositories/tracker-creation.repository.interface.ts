@@ -5,8 +5,7 @@ import type { ITrackerCreationResponseQueryRepository } from './tracker-creation
 import type { ITrackerCreationRoadmapRepository } from './tracker-creation-roadmap.repository.interface';
 
 export interface ITrackerCreationRepository
-  extends
-    ITrackerCreationResponseQueryRepository,
+  extends ITrackerCreationResponseQueryRepository,
     ITrackerCreationResponseCommandRepository,
     ITrackerCreationAIJobQueryRepository,
     ITrackerCreationAIJobCommandRepository,

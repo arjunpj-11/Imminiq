@@ -25,7 +25,9 @@ export class GetRoadmapEvaluationResultUseCase implements IGetRoadmapEvaluationR
     }
 
     if (!job.isEvaluationJob()) {
-      throw TrackerCreationApplicationError.invalidJobType('This job is not a roadmap evaluation job');
+      throw TrackerCreationApplicationError.invalidJobType(
+        'This job is not a roadmap evaluation job'
+      );
     }
 
     if (!job.isCompleted()) {

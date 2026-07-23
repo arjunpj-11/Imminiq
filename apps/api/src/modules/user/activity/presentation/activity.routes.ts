@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
-import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
+import { authenticatedApiUserLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
 import { ActivityController } from './activity.controller';
 import type { ActivityUseCases } from '../application/activity-use-cases.contract';
 import { ACTIVITY_ROUTE_PATHS } from './activity.route.constants';
@@ -12,15 +12,15 @@ export const createActivityRoutes = (useCases: ActivityUseCases) => {
 
   router.get(
     ACTIVITY_ROUTE_PATHS.ROOT,
-    authenticatedApiIpLimiter,
     authenticate,
+    authenticatedApiUserLimiter,
     activityController.getPage
   );
 
   router.get(
     ACTIVITY_ROUTE_PATHS.FEED,
-    authenticatedApiIpLimiter,
     authenticate,
+    authenticatedApiUserLimiter,
     activityController.getFeed
   );
 

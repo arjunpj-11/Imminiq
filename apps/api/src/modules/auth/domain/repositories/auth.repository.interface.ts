@@ -3,4 +3,6 @@ import type { IAuthTwoFactorRepository } from './auth-two-factor.repository.inte
 import type { IAuthUserRepository } from './auth-user.repository.interface';
 
 export interface IAuthRepository
-  extends IAuthUserRepository, IAuthSessionRepository, IAuthTwoFactorRepository {}
+  extends IAuthUserRepository,
+    IAuthSessionRepository,
+    IAuthTwoFactorRepository {}

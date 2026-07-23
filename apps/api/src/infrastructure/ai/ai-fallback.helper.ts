@@ -17,12 +17,7 @@ type AIProvider<T> = {
   generate: () => Promise<T | null>;
 };
 
-type AIFailureReason =
-  | 'quota'
-  | 'timeout'
-  | 'invalid-response'
-  | 'authentication'
-  | 'unavailable';
+type AIFailureReason = 'quota' | 'timeout' | 'invalid-response' | 'authentication' | 'unavailable';
 
 type AIFallbackOptions = {
   operation?: string;
@@ -50,7 +45,11 @@ const errorDetails = (error: unknown) => {
 
 const diagnosticMessage = (error: unknown): string => {
   const message = error instanceof Error ? error.message : String(error);
-  return message.replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 300);
+  return message
+    .replace(/[\r\n\t]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 300);
 };
 
 const classifyProviderFailure = (error: unknown): AIFailureReason | null => {
@@ -133,9 +132,7 @@ export const shouldFallbackFromProvider = (error: unknown): boolean => {
 
 const exhaustedProviderError = (failures: AIProviderFailure[], cause: unknown): ServiceError => {
   const onlyQuota = failures.every((failure) => failure.reason === 'quota');
-  const onlyInvalidResponses = failures.every(
-    (failure) => failure.reason === 'invalid-response'
-  );
+  const onlyInvalidResponses = failures.every((failure) => failure.reason === 'invalid-response');
   const details = failures
     .map(
       (failure) =>
@@ -195,7 +192,9 @@ const runFallbackChain = async <T>(
       const failure: AIProviderFailure = {
         provider: provider.name,
         reason,
-        code: String(possibleError?.code ?? possibleError?.status ?? possibleError?.statusCode ?? 'n/a'),
+        code: String(
+          possibleError?.code ?? possibleError?.status ?? possibleError?.statusCode ?? 'n/a'
+        ),
         message: diagnosticMessage(error),
       };
       failures.push(failure);

@@ -115,29 +115,39 @@ export default function SubscriptionPlansPage() {
       <section>
         <PageHero
           eyebrow="Plans & billing"
-          title={<>Invest in deeper <span className="text-(--brand-500)">learning momentum.</span></>}
+          title={
+            <>
+              Invest in deeper <span className="text-(--brand-500)">learning momentum.</span>
+            </>
+          }
           description="Increase your AI capacity, unlock advanced evaluations, and choose the billing rhythm that fits your goals."
           actions={
-          <div className="inline-flex rounded-xl border border-(--border-subtle) bg-(--surface-muted) p-1">
-            {(['monthly', 'annual'] as const).map((cycle) => (
-              <button
-                key={cycle}
-                type="button"
-                onClick={() => setBillingCycle(cycle)}
-                className={`rounded-lg px-5 py-2 text-sm font-bold capitalize ${billingCycle === cycle ? 'bg-(--brand-500) text-white' : 'text-(--text-secondary)'}`}
-              >
-                {cycle}
-                {cycle === 'annual' && <span className="ml-2 text-[10px]">Save up to 17%</span>}
-              </button>
-            ))}
-          </div>
+            <div className="inline-flex rounded-xl border border-(--border-subtle) bg-(--surface-muted) p-1">
+              {(['monthly', 'annual'] as const).map((cycle) => (
+                <button
+                  key={cycle}
+                  type="button"
+                  onClick={() => setBillingCycle(cycle)}
+                  className={`rounded-lg px-5 py-2 text-sm font-bold capitalize ${billingCycle === cycle ? 'bg-(--brand-500) text-white' : 'text-(--text-secondary)'}`}
+                >
+                  {cycle}
+                  {cycle === 'annual' && <span className="ml-2 text-[10px]">Save up to 17%</span>}
+                </button>
+              ))}
+            </div>
           }
           aside={
             <div className="flex items-center gap-4">
-              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[rgba(184,76,43,0.12)] text-(--brand-500)"><Crown size={26} /></span>
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[rgba(184,76,43,0.12)] text-(--brand-500)">
+                <Crown size={26} />
+              </span>
               <div>
-                <div className="font-mono text-[10px] font-semibold uppercase tracking-wider text-(--text-muted)">Flexible access</div>
-                <div className="mt-1 text-[13px] font-bold text-(--text-primary)">Upgrade, renew, or compare anytime.</div>
+                <div className="font-mono text-[10px] font-semibold uppercase tracking-wider text-(--text-muted)">
+                  Flexible access
+                </div>
+                <div className="mt-1 text-[13px] font-bold text-(--text-primary)">
+                  Upgrade, renew, or compare anytime.
+                </div>
               </div>
             </div>
           }
@@ -157,20 +167,32 @@ export default function SubscriptionPlansPage() {
         )}
 
         {plans.isLoading && (
-          <div className="mt-10 grid gap-5 lg:grid-cols-3" role="status" aria-label="Loading subscription plans">
+          <div
+            className="mt-10 grid gap-5 lg:grid-cols-3"
+            role="status"
+            aria-label="Loading subscription plans"
+          >
             <span className="sr-only">Loading subscription plans…</span>
             {Array.from({ length: 3 }, (_, index) => (
-              <div key={index} aria-hidden="true" className="rounded-2xl border border-(--border-subtle) bg-(--surface-page) p-6">
+              <div
+                key={index}
+                aria-hidden="true"
+                className="rounded-2xl border border-(--border-subtle) bg-(--surface-page) p-6"
+              >
                 <SkeletonBlock className="h-6 w-6 rounded-md" />
                 <SkeletonBlock className="mt-4 h-7 w-2/5 rounded-lg" />
                 <SkeletonBlock className="mt-3 h-4 w-full" />
                 <SkeletonBlock className="mt-2 h-4 w-4/5" />
                 <SkeletonBlock className="mt-6 h-10 w-1/2 rounded-lg" />
                 <div className="mt-5 grid grid-cols-2 gap-2">
-                  {Array.from({ length: 6 }, (_, item) => <SkeletonBlock key={item} className="h-10 w-full rounded-md" />)}
+                  {Array.from({ length: 6 }, (_, item) => (
+                    <SkeletonBlock key={item} className="h-10 w-full rounded-md" />
+                  ))}
                 </div>
                 <div className="mt-6 space-y-3">
-                  {Array.from({ length: 4 }, (_, item) => <SkeletonBlock key={item} className="h-4 w-4/5" />)}
+                  {Array.from({ length: 4 }, (_, item) => (
+                    <SkeletonBlock key={item} className="h-4 w-4/5" />
+                  ))}
                 </div>
                 <SkeletonBlock className="mt-7 h-11 w-full rounded-xl" />
               </div>

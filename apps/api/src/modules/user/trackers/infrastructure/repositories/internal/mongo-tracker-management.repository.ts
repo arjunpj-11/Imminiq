@@ -228,9 +228,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
 
       const query = {
         $or: [{ ownerId: userObjId }, { _id: { $in: managedTrackerIds } }],
-        ...(sharedOriginalIds.length
-          ? { sourceTrackerId: { $nin: sharedOriginalIds } }
-          : {}),
+        ...(sharedOriginalIds.length ? { sourceTrackerId: { $nin: sharedOriginalIds } } : {}),
         deletedAt: null,
       } as unknown as MongoQuery;
 
@@ -287,7 +285,10 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
       ]);
       const analysisUsedSourceIdSet = new Set(analysisUsedSourceIds.map(String));
       const sourceOwnerMap = new Map(
-        sourceTrackers.map((sourceTracker) => [String(sourceTracker._id), String(sourceTracker.ownerId)])
+        sourceTrackers.map((sourceTracker) => [
+          String(sourceTracker._id),
+          String(sourceTracker.ownerId),
+        ])
       );
       const sourceClanRoleMap = new Map(
         sourceClans.flatMap((clan) => {
@@ -298,8 +299,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
       const pendingRoleInvitationSourceIds = new Set(
         sourceClans.flatMap((clan) =>
           clan.roleInvitations?.some(
-            (invitation) =>
-              String(invitation.userId) === userId && invitation.status === 'pending'
+            (invitation) => String(invitation.userId) === userId && invitation.status === 'pending'
           )
             ? [String(clan.trackerId)]
             : []
@@ -450,7 +450,9 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
             $setOnInsert: {
               snapshot: current,
               changedBy: userId,
-              reason: coOwner ? 'Co-owner edited tracker metadata' : 'Owner edited tracker metadata',
+              reason: coOwner
+                ? 'Co-owner edited tracker metadata'
+                : 'Owner edited tracker metadata',
             },
           },
           { upsert: true }
@@ -745,12 +747,14 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
     const ownerIds = [...new Set(sourceTrackers.map((source) => String(source.ownerId)))];
     const owners = await User.find({ _id: { $in: ownerIds }, deletedAt: null })
       .select('_id fullName username avatarUrl')
-      .lean<Array<{
-        _id: unknown;
-        fullName?: string;
-        username?: string;
-        avatarUrl?: string | null;
-      }>>();
+      .lean<
+        Array<{
+          _id: unknown;
+          fullName?: string;
+          username?: string;
+          avatarUrl?: string | null;
+        }>
+      >();
     const ownerMap = new Map(owners.map((owner) => [String(owner._id), owner]));
     const sourceMap = new Map(sourceTrackers.map((source) => [String(source._id), source]));
 

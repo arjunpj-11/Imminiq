@@ -6,10 +6,7 @@ export type AdminAITokenSpendPoint = {
   requests: number;
 };
 
-export type AdminAITokenSpendBreakdown = Omit<
-  AdminAITokenSpendPoint,
-  "date"
-> & { key: string };
+export type AdminAITokenSpendBreakdown = Omit<AdminAITokenSpendPoint, 'date'> & { key: string };
 
 export type AdminAITokenSpend = {
   rangeDays: number;
@@ -29,7 +26,7 @@ export type AdminAITokenSpend = {
     monthTokens: number;
     utilizationPercent: number;
     warningPercent: number;
-    status: "within_budget" | "warning" | "exceeded";
+    status: 'within_budget' | 'warning' | 'exceeded';
   };
   daily: AdminAITokenSpendPoint[];
   byCategory: AdminAITokenSpendBreakdown[];

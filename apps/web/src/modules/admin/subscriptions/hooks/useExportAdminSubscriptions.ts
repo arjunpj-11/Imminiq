@@ -28,7 +28,7 @@ export const useExportAdminSubscriptions = () =>
               page: nextPage,
               limit: 50,
             },
-          },
+          }
         );
         rows.push(...response.data.data.subscriptions.items);
         const pages = response.data.data.subscriptions.pagination.pages;

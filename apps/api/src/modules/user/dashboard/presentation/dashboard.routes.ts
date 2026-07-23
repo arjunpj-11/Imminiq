@@ -1,7 +1,7 @@
 import { Router, type RequestHandler } from 'express';
 
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
-import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
+import { authenticatedApiUserLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
 import { DashboardController } from './dashboard.controller';
 import type { DashboardUseCases } from '../application/dashboard-use-cases.contract';
 import { DASHBOARD_ROUTE_PATHS } from './dashboard.route.constants';
@@ -38,7 +38,7 @@ export const createDashboardRoutes = (useCases: DashboardUseCases) => {
 
   // ─── PROTECTED ──────────────────────────────────────────────────────────────
 
-  router.use(authenticatedApiIpLimiter, authenticate);
+  router.use(authenticate, authenticatedApiUserLimiter);
 
   router.get(DASHBOARD_ROUTE_PATHS.SUMMARY, dashboardController.getSummary);
 

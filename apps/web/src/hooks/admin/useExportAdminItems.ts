@@ -7,6 +7,5 @@ import {
 
 export const useExportAdminItems = <TData, TItem>() =>
   useMutation({
-    mutationFn: (options: FetchAllAdminItemsOptions<TData, TItem>) =>
-      fetchAllAdminItems(options),
+    mutationFn: (options: FetchAllAdminItemsOptions<TData, TItem>) => fetchAllAdminItems(options),
   });

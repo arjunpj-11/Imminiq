@@ -5,10 +5,7 @@ import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface';
 import type { SubtopicWithProgressRecord } from '../../domain/trackers.types';
-import type {
-  TrackerLessonViewDTO,
-  TrackerLessonAccessPayloadDTO,
-} from '../tracker.dto';
+import type { TrackerLessonViewDTO, TrackerLessonAccessPayloadDTO } from '../tracker.dto';
 
 const flattenSubtopics = (subtopics: SubtopicWithProgressRecord[]) => {
   return [...subtopics].sort((a, b) => {

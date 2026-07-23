@@ -32,7 +32,11 @@ export default function NotificationsPage() {
       </div>
       <section className="overflow-hidden rounded-2xl border border-(--border-subtle) bg-(--surface-card)">
         {query.isLoading && (
-          <div role="status" aria-label="Loading notifications" className="divide-y divide-(--border-subtle)">
+          <div
+            role="status"
+            aria-label="Loading notifications"
+            className="divide-y divide-(--border-subtle)"
+          >
             <span className="sr-only">Loading notifications…</span>
             {Array.from({ length: 6 }, (_, index) => (
               <div key={index} aria-hidden="true" className="flex gap-4 p-5 max-[520px]:p-4">
@@ -96,7 +100,10 @@ export default function NotificationsPage() {
                   {formatNotificationDate(notification.createdAt)}
                 </span>
                 {isBroadcastPoll(notification.metadata) && (
-                  <PollVoteControls notificationId={notification.id} poll={notification.metadata.poll} />
+                  <PollVoteControls
+                    notificationId={notification.id}
+                    poll={notification.metadata.poll}
+                  />
                 )}
               </span>
               {!notification.isRead && (
@@ -112,19 +119,46 @@ export default function NotificationsPage() {
 
 type NotificationPoll = { question: string; options: string[] };
 
-function isBroadcastPoll(metadata: Record<string, unknown> | undefined): metadata is { poll: NotificationPoll } {
+function isBroadcastPoll(
+  metadata: Record<string, unknown> | undefined
+): metadata is { poll: NotificationPoll } {
   const poll = metadata?.poll as Partial<NotificationPoll> | undefined;
   return Boolean(poll?.question && Array.isArray(poll.options) && poll.options.length > 1);
 }
 
-function PollVoteControls({ notificationId, poll }: { notificationId: string; poll: NotificationPoll }) {
+function PollVoteControls({
+  notificationId,
+  poll,
+}: {
+  notificationId: string;
+  poll: NotificationPoll;
+}) {
   const vote = useVoteNotificationPoll();
   const [selected, setSelected] = useState<number | null>(null);
   return (
-    <span className="mt-4 block rounded-xl border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.05)] p-3" onClick={(event) => event.stopPropagation()}>
+    <span
+      className="mt-4 block rounded-xl border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.05)] p-3"
+      onClick={(event) => event.stopPropagation()}
+    >
       <span className="block text-xs font-semibold text-(--text-primary)">{poll.question}</span>
       <span className="mt-2 grid gap-2">
-        {poll.options.map((option, index) => <button key={option} type="button" disabled={vote.isPending || selected !== null} onClick={() => vote.mutate({ notificationId, optionIndex: index }, { onSuccess: () => setSelected(index) })} className={`rounded-lg border px-3 py-2 text-left text-xs font-semibold transition disabled:cursor-default ${selected === index ? 'border-(--brand-500) bg-[rgba(184,76,43,0.12)] text-(--brand-500)' : 'border-(--border-subtle) hover:border-(--brand-500)'}`}>{selected === index ? 'Vote recorded · ' : ''}{option}</button>)}
+        {poll.options.map((option, index) => (
+          <button
+            key={option}
+            type="button"
+            disabled={vote.isPending || selected !== null}
+            onClick={() =>
+              vote.mutate(
+                { notificationId, optionIndex: index },
+                { onSuccess: () => setSelected(index) }
+              )
+            }
+            className={`rounded-lg border px-3 py-2 text-left text-xs font-semibold transition disabled:cursor-default ${selected === index ? 'border-(--brand-500) bg-[rgba(184,76,43,0.12)] text-(--brand-500)' : 'border-(--border-subtle) hover:border-(--brand-500)'}`}
+          >
+            {selected === index ? 'Vote recorded · ' : ''}
+            {option}
+          </button>
+        ))}
       </span>
     </span>
   );

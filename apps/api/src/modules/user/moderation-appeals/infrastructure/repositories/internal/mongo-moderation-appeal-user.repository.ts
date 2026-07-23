@@ -1,11 +1,8 @@
 import type { RestrictedModerationUserEntity } from '../../../domain/entities/restricted-moderation-user.entity';
 import { MongoModerationAppealBaseRepository } from '../shared/mongo-moderation-appeal-base.repository';
 import { MongoModerationAppealMapper } from '../shared/mongo-moderation-appeal.mapper';
-import type {
-  MongoModerationAppealRestrictedUserReader} from './mongo-moderation-appeal-restricted-user.reader';
-import {
-  mongoModerationAppealRestrictedUserReader,
-} from './mongo-moderation-appeal-restricted-user.reader';
+import type { MongoModerationAppealRestrictedUserReader } from './mongo-moderation-appeal-restricted-user.reader';
+import { mongoModerationAppealRestrictedUserReader } from './mongo-moderation-appeal-restricted-user.reader';
 
 export class MongoModerationAppealUserRepository extends MongoModerationAppealBaseRepository {
   constructor(

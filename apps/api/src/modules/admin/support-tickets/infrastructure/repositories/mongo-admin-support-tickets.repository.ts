@@ -57,7 +57,8 @@ export class MongoAdminSupportTicketsRepository implements IAdminSupportTicketsR
       const sla = SLA_HOURS[row.priority] ?? SLA_HOURS.medium;
       const firstResponseDueAt = addHours(row.createdAt, sla.firstResponse);
       const resolutionDueAt = addHours(row.createdAt, sla.resolution);
-      const isOverdue = !['resolved', 'closed'].includes(row.status) && resolutionDueAt < new Date();
+      const isOverdue =
+        !['resolved', 'closed'].includes(row.status) && resolutionDueAt < new Date();
       return {
         id: String(row._id),
         subject: row.subject,
@@ -80,7 +81,12 @@ export class MongoAdminSupportTicketsRepository implements IAdminSupportTicketsR
   }
   async update(id: string, input: AdminSupportTicketUpdate, actor: AdminActor) {
     const session = await mongoose.startSession();
-    let result: { id: string; status: string; resolutionNote: string; notificationSent: boolean } | null = null;
+    let result: {
+      id: string;
+      status: string;
+      resolutionNote: string;
+      notificationSent: boolean;
+    } | null = null;
     try {
       await session.withTransaction(async () => {
         const current = await SupportTicket.findById(id).session(session).lean();
@@ -89,8 +95,7 @@ export class MongoAdminSupportTicketsRepository implements IAdminSupportTicketsR
           status: input.status,
           assignedTo: actor.userId,
           resolutionNote: input.resolutionNote ?? '',
-          resolvedAt:
-            input.status === 'resolved' || input.status === 'closed' ? new Date() : null,
+          resolvedAt: input.status === 'resolved' || input.status === 'closed' ? new Date() : null,
         };
         if (!current.firstRespondedAt) update.firstRespondedAt = new Date();
         const ticket = await SupportTicket.findByIdAndUpdate(
@@ -100,34 +105,51 @@ export class MongoAdminSupportTicketsRepository implements IAdminSupportTicketsR
         ).lean();
         if (!ticket) return;
         const readableStatus = input.status.replace('_', ' ');
-        const message = input.notificationMessage?.trim() ||
+        const message =
+          input.notificationMessage?.trim() ||
           `Your support ticket “${ticket.subject}” is now ${readableStatus}.`;
         const notificationSent = Boolean(ticket.userId);
         if (ticket.userId) {
-          await Notification.create([{
-            userId: ticket.userId,
-            type: 'support_ticket_update',
-            message,
-            isRead: false,
-            deepLink: '/support',
-            metadata: { ticketId: id, subject: ticket.subject, status: input.status },
-          }], { session });
+          await Notification.create(
+            [
+              {
+                userId: ticket.userId,
+                type: 'support_ticket_update',
+                message,
+                isRead: false,
+                deepLink: '/support',
+                metadata: { ticketId: id, subject: ticket.subject, status: input.status },
+              },
+            ],
+            { session }
+          );
         }
-        await recordAdminAction(actor, 'admin_support_ticket_updated', 'admin.support-tickets', {
-          targetType: 'support_ticket',
-          targetId: id,
-          targetTitle: ticket.subject,
-          ownerId: ticket.userId ? String(ticket.userId) : '',
-          previousStatus: current.status,
-          newStatus: input.status,
-          changes: {
-            status: { from: current.status, to: input.status },
-            resolutionNote: input.resolutionNote ?? '',
+        await recordAdminAction(
+          actor,
+          'admin_support_ticket_updated',
+          'admin.support-tickets',
+          {
+            targetType: 'support_ticket',
+            targetId: id,
+            targetTitle: ticket.subject,
+            ownerId: ticket.userId ? String(ticket.userId) : '',
+            previousStatus: current.status,
+            newStatus: input.status,
+            changes: {
+              status: { from: current.status, to: input.status },
+              resolutionNote: input.resolutionNote ?? '',
+            },
+            notificationMessage: message,
+            notificationSent,
           },
-          notificationMessage: message,
+          session
+        );
+        result = {
+          id,
+          status: ticket.status,
+          resolutionNote: ticket.resolutionNote,
           notificationSent,
-        }, session);
-        result = { id, status: ticket.status, resolutionNote: ticket.resolutionNote, notificationSent };
+        };
       });
       return result;
     } finally {

@@ -352,6 +352,10 @@ const envSchema = z
     GROQ_DEFAULT_MODEL: z.string().min(1).default(RUNTIME_DEFAULTS.GROQ_DEFAULT_MODEL),
     GROQ_FAST_MODEL: z.string().min(1).default(RUNTIME_DEFAULTS.GROQ_FAST_MODEL),
     GROQ_MAX_TOKENS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.GROQ_MAX_TOKENS),
+    GROQ_TRANSCRIPTION_MODEL: z
+      .string()
+      .min(1)
+      .default(RUNTIME_DEFAULTS.GROQ_TRANSCRIPTION_MODEL),
     GEMINI_DEFAULT_MODEL: z.string().min(1).default(RUNTIME_DEFAULTS.GEMINI_DEFAULT_MODEL),
     GEMINI_FAST_MODEL: z.string().min(1).default(RUNTIME_DEFAULTS.GEMINI_FAST_MODEL),
     GEMINI_NEXT_MODEL: z.string().min(1).default(RUNTIME_DEFAULTS.GEMINI_NEXT_MODEL),

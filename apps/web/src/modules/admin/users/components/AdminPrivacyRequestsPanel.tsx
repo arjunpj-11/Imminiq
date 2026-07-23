@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { Eye, ShieldCheck } from "lucide-react";
-import Modal from "../../../../components/admin/AdminModal";
+import { useState } from 'react';
+import { Eye, ShieldCheck } from 'lucide-react';
+import Modal from '../../../../components/admin/AdminModal';
 import {
   AdminCardSkeleton,
   AdminEmpty,
@@ -10,20 +10,18 @@ import {
   AdminPaginationControls,
   AdminPanel,
   AdminStatusBadge,
-} from "../../../../components/admin";
-import { useAdminPrivacyRequests } from "../hooks/useAdminPrivacyRequests";
-import { useUpdateAdminPrivacyRequest } from "../hooks/useUpdateAdminPrivacyRequest";
-import type { AdminPrivacyRequest } from "../types/admin-users.types";
-import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
+} from '../../../../components/admin';
+import { useAdminPrivacyRequests } from '../hooks/useAdminPrivacyRequests';
+import { useUpdateAdminPrivacyRequest } from '../hooks/useUpdateAdminPrivacyRequest';
+import type { AdminPrivacyRequest } from '../types/admin-users.types';
+import AdminActionPasswordField from '../../../../components/admin/AdminActionPasswordField';
+import { isAdminActionPasswordReady } from '../../../../lib/admin/admin-action-password';
 
 export function AdminPrivacyRequestsPanel() {
-  const [status, setStatus] = useState<"all" | AdminPrivacyRequest["status"]>(
-    "pending",
-  );
+  const [status, setStatus] = useState<'all' | AdminPrivacyRequest['status']>('pending');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<AdminPrivacyRequest | null>(null);
-  const query = useAdminPrivacyRequests({ status, type: "all", page });
+  const query = useAdminPrivacyRequests({ status, type: 'all', page });
   const data = query.data;
   return (
     <section className="mt-8">
@@ -34,27 +32,27 @@ export function AdminPrivacyRequestsPanel() {
       ) : (
         <AdminMetricGrid
           metrics={[
-          {
-            label: "Privacy pending",
-            value: data?.stats.pending ?? 0,
-            tone: "warning",
-          },
-          {
-            label: "In progress",
-            value: data?.stats.inProgress ?? 0,
-            tone: "info",
-          },
-          {
-            label: "Completed",
-            value: data?.stats.completed ?? 0,
-            tone: "success",
-          },
-          {
-            label: "Overdue SLA",
-            value: data?.stats.overdue ?? 0,
-            tone: "error",
-          },
-        ]}
+            {
+              label: 'Privacy pending',
+              value: data?.stats.pending ?? 0,
+              tone: 'warning',
+            },
+            {
+              label: 'In progress',
+              value: data?.stats.inProgress ?? 0,
+              tone: 'info',
+            },
+            {
+              label: 'Completed',
+              value: data?.stats.completed ?? 0,
+              tone: 'success',
+            },
+            {
+              label: 'Overdue SLA',
+              value: data?.stats.overdue ?? 0,
+              tone: 'error',
+            },
+          ]}
         />
       )}
       <AdminPanel
@@ -83,19 +81,14 @@ export function AdminPrivacyRequestsPanel() {
             <AdminTableSkeleton columns={7} rows={7} label="Loading privacy requests" />
           </div>
         ) : query.isError ? (
-          <AdminError
-            error={query.error}
-            onRetry={() => void query.refetch()}
-          />
+          <AdminError error={query.error} onRetry={() => void query.refetch()} />
         ) : !data?.items.length ? (
           <AdminEmpty>No data-rights requests match this view.</AdminEmpty>
         ) : (
           <>
             <div className="admin-table-scroll overflow-x-auto">
               <table className="admin-table w-full min-w-220 text-left text-sm">
-                <caption className="sr-only">
-                  User data-rights request queue
-                </caption>
+                <caption className="sr-only">User data-rights request queue</caption>
                 <thead>
                   <tr>
                     <th scope="col">User</th>
@@ -112,20 +105,16 @@ export function AdminPrivacyRequestsPanel() {
                     <tr key={item.id}>
                       <td>
                         <strong>{item.userName}</strong>
-                        <div className="text-xs text-[#817c75]">
-                          {item.identifier}
-                        </div>
+                        <div className="text-xs text-[#817c75]">{item.identifier}</div>
                       </td>
                       <td className="capitalize">{item.type}</td>
                       <td>{new Date(item.createdAt).toLocaleString()}</td>
                       <td
                         className={
                           new Date(item.dueAt) < new Date() &&
-                          !["completed", "rejected", "cancelled"].includes(
-                            item.status,
-                          )
-                            ? "text-[#e26767]"
-                            : ""
+                          !['completed', 'rejected', 'cancelled'].includes(item.status)
+                            ? 'text-[#e26767]'
+                            : ''
                         }
                       >
                         {new Date(item.dueAt).toLocaleDateString()}
@@ -133,7 +122,7 @@ export function AdminPrivacyRequestsPanel() {
                       <td>
                         <AdminStatusBadge value={item.status} />
                       </td>
-                      <td>{item.assignedTo || "Unassigned"}</td>
+                      <td>{item.assignedTo || 'Unassigned'}</td>
                       <td>
                         <button
                           className="admin-button inline-flex items-center gap-2"
@@ -157,7 +146,7 @@ export function AdminPrivacyRequestsPanel() {
         )}
       </AdminPanel>
       <PrivacyDecisionDialog
-        key={selected?.id ?? "closed"}
+        key={selected?.id ?? 'closed'}
         request={selected}
         onClose={() => setSelected(null)}
       />
@@ -173,12 +162,10 @@ function PrivacyDecisionDialog({
   onClose: () => void;
 }) {
   const update = useUpdateAdminPrivacyRequest();
-  const [status, setStatus] = useState<
-    "in_progress" | "completed" | "rejected"
-  >("in_progress");
-  const [resolutionNote, setResolutionNote] = useState("");
-  const [downloadUrl, setDownloadUrl] = useState("");
-  const [actionPassword, setActionPassword] = useState("");
+  const [status, setStatus] = useState<'in_progress' | 'completed' | 'rejected'>('in_progress');
+  const [resolutionNote, setResolutionNote] = useState('');
+  const [downloadUrl, setDownloadUrl] = useState('');
+  const [actionPassword, setActionPassword] = useState('');
   return (
     <Modal
       open={Boolean(request)}
@@ -190,12 +177,9 @@ function PrivacyDecisionDialog({
       <div className="flex gap-3">
         <ShieldCheck className="text-[#e8816a]" />
         <div>
-          <h2 className="font-editorial text-2xl font-bold capitalize">
-            {request?.type} request
-          </h2>
+          <h2 className="font-editorial text-2xl font-bold capitalize">{request?.type} request</h2>
           <p className="text-sm text-[#aaa59d]">
-            {request?.userName} · due{" "}
-            {request && new Date(request.dueAt).toLocaleDateString()}
+            {request?.userName} · due {request && new Date(request.dueAt).toLocaleDateString()}
           </p>
         </div>
       </div>
@@ -204,16 +188,13 @@ function PrivacyDecisionDialog({
       </div>
       <label className="admin-field mt-4 block">
         <span>Workflow state</span>
-        <select
-          value={status}
-          onChange={(event) => setStatus(event.target.value as typeof status)}
-        >
+        <select value={status} onChange={(event) => setStatus(event.target.value as typeof status)}>
           <option value="in_progress">Claim / in progress</option>
           <option value="completed">Complete</option>
           <option value="rejected">Reject</option>
         </select>
       </label>
-      {request?.type === "export" && (
+      {request?.type === 'export' && (
         <label className="admin-field mt-4 block">
           <span>Secure export URL (optional until completed)</span>
           <input
@@ -258,11 +239,11 @@ function PrivacyDecisionDialog({
                 downloadUrl,
                 actionPassword,
               },
-              { onSuccess: onClose },
+              { onSuccess: onClose }
             )
           }
         >
-          {update.isPending ? "Saving…" : "Save workflow"}
+          {update.isPending ? 'Saving…' : 'Save workflow'}
         </button>
       </div>
     </Modal>

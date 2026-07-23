@@ -1,5 +1,5 @@
 export type AdminDashboardData = {
-  accessScope: "full" | "moderation";
+  accessScope: 'full' | 'moderation';
   generatedAt: string;
   metrics: {
     totalUsers: number;

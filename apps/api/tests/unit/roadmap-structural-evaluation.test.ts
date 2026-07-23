@@ -5,10 +5,12 @@ import { enforceRoadmapStructuralCompleteness } from '../../src/infrastructure/a
 describe('roadmap structural evaluation', () => {
   it('caps a perfect AI score and suggests a child for every empty topic', () => {
     const result = enforceRoadmapStructuralCompleteness(
-      { topics: [
-        { title: 'Complete', children: [{ title: 'Child' }] },
-        { title: 'Empty topic', children: [] },
-      ] },
+      {
+        topics: [
+          { title: 'Complete', children: [{ title: 'Child' }] },
+          { title: 'Empty topic', children: [] },
+        ],
+      },
       { score: 100, grade: 'Excellent', summary: 'Perfect.', missingTopics: [] }
     );
 

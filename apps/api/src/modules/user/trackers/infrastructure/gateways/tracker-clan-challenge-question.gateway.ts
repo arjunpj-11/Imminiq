@@ -1,9 +1,7 @@
 import { generateTrackerClanChallengeQuestionsAI } from '../../../../../infrastructure/ai/ai.service';
 import type { ITrackerClanChallengeQuestionGenerator } from '../../domain';
 
-export class TrackerClanChallengeQuestionGateway
-  implements ITrackerClanChallengeQuestionGenerator
-{
+export class TrackerClanChallengeQuestionGateway implements ITrackerClanChallengeQuestionGenerator {
   generate(
     input: Parameters<ITrackerClanChallengeQuestionGenerator['generate']>[0]
   ): ReturnType<ITrackerClanChallengeQuestionGenerator['generate']> {
@@ -15,5 +13,4 @@ export class TrackerClanChallengeQuestionGateway
   }
 }
 
-export const trackerClanChallengeQuestionGateway =
-  new TrackerClanChallengeQuestionGateway();
+export const trackerClanChallengeQuestionGateway = new TrackerClanChallengeQuestionGateway();

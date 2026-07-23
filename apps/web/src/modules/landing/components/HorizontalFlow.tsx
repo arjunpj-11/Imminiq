@@ -14,22 +14,19 @@ export default function HorizontalFlow() {
         <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
           <div>
             <p className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
-              Horizontal flow
+              How a tracker evolves
             </p>
             <h2 className="mt-3 max-w-180 font-['Playfair_Display',serif] text-[clamp(38px,7vw,86px)] font-extrabold leading-[0.95] tracking-[-0.07em]">
-              One goal. A complete learning loop.
+              Every learner makes the path stronger.
             </h2>
           </div>
           <p className="max-w-86 text-[13px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
-            Move from intention to a personalized path, collaborative practice, and measurable
-            mastery without leaving your learning context.
+            Start with AI structure, build knowledge with others, and turn lived learning experience
+            into a better roadmap for the whole community.
           </p>
         </div>
 
-        <div
-          ref={trackRef}
-          className="grid w-full gap-4 md:flex md:w-max md:will-change-transform"
-        >
+        <div ref={trackRef} className="grid w-full gap-4 md:flex md:w-max md:will-change-transform">
           {horizontalFlowCards.map((card, index) => (
             <article
               key={card.title}

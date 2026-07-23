@@ -308,7 +308,7 @@ describe('frontend feature-module architecture', () => {
         return (
           /queryKey:\s*\[/.test(source) ||
           /(?:invalidateQueries|removeQueries|resetQueries|cancelQueries)\(\{\s*queryKey:\s*\[/.test(
-            source,
+            source
           ) ||
           /(?:setQueryData|getQueryData)\(\s*\[/.test(source)
         );
@@ -325,8 +325,29 @@ describe('frontend feature-module architecture', () => {
         if (!existsSync(storeRoot)) return [];
         return collectFiles(storeRoot).filter((file) => {
           const source = readFileSync(file, 'utf8');
-          return /from\s+['"]zustand/.test(source) && !/^use[A-Z]\w*Store\.ts$/.test(file.split(sep).at(-1) ?? '');
+          return (
+            /from\s+['"]zustand/.test(source) &&
+            !/^use[A-Z]\w*Store\.ts$/.test(file.split(sep).at(-1) ?? '')
+          );
         });
+      })
+      .map((file) => file.replace(`${modulesRoot}/`, ''));
+
+    expect(violations).toEqual([]);
+  });
+
+  it('uses the shared accessible overlay for every Social dialog', () => {
+    const socialRoot = join(modulesRoot, 'user', 'social');
+    const violations = collectFiles(socialRoot)
+      .filter((file) => file.endsWith('.tsx'))
+      .filter((file) => {
+        const source = readFileSync(file, 'utf8');
+        const recreatesDialog =
+          /aria-modal\s*=\s*["']true["']/.test(source) ||
+          /role\s*=\s*["'](?:dialog|alertdialog)["']/.test(source);
+        const usesSharedOverlay =
+          /components\/overlays\/(?:Modal|ConfirmDialog)/.test(source);
+        return recreatesDialog && !usesSharedOverlay;
       })
       .map((file) => file.replace(`${modulesRoot}/`, ''));
 

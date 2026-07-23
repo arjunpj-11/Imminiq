@@ -16,7 +16,5 @@ export const ADMIN_ROUTE_ROLES = {
   settings: ADMIN_ROLES,
 } as const;
 
-export const canAccessAdminRoute = (
-  roles: readonly AuthRole[],
-  role?: AuthRole,
-) => Boolean(role && roles.includes(role));
+export const canAccessAdminRoute = (roles: readonly AuthRole[], role?: AuthRole) =>
+  Boolean(role && roles.includes(role));

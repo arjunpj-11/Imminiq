@@ -21,17 +21,12 @@ export class GenerateLessonQuestionsUseCase implements IGenerateLessonQuestionsU
       | 'findOwnedTrackerById'
       | 'getLessonGeneratedQuestions'
     >,
-    private readonly _trackerAIGateway: Pick<
-      ITrackerAIGateway,
-      'generateLessonPracticeQuestions'
-    >,
+    private readonly _trackerAIGateway: Pick<ITrackerAIGateway, 'generateLessonPracticeQuestions'>,
     private readonly _questionHasher: IQuestionHasher,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(
-    input: GenerateLessonQuestionsPayloadDTO
-  ): Promise<LessonGeneratedQuestionsDTO> {
+  async execute(input: GenerateLessonQuestionsPayloadDTO): Promise<LessonGeneratedQuestionsDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

@@ -1,10 +1,14 @@
 // apps/api/src/infrastructure/database/models/ai-generation-job.model.ts
 
-import type { Document} from 'mongoose';
+import type { Document } from 'mongoose';
 import mongoose, { Schema } from 'mongoose';
 
 export type AIGenerationJobType =
-  'roadmap' | 'lesson' | 'mock_test' | 'evaluation' | 'visualization';
+  | 'roadmap'
+  | 'lesson'
+  | 'mock_test'
+  | 'evaluation'
+  | 'visualization';
 
 export type AIGenerationJobStatus = 'pending' | 'processing' | 'completed' | 'failed';
 

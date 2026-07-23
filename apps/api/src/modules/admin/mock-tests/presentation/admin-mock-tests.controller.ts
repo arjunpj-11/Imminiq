@@ -17,7 +17,20 @@ import {
 } from './admin-mock-tests.schema';
 export class AdminMockTestsController {
   constructor(private readonly _useCases: AdminMockTestsUseCases) {}
-  exportCsv = async (req: Request, res: Response, next: NextFunction) => { try { const query = adminMockTestsQuerySchema.parse(req.query); const content = await this._useCases.exports.mockTests({ search: query.search ?? '', status: query.status ?? 'all' }); res.setHeader('Content-Type', 'text/csv; charset=utf-8'); res.setHeader('Content-Disposition', 'attachment; filename="imminiq-mock-tests.csv"'); res.send(`\uFEFF${content}`); } catch (error) { next(error); } };
+  exportCsv = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const query = adminMockTestsQuerySchema.parse(req.query);
+      const content = await this._useCases.exports.mockTests({
+        search: query.search ?? '',
+        status: query.status ?? 'all',
+      });
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename="imminiq-mock-tests.csv"');
+      res.send(`\uFEFF${content}`);
+    } catch (error) {
+      next(error);
+    }
+  };
   bulkLifecycle = (req: Request, res: Response, next: NextFunction) => {
     const input = adminMockTestBulkLifecycleSchema.parse(req.body);
     return sendAdminResult(
@@ -28,9 +41,29 @@ export class AdminMockTestsController {
     );
   };
   listAppeals = (req: Request, res: Response, next: NextFunction) =>
-    sendAdminResult(next, () => this._useCases.contentAppeals.list('mock_test', adminContentAppealsQuerySchema.parse(req.query)), res, 'Mock test appeals fetched');
+    sendAdminResult(
+      next,
+      () =>
+        this._useCases.contentAppeals.list(
+          'mock_test',
+          adminContentAppealsQuerySchema.parse(req.query)
+        ),
+      res,
+      'Mock test appeals fetched'
+    );
   updateAppeal = (req: Request, res: Response, next: NextFunction) =>
-    sendAdminResult(next, () => this._useCases.contentAppeals.update('mock_test', String(req.params.appealId), adminContentAppealUpdateSchema.parse(req.body), getAdminActor(req)), res, 'Mock test appeal updated');
+    sendAdminResult(
+      next,
+      () =>
+        this._useCases.contentAppeals.update(
+          'mock_test',
+          String(req.params.appealId),
+          adminContentAppealUpdateSchema.parse(req.body),
+          getAdminActor(req)
+        ),
+      res,
+      'Mock test appeal updated'
+    );
   list = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,

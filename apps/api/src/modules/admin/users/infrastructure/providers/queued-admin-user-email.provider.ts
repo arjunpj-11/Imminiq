@@ -8,12 +8,16 @@ export class QueuedAdminUserEmailProvider implements IAdminUserEmailProvider {
     status: 'active' | 'paused' | 'blocked';
     reason: string;
   }) {
-    await emailQueue.add('admin-user-status', { kind: 'admin_user_status' as const, ...input }, {
-      attempts: 5,
-      backoff: { type: 'exponential', delay: 2_000 },
-      removeOnComplete: 500,
-      removeOnFail: 2_000,
-    });
+    await emailQueue.add(
+      'admin-user-status',
+      { kind: 'admin_user_status' as const, ...input },
+      {
+        attempts: 5,
+        backoff: { type: 'exponential', delay: 2_000 },
+        removeOnComplete: 500,
+        removeOnFail: 2_000,
+      }
+    );
   }
 
   async queueDirectMessage(input: {
@@ -22,12 +26,16 @@ export class QueuedAdminUserEmailProvider implements IAdminUserEmailProvider {
     subject: string;
     message: string;
   }) {
-    await emailQueue.add('admin-user-message', { kind: 'admin_user_message' as const, ...input }, {
-      attempts: 5,
-      backoff: { type: 'exponential', delay: 2_000 },
-      removeOnComplete: 500,
-      removeOnFail: 2_000,
-    });
+    await emailQueue.add(
+      'admin-user-message',
+      { kind: 'admin_user_message' as const, ...input },
+      {
+        attempts: 5,
+        backoff: { type: 'exponential', delay: 2_000 },
+        removeOnComplete: 500,
+        removeOnFail: 2_000,
+      }
+    );
   }
 }
 

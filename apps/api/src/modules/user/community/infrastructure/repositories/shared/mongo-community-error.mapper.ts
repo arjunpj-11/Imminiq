@@ -30,9 +30,9 @@ export class MongoCommunityErrorMapper {
   private isDuplicateKeyError(error: unknown): error is MongoDuplicateKeyError {
     return Boolean(
       error &&
-      typeof error === 'object' &&
-      'code' in error &&
-      (error as MongoDuplicateKeyError).code === 11000
+        typeof error === 'object' &&
+        'code' in error &&
+        (error as MongoDuplicateKeyError).code === 11000
     );
   }
 }

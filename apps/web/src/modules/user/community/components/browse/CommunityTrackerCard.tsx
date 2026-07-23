@@ -28,7 +28,13 @@ export default function CommunityTrackerCard({
         'hover:-translate-y-1 hover:border-[rgba(184,76,43,0.28)] hover:shadow-[0_12px_36px_rgba(26,23,20,0.11)] dark:hover:shadow-[0_12px_36px_rgba(0,0,0,0.32)]'
       )}
     >
-      <span aria-hidden="true" className={cn('absolute inset-x-0 top-0 h-1', tracker.verified ? 'bg-(--success)' : 'bg-(--brand-500)')} />
+      <span
+        aria-hidden="true"
+        className={cn(
+          'absolute inset-x-0 top-0 h-1',
+          tracker.verified ? 'bg-(--success)' : 'bg-(--brand-500)'
+        )}
+      />
       <div className="flex flex-1 flex-col p-5">
         <div className="mb-3 flex items-center justify-between">
           <div className="flex flex-wrap items-center gap-1.5">
@@ -53,7 +59,11 @@ export default function CommunityTrackerCard({
         </div>
 
         <h3 className="mb-2 font-ui text-[18px] font-extrabold leading-tight text-(--text-primary) dark:text-(--text-primary)">
-          <button type="button" onClick={handleOpen} className="text-left transition hover:text-(--brand-500) focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-(--brand-500)">
+          <button
+            type="button"
+            onClick={handleOpen}
+            className="text-left transition hover:text-(--brand-500) focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-(--brand-500)"
+          >
             {tracker.title}
           </button>
         </h3>
@@ -94,7 +104,11 @@ export default function CommunityTrackerCard({
         </div>
 
         <div className="mt-4 flex items-center justify-between gap-3 border-t border-(--border-subtle) pt-3.5">
-          <button type="button" onClick={handleOpen} className="min-h-10 rounded-md px-1 text-[12px] font-bold text-(--text-secondary) transition hover:text-(--brand-500) focus-visible:outline-2 focus-visible:outline-(--brand-500)">
+          <button
+            type="button"
+            onClick={handleOpen}
+            className="min-h-10 rounded-md px-1 text-[12px] font-bold text-(--text-secondary) transition hover:text-(--brand-500) focus-visible:outline-2 focus-visible:outline-(--brand-500)"
+          >
             View roadmap <span aria-hidden="true">→</span>
           </button>
           {tracker.inDashboard ? (

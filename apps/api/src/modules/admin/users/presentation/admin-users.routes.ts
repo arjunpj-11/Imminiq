@@ -26,7 +26,11 @@ export const createAdminUsersRoutes = (
   router.get(ADMIN_USERS_ROUTE_PATHS.EXPORT, controller.exportCsv);
   router.post(ADMIN_USERS_ROUTE_PATHS.BULK_STATUS, requirePrivilegedMfa, controller.bulkStatus);
   router.get(ADMIN_USERS_ROUTE_PATHS.PRIVACY_REQUESTS, controller.listPrivacyRequests);
-  router.patch(ADMIN_USERS_ROUTE_PATHS.PRIVACY_REQUEST_DETAIL, requirePrivilegedMfa, controller.updatePrivacyRequest);
+  router.patch(
+    ADMIN_USERS_ROUTE_PATHS.PRIVACY_REQUEST_DETAIL,
+    requirePrivilegedMfa,
+    controller.updatePrivacyRequest
+  );
   router.get(ADMIN_USERS_ROUTE_PATHS.APPEALS, controller.listAppeals);
   router.patch(
     ADMIN_USERS_ROUTE_PATHS.APPEAL_DETAIL,
@@ -40,11 +44,7 @@ export const createAdminUsersRoutes = (
   router.put(ADMIN_USERS_ROUTE_PATHS.TAGS, requirePrivilegedMfa, controller.updateTags);
   router.patch(ADMIN_USERS_ROUTE_PATHS.STATUS, requirePrivilegedMfa, controller.setStatus);
   router.post(ADMIN_USERS_ROUTE_PATHS.MESSAGE, requirePrivilegedMfa, controller.sendMessage);
-  router.delete(
-    ADMIN_USERS_ROUTE_PATHS.SESSION,
-    requirePrivilegedMfa,
-    controller.revokeSession
-  );
+  router.delete(ADMIN_USERS_ROUTE_PATHS.SESSION, requirePrivilegedMfa, controller.revokeSession);
   router.patch(
     ADMIN_USERS_ROUTE_PATHS.ROLE,
     requireSuperAdmin,

@@ -1,8 +1,6 @@
 import { Router } from 'express';
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
-import {
-  requireAdminPermission,
-} from '../../../../shared/middlewares/admin.middleware';
+import { requireAdminPermission } from '../../../../shared/middlewares/admin.middleware';
 import type { PrivilegedAdminMiddleware } from '../../../../shared/middlewares/admin.middleware';
 import { validateIdentifierParam } from '../../../../shared/middlewares/validate.middleware';
 import type { AdminMockTestsUseCases } from '../application/admin-mock-tests-use-cases.contract';
@@ -21,7 +19,12 @@ export const createAdminMockTestsRoutes = (
   router.param('appealId', validateIdentifierParam);
   router.get(ADMIN_MOCK_TESTS_ROUTE_PATHS.ROOT, controller.list);
   router.get(ADMIN_MOCK_TESTS_ROUTE_PATHS.EXPORT, controller.exportCsv);
-  router.post(ADMIN_MOCK_TESTS_ROUTE_PATHS.BULK_LIFECYCLE, requireAdminPermission('content:delete'), requirePrivilegedMfa, controller.bulkLifecycle);
+  router.post(
+    ADMIN_MOCK_TESTS_ROUTE_PATHS.BULK_LIFECYCLE,
+    requireAdminPermission('content:delete'),
+    requirePrivilegedMfa,
+    controller.bulkLifecycle
+  );
   router.get(ADMIN_MOCK_TESTS_ROUTE_PATHS.ISSUES, controller.listQuestionIssues);
   router.get(ADMIN_MOCK_TESTS_ROUTE_PATHS.QUESTION_BANK, controller.listQuestionBank);
   router.get(ADMIN_MOCK_TESTS_ROUTE_PATHS.QUESTION_BANK_ITEM, controller.getQuestionBankItem);
@@ -38,7 +41,12 @@ export const createAdminMockTestsRoutes = (
     controller.restoreQuestionBankItem
   );
   router.get(ADMIN_MOCK_TESTS_ROUTE_PATHS.APPEALS, controller.listAppeals);
-  router.patch(ADMIN_MOCK_TESTS_ROUTE_PATHS.APPEAL_DETAIL, requireAdminPermission('content:moderate'), requirePrivilegedMfa, controller.updateAppeal);
+  router.patch(
+    ADMIN_MOCK_TESTS_ROUTE_PATHS.APPEAL_DETAIL,
+    requireAdminPermission('content:moderate'),
+    requirePrivilegedMfa,
+    controller.updateAppeal
+  );
   router.patch(
     ADMIN_MOCK_TESTS_ROUTE_PATHS.ISSUE_DETAIL,
     requireAdminPermission('content:moderate'),

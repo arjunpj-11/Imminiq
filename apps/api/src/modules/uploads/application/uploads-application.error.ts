@@ -28,7 +28,11 @@ export class UploadsApplicationError extends UploadsDomainError {
   }
 
   static imageFileRequired(): UploadsApplicationError {
-    return new UploadsApplicationError('invalid-input', 'IMAGE_FILE_REQUIRED', 'Image file is required');
+    return new UploadsApplicationError(
+      'invalid-input',
+      'IMAGE_FILE_REQUIRED',
+      'Image file is required'
+    );
   }
 
   static imageUploadFailed(): UploadsApplicationError {

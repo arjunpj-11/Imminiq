@@ -10,7 +10,9 @@ describe('GetMockTestGenerationStatusUseCase', () => {
       status: 'completed',
       testId: 'test-1',
     });
-    const useCase = new GetMockTestGenerationStatusUseCase({ getStatus } as unknown as IMockTestGenerationJobGateway);
+    const useCase = new GetMockTestGenerationStatusUseCase({
+      getStatus,
+    } as unknown as IMockTestGenerationJobGateway);
 
     await expect(useCase.execute('user-1', 'job-1')).resolves.toEqual({
       jobId: 'job-1',

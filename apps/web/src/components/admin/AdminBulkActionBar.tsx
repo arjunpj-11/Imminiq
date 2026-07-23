@@ -1,14 +1,11 @@
-import { ShieldAlert, UsersRound, X } from "lucide-react";
-import { useState } from "react";
-import Modal from "./AdminModal";
-import { toast } from "../../lib/toast";
-import AdminActionPasswordField from "./AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../lib/admin/admin-action-password";
-import {
-  useAdminBulkAction,
-  type AdminBulkAction,
-} from "../../hooks/admin/useAdminBulkAction";
-import type { AdminFeatureKind } from "../../hooks/admin/admin-shared.query-keys";
+import { ShieldAlert, UsersRound, X } from 'lucide-react';
+import { useState } from 'react';
+import Modal from './AdminModal';
+import { toast } from '../../lib/toast';
+import AdminActionPasswordField from './AdminActionPasswordField';
+import { isAdminActionPasswordReady } from '../../lib/admin/admin-action-password';
+import { useAdminBulkAction, type AdminBulkAction } from '../../hooks/admin/useAdminBulkAction';
+import type { AdminFeatureKind } from '../../hooks/admin/admin-shared.query-keys';
 
 type Kind = AdminFeatureKind;
 type Action = AdminBulkAction;
@@ -23,9 +20,9 @@ export function AdminBulkActionBar({
   onClear: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [action, setAction] = useState<Action>("suspend");
-  const [reason, setReason] = useState("");
-  const [actionPassword, setActionPassword] = useState("");
+  const [action, setAction] = useState<Action>('suspend');
+  const [reason, setReason] = useState('');
+  const [actionPassword, setActionPassword] = useState('');
   const [eligible, setEligible] = useState<string[] | null>(null);
   const mutation = useAdminBulkAction();
 
@@ -34,21 +31,21 @@ export function AdminBulkActionBar({
       { kind, selected, action, reason, actionPassword, preview },
       {
         onSuccess: (data) => {
-      if (preview) {
-        setEligible(data.eligible ?? []);
-        return;
-      }
-      toast.success(
-        "Bulk action completed",
-        `${data.succeeded ?? 0} succeeded; ${data.failed ?? 0} failed.`,
-      );
-      setOpen(false);
-      setEligible(null);
-      setReason("");
-      setActionPassword("");
-      onClear();
+          if (preview) {
+            setEligible(data.eligible ?? []);
+            return;
+          }
+          toast.success(
+            'Bulk action completed',
+            `${data.succeeded ?? 0} succeeded; ${data.failed ?? 0} failed.`
+          );
+          setOpen(false);
+          setEligible(null);
+          setReason('');
+          setActionPassword('');
+          onClear();
         },
-      },
+      }
     );
   };
 
@@ -64,19 +61,13 @@ export function AdminBulkActionBar({
   const reasonReady = reason.trim().length >= 15;
 
   return (
-    <div
-      className="admin-sticky-action-bar mb-4"
-      role="region"
-      aria-label="Bulk selection actions"
-    >
+    <div className="admin-sticky-action-bar mb-4" role="region" aria-label="Bulk selection actions">
       <div className="flex min-w-0 items-center gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e8816a]/12 text-[#e8816a]">
           <UsersRound size={18} aria-hidden="true" />
         </span>
         <div>
-          <strong className="block text-sm">
-            {selected.length} records selected
-          </strong>
+          <strong className="block text-sm">{selected.length} records selected</strong>
           <span className="text-xs text-[#aaa59d]">
             Selection may include records from earlier pages.
           </span>
@@ -87,11 +78,7 @@ export function AdminBulkActionBar({
           <X size={15} aria-hidden="true" />
           Clear
         </button>
-        <button
-          type="button"
-          className="admin-primary-button"
-          onClick={() => setOpen(true)}
-        >
+        <button type="button" className="admin-primary-button" onClick={() => setOpen(true)}>
           Bulk action
         </button>
       </div>
@@ -108,12 +95,10 @@ export function AdminBulkActionBar({
             <ShieldAlert size={20} aria-hidden="true" />
           </span>
           <div>
-            <h2 className="font-editorial text-2xl font-bold">
-              Bulk {kind} action
-            </h2>
+            <h2 className="font-editorial text-2xl font-bold">Bulk {kind} action</h2>
             <p className="mt-1 text-sm leading-6 text-[#aaa59d]">
-              Preview is required before applying changes. Every record receives
-              an individual audit result.
+              Preview is required before applying changes. Every record receives an individual audit
+              result.
             </p>
           </div>
         </div>
@@ -128,8 +113,8 @@ export function AdminBulkActionBar({
             }}
           >
             <option value="suspend">Suspend</option>
-            {kind === "users" && <option value="block">Block</option>}
-            {kind !== "users" && <option value="delete">Delete</option>}
+            {kind === 'users' && <option value="block">Block</option>}
+            {kind !== 'users' && <option value="delete">Delete</option>}
             <option value="restore">Restore</option>
           </select>
         </label>
@@ -153,20 +138,16 @@ export function AdminBulkActionBar({
         </label>
 
         <AdminActionPasswordField
-        value={actionPassword}
-        onChange={setActionPassword}
-        className="admin-field mt-4 block"
-      />
+          value={actionPassword}
+          onChange={setActionPassword}
+          className="admin-field mt-4 block"
+        />
 
         {eligible && (
-          <div
-            className="admin-dialog-section mt-4 p-4 text-sm"
-            role="status"
-            aria-live="polite"
-          >
+          <div className="admin-dialog-section mt-4 p-4 text-sm" role="status" aria-live="polite">
             <strong>
               {eligible.length} of {selected.length}
-            </strong>{" "}
+            </strong>{' '}
             records are eligible. Review the scope, then apply.
           </div>
         )}
@@ -182,7 +163,7 @@ export function AdminBulkActionBar({
               disabled={!eligible.length || mutation.isPending || !actionPasswordReady}
               onClick={() => runBulkAction(false)}
             >
-              {mutation.isPending ? "Applying…" : `Apply to ${eligible.length}`}
+              {mutation.isPending ? 'Applying…' : `Apply to ${eligible.length}`}
             </button>
           ) : (
             <button
@@ -191,7 +172,7 @@ export function AdminBulkActionBar({
               disabled={!reasonReady || !actionPasswordReady || mutation.isPending}
               onClick={() => runBulkAction(true)}
             >
-              {mutation.isPending ? "Checking impact…" : "Preview impact"}
+              {mutation.isPending ? 'Checking impact…' : 'Preview impact'}
             </button>
           )}
         </div>

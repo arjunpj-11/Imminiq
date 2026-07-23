@@ -17,7 +17,9 @@ import type {
 } from './tracker-creation.dto';
 
 export interface ITrackerCreationMapper {
-  toResponseDto(response: TrackerCreationResponseEntity | null): TrackerCreationResponseRecordDTO | null;
+  toResponseDto(
+    response: TrackerCreationResponseEntity | null
+  ): TrackerCreationResponseRecordDTO | null;
 
   toStatusDto(response: TrackerCreationResponseEntity | null): TrackerCreationStatusResultDTO;
 
@@ -32,7 +34,9 @@ export interface ITrackerCreationMapper {
 }
 
 export class TrackerCreationMapper implements ITrackerCreationMapper {
-  toResponseDto(response: TrackerCreationResponseEntity | null): TrackerCreationResponseRecordDTO | null {
+  toResponseDto(
+    response: TrackerCreationResponseEntity | null
+  ): TrackerCreationResponseRecordDTO | null {
     if (!response) return null;
 
     return {
@@ -41,9 +45,7 @@ export class TrackerCreationMapper implements ITrackerCreationMapper {
       isCompleted: response.isCompleted,
       ...(response.preparingFor ? { preparingFor: response.preparingFor } : {}),
       ...(response.goal ? { goal: response.goal } : {}),
-      ...(response.preferredLanguage
-        ? { preferredLanguage: response.preferredLanguage }
-        : {}),
+      ...(response.preferredLanguage ? { preferredLanguage: response.preferredLanguage } : {}),
       ...(response.currentLevel ? { currentLevel: response.currentLevel } : {}),
       completedStep: response.completedStep,
       ...(response.createdAt ? { createdAt: response.createdAt } : {}),

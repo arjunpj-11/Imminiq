@@ -252,10 +252,7 @@ export const createTrackerComposition = (
 
       getLessonChatHistory: new GetLessonChatHistoryUseCase(trackerRepository, trackerMapper),
 
-      getLessonAnswerAttempts: new GetLessonAnswerAttemptsUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
+      getLessonAnswerAttempts: new GetLessonAnswerAttemptsUseCase(trackerRepository, trackerMapper),
 
       getLessonCodeSubmissions: new GetLessonCodeSubmissionsUseCase(
         trackerRepository,

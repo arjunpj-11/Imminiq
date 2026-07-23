@@ -155,9 +155,7 @@ export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmi
     };
   }
 
-  private async awardConsensusRewards(
-    data: ConsensusRewardInput
-  ): Promise<ConsensusRewardResult> {
+  private async awardConsensusRewards(data: ConsensusRewardInput): Promise<ConsensusRewardResult> {
     if (data.consensusChoice) {
       const rewardableVotes = await this._repository.findUnrewardedMajorityVotes(
         data.submissionId,

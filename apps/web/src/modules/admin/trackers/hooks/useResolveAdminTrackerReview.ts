@@ -1,8 +1,8 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "../../../../lib/axios";
-import { toast } from "../../../../lib/toast";
-import { ADMIN_TRACKERS_ENDPOINTS } from "../constants/admin-trackers.constants";
-import { adminTrackersKeys } from "./admin-trackers.query-keys";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '../../../../lib/axios';
+import { toast } from '../../../../lib/toast';
+import { ADMIN_TRACKERS_ENDPOINTS } from '../constants/admin-trackers.constants';
+import { adminTrackersKeys } from './admin-trackers.query-keys';
 
 export const useResolveAdminTrackerReview = () => {
   const client = useQueryClient();
@@ -13,15 +13,18 @@ export const useResolveAdminTrackerReview = () => {
       actionPassword,
     }: {
       id: string;
-      status: "approved" | "rejected";
+      status: 'approved' | 'rejected';
       actionPassword: string;
-    }) => api.patch(ADMIN_TRACKERS_ENDPOINTS.reviewStatus(id), { status }, {
-      headers: { 'x-admin-action-password': actionPassword },
-    }),
-    onMutate: () => ({ toastId: toast.loading("Updating tracker review…") }),
-    onSuccess: () =>
-      client.invalidateQueries({ queryKey: adminTrackersKeys.reviews() }),
-    onSettled: (_data, _error, _input, context) =>
-      context && toast.dismiss(context.toastId),
+    }) =>
+      api.patch(
+        ADMIN_TRACKERS_ENDPOINTS.reviewStatus(id),
+        { status },
+        {
+          headers: { 'x-admin-action-password': actionPassword },
+        }
+      ),
+    onMutate: () => ({ toastId: toast.loading('Updating tracker review…') }),
+    onSuccess: () => client.invalidateQueries({ queryKey: adminTrackersKeys.reviews() }),
+    onSettled: (_data, _error, _input, context) => context && toast.dismiss(context.toastId),
   });
 };

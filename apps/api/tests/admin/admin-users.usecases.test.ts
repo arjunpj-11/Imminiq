@@ -8,7 +8,10 @@ import type { AdminUserEntity } from '../../src/modules/admin/users/domain/entit
 import type { IAdminUsersRepository } from '../../src/modules/admin/users/domain/repositories/admin-users.repository.interface';
 import type { IAdminUserEmailProvider } from '../../src/modules/admin/users/domain/services/admin-user-email-provider.interface';
 import { SendAdminUserMessageUseCase } from '../../src/modules/admin/users/application/use-cases/send-admin-user-message.usecase';
-import { adminUserMessageSchema, adminUserStatusSchema } from '../../src/modules/admin/users/presentation/admin-users.schema';
+import {
+  adminUserMessageSchema,
+  adminUserStatusSchema,
+} from '../../src/modules/admin/users/presentation/admin-users.schema';
 
 const userId = '64b000000000000000000001';
 const actorId = '64b000000000000000000002';
@@ -62,12 +65,7 @@ describe('SetAdminUserStatusUseCase', () => {
     const emailProvider = makeEmailProvider();
     const useCase = new SetAdminUserStatusUseCase(repository, emailProvider);
     await expect(
-      useCase.execute(
-        userId,
-        'blocked',
-        { userId: actorId, role: 'admin' },
-        meta
-      )
+      useCase.execute(userId, 'blocked', { userId: actorId, role: 'admin' }, meta)
     ).resolves.toEqual({ userId, status: 'blocked', emailQueued: true });
     expect(repository.updateStatus).toHaveBeenCalledWith(userId, 'blocked', {
       actorId,

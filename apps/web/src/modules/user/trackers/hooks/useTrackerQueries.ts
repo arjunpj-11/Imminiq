@@ -152,11 +152,7 @@ export const useTrackerClanChallenges = (trackerId?: string, enabled = true) =>
     },
   });
 
-export const useTrackerClanChallenge = (
-  trackerId?: string,
-  challengeId?: string,
-  enabled = true
-) =>
+export const useTrackerClanChallenge = (trackerId?: string, challengeId?: string, enabled = true) =>
   useQuery({
     queryKey: trackerKeys.clanChallenge(trackerId || '', challengeId || ''),
     enabled: Boolean(trackerId && challengeId) && enabled,

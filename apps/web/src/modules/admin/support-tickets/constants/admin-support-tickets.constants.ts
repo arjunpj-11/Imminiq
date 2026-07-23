@@ -1,7 +1,7 @@
-import { ADMIN_ROUTES } from "../../../../routes/config/route-paths";
+import { ADMIN_ROUTES } from '../../../../routes/config/route-paths';
 
 export const ADMIN_SUPPORT_TICKETS_ENDPOINTS = {
-  list: "/admin/support-tickets",
+  list: '/admin/support-tickets',
   update: (ticketId: string) => `/admin/support-tickets/${ticketId}`,
 } as const;
 

@@ -39,10 +39,15 @@ function SettingsCardSkeleton({ rows = 2, fields = false }: { rows?: number; fie
       {fields ? (
         <div className="grid gap-4 sm:grid-cols-2">
           {Array.from({ length: rows }, (_, index) => (
-            <div key={index}><SkeletonBlock className="h-3 w-28" /><SkeletonBlock className="mt-2 h-11 w-full rounded-md" /></div>
+            <div key={index}>
+              <SkeletonBlock className="h-3 w-28" />
+              <SkeletonBlock className="mt-2 h-11 w-full rounded-md" />
+            </div>
           ))}
         </div>
-      ) : Array.from({ length: rows }, (_, index) => <ToggleSkeleton key={index} />)}
+      ) : (
+        Array.from({ length: rows }, (_, index) => <ToggleSkeleton key={index} />)
+      )}
     </section>
   );
 }
@@ -51,7 +56,10 @@ function SaveBarSkeleton() {
   return (
     <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-5 py-4 shadow-(--shadow-1)">
       <SkeletonBlock className="h-3 w-[min(25rem,80%)]" />
-      <div className="flex gap-2"><SkeletonBlock className="h-10 w-20 rounded-md" /><SkeletonBlock className="h-10 w-32 rounded-md" /></div>
+      <div className="flex gap-2">
+        <SkeletonBlock className="h-10 w-20 rounded-md" />
+        <SkeletonBlock className="h-10 w-32 rounded-md" />
+      </div>
     </div>
   );
 }
@@ -65,13 +73,23 @@ export default function SettingsContentLoading({
       <span className="sr-only">{title}…</span>
       <div aria-hidden="true">
         {variant === 'appearance' && (
-          <><SettingsCardSkeleton rows={3} fields /><SaveBarSkeleton /></>
+          <>
+            <SettingsCardSkeleton rows={3} fields />
+            <SaveBarSkeleton />
+          </>
         )}
         {variant === 'notifications' && (
-          <><SettingsCardSkeleton rows={2} /><SaveBarSkeleton /></>
+          <>
+            <SettingsCardSkeleton rows={2} />
+            <SaveBarSkeleton />
+          </>
         )}
         {variant === 'privacy' && (
-          <div className="space-y-5"><SettingsCardSkeleton rows={3} /><SaveBarSkeleton /><SettingsCardSkeleton rows={2} fields /></div>
+          <div className="space-y-5">
+            <SettingsCardSkeleton rows={3} />
+            <SaveBarSkeleton />
+            <SettingsCardSkeleton rows={2} fields />
+          </div>
         )}
         {variant === 'security' && (
           <div className="space-y-5">

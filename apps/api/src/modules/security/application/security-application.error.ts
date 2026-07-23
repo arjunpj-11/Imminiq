@@ -120,7 +120,11 @@ export class SecurityApplicationError extends SecurityDomainError {
   }
 
   static passwordChangeFailed(): SecurityApplicationError {
-    return new SecurityApplicationError('internal', 'PASSWORD_CHANGE_FAILED', 'Unable to change password');
+    return new SecurityApplicationError(
+      'internal',
+      'PASSWORD_CHANGE_FAILED',
+      'Unable to change password'
+    );
   }
 
   static passwordUnavailable(): SecurityApplicationError {
@@ -132,7 +136,11 @@ export class SecurityApplicationError extends SecurityDomainError {
   }
 
   static sessionNotFound(): SecurityApplicationError {
-    return new SecurityApplicationError('missing-resource', 'SESSION_NOT_FOUND', 'Session not found');
+    return new SecurityApplicationError(
+      'missing-resource',
+      'SESSION_NOT_FOUND',
+      'Session not found'
+    );
   }
 
   static stepUpPasswordInvalid(): SecurityApplicationError {
@@ -264,7 +272,11 @@ export class SecurityApplicationError extends SecurityDomainError {
   }
 
   static wrongPassword(): SecurityApplicationError {
-    return new SecurityApplicationError('invalid-input', 'WRONG_PASSWORD', 'Current password is incorrect');
+    return new SecurityApplicationError(
+      'invalid-input',
+      'WRONG_PASSWORD',
+      'Current password is incorrect'
+    );
   }
 }
 

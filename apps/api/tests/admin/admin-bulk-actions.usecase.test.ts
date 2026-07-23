@@ -107,9 +107,11 @@ describe('admin bulk action use cases', () => {
 
   it('blocks self-actions and missing users during a bulk preview', async () => {
     const repository = {
-      findById: vi.fn().mockImplementation(async (id: string) =>
-        id === 'target' || id === adminActor.userId ? { id } : null
-      ),
+      findById: vi
+        .fn()
+        .mockImplementation(async (id: string) =>
+          id === 'target' || id === adminActor.userId ? { id } : null
+        ),
     } satisfies Pick<IAdminUsersRepository, 'findById'>;
     const setStatus = { execute: vi.fn() } as unknown as ISetAdminUserStatusUseCase;
 

@@ -46,10 +46,7 @@ export default function AuthLayout({ badge, title, subtitle, children }: IAuthLa
             className="relative z-1 inline-flex items-center gap-3 leading-none"
           >
             <LogoIcon className="h-11 w-11" />
-            <ImminiqWordmark
-              lowercase
-              className="text-[27px] font-bold tracking-[-0.7px]"
-            />
+            <ImminiqWordmark lowercase className="text-[27px] font-bold tracking-[-0.7px]" />
           </Link>
           <div className="relative z-1 max-w-135">
             <p className="mb-4 font-mono text-[9px] uppercase tracking-[0.18em] text-(--brand-500) dark:text-(--brand-500)">

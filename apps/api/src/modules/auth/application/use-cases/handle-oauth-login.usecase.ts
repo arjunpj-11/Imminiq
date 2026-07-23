@@ -7,10 +7,7 @@ import type { AuthRuntimePolicy } from '../../domain/auth-runtime-policy';
 import type { IAuthAccountPolicy } from '../auth-account-policy.policy';
 import type { IAuthLoginFinalizer } from '../services/auth-login-finalizer.service';
 
-type OAuthLoginRepository = Pick<
-  IAuthUserRepository,
-  'findById'
-> &
+type OAuthLoginRepository = Pick<IAuthUserRepository, 'findById'> &
   Pick<IAuthTwoFactorRepository, 'hasActiveTwoFactor'>;
 
 export interface IHandleOAuthLoginUseCase {

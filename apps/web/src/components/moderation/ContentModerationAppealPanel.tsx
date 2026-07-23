@@ -1,8 +1,6 @@
 import { useState } from 'react';
 
-import {
-  useContentModerationAppeals,
-} from '../../hooks/moderation/useContentModerationAppeals';
+import { useContentModerationAppeals } from '../../hooks/moderation/useContentModerationAppeals';
 import { useSubmitContentModerationAppeal } from '../../hooks/moderation/useSubmitContentModerationAppeal';
 import { getUserFacingError } from '../../lib/user-facing-error';
 
@@ -18,7 +16,7 @@ export function ContentModerationAppealPanel({
   const query = useContentModerationAppeals();
   const submit = useSubmitContentModerationAppeal();
   const existing = query.data?.find(
-    (item) => item.targetType === targetType && item.targetId === targetId,
+    (item) => item.targetType === targetType && item.targetId === targetId
   );
   const [reason, setReason] = useState('');
   const [evidence, setEvidence] = useState('');
@@ -39,7 +37,7 @@ export function ContentModerationAppealPanel({
           setReason('');
           setEvidence('');
         },
-      },
+      }
     );
   };
 

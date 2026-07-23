@@ -229,10 +229,7 @@ export default function VerifyAccountPage() {
         <main className="px-5 py-8 text-center sm:px-8">
           <Link to={ROUTES.home} className="mb-6 inline-flex items-center justify-center gap-2">
             <LogoIcon className="h-10 w-10" />
-            <ImminiqWordmark
-              lowercase
-              className="text-[24px] font-black tracking-[-0.8px]"
-            />
+            <ImminiqWordmark lowercase className="text-[24px] font-black tracking-[-0.8px]" />
           </Link>
 
           <div className="relative mx-auto mb-5 h-2 overflow-hidden rounded-full bg-(--border-subtle) dark:bg-white/10">
@@ -323,7 +320,9 @@ export default function VerifyAccountPage() {
           <button
             type="button"
             onClick={handleVerify}
-            disabled={verifyAccount.isPending || verifyResetCode.isPending || otp.length < OTP_LENGTH}
+            disabled={
+              verifyAccount.isPending || verifyResetCode.isPending || otp.length < OTP_LENGTH
+            }
             className="mt-6 w-full rounded-md bg-(--brand-500) p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           >
             {verifyAccount.isPending || verifyResetCode.isPending
@@ -345,7 +344,11 @@ export default function VerifyAccountPage() {
                   : 'cursor-not-allowed text-(--text-secondary)/70 dark:text-(--text-secondary)/70'
               )}
             >
-              {sendOtp.isPending ? 'Sending...' : canResend ? 'Resend code' : `Resend in ${resendLeft}s`}
+              {sendOtp.isPending
+                ? 'Sending...'
+                : canResend
+                  ? 'Resend code'
+                  : `Resend in ${resendLeft}s`}
             </button>
           </div>
         </main>

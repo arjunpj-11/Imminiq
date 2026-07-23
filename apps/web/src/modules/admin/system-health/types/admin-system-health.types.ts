@@ -14,10 +14,10 @@ export type AdminSystemHealth = {
     completed: number;
     failed: number;
     delayed: number;
-    status: "healthy" | "warning" | "critical";
+    status: 'healthy' | 'warning' | 'critical';
   }>;
   alerts: Array<{
-    severity: "warning" | "critical";
+    severity: 'warning' | 'critical';
     code: string;
     message: string;
   }>;
@@ -29,7 +29,7 @@ export type AdminBackgroundJob = {
   id: string;
   queue: string;
   name: string;
-  state: "waiting" | "active" | "delayed" | "completed" | "failed";
+  state: 'waiting' | 'active' | 'delayed' | 'completed' | 'failed';
   progress: number;
   attemptsMade: number;
   maxAttempts: number;

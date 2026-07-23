@@ -90,9 +90,16 @@ const isTemporaryProviderError = (error: unknown): boolean => {
     candidate.statusCode === 429 ||
     candidate.status === 503 ||
     candidate.statusCode === 503 ||
-    ['429', '503', 'resource_exhausted', 'rate limit', 'quota', 'service unavailable', 'high demand', 'unavailable'].some(
-      (fragment) => message.includes(fragment)
-    )
+    [
+      '429',
+      '503',
+      'resource_exhausted',
+      'rate limit',
+      'quota',
+      'service unavailable',
+      'high demand',
+      'unavailable',
+    ].some((fragment) => message.includes(fragment))
   );
 };
 
@@ -218,7 +225,9 @@ export const aiWorker = new Worker(
       await dispatchAIJob(job);
     } catch (error) {
       if (isTemporaryProviderError(error)) {
-        console.warn('AI provider is temporarily unavailable. Pausing the AI queue for 60 seconds.');
+        console.warn(
+          'AI provider is temporarily unavailable. Pausing the AI queue for 60 seconds.'
+        );
         await aiWorker.rateLimit(ONE_MINUTE_MS);
         await resetCurrentActiveStepToPending(jobId);
         throw Worker.RateLimitError();

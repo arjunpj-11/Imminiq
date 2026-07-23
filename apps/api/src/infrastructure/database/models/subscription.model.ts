@@ -1,10 +1,15 @@
-import type { Document} from 'mongoose';
+import type { Document } from 'mongoose';
 import mongoose, { Schema } from 'mongoose';
 
 export type SubscriptionPlanId = 'pro' | 'premium';
 export type SubscriptionBillingCycle = 'monthly' | 'annual';
 export type SubscriptionStatus =
-  'pending' | 'active' | 'canceled' | 'expired' | 'replaced' | 'failed';
+  | 'pending'
+  | 'active'
+  | 'canceled'
+  | 'expired'
+  | 'replaced'
+  | 'failed';
 export type SubscriptionLimits = {
   maxTrackers: number;
   trackerGenerationsPerMonth: number;

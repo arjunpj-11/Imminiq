@@ -42,7 +42,16 @@ export class MongoAdminAITokenSpendRepository implements IAdminAITokenSpendRepos
     const periodMs = to.getTime() - from.getTime() + 1;
     const previousTo = new Date(from.getTime() - 1);
     const previousFrom = new Date(previousTo.getTime() - periodMs + 1);
-    const [summaryRows, dailyRows, categoryRows, providerRows, todayRows, previousRows, monthRows, settings] = await Promise.all([
+    const [
+      summaryRows,
+      dailyRows,
+      categoryRows,
+      providerRows,
+      todayRows,
+      previousRows,
+      monthRows,
+      settings,
+    ] = await Promise.all([
       AITokenUsage.aggregate<AggregateRow>([
         { $match: { createdAt } },
         { $group: { _id: null, ...totalsStage } },
@@ -104,7 +113,9 @@ export class MongoAdminAITokenSpendRepository implements IAdminAITokenSpendRepos
         previousPeriodTokens,
         changePercent:
           previousPeriodTokens > 0
-            ? Number((((totalTokens - previousPeriodTokens) / previousPeriodTokens) * 100).toFixed(1))
+            ? Number(
+                (((totalTokens - previousPeriodTokens) / previousPeriodTokens) * 100).toFixed(1)
+              )
             : null,
       },
       budget: {
@@ -119,13 +130,15 @@ export class MongoAdminAITokenSpendRepository implements IAdminAITokenSpendRepos
               ? 'warning'
               : 'within_budget',
       },
-      daily: dailyRows.map((row): AdminAITokenSpendPoint => ({
-        date: row._id ?? '',
-        promptTokens: row.promptTokens,
-        completionTokens: row.completionTokens,
-        totalTokens: row.totalTokens,
-        requests: row.requests,
-      })),
+      daily: dailyRows.map(
+        (row): AdminAITokenSpendPoint => ({
+          date: row._id ?? '',
+          promptTokens: row.promptTokens,
+          completionTokens: row.completionTokens,
+          totalTokens: row.totalTokens,
+          requests: row.requests,
+        })
+      ),
       byCategory: categoryRows.map(toBreakdown),
       byProvider: providerRows.map(toBreakdown),
     };

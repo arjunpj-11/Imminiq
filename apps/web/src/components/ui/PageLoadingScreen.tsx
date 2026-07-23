@@ -3,13 +3,12 @@ import ImminiqProgressMark from './ImminiqProgressMark';
 
 export default function PageLoadingScreen() {
   const [progress, setProgress] = useState(() =>
-    typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
       ? 100
-      : 8,
+      : 8
   );
   const [isDark, setIsDark] = useState(() =>
-    typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : false,
+    typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : false
   );
 
   useEffect(() => {

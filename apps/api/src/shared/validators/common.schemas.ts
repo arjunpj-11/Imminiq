@@ -20,9 +20,5 @@ export const createHttpUrlSchema = (maxLength = 2_048) =>
     .url('Must be a valid URL')
     .refine((value) => {
       const parsed = new URL(value);
-      return (
-        ['http:', 'https:'].includes(parsed.protocol) &&
-        !parsed.username &&
-        !parsed.password
-      );
+      return ['http:', 'https:'].includes(parsed.protocol) && !parsed.username && !parsed.password;
     }, 'URL must use HTTP or HTTPS and must not contain credentials');

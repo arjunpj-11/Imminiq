@@ -14,7 +14,9 @@ export interface IToastRecord extends Required<Pick<IToastInput, 'title' | 'tone
 }
 
 type ToastEvent =
-  { type: 'upsert'; toast: IToastRecord } | { type: 'dismiss'; id: number } | { type: 'clear' };
+  | { type: 'upsert'; toast: IToastRecord }
+  | { type: 'dismiss'; id: number }
+  | { type: 'clear' };
 
 type ToastListener = (event: ToastEvent) => void;
 

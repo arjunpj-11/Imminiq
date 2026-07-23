@@ -5,7 +5,13 @@ import type { AnswerVerificationResult } from '../services/tracker-ai.interface'
 export type TrackerLessonType = 'concept' | 'coding' | 'interview' | 'system_design' | 'theory';
 
 export type TrackerLessonCompilerRuntime =
-  'javascript' | 'typescript' | 'python' | 'c++' | 'c' | 'java' | null;
+  | 'javascript'
+  | 'typescript'
+  | 'python'
+  | 'c++'
+  | 'c'
+  | 'java'
+  | null;
 
 export type TrackerLessonDifficulty = 'beginner' | 'intermediate' | 'advanced';
 
@@ -344,8 +350,7 @@ export interface ITrackerLessonVisualizationRepository {
 }
 
 export interface ITrackerLessonRepository
-  extends
-    ITrackerLessonContentRepository,
+  extends ITrackerLessonContentRepository,
     ITrackerLessonChatRepository,
     ITrackerLessonPracticeRepository,
     ITrackerLessonCodeRepository,

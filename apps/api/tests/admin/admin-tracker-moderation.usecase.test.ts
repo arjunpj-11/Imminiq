@@ -36,10 +36,11 @@ describe('admin tracker moderation', () => {
       queueTrackerModeration: vi.fn().mockResolvedValue(undefined),
     } satisfies IAdminTrackerEmailProvider;
 
-    const result = await new UpdateAdminTrackerLifecycleUseCase(
-      repository,
-      emailProvider
-    ).execute('tracker-id', input, actor);
+    const result = await new UpdateAdminTrackerLifecycleUseCase(repository, emailProvider).execute(
+      'tracker-id',
+      input,
+      actor
+    );
 
     expect(repository.updateLifecycle).toHaveBeenCalledWith('tracker-id', input, actor);
     expect(emailProvider.queueTrackerModeration).toHaveBeenCalledWith({

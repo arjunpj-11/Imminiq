@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Flag } from 'lucide-react';
+import { Flag, Share2 } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ROUTES } from '../../../../routes/config/route-paths';
 
@@ -33,13 +33,14 @@ import type { ICommunityPublicTrackerDetail } from '../types/community.types';
 import { getApiErrorMessage } from '../utils/community-formatters';
 import { cn, communityPageClass } from '../utils/community-ui';
 import Modal from '../../../../components/overlays/Modal';
-import { useReportCommunityTracker, type ReportTrackerReason } from '../hooks/useReportCommunityTracker';
-import { useAuthStore } from '../../../../store/useAuthStore';
 import {
-  useRequestTrackerClanJoin,
-  useTrackerClan,
-} from '../../trackers';
+  useReportCommunityTracker,
+  type ReportTrackerReason,
+} from '../hooks/useReportCommunityTracker';
+import { useAuthStore } from '../../../../store/useAuthStore';
+import { useRequestTrackerClanJoin, useTrackerClan } from '../../trackers';
 import { useOnboardingStore } from '../../tracker-creation';
+import { useSocialShareStore } from '../../social';
 
 type CommunityTrackerNavigationState = {
   returnTo?: string;
@@ -92,6 +93,7 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
   const reportTracker = useReportCommunityTracker();
   const currentUserId = useAuthStore((state) => state.user?._id);
   const requestClanJoin = useRequestTrackerClanJoin();
+  const shareTracker = useSocialShareStore((state) => state.shareTracker);
 
   const [cloned, setCloned] = useState(false);
   const [cloneConfirmOpen, setCloneConfirmOpen] = useState(false);
@@ -126,10 +128,7 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
   }, [tracker.reviews, sortBy]);
 
   const isCloned = cloned || tracker.inDashboard;
-  const clanQuery = useTrackerClan(
-    tracker._id,
-    currentUserId === tracker.ownerId || isCloned
-  );
+  const clanQuery = useTrackerClan(tracker._id, currentUserId === tracker.ownerId || isCloned);
   const likeCount = tracker.likes;
   const cloneCount = tracker.clones + (cloned ? 1 : 0);
   const ratingSummary = tracker.ratingSummary;
@@ -225,9 +224,7 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
       <div className={communityPageClass}>
         <button
           type="button"
-          onClick={() =>
-            navigate(navigationState?.returnTo ?? ROUTES.community, { replace: true })
-          }
+          onClick={() => navigate(navigationState?.returnTo ?? ROUTES.community, { replace: true })}
           className="inline-flex w-fit items-center gap-2 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2.5 text-[12px] font-bold text-(--text-secondary) transition hover:border-[rgba(184,76,43,0.25)] hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
         >
           <BackIcon />
@@ -295,19 +292,36 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
                     {tracker.likedByMe ? 'Liked' : 'Like'}
                   </button>
 
-                  {currentUserId !== tracker.ownerId && isCloned && clanQuery.data?.role === 'outsider' && (
-                    <button
-                      type="button"
-                      onClick={() => requestClanJoin.mutate({ trackerId: tracker._id })}
-                      disabled={
-                        requestClanJoin.isPending
-                      }
-                      className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-[#d6ad47]/45 bg-[#f4c95d]/12 px-4 py-2.5 text-[13px] font-bold text-[#8a6509] transition hover:-translate-y-px hover:bg-[#f4c95d]/20 disabled:cursor-not-allowed disabled:opacity-65 dark:text-[#f4c95d]"
-                    >
-                      🛡{' '}
-                      {requestClanJoin.isPending ? 'Joining clan...' : 'Join tracker clan'}
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      shareTracker({
+                        trackerId: tracker._id,
+                        title: tracker.title,
+                        description:
+                          tracker.description ||
+                          tracker.goal ||
+                          'A focused learning roadmap.',
+                      })
+                    }
+                    className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-(--border-subtle) bg-white/60 px-4 py-2.5 text-[13px] font-bold text-(--text-secondary) transition hover:border-[rgba(184,76,43,0.25)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-white/4 dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
+                  >
+                    <Share2 size={15} />
+                    Share with a friend
+                  </button>
+
+                  {currentUserId !== tracker.ownerId &&
+                    isCloned &&
+                    clanQuery.data?.role === 'outsider' && (
+                      <button
+                        type="button"
+                        onClick={() => requestClanJoin.mutate({ trackerId: tracker._id })}
+                        disabled={requestClanJoin.isPending}
+                        className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-[#d6ad47]/45 bg-[#f4c95d]/12 px-4 py-2.5 text-[13px] font-bold text-[#8a6509] transition hover:-translate-y-px hover:bg-[#f4c95d]/20 disabled:cursor-not-allowed disabled:opacity-65 dark:text-[#f4c95d]"
+                      >
+                        🛡 {requestClanJoin.isPending ? 'Joining clan...' : 'Join tracker clan'}
+                      </button>
+                    )}
 
                   {clanQuery.data && clanQuery.data.role !== 'outsider' && (
                     <button

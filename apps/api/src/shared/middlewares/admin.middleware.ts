@@ -63,11 +63,7 @@ export const requireSuperAdmin = (req: Request, _res: Response, next: NextFuncti
   next();
 };
 
-export const requireStaffTwoFactor = async (
-  req: Request,
-  _res: Response,
-  next: NextFunction
-) => {
+export const requireStaffTwoFactor = async (req: Request, _res: Response, next: NextFunction) => {
   const role = req.user?.role;
   if (!role || !['moderator', 'admin', 'superadmin'].includes(role)) {
     next();
@@ -89,15 +85,19 @@ export const requireStaffTwoFactor = async (
   next();
 };
 
-export const requireAdminPermission = (permission: AdminPermission) =>
-  (req: Request, _res: Response, next: NextFunction) => {
+export const requireAdminPermission =
+  (permission: AdminPermission) => (req: Request, _res: Response, next: NextFunction) => {
     const role = req.user?.role;
     if (
       !role ||
       !['moderator', 'admin', 'superadmin'].includes(role) ||
       !permissionsByRole[role as keyof typeof permissionsByRole].includes(permission)
     ) {
-      throw new ApiError(403, 'You do not have permission to perform this admin action', 'FORBIDDEN');
+      throw new ApiError(
+        403,
+        'You do not have permission to perform this admin action',
+        'FORBIDDEN'
+      );
     }
     next();
   };

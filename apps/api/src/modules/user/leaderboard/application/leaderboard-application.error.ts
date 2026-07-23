@@ -33,13 +33,21 @@ export class LeaderboardApplicationError extends LeaderboardDomainError {
   }
 
   static userNotFound(message = 'Leaderboard user not found'): LeaderboardApplicationError {
-    return new LeaderboardApplicationError('missing-resource', 'LEADERBOARD_USER_NOT_FOUND', message);
+    return new LeaderboardApplicationError(
+      'missing-resource',
+      'LEADERBOARD_USER_NOT_FOUND',
+      message
+    );
   }
 
   static unavailable(
     message = 'Leaderboard is currently unavailable'
   ): LeaderboardApplicationError {
-    return new LeaderboardApplicationError('dependency-unavailable', 'LEADERBOARD_UNAVAILABLE', message);
+    return new LeaderboardApplicationError(
+      'dependency-unavailable',
+      'LEADERBOARD_UNAVAILABLE',
+      message
+    );
   }
 
   static xpActivityConflict(

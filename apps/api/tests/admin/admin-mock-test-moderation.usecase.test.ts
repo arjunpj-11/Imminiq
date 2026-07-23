@@ -38,10 +38,11 @@ describe('admin mock-test moderation', () => {
       queueModerationEmail: vi.fn().mockResolvedValue(undefined),
     } satisfies IAdminMockTestEmailProvider;
 
-    const result = await new UpdateAdminMockTestLifecycleUseCase(
-      repository,
-      emailProvider
-    ).execute('test-id', input, actor);
+    const result = await new UpdateAdminMockTestLifecycleUseCase(repository, emailProvider).execute(
+      'test-id',
+      input,
+      actor
+    );
 
     expect(repository.updateLifecycle).toHaveBeenCalledWith('test-id', input, actor);
     expect(emailProvider.queueModerationEmail).toHaveBeenCalledWith({
@@ -104,9 +105,7 @@ describe('admin mock-test moderation', () => {
   });
 
   it('requires a meaningful explanation for destructive actions', () => {
-    expect(() =>
-      adminMockTestLifecycleSchema.parse({ ...input, reason: 'too short' })
-    ).toThrow();
+    expect(() => adminMockTestLifecycleSchema.parse({ ...input, reason: 'too short' })).toThrow();
     expect(adminMockTestLifecycleSchema.parse(input)).toEqual(input);
   });
 });

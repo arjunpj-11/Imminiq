@@ -17,9 +17,7 @@ export interface IAdminMockTestQuestionVersionService {
   ): Promise<AdminMockTestQuestionVersionRestoreResultDTO>;
 }
 
-export class AdminMockTestQuestionVersionService
-  implements IAdminMockTestQuestionVersionService
-{
+export class AdminMockTestQuestionVersionService implements IAdminMockTestQuestionVersionService {
   constructor(
     private readonly _repository: Pick<
       IAdminMockTestsRepository,
@@ -32,7 +30,12 @@ export class AdminMockTestQuestionVersionService
   }
 
   async restore(questionId: string, version: number, reason: string, actor: AdminActor) {
-    const result = await this._repository.restoreQuestionVersion(questionId, version, reason, actor);
+    const result = await this._repository.restoreQuestionVersion(
+      questionId,
+      version,
+      reason,
+      actor
+    );
     if (!result) throw AdminMockTestsApplicationError.issueNotFound();
     return result;
   }

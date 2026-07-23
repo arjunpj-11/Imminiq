@@ -40,6 +40,14 @@ export class GetPublicProfilePageUseCase implements IGetPublicProfilePageUseCase
       throw UsersApplicationError.userNotFound();
     }
 
+    if (
+      viewerUserId &&
+      viewerUserId !== user.id &&
+      (await this._usersRepository.hasBlockBetween(viewerUserId, user.id))
+    ) {
+      throw UsersApplicationError.publicProfileNotAvailable();
+    }
+
     const [profile, settings] = await Promise.all([
       this._usersRepository.ensureForUser({
         userId: user.id,

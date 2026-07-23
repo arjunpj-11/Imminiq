@@ -436,19 +436,18 @@ describe('clean architecture boundaries', () => {
   });
 
   it('keeps every cross-feature dependency type-only inside feature modules', () => {
-    const violations = collectFiles(modulesRoot)
-      .flatMap((source) => {
-        const sourceModule = moduleLocation(source)?.id;
-        return runtimeModuleImports(source)
-          .filter((target) => {
-            const targetModule = moduleLocation(target)?.id;
-            return targetModule !== undefined && targetModule !== sourceModule;
-          })
-          .map(
-            (target) =>
-              `${portable(relative(sourceRoot, source))} -> ${portable(relative(sourceRoot, target))}`
-          );
-      });
+    const violations = collectFiles(modulesRoot).flatMap((source) => {
+      const sourceModule = moduleLocation(source)?.id;
+      return runtimeModuleImports(source)
+        .filter((target) => {
+          const targetModule = moduleLocation(target)?.id;
+          return targetModule !== undefined && targetModule !== sourceModule;
+        })
+        .map(
+          (target) =>
+            `${portable(relative(sourceRoot, source))} -> ${portable(relative(sourceRoot, target))}`
+        );
+    });
 
     expect(violations).toEqual([]);
   });
@@ -544,9 +543,7 @@ describe('clean architecture boundaries', () => {
       'ISubscriptionRepository',
       'IAdaptiveLearningRepository',
     ];
-    const aggregateDependency = new RegExp(
-      `:\\s*(?:${aggregateRepositories.join('|')})\\b`
-    );
+    const aggregateDependency = new RegExp(`:\\s*(?:${aggregateRepositories.join('|')})\\b`);
     const violations = collectFiles(modulesRoot)
       .filter((path) => path.endsWith('.usecase.ts'))
       .filter((path) => aggregateDependency.test(readFileSync(path, 'utf8')))

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
-import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
+import { authenticatedApiUserLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
 import {
   validate,
   validateIdentifierParam,
@@ -36,7 +36,7 @@ export const createMockTestsRoutes = (
 
   // ─── PROTECTED ───────────────────────────────────────────────
 
-  router.use(authenticatedApiIpLimiter, authenticate);
+  router.use(authenticate, authenticatedApiUserLimiter);
 
   router.get(
     MOCK_TEST_ROUTE_PATHS.ROOT,

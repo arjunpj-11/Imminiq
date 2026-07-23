@@ -1,5 +1,8 @@
 import type { TrackerCreationUseCases } from './application/tracker-creation-use-cases.contract';
-import { TrackerCreationMapper, type ITrackerCreationMapper } from './application/tracker-creation.mapper';
+import {
+  TrackerCreationMapper,
+  type ITrackerCreationMapper,
+} from './application/tracker-creation.mapper';
 import {
   TrackerCreationJobOutputReader,
   type ITrackerCreationJobOutputReader,
@@ -44,8 +47,7 @@ export const createTrackerCreationAIJobProcessor = (
 ): ITrackerCreationAIJobProcessor =>
   new TrackerCreationAIJobProcessor(
     {
-      enforceTrackerCapacity: (userId) =>
-        limitEnforcer.enforce(userId, 'tracker_capacity'),
+      enforceTrackerCapacity: (userId) => limitEnforcer.enforce(userId, 'tracker_capacity'),
     },
     {
       notifyTrackerGenerated: ({ userId, jobId, trackerId, trackerTitle }) =>

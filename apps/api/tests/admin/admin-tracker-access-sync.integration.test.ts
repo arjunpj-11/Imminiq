@@ -84,9 +84,9 @@ describe('admin tracker access synchronization', () => {
 
     expect(inventory.items).toHaveLength(1);
     expect(inventory.items[0]).toMatchObject({ id: original.id, cloneCount: 1 });
-    await expect(
-      clans.getRole({ trackerId: original.id, userId: owner.id })
-    ).resolves.toBe('owner');
+    await expect(clans.getRole({ trackerId: original.id, userId: owner.id })).resolves.toBe(
+      'owner'
+    );
 
     await admin.updateLifecycle(
       original.id,
@@ -140,9 +140,7 @@ describe('admin tracker access synchronization', () => {
       limit: 20,
     });
     expect(learnerTrackers.trackers.map((tracker) => tracker._id.toString())).toContain(clone.id);
-    await expect(
-      clans.getRole({ trackerId: original.id, userId: owner.id })
-    ).resolves.toBeNull();
+    await expect(clans.getRole({ trackerId: original.id, userId: owner.id })).resolves.toBeNull();
     await expect(
       clans.listMessages({ trackerId: original.id, userId: owner.id, limit: 20 })
     ).resolves.toBeNull();
@@ -156,9 +154,24 @@ describe('admin tracker access synchronization', () => {
 
   it('allows a mock-test owner or affected learner to appeal, but keeps tracker appeals owner-only', async () => {
     const [owner, learner, stranger] = await User.create([
-      { fullName: 'Appeal Owner', username: 'appeal-owner-sync', passwordHash: null, emailVerified: true },
-      { fullName: 'Affected Learner', username: 'affected-learner-sync', passwordHash: null, emailVerified: true },
-      { fullName: 'Unrelated Learner', username: 'unrelated-learner-sync', passwordHash: null, emailVerified: true },
+      {
+        fullName: 'Appeal Owner',
+        username: 'appeal-owner-sync',
+        passwordHash: null,
+        emailVerified: true,
+      },
+      {
+        fullName: 'Affected Learner',
+        username: 'affected-learner-sync',
+        passwordHash: null,
+        emailVerified: true,
+      },
+      {
+        fullName: 'Unrelated Learner',
+        username: 'unrelated-learner-sync',
+        passwordHash: null,
+        emailVerified: true,
+      },
     ]);
     const test = await MockTestModel.create({
       ownerId: owner._id,

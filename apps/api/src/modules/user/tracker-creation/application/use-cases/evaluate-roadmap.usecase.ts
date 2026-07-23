@@ -49,10 +49,11 @@ export class EvaluateRoadmapUseCase implements IEvaluateRoadmapUseCase {
       throw TrackerCreationApplicationError.trackerNotFound('Generated tracker is missing');
     }
 
-    const activeEvaluationJob = await this._trackerCreationRepository.findActiveEvaluationJobForRoadmap({
-      userId,
-      sourceRoadmapJobId: roadmapJobId,
-    });
+    const activeEvaluationJob =
+      await this._trackerCreationRepository.findActiveEvaluationJobForRoadmap({
+        userId,
+        sourceRoadmapJobId: roadmapJobId,
+      });
 
     if (activeEvaluationJob) {
       throw TrackerCreationApplicationError.evaluationJobAlreadyActive();

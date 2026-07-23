@@ -134,6 +134,15 @@ body {
   overflow-x: hidden;
 }
 
+.chat-message-canvas {
+  background-color: color-mix(in srgb, var(--surface-canvas) 58%, var(--surface-card));
+  background-image:
+    radial-gradient(circle at 86% 8%, color-mix(in srgb, var(--brand-500) 6%, transparent), transparent 28%),
+    radial-gradient(circle at 12% 84%, color-mix(in srgb, var(--success) 4%, transparent), transparent 24%),
+    radial-gradient(circle at 18% 22%, color-mix(in srgb, var(--text-muted) 5%, transparent) 0 1px, transparent 1.4px);
+  background-size: auto, auto, 38px 38px;
+}
+
 button,
 input,
 textarea,
@@ -168,9 +177,19 @@ select:not(:disabled) {
 }
 
 /*
- * Search inputs use a custom clear button and component-level focus style.
- * Remove the browser's built-in clear icon and global extra outline.
+ * Typing controls use their component-level border/shadow focus styles.
+ * Keep the global keyboard outline for navigation controls, not form fields.
  */
+:where(
+  input:not([type='checkbox']):not([type='radio']),
+  textarea,
+  select,
+  [contenteditable='true'],
+  [role='textbox']
+):focus-visible {
+  outline: none;
+}
+
 input[type='search'] {
   appearance: none;
   -webkit-appearance: none;
@@ -597,6 +616,17 @@ html.admin-dark #root {
 html.admin-dark :focus-visible {
   outline: 2px solid rgba(232, 129, 106, 0.4);
   outline-offset: 2px;
+}
+
+html.admin-dark
+  :where(
+    input:not([type='checkbox']):not([type='radio']),
+    textarea,
+    select,
+    [contenteditable='true'],
+    [role='textbox']
+  ):focus-visible {
+  outline: none;
 }
 
 .admin-theme main h1,

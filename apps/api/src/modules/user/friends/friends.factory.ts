@@ -10,6 +10,7 @@ import { RemoveFriendUseCase } from './application/use-cases/remove-friend.useca
 import { SearchUsersUseCase } from './application/use-cases/search-users.usecase';
 import { SendFriendRequestUseCase } from './application/use-cases/send-friend-request.usecase';
 import { mongoFriendsRepository } from './infrastructure/repositories/mongo-friends.repository';
+import { mongoFriendBlockRepository } from './infrastructure/repositories/internal/mongo-friend-block.repository';
 
 export type FriendsComposition = {
   useCases: FriendsUseCases;
@@ -22,9 +23,21 @@ export const createFriendsComposition = (): FriendsComposition => {
 
   return {
     useCases: {
-      searchUsers: new SearchUsersUseCase(friendsRepository, friendsMapper),
-      listFriends: new ListFriendsUseCase(friendsRepository, friendsMapper),
-      listFriendRequests: new ListFriendRequestsUseCase(friendsRepository, friendsMapper),
+      searchUsers: new SearchUsersUseCase(
+        friendsRepository,
+        mongoFriendBlockRepository,
+        friendsMapper
+      ),
+      listFriends: new ListFriendsUseCase(
+        friendsRepository,
+        mongoFriendBlockRepository,
+        friendsMapper
+      ),
+      listFriendRequests: new ListFriendRequestsUseCase(
+        friendsRepository,
+        mongoFriendBlockRepository,
+        friendsMapper
+      ),
       sendFriendRequest: new SendFriendRequestUseCase(
         friendsRepository,
         relationshipPolicy,

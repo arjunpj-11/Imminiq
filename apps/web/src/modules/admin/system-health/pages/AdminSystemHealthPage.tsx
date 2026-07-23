@@ -1,5 +1,5 @@
-import { Database, MemoryStick, RotateCcw, Server, Trash2, XCircle, Zap } from "lucide-react";
-import { useState } from "react";
+import { Database, MemoryStick, RotateCcw, Server, Trash2, XCircle, Zap } from 'lucide-react';
+import { useState } from 'react';
 import {
   AdminError,
   AdminLoading,
@@ -8,33 +8,32 @@ import {
   AdminPanel,
   AdminStatusBadge,
   AdminPaginationControls,
-} from "../../../../components/admin";
-import AdminModal from "../../../../components/admin/AdminModal";
-import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
-import { getUserFacingError } from "../../../../lib/user-facing-error";
-import { toast } from "../../../../lib/toast";
-import { useAdminSystemHealth } from "../hooks/useAdminSystemHealth";
-import { useAdminJobWorklist } from "../hooks/useAdminJobWorklist";
-import { useAdminJobAction } from "../hooks/useAdminJobAction";
-import type { AdminBackgroundJob } from "../types/admin-system-health.types";
+} from '../../../../components/admin';
+import AdminModal from '../../../../components/admin/AdminModal';
+import AdminActionPasswordField from '../../../../components/admin/AdminActionPasswordField';
+import { isAdminActionPasswordReady } from '../../../../lib/admin/admin-action-password';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { toast } from '../../../../lib/toast';
+import { useAdminSystemHealth } from '../hooks/useAdminSystemHealth';
+import { useAdminJobWorklist } from '../hooks/useAdminJobWorklist';
+import { useAdminJobAction } from '../hooks/useAdminJobAction';
+import type { AdminBackgroundJob } from '../types/admin-system-health.types';
 export default function AdminSystemHealthPage() {
-  const { data, isLoading, isError, error, refetch, isFetching } =
-    useAdminSystemHealth();
-  const [queue, setQueue] = useState("all");
-  const [jobStatus, setJobStatus] = useState("all");
+  const { data, isLoading, isError, error, refetch, isFetching } = useAdminSystemHealth();
+  const [queue, setQueue] = useState('all');
+  const [jobStatus, setJobStatus] = useState('all');
   const [jobPage, setJobPage] = useState(1);
   const [pendingAction, setPendingAction] = useState<{
     job: AdminBackgroundJob;
-    action: "cancel" | "retry" | "remove";
+    action: 'cancel' | 'retry' | 'remove';
   } | null>(null);
-  const [actionPassword, setActionPassword] = useState("");
+  const [actionPassword, setActionPassword] = useState('');
   const jobs = useAdminJobWorklist({ queue, status: jobStatus, page: jobPage });
   const jobAction = useAdminJobAction();
   const closeAction = () => {
     if (jobAction.isPending) return;
     setPendingAction(null);
-    setActionPassword("");
+    setActionPassword('');
   };
   const confirmAction = () => {
     if (!pendingAction) return;
@@ -47,11 +46,14 @@ export default function AdminSystemHealthPage() {
       },
       {
         onSuccess: () => {
-          toast.success("Background job updated", `${pendingAction.action} completed successfully.`);
+          toast.success(
+            'Background job updated',
+            `${pendingAction.action} completed successfully.`
+          );
           closeAction();
         },
-        onError: (jobError) => toast.error("Job action failed", getUserFacingError(jobError)),
-      },
+        onError: (jobError) => toast.error('Job action failed', getUserFacingError(jobError)),
+      }
     );
   };
   return (
@@ -61,7 +63,7 @@ export default function AdminSystemHealthPage() {
         description="Live dependency and runtime telemetry refreshed every fifteen seconds."
         action={
           <button onClick={() => void refetch()} className="admin-button">
-            {isFetching ? "Checking…" : "Refresh now"}
+            {isFetching ? 'Checking…' : 'Refresh now'}
           </button>
         }
       />
@@ -75,24 +77,24 @@ export default function AdminSystemHealthPage() {
             <AdminMetricGrid
               metrics={[
                 {
-                  label: "Overall state",
+                  label: 'Overall state',
                   value: data.status,
-                  tone: data.status === "healthy" ? "success" : "warning",
+                  tone: data.status === 'healthy' ? 'success' : 'warning',
                 },
                 {
-                  label: "Uptime",
+                  label: 'Uptime',
                   value: `${Math.floor(data.uptimeSeconds / 3600)}h ${Math.floor((data.uptimeSeconds % 3600) / 60)}m`,
-                  tone: "info",
+                  tone: 'info',
                 },
                 {
-                  label: "Heap usage",
+                  label: 'Heap usage',
                   value: `${data.memory.heapUsedMb} MB`,
-                  tone: "accent",
+                  tone: 'accent',
                 },
                 {
-                  label: "Node runtime",
+                  label: 'Node runtime',
                   value: data.nodeVersion,
-                  tone: "warning",
+                  tone: 'warning',
                 },
               ]}
             />
@@ -100,31 +102,28 @@ export default function AdminSystemHealthPage() {
               <div className="grid gap-4 p-6 md:grid-cols-3">
                 {[
                   {
-                    name: "API server",
+                    name: 'API server',
                     icon: Server,
                     status: data.services.api.status,
-                    detail: "Express application",
+                    detail: 'Express application',
                   },
                   {
-                    name: "MongoDB",
+                    name: 'MongoDB',
                     icon: Database,
                     status: data.services.mongodb.status,
                     detail: `${data.services.mongodb.collections} collections`,
                   },
                   {
-                    name: "Redis",
+                    name: 'Redis',
                     icon: Zap,
                     status: data.services.redis.status,
                     detail:
                       data.services.redis.latencyMs === null
-                        ? "Unavailable"
+                        ? 'Unavailable'
                         : `${data.services.redis.latencyMs}ms latency`,
                   },
                 ].map(({ name, icon: Icon, status, detail }) => (
-                  <div
-                    key={name}
-                    className="rounded-xl border border-white/10 bg-[#24211e] p-5"
-                  >
+                  <div key={name} className="rounded-xl border border-white/10 bg-[#24211e] p-5">
                     <div className="flex items-center justify-between">
                       <Icon className="text-[#e8816a]" />
                       <AdminStatusBadge value={status} />
@@ -155,7 +154,7 @@ export default function AdminSystemHealthPage() {
                   />
                 </div>
                 <p className="mt-3 text-xs text-[#817c75]">
-                  Resident set size: {data.memory.rssMb} MB · checked{" "}
+                  Resident set size: {data.memory.rssMb} MB · checked{' '}
                   {new Date(data.checkedAt).toLocaleTimeString()}
                 </p>
               </div>
@@ -177,9 +176,7 @@ export default function AdminSystemHealthPage() {
                   <tbody>
                     {data.queues.map((queue) => (
                       <tr key={queue.name}>
-                        <td className="font-semibold capitalize">
-                          {queue.name}
-                        </td>
+                        <td className="font-semibold capitalize">{queue.name}</td>
                         <td>{queue.waiting}</td>
                         <td>{queue.active}</td>
                         <td>{queue.delayed}</td>
@@ -197,14 +194,43 @@ export default function AdminSystemHealthPage() {
               title="Background worklist"
               toolbar={
                 <div className="flex flex-wrap gap-3">
-                  <select className="admin-select" value={queue} onChange={(event) => { setQueue(event.target.value); setJobPage(1); }}>
+                  <select
+                    className="admin-select"
+                    value={queue}
+                    onChange={(event) => {
+                      setQueue(event.target.value);
+                      setJobPage(1);
+                    }}
+                  >
                     <option value="all">All queues</option>
-                    {data.queues.map((item) => <option key={item.name} value={item.name}>{item.name}</option>)}
+                    {data.queues.map((item) => (
+                      <option key={item.name} value={item.name}>
+                        {item.name}
+                      </option>
+                    ))}
                   </select>
-                  <select className="admin-select" value={jobStatus} onChange={(event) => { setJobStatus(event.target.value); setJobPage(1); }}>
-                    <option value="all">All states</option><option value="waiting">Waiting</option><option value="active">Active</option><option value="delayed">Delayed</option><option value="failed">Failed</option><option value="completed">Completed</option>
+                  <select
+                    className="admin-select"
+                    value={jobStatus}
+                    onChange={(event) => {
+                      setJobStatus(event.target.value);
+                      setJobPage(1);
+                    }}
+                  >
+                    <option value="all">All states</option>
+                    <option value="waiting">Waiting</option>
+                    <option value="active">Active</option>
+                    <option value="delayed">Delayed</option>
+                    <option value="failed">Failed</option>
+                    <option value="completed">Completed</option>
                   </select>
-                  <button type="button" className="admin-button" onClick={() => void jobs.refetch()}>{jobs.isFetching ? "Refreshing…" : "Refresh worklist"}</button>
+                  <button
+                    type="button"
+                    className="admin-button"
+                    onClick={() => void jobs.refetch()}
+                  >
+                    {jobs.isFetching ? 'Refreshing…' : 'Refresh worklist'}
+                  </button>
                 </div>
               }
             >
@@ -214,29 +240,99 @@ export default function AdminSystemHealthPage() {
                 <>
                   <div className="admin-table-scroll overflow-x-auto">
                     <table className="admin-table w-full min-w-230 text-left text-sm">
-                      <thead><tr><th>Queue / task</th><th>State</th><th>Attempts</th><th>Started</th><th>Finished</th><th>Failure</th><th>Safe action</th></tr></thead>
+                      <thead>
+                        <tr>
+                          <th>Queue / task</th>
+                          <th>State</th>
+                          <th>Attempts</th>
+                          <th>Started</th>
+                          <th>Finished</th>
+                          <th>Failure</th>
+                          <th>Safe action</th>
+                        </tr>
+                      </thead>
                       <tbody>
                         {jobs.data?.items.map((job) => (
                           <tr key={`${job.queue}-${job.id}`}>
-                            <td><div className="font-semibold capitalize">{job.queue} · {job.name.replaceAll("-", " ")}</div><div className="mt-1 font-mono text-[10px] text-[#817c75]">{job.applicationJobId ?? job.id}</div></td>
-                            <td><AdminStatusBadge value={job.state} /></td>
-                            <td>{job.attemptsMade} / {job.maxAttempts}</td>
-                            <td>{job.processedOn ? new Date(job.processedOn).toLocaleString() : "Not started"}</td>
-                            <td>{job.finishedOn ? new Date(job.finishedOn).toLocaleString() : "—"}</td>
-                            <td className="max-w-70 text-xs text-[#aaa59d]">{job.failedReason || "—"}</td>
                             <td>
-                              {job.state === "failed" ? <div className="flex gap-2"><button className="admin-button" onClick={() => setPendingAction({ job, action: "retry" })}><RotateCcw size={14} /> Retry</button><button className="admin-button text-[#e26767]" onClick={() => setPendingAction({ job, action: "remove" })}><Trash2 size={14} /> Remove</button></div>
-                                : job.state === "completed" ? <button className="admin-button" onClick={() => setPendingAction({ job, action: "remove" })}><Trash2 size={14} /> Remove</button>
-                                  : ["waiting", "delayed"].includes(job.state) ? <button className="admin-button text-[#e26767]" onClick={() => setPendingAction({ job, action: "cancel" })}><XCircle size={14} /> Cancel</button>
-                                    : <span className="text-xs text-[#817c75]">Active · finishing safely</span>}
+                              <div className="font-semibold capitalize">
+                                {job.queue} · {job.name.replaceAll('-', ' ')}
+                              </div>
+                              <div className="mt-1 font-mono text-[10px] text-[#817c75]">
+                                {job.applicationJobId ?? job.id}
+                              </div>
+                            </td>
+                            <td>
+                              <AdminStatusBadge value={job.state} />
+                            </td>
+                            <td>
+                              {job.attemptsMade} / {job.maxAttempts}
+                            </td>
+                            <td>
+                              {job.processedOn
+                                ? new Date(job.processedOn).toLocaleString()
+                                : 'Not started'}
+                            </td>
+                            <td>
+                              {job.finishedOn ? new Date(job.finishedOn).toLocaleString() : '—'}
+                            </td>
+                            <td className="max-w-70 text-xs text-[#aaa59d]">
+                              {job.failedReason || '—'}
+                            </td>
+                            <td>
+                              {job.state === 'failed' ? (
+                                <div className="flex gap-2">
+                                  <button
+                                    className="admin-button"
+                                    onClick={() => setPendingAction({ job, action: 'retry' })}
+                                  >
+                                    <RotateCcw size={14} /> Retry
+                                  </button>
+                                  <button
+                                    className="admin-button text-[#e26767]"
+                                    onClick={() => setPendingAction({ job, action: 'remove' })}
+                                  >
+                                    <Trash2 size={14} /> Remove
+                                  </button>
+                                </div>
+                              ) : job.state === 'completed' ? (
+                                <button
+                                  className="admin-button"
+                                  onClick={() => setPendingAction({ job, action: 'remove' })}
+                                >
+                                  <Trash2 size={14} /> Remove
+                                </button>
+                              ) : ['waiting', 'delayed'].includes(job.state) ? (
+                                <button
+                                  className="admin-button text-[#e26767]"
+                                  onClick={() => setPendingAction({ job, action: 'cancel' })}
+                                >
+                                  <XCircle size={14} /> Cancel
+                                </button>
+                              ) : (
+                                <span className="text-xs text-[#817c75]">
+                                  Active · finishing safely
+                                </span>
+                              )}
                             </td>
                           </tr>
                         ))}
-                        {!jobs.isLoading && !jobs.data?.items.length && <tr><td colSpan={7} className="py-10 text-center text-[#817c75]">No jobs match these filters.</td></tr>}
+                        {!jobs.isLoading && !jobs.data?.items.length && (
+                          <tr>
+                            <td colSpan={7} className="py-10 text-center text-[#817c75]">
+                              No jobs match these filters.
+                            </td>
+                          </tr>
+                        )}
                       </tbody>
                     </table>
                   </div>
-                  <AdminPaginationControls page={jobPage} pages={jobs.data?.pagination.pages ?? 1} label="background jobs" onPageChange={setJobPage} />
+                  <AdminPaginationControls
+                    page={jobPage}
+                    pages={jobs.data?.pagination.pages ?? 1}
+                    label="background jobs"
+                    onPageChange={setJobPage}
+                  />
                 </>
               )}
             </AdminPanel>
@@ -246,9 +342,9 @@ export default function AdminSystemHealthPage() {
                   {data.alerts.map((alert) => (
                     <div
                       key={alert.code}
-                      className={`rounded-lg border p-4 text-sm ${alert.severity === "critical" ? "border-red-500/40 bg-red-500/10 text-red-200" : "border-amber-400/40 bg-amber-400/10 text-amber-100"}`}
+                      className={`rounded-lg border p-4 text-sm ${alert.severity === 'critical' ? 'border-red-500/40 bg-red-500/10 text-red-200' : 'border-amber-400/40 bg-amber-400/10 text-amber-100'}`}
                     >
-                      <strong>{alert.code.replaceAll("_", " ")}</strong>
+                      <strong>{alert.code.replaceAll('_', ' ')}</strong>
                       <p className="mt-1 opacity-80">{alert.message}</p>
                     </div>
                   ))}
@@ -258,11 +354,37 @@ export default function AdminSystemHealthPage() {
           </>
         )
       )}
-      <AdminModal open={Boolean(pendingAction)} onClose={closeAction} preventClose={jobAction.isPending} ariaLabel="Confirm background job action" contentClassName="max-w-md">
-        <h2 className="font-editorial text-2xl font-bold capitalize">{pendingAction?.action} background job?</h2>
-        <p className="mt-2 text-sm leading-6 text-[#aaa59d]">This action is limited to safe queue states. Active work is never force-killed because that can leave partially written data.</p>
-        <AdminActionPasswordField value={actionPassword} onChange={setActionPassword} className="admin-field mt-5" />
-        <div className="mt-6 flex justify-end gap-2"><button className="admin-button" onClick={closeAction}>Cancel</button><button className="admin-primary-button" disabled={!isAdminActionPasswordReady(actionPassword) || jobAction.isPending} onClick={confirmAction}>{jobAction.isPending ? "Working…" : "Confirm"}</button></div>
+      <AdminModal
+        open={Boolean(pendingAction)}
+        onClose={closeAction}
+        preventClose={jobAction.isPending}
+        ariaLabel="Confirm background job action"
+        contentClassName="max-w-md"
+      >
+        <h2 className="font-editorial text-2xl font-bold capitalize">
+          {pendingAction?.action} background job?
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-[#aaa59d]">
+          This action is limited to safe queue states. Active work is never force-killed because
+          that can leave partially written data.
+        </p>
+        <AdminActionPasswordField
+          value={actionPassword}
+          onChange={setActionPassword}
+          className="admin-field mt-5"
+        />
+        <div className="mt-6 flex justify-end gap-2">
+          <button className="admin-button" onClick={closeAction}>
+            Cancel
+          </button>
+          <button
+            className="admin-primary-button"
+            disabled={!isAdminActionPasswordReady(actionPassword) || jobAction.isPending}
+            onClick={confirmAction}
+          >
+            {jobAction.isPending ? 'Working…' : 'Confirm'}
+          </button>
+        </div>
       </AdminModal>
     </main>
   );

@@ -35,21 +35,45 @@ const capitalize = (value: string) => {
 };
 
 const ProfileInputIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    aria-hidden="true"
+  >
     <rect x="3" y="3" width="18" height="18" rx="3" />
     <path d="M9 9h6M9 12h6M9 15h4" />
   </svg>
 );
 
 const SearchIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    aria-hidden="true"
+  >
     <circle cx="11" cy="11" r="8" />
     <line x1="21" y1="21" x2="16.65" y2="16.65" />
   </svg>
 );
 
 const PriorityIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    aria-hidden="true"
+  >
     <line x1="8" y1="6" x2="21" y2="6" />
     <line x1="8" y1="12" x2="21" y2="12" />
     <line x1="8" y1="18" x2="21" y2="18" />
@@ -60,7 +84,15 @@ const PriorityIcon = () => (
 );
 
 const FlagIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    aria-hidden="true"
+  >
     <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
     <line x1="4" y1="22" x2="4" y2="15" />
   </svg>
@@ -177,7 +209,10 @@ export default function OnboardingGeneratingPage() {
   );
   const level = useOnboardingStore((state) => state.step2Data?.level || 'intermediate');
   const { data: jobStatusResponse, error: jobStatusError } = useRoadmapJobStatus(jobId);
-  const jobStatus = useMemo(() => normalizeJobStatus(jobStatusResponse?.data), [jobStatusResponse?.data]);
+  const jobStatus = useMemo(
+    () => normalizeJobStatus(jobStatusResponse?.data),
+    [jobStatusResponse?.data]
+  );
   const statusError =
     jobStatusError?.response?.data?.message ||
     (jobStatusError
@@ -281,10 +316,13 @@ export default function OnboardingGeneratingPage() {
                 Continue in the background
               </span>
               <span className="mt-1 block text-[12px] leading-5 text-(--text-secondary)">
-                Return to your dashboard now. The tracker will remain active and ready when generation finishes.
+                Return to your dashboard now. The tracker will remain active and ready when
+                generation finishes.
               </span>
             </span>
-            <span className="shrink-0 text-xl text-(--brand-500) transition group-hover:translate-x-1">→</span>
+            <span className="shrink-0 text-xl text-(--brand-500) transition group-hover:translate-x-1">
+              →
+            </span>
           </button>
         ) : null}
       </main>

@@ -1,4 +1,4 @@
-import AdminModal from "./AdminModal";
+import AdminModal from './AdminModal';
 
 interface IAdminConfirmDialogProps {
   open: boolean;
@@ -16,8 +16,8 @@ export default function AdminConfirmDialog({
   open,
   title,
   description,
-  confirmText = "Confirm",
-  cancelText = "Cancel",
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
   isLoading = false,
   destructive = false,
   onClose,
@@ -32,9 +32,7 @@ export default function AdminConfirmDialog({
       contentClassName="max-w-md bg-[#1c1a18] text-[#f2f0eb]"
     >
       <h2 className="font-editorial text-xl font-bold sm:text-2xl">{title}</h2>
-      {description && (
-        <p className="mt-3 text-sm leading-6 text-[#aaa59d]">{description}</p>
-      )}
+      {description && <p className="mt-3 text-sm leading-6 text-[#aaa59d]">{description}</p>}
 
       <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <button
@@ -47,11 +45,11 @@ export default function AdminConfirmDialog({
         </button>
         <button
           type="button"
-          className={`${destructive ? "admin-danger-button" : "admin-primary-button"} w-full sm:w-auto`}
+          className={`${destructive ? 'admin-danger-button' : 'admin-primary-button'} w-full sm:w-auto`}
           onClick={onConfirm}
           disabled={isLoading}
         >
-          {isLoading ? "Please wait…" : confirmText}
+          {isLoading ? 'Please wait…' : confirmText}
         </button>
       </div>
     </AdminModal>

@@ -17,10 +17,7 @@ export interface ISendAdminUserMessageUseCase {
 
 export class SendAdminUserMessageUseCase implements ISendAdminUserMessageUseCase {
   constructor(
-    private readonly _repository: Pick<
-      IAdminUsersRepository,
-      'findById' | 'recordAdminMessage'
-    >,
+    private readonly _repository: Pick<IAdminUsersRepository, 'findById' | 'recordAdminMessage'>,
     private readonly _emailProvider: IAdminUserEmailProvider
   ) {}
 

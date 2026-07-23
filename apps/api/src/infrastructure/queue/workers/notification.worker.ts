@@ -17,20 +17,25 @@ type AdminBroadcastJob = {
 
 const recipientFilter = async (input: AdminBroadcastInput) => {
   const filter: Record<string, unknown> = { deletedAt: null, status: 'active' };
-  if (input.audience === 'active') filter.lastActiveAt = { $gte: new Date(Date.now() - 30 * 86400000) };
+  if (input.audience === 'active')
+    filter.lastActiveAt = { $gte: new Date(Date.now() - 30 * 86400000) };
   if (input.audience === 'custom') filter._id = { $in: input.userIds ?? [] };
   if (input.audience === 'pro' || input.audience === 'premium') {
-    filter._id = { $in: await Subscription.distinct('userId', {
-      planId: input.audience,
-      status: 'active',
-      $or: [{ endsAt: null }, { endsAt: { $gt: new Date() } }],
-    }) };
+    filter._id = {
+      $in: await Subscription.distinct('userId', {
+        planId: input.audience,
+        status: 'active',
+        $or: [{ endsAt: null }, { endsAt: { $gt: new Date() } }],
+      }),
+    };
   }
   if (input.audience === 'free') {
-    filter._id = { $nin: await Subscription.distinct('userId', {
-      status: 'active',
-      $or: [{ endsAt: null }, { endsAt: { $gt: new Date() } }],
-    }) };
+    filter._id = {
+      $nin: await Subscription.distinct('userId', {
+        status: 'active',
+        $or: [{ endsAt: null }, { endsAt: { $gt: new Date() } }],
+      }),
+    };
   }
   return filter;
 };
@@ -48,38 +53,50 @@ export const notificationWorker = new Worker<AdminBroadcastJob>(
 
     let recipientCount = 0;
     try {
-      const cursor = User.find(await recipientFilter(input)).select('_id').lean().cursor({ batchSize: 500 });
+      const cursor = User.find(await recipientFilter(input))
+        .select('_id')
+        .lean()
+        .cursor({ batchSize: 500 });
       let batch: Types.ObjectId[] = [];
       const flush = async () => {
         if (!batch.length) return;
-        const optedOut = new Set((await UserSettings.distinct('userId', {
-          userId: { $in: batch },
-          $or: [
-            { 'notifications.globalEnabled': false },
-            { 'notifications.types.adminBroadcasts': false },
-          ],
-        })).map(String));
+        const optedOut = new Set(
+          (
+            await UserSettings.distinct('userId', {
+              userId: { $in: batch },
+              $or: [
+                { 'notifications.globalEnabled': false },
+                { 'notifications.types.adminBroadcasts': false },
+              ],
+            })
+          ).map(String)
+        );
         const recipients = batch.filter((id) => !optedOut.has(String(id)));
         if (recipients.length) {
-          await Notification.bulkWrite(recipients.map((userId) => ({
-            updateOne: {
-              filter: { userId, type: 'admin_broadcast', 'metadata.broadcastId': broadcastId },
-              update: { $setOnInsert: {
-                userId,
-                type: 'admin_broadcast',
-                message: `${input.title}: ${input.message}`,
-                isRead: false,
-                deepLink: input.deepLink || undefined,
-                metadata: {
-                  title: input.title,
-                  audience: input.audience,
-                  broadcastId,
-                  ...(input.poll ? { poll: input.poll } : {}),
+          await Notification.bulkWrite(
+            recipients.map((userId) => ({
+              updateOne: {
+                filter: { userId, type: 'admin_broadcast', 'metadata.broadcastId': broadcastId },
+                update: {
+                  $setOnInsert: {
+                    userId,
+                    type: 'admin_broadcast',
+                    message: `${input.title}: ${input.message}`,
+                    isRead: false,
+                    deepLink: input.deepLink || undefined,
+                    metadata: {
+                      title: input.title,
+                      audience: input.audience,
+                      broadcastId,
+                      ...(input.poll ? { poll: input.poll } : {}),
+                    },
+                  },
                 },
-              } },
-              upsert: true,
-            },
-          })), { ordered: false });
+                upsert: true,
+              },
+            })),
+            { ordered: false }
+          );
           for (const userId of recipients) {
             emitNotificationCreated(String(userId), 'admin_broadcast');
           }

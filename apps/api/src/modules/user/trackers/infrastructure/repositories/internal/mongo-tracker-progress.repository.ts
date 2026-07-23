@@ -294,8 +294,9 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
               .lean<MongoTopicContentRecord[]>()
           : [];
         const sourceSignatures = new Set(
-          sourceTopics.map((topic) =>
-            `${topic.title.trim().toLowerCase()}\u0000${(topic.description ?? '').trim().toLowerCase()}`
+          sourceTopics.map(
+            (topic) =>
+              `${topic.title.trim().toLowerCase()}\u0000${(topic.description ?? '').trim().toLowerCase()}`
           )
         );
 

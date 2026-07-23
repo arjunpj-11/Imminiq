@@ -41,6 +41,7 @@ const routeLabels: Array<[RegExp, string]> = [
   [beginsWith(ROUTES.community), 'Community'],
   [beginsWith(ROUTES.leaderboard), 'Leaderboard'],
   [beginsWith(ROUTES.activity), 'Activity'],
+  [beginsWith(ROUTES.chat), 'Social'],
   [beginsWith(ROUTES.friendsSearch), 'Find people'],
   [beginsWith(ROUTES.friends), 'Friends'],
   [beginsWith(ROUTES.settingsRoot), 'Settings'],
@@ -80,7 +81,7 @@ const BellIcon = () => (
   </svg>
 );
 
-const FriendIcon = () => (
+const ChatIcon = () => (
   <svg
     width="15"
     height="15"
@@ -90,10 +91,8 @@ const FriendIcon = () => (
     strokeWidth="2"
     aria-hidden="true"
   >
-    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-    <circle cx="9" cy="7" r="4" />
-    <path d="M23 21v-2a4 4 0 00-3-3.87" />
-    <path d="M16 3.13a4 4 0 010 7.75" />
+    <path d="M21 15a4 4 0 01-4 4H8l-5 3V7a4 4 0 014-4h10a4 4 0 014 4z" />
+    <path d="M8 9h8M8 13h5" />
   </svg>
 );
 
@@ -115,6 +114,7 @@ export default function TopBar({
   userLevel = 'Free Scholar',
   isGuest = false,
   notificationCount = 0,
+  messageCount = 0,
   friendRequestCount = 0,
 }: ITopBarProps) {
   const location = useLocation();
@@ -320,16 +320,16 @@ export default function TopBar({
               </div>
 
               <Link
-                to={ROUTES.friends}
+                to={ROUTES.chat}
                 className={iconClass}
                 aria-label={
-                  friendRequestCount
-                    ? `${friendRequestCount} pending friend requests`
-                    : 'Open friends'
+                  messageCount || friendRequestCount
+                    ? `${messageCount} unread messages and ${friendRequestCount} pending friend requests`
+                    : 'Open chats'
                 }
               >
-                <FriendIcon />
-                <CountBadge count={friendRequestCount} />
+                <ChatIcon />
+                <CountBadge count={messageCount + friendRequestCount} />
               </Link>
               <Link
                 to={ROUTES.notifications}

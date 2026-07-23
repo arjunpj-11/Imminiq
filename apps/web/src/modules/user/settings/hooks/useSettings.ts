@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
+import { socket } from '../../../../lib/socket';
 import { SETTINGS_API_PATHS } from '../constants/settings-tabs.constants';
 import { settingsKeys } from './settings.query-keys';
 import type {
@@ -80,14 +81,20 @@ export const usePrivacySettings = () =>
 export const useDataPrivacyRequests = () =>
   useQuery({
     queryKey: settingsKeys.privacyRequests(),
-    queryFn: async () => unwrap((await api.get<IApiEnvelope<DataPrivacyRequest[]>>(SETTINGS_API_PATHS.privacyRequests))),
+    queryFn: async () =>
+      unwrap(await api.get<IApiEnvelope<DataPrivacyRequest[]>>(SETTINGS_API_PATHS.privacyRequests)),
   });
 
 export const useSubmitDataPrivacyRequest = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: { type: DataPrivacyRequest['type']; details: string }) =>
-      unwrap(await api.post<IApiEnvelope<DataPrivacyRequest>>(SETTINGS_API_PATHS.privacyRequests, payload)),
+      unwrap(
+        await api.post<IApiEnvelope<DataPrivacyRequest>>(
+          SETTINGS_API_PATHS.privacyRequests,
+          payload
+        )
+      ),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: settingsKeys.privacyRequests() }),
   });
 };
@@ -96,7 +103,11 @@ export const useCancelDataPrivacyRequest = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (requestId: string) =>
-      unwrap(await api.delete<IApiEnvelope<DataPrivacyRequest>>(SETTINGS_API_PATHS.privacyRequest(requestId))),
+      unwrap(
+        await api.delete<IApiEnvelope<DataPrivacyRequest>>(
+          SETTINGS_API_PATHS.privacyRequest(requestId)
+        )
+      ),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: settingsKeys.privacyRequests() }),
   });
 };
@@ -127,8 +138,9 @@ export const useUpdatePrivacy = () =>
       SETTINGS_API_PATHS.privacy,
       payload
     );
-
-    return unwrap(response);
+    const settings = unwrap(response);
+    if (socket.connected) socket.emit('chat:presence:refresh');
+    return settings;
   });
 
 export const useResetSettings = () => {
@@ -136,8 +148,9 @@ export const useResetSettings = () => {
   return useMutation({
     mutationFn: async () => {
       const response = await api.post<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.reset);
-
-      return unwrap(response);
+      const settings = unwrap(response);
+      if (socket.connected) socket.emit('chat:presence:refresh');
+      return settings;
     },
 
     onSuccess: async (settings) => {

@@ -19,48 +19,58 @@ import { Notification } from '../infrastructure/database/models/notification.mod
 const migrate = async () => {
   await connectDB();
 
-  const [mockTestBackfill, trackerBackfill, trackerVersionBackfill, userTagBackfill, voteBackfill] = await Promise.all([
-    MockTestModel.updateMany(
-      {
-        $or: [{ moderationStatus: { $exists: false } }, { moderationStatus: null }],
-      },
-      { $set: { moderationStatus: 'active' } }
-    ),
-    Tracker.updateMany(
-      {
-        $or: [{ moderationStatus: { $exists: false } }, { moderationStatus: null }],
-      },
-      { $set: { moderationStatus: 'active' } }
-    ),
-    Tracker.updateMany({ $or: [{ version: { $exists: false } }, { version: null }] }, { $set: { version: 1 } }),
-    User.updateMany({ adminTags: { $exists: false } }, { $set: { adminTags: [] } }),
-    CommunityVerificationSubmission.updateMany({ adminVotes: { $exists: false } }, { $set: { adminVotes: [] } }),
-  ]);
+  const [mockTestBackfill, trackerBackfill, trackerVersionBackfill, userTagBackfill, voteBackfill] =
+    await Promise.all([
+      MockTestModel.updateMany(
+        {
+          $or: [{ moderationStatus: { $exists: false } }, { moderationStatus: null }],
+        },
+        { $set: { moderationStatus: 'active' } }
+      ),
+      Tracker.updateMany(
+        {
+          $or: [{ moderationStatus: { $exists: false } }, { moderationStatus: null }],
+        },
+        { $set: { moderationStatus: 'active' } }
+      ),
+      Tracker.updateMany(
+        { $or: [{ version: { $exists: false } }, { version: null }] },
+        { $set: { version: 1 } }
+      ),
+      User.updateMany({ adminTags: { $exists: false } }, { $set: { adminTags: [] } }),
+      CommunityVerificationSubmission.updateMany(
+        { adminVotes: { $exists: false } },
+        { $set: { adminVotes: [] } }
+      ),
+    ]);
 
   await Promise.all([
     MockTestModel.updateMany({}, { $unset: { visibility: '' } }),
     MockTestCreationSessionModel.updateMany({}, { $unset: { 'draftData.visibility': '' } }),
     User.updateMany({}, { $unset: { verificationExpiresAt: '' } }),
     AdminConsoleSettings.updateMany({}, { $unset: { supportEmail: '', auditRetentionDays: '' } }),
-    UserSettings.updateMany({}, {
-      $unset: {
-        account: '',
-        email: '',
-        push: '',
-        editor: '',
-        compiler: '',
-        aiBehaviour: '',
-        learningJourney: '',
-        gestures: '',
-        cookieConsent: '',
-        termsAcceptedAt: '',
-        'notifications.emailDigest': '',
-        'notifications.quietHours': '',
-        'notifications.marketing': '',
-        'privacy.profileVisibility': '',
-        'privacy.allowMessages': '',
-      },
-    }),
+    UserSettings.updateMany(
+      {},
+      {
+        $unset: {
+          account: '',
+          email: '',
+          push: '',
+          editor: '',
+          compiler: '',
+          aiBehaviour: '',
+          learningJourney: '',
+          gestures: '',
+          cookieConsent: '',
+          termsAcceptedAt: '',
+          'notifications.emailDigest': '',
+          'notifications.quietHours': '',
+          'notifications.marketing': '',
+          'privacy.profileVisibility': '',
+          'privacy.allowMessages': '',
+        },
+      }
+    ),
   ]);
 
   await Promise.all([

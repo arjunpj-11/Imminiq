@@ -75,11 +75,13 @@ const normalizeSuggestions = (value: unknown, depth = 0): TrackerOutlineNode[] =
     if (!isRecord(item)) return [];
     const title = getString(item, ['title']);
     if (!title) return [];
-    return [{
-      title,
-      description: getString(item, ['description']) || '',
-      subtopics: normalizeSuggestions(item.subtopics ?? item.children, depth + 1),
-    }];
+    return [
+      {
+        title,
+        description: getString(item, ['description']) || '',
+        subtopics: normalizeSuggestions(item.subtopics ?? item.children, depth + 1),
+      },
+    ];
   });
 };
 

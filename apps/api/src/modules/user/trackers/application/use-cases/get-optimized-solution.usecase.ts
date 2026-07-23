@@ -1,6 +1,4 @@
-import type {
-  GetOptimizedSolutionPayloadDTO,
-} from '../tracker.dto';
+import type { GetOptimizedSolutionPayloadDTO } from '../tracker.dto';
 import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
@@ -19,10 +17,7 @@ export class GetOptimizedSolutionUseCase implements IGetOptimizedSolutionUseCase
       ITrackerRepository,
       'findGeneratedLessonBySubtopic' | 'findOwnedTrackerById'
     >,
-    private readonly _trackerAIGateway: Pick<
-      ITrackerAIGateway,
-      'generateOptimizedCodeSolution'
-    >,
+    private readonly _trackerAIGateway: Pick<ITrackerAIGateway, 'generateOptimizedCodeSolution'>,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 

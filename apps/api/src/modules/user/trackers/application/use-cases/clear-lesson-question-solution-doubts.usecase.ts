@@ -4,16 +4,15 @@ import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { IQuestionHasher } from '../../domain/services/question-hasher.interface';
-import type {
-  ClearLessonHistoryResultDTO,
-  LessonQuestionPayloadDTO,
-} from '../tracker.dto';
+import type { ClearLessonHistoryResultDTO, LessonQuestionPayloadDTO } from '../tracker.dto';
 
 export interface IClearLessonQuestionSolutionDoubtsUseCase {
   execute(input: LessonQuestionPayloadDTO): Promise<ClearLessonHistoryResultDTO>;
 }
 
-export class ClearLessonQuestionSolutionDoubtsUseCase implements IClearLessonQuestionSolutionDoubtsUseCase {
+export class ClearLessonQuestionSolutionDoubtsUseCase
+  implements IClearLessonQuestionSolutionDoubtsUseCase
+{
   constructor(
     private readonly _trackerRepository: Pick<
       ITrackerRepository,
@@ -23,9 +22,7 @@ export class ClearLessonQuestionSolutionDoubtsUseCase implements IClearLessonQue
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(
-    input: LessonQuestionPayloadDTO
-  ): Promise<ClearLessonHistoryResultDTO> {
+  async execute(input: LessonQuestionPayloadDTO): Promise<ClearLessonHistoryResultDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

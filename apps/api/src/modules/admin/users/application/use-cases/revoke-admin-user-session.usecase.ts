@@ -1,10 +1,7 @@
 import type { AdminActor } from '../../../../../shared/admin';
 import type { IAdminUsersRepository } from '../../domain/repositories/admin-users.repository.interface';
 import { AdminUsersApplicationError } from '../admin-users-application.error';
-import type {
-  AdminRequestContextDTO,
-  RevokeAdminUserSessionResultDTO,
-} from '../admin-users.dto';
+import type { AdminRequestContextDTO, RevokeAdminUserSessionResultDTO } from '../admin-users.dto';
 
 export interface IRevokeAdminUserSessionUseCase {
   execute(

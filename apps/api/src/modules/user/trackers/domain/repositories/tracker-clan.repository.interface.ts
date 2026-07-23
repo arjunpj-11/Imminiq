@@ -26,10 +26,7 @@ export interface ITrackerClanRepository {
     actorId: string;
     memberId: string;
   }): Promise<TrackerClanOverview | null>;
-  leaveClan(input: {
-    trackerId: string;
-    userId: string;
-  }): Promise<TrackerClanOverview | null>;
+  leaveClan(input: { trackerId: string; userId: string }): Promise<TrackerClanOverview | null>;
   transferOwnership(input: {
     trackerId: string;
     ownerId: string;

@@ -1,8 +1,11 @@
 import { Router } from 'express';
 
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
-import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
-import { validate, validateIdentifierParam } from '../../../../shared/middlewares/validate.middleware';
+import { authenticatedApiUserLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
+import {
+  validate,
+  validateIdentifierParam,
+} from '../../../../shared/middlewares/validate.middleware';
 import { TrackerCreationController } from './tracker-creation.controller';
 import type { TrackerCreationUseCases } from '../application/tracker-creation-use-cases.contract';
 import { TRACKER_CREATION_ROUTE_PATHS } from './tracker-creation.route.constants';
@@ -25,7 +28,7 @@ export const createTrackerCreationRoutes = (
 
   // ─── PROTECTED ────────────────────────────────────────────────
 
-  router.use(authenticatedApiIpLimiter, authenticate);
+  router.use(authenticate, authenticatedApiUserLimiter);
 
   router.post(
     TRACKER_CREATION_ROUTE_PATHS.TRACKER_INTAKE,
@@ -33,9 +36,17 @@ export const createTrackerCreationRoutes = (
     trackerCreationController.continueTrackerIntake
   );
 
-  router.post(TRACKER_CREATION_ROUTE_PATHS.STEP_1, validate(step1Schema), trackerCreationController.saveStep1);
+  router.post(
+    TRACKER_CREATION_ROUTE_PATHS.STEP_1,
+    validate(step1Schema),
+    trackerCreationController.saveStep1
+  );
 
-  router.post(TRACKER_CREATION_ROUTE_PATHS.STEP_2, validate(step2Schema), trackerCreationController.saveStep2);
+  router.post(
+    TRACKER_CREATION_ROUTE_PATHS.STEP_2,
+    validate(step2Schema),
+    trackerCreationController.saveStep2
+  );
 
   router.post(
     TRACKER_CREATION_ROUTE_PATHS.GENERATE_ROADMAP,
@@ -44,7 +55,10 @@ export const createTrackerCreationRoutes = (
     trackerCreationController.generateRoadmap
   );
 
-  router.get(TRACKER_CREATION_ROUTE_PATHS.ACTIVE_ROADMAP_JOB, trackerCreationController.getActiveRoadmapJob);
+  router.get(
+    TRACKER_CREATION_ROUTE_PATHS.ACTIVE_ROADMAP_JOB,
+    trackerCreationController.getActiveRoadmapJob
+  );
 
   router.get(TRACKER_CREATION_ROUTE_PATHS.JOB_STATUS, trackerCreationController.getJobStatus);
 
@@ -56,7 +70,10 @@ export const createTrackerCreationRoutes = (
     trackerCreationController.evaluateRoadmap
   );
 
-  router.get(TRACKER_CREATION_ROUTE_PATHS.EVALUATION_RESULT, trackerCreationController.getEvaluationResult);
+  router.get(
+    TRACKER_CREATION_ROUTE_PATHS.EVALUATION_RESULT,
+    trackerCreationController.getEvaluationResult
+  );
 
   router.post(
     TRACKER_CREATION_ROUTE_PATHS.ANALYZE_CLONED_TRACKER,

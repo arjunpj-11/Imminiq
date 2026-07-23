@@ -3,10 +3,7 @@ import type { PaginationQueryDTO, PublishedTrackersPageDTO } from '../users.dto'
 import type { IUsersMapper } from '../users.mapper';
 
 export interface IGetMyPublishedTrackersUseCase {
-  execute(
-    userId: string,
-    query: PaginationQueryDTO
-  ): Promise<PublishedTrackersPageDTO>;
+  execute(userId: string, query: PaginationQueryDTO): Promise<PublishedTrackersPageDTO>;
 }
 
 export class GetMyPublishedTrackersUseCase implements IGetMyPublishedTrackersUseCase {

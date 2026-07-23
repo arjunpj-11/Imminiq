@@ -1,11 +1,11 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import api from "../../../../lib/axios";
-import { toast } from "../../../../lib/toast";
-import { adminDashboardKeys } from "../../dashboard";
-import { adminUsersKeys } from "./admin-users.query-keys";
-import { ADMIN_USERS_ENDPOINTS } from "../constants/admin-users.constants";
-import type { AdminUserStatusPayload } from "../types/admin-users.types";
+import api from '../../../../lib/axios';
+import { toast } from '../../../../lib/toast';
+import { adminDashboardKeys } from '../../dashboard';
+import { adminUsersKeys } from './admin-users.query-keys';
+import { ADMIN_USERS_ENDPOINTS } from '../constants/admin-users.constants';
+import type { AdminUserStatusPayload } from '../types/admin-users.types';
 
 export const useSetAdminUserStatus = (userId: string) => {
   const queryClient = useQueryClient();
@@ -15,17 +15,17 @@ export const useSetAdminUserStatus = (userId: string) => {
       const { actionPassword, ...payload } = input;
       return (
         await api.patch(ADMIN_USERS_ENDPOINTS.status(userId), payload, {
-          headers: actionPassword ? { "X-Admin-Action-Password": actionPassword } : undefined,
+          headers: actionPassword ? { 'X-Admin-Action-Password': actionPassword } : undefined,
         })
       ).data;
     },
     onMutate: (input) => ({
       toastId: toast.loading(
-        input.status === "blocked"
-          ? "Blocking user…"
-          : input.status === "paused"
-            ? "Suspending user…"
-            : "Restoring user…",
+        input.status === 'blocked'
+          ? 'Blocking user…'
+          : input.status === 'paused'
+            ? 'Suspending user…'
+            : 'Restoring user…'
       ),
     }),
     onSuccess: async () => {
@@ -34,7 +34,6 @@ export const useSetAdminUserStatus = (userId: string) => {
         queryClient.invalidateQueries({ queryKey: adminDashboardKeys.all }),
       ]);
     },
-    onSettled: (_data, _error, _input, context) =>
-      context && toast.dismiss(context.toastId),
+    onSettled: (_data, _error, _input, context) => context && toast.dismiss(context.toastId),
   });
 };

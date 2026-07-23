@@ -10,9 +10,6 @@ export const useContentModerationAppeals = () =>
   useQuery({
     queryKey: moderationKeys.content(),
     queryFn: async () =>
-      (
-        await api.get<ApiEnvelope<ContentModerationAppeal[]>>(
-          MODERATION_APPEAL_ENDPOINTS.content,
-        )
-      ).data.data,
+      (await api.get<ApiEnvelope<ContentModerationAppeal[]>>(MODERATION_APPEAL_ENDPOINTS.content))
+        .data.data,
   });

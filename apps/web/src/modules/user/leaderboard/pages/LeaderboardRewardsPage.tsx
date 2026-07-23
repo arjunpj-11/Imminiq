@@ -41,8 +41,7 @@ export default function LeaderboardRewardsPage() {
               eyebrow="Arena guide"
               title={
                 <>
-                Rewards &{' '}
-                <span className="text-(--brand-500)">Scoring</span>
+                  Rewards & <span className="text-(--brand-500)">Scoring</span>
                 </>
               }
               description="Understand how focused work becomes XP and what you can unlock by reaching the weekly leaderboard target."

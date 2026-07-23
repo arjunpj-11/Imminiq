@@ -169,21 +169,34 @@ export default function CommunityBrowsePage() {
                   )}
                 </div>
 
-                <aside className="rounded-2xl border border-[rgba(184,76,43,0.18)] bg-[color-mix(in_srgb,var(--surface-elevated)_86%,var(--brand-500)_4%)] p-5 shadow-(--shadow-1)" aria-label="Live community activity">
+                <aside
+                  className="rounded-2xl border border-[rgba(184,76,43,0.18)] bg-[color-mix(in_srgb,var(--surface-elevated)_86%,var(--brand-500)_4%)] p-5 shadow-(--shadow-1)"
+                  aria-label="Live community activity"
+                >
                   <div className="flex items-center justify-between gap-4">
-                    <div className="font-ui text-[17px] font-extrabold text-(--text-primary)">Live community</div>
+                    <div className="font-ui text-[17px] font-extrabold text-(--text-primary)">
+                      Live community
+                    </div>
                     <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-(--success)">
                       <span className="h-1.5 w-1.5 rounded-full bg-(--success)" /> Active
                     </span>
                   </div>
                   <div className="mt-5 grid grid-cols-2 gap-3">
                     <div className="rounded-xl border border-(--border-subtle) bg-(--surface-card) p-3.5">
-                      <div className="font-mono text-[10px] uppercase tracking-wider text-(--text-muted)">Awaiting review</div>
-                      <div className="mt-2 font-ui text-2xl font-extrabold text-(--brand-500)">{browse.data.verifyBanner.queueCount}</div>
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-(--text-muted)">
+                        Awaiting review
+                      </div>
+                      <div className="mt-2 font-ui text-2xl font-extrabold text-(--brand-500)">
+                        {browse.data.verifyBanner.queueCount}
+                      </div>
                     </div>
                     <div className="rounded-xl border border-(--border-subtle) bg-(--surface-card) p-3.5">
-                      <div className="font-mono text-[10px] uppercase tracking-wider text-(--text-muted)">Weekly reviewers</div>
-                      <div className="mt-2 font-ui text-2xl font-extrabold text-(--success)">{browse.data.verifyBanner.activeReviewersThisWeek}</div>
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-(--text-muted)">
+                        Weekly reviewers
+                      </div>
+                      <div className="mt-2 font-ui text-2xl font-extrabold text-(--success)">
+                        {browse.data.verifyBanner.activeReviewersThisWeek}
+                      </div>
                     </div>
                   </div>
                   <p className="mt-4 text-[12px] leading-5 text-(--text-secondary)">
@@ -214,8 +227,12 @@ export default function CommunityBrowsePage() {
 
             <div className="flex flex-wrap items-end justify-between gap-3 pt-2">
               <div>
-                <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-(--brand-500)">Browse library</div>
-                <h2 className="mt-1 font-ui text-[24px] font-extrabold tracking-[-0.5px] text-(--text-primary)">Find your next roadmap</h2>
+                <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-(--brand-500)">
+                  Browse library
+                </div>
+                <h2 className="mt-1 font-ui text-[24px] font-extrabold tracking-[-0.5px] text-(--text-primary)">
+                  Find your next roadmap
+                </h2>
               </div>
               <span className="font-mono text-[11px] uppercase tracking-widest text-(--text-muted)">
                 {browse.data.pagination.total} result{browse.data.pagination.total !== 1 ? 's' : ''}

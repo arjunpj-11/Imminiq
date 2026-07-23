@@ -1,7 +1,4 @@
-import type {
-  LessonCodeExecutionDTO,
-  RunLessonCodePayloadDTO,
-} from '../tracker.dto';
+import type { LessonCodeExecutionDTO, RunLessonCodePayloadDTO } from '../tracker.dto';
 // apps/api/src/modules/user/trackers/application/use-cases/run-lesson-code.usecase.ts
 
 import { TrackerApplicationError } from '../tracker-application.error';

@@ -1,9 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "../../../../lib/axios";
-import { toast } from "../../../../lib/toast";
-import { getUserFacingError } from "../../../../lib/user-facing-error";
-import { ADMIN_USERS_ENDPOINTS } from "../constants/admin-users.constants";
-import { adminUsersKeys } from "./admin-users.query-keys";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '../../../../lib/axios';
+import { toast } from '../../../../lib/toast';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { ADMIN_USERS_ENDPOINTS } from '../constants/admin-users.constants';
+import { adminUsersKeys } from './admin-users.query-keys';
 export const useUpdateAdminPrivacyRequest = () => {
   const client = useQueryClient();
   return useMutation({
@@ -15,7 +15,7 @@ export const useUpdateAdminPrivacyRequest = () => {
       actionPassword,
     }: {
       id: string;
-      status: "in_progress" | "completed" | "rejected";
+      status: 'in_progress' | 'completed' | 'rejected';
       resolutionNote: string;
       downloadUrl?: string;
       actionPassword?: string;
@@ -23,14 +23,14 @@ export const useUpdateAdminPrivacyRequest = () => {
       api.patch(
         ADMIN_USERS_ENDPOINTS.privacyRequest(id),
         { status, resolutionNote, downloadUrl: downloadUrl || undefined },
-        { headers: actionPassword ? { "X-Admin-Action-Password": actionPassword } : undefined },
+        { headers: actionPassword ? { 'X-Admin-Action-Password': actionPassword } : undefined }
       ),
     onSuccess: async () => {
-      toast.success("Privacy request updated");
+      toast.success('Privacy request updated');
       await client.invalidateQueries({
         queryKey: adminUsersKeys.privacyRequests(),
       });
     },
-    onError: (error) => toast.error("Update failed", getUserFacingError(error)),
+    onError: (error) => toast.error('Update failed', getUserFacingError(error)),
   });
 };

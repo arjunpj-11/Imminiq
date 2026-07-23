@@ -53,10 +53,12 @@ export class TrackerClanChallengeService implements ITrackerClanChallengeService
   }
 
   async create(input: CreateTrackerClanChallengePayloadDTO) {
-    if (!await this._clans.canCreateChallenge({
-      challengerId: input.userId,
-      opponentId: input.opponentId,
-    })) {
+    if (
+      !(await this._clans.canCreateChallenge({
+        challengerId: input.userId,
+        opponentId: input.opponentId,
+      }))
+    ) {
       throw TrackerApplicationError.forbidden(
         'Finish your current guild battle before starting another challenge'
       );
@@ -193,19 +195,31 @@ export class TrackerClanChallengeService implements ITrackerClanChallengeService
   }
 
   async chooseCheckpoint(input: ChooseTrackerClanCheckpointPayloadDTO) {
-    const challenge = this.announce(input.trackerId, await this._clans.chooseChallengeCheckpoint(input), 'This checkpoint decision is no longer available');
+    const challenge = this.announce(
+      input.trackerId,
+      await this._clans.chooseChallengeCheckpoint(input),
+      'This checkpoint decision is no longer available'
+    );
     await this.notifyCompletion(challenge);
     return challenge;
   }
 
   async answerNode(input: AnswerTrackerClanNodePayloadDTO) {
-    const challenge = this.announce(input.trackerId, await this._clans.answerChallengeNode(input), 'This battle cannot accept that answer');
+    const challenge = this.announce(
+      input.trackerId,
+      await this._clans.answerChallengeNode(input),
+      'This battle cannot accept that answer'
+    );
     await this.notifyCompletion(challenge);
     return challenge;
   }
 
   async usePower(input: TrackerClanChallengeAccessPayloadDTO) {
-    return this.announce(input.trackerId, await this._clans.useChallengePower(input), 'No push-back power is available');
+    return this.announce(
+      input.trackerId,
+      await this._clans.useChallengePower(input),
+      'No push-back power is available'
+    );
   }
 
   private announce(trackerId: string, challenge: TrackerClanChallenge | null, message: string) {
@@ -245,9 +259,8 @@ export class TrackerClanChallengeService implements ITrackerClanChallengeService
     questionCount: number,
     durationMinutes: number
   ) {
-    const batchSizes = Array.from(
-      { length: Math.ceil(questionCount / 10) },
-      (_, index) => Math.min(10, questionCount - index * 10)
+    const batchSizes = Array.from({ length: Math.ceil(questionCount / 10) }, (_, index) =>
+      Math.min(10, questionCount - index * 10)
     );
     const batches = await Promise.all(
       batchSizes.map((batchSize) =>

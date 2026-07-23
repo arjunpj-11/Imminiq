@@ -20,7 +20,9 @@ interface ILoginPayload {
 }
 
 type LoginRedirectPath =
-  typeof ROUTES.dashboard | typeof ROUTES.trackerCreate | typeof ADMIN_ROUTES.dashboard;
+  | typeof ROUTES.dashboard
+  | typeof ROUTES.trackerCreate
+  | typeof ADMIN_ROUTES.dashboard;
 
 interface IStandardLoginData {
   accessToken?: string;

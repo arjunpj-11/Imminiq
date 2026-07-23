@@ -97,9 +97,7 @@ export const loginFixtureUser = async (
     typeof response.body?.data?.accessToken === 'string' ? response.body.data.accessToken : '';
 
   if (!accessToken) {
-    throw new Error(
-      `Fixture login did not return access token: ${JSON.stringify(response.body)}`
-    );
+    throw new Error(`Fixture login did not return access token: ${JSON.stringify(response.body)}`);
   }
 
   const cookieHeader = readSetCookies(response.headers['set-cookie']);

@@ -45,7 +45,8 @@ type RequesterRecord = {
   avatarUrl?: string | null;
 };
 
-const toObjectId = (value: string) => (Types.ObjectId.isValid(value) ? new Types.ObjectId(value) : null);
+const toObjectId = (value: string) =>
+  Types.ObjectId.isValid(value) ? new Types.ObjectId(value) : null;
 
 export class MongoTrackerTopicContributionRepository
   implements ITrackerTopicContributionRepository
@@ -89,7 +90,8 @@ export class MongoTrackerTopicContributionRepository
       .lean();
     const topicSignature = this.topicSignature(topic.title, topic.description);
     const matchesOriginalTopic = sourceTopics.some(
-      (sourceTopic) => this.topicSignature(sourceTopic.title, sourceTopic.description) === topicSignature
+      (sourceTopic) =>
+        this.topicSignature(sourceTopic.title, sourceTopic.description) === topicSignature
     );
     if (topic.sourceTopicId || matchesOriginalTopic) {
       return { ok: false as const, reason: 'not-a-change' as const };
@@ -156,7 +158,11 @@ export class MongoTrackerTopicContributionRepository
       .lean();
     if (!tracker) return { ok: false as const, reason: 'tracker-not-found' as const };
 
-    const role = await this.getClanRole(sourceTrackerId, (tracker as { ownerId?: unknown }).ownerId, ownerId);
+    const role = await this.getClanRole(
+      sourceTrackerId,
+      (tracker as { ownerId?: unknown }).ownerId,
+      ownerId
+    );
     const ownsClone = Boolean(tracker.sourceTrackerId) && role === 'owner';
     if (!ownsClone && role !== 'owner' && role !== 'co_owner') {
       return { ok: false as const, reason: 'tracker-not-found' as const };
@@ -318,10 +324,7 @@ export class MongoTrackerTopicContributionRepository
     }
   }
 
-  private async reviewFailure(
-    contributionId: Types.ObjectId,
-    sourceTrackerId: Types.ObjectId,
-  ) {
+  private async reviewFailure(contributionId: Types.ObjectId, sourceTrackerId: Types.ObjectId) {
     const existing = await TrackerTopicContribution.findOne({
       _id: contributionId,
       sourceTrackerId,
@@ -329,8 +332,8 @@ export class MongoTrackerTopicContributionRepository
       .select('status')
       .lean<{ status?: string }>();
     return existing
-      ? ({ ok: false as const, reason: 'already-reviewed' as const })
-      : ({ ok: false as const, reason: 'contribution-not-found' as const });
+      ? { ok: false as const, reason: 'already-reviewed' as const }
+      : { ok: false as const, reason: 'contribution-not-found' as const };
   }
 
   private async findRequester(id: unknown): Promise<RequesterRecord | null> {
@@ -374,12 +377,18 @@ export class MongoTrackerTopicContributionRepository
     };
   }
 
-  private async getClanRole(trackerId: Types.ObjectId, trackerOwnerId: unknown, userId: Types.ObjectId) {
+  private async getClanRole(
+    trackerId: Types.ObjectId,
+    trackerOwnerId: unknown,
+    userId: Types.ObjectId
+  ) {
     if (String(trackerOwnerId) === String(userId)) return 'owner' as const;
     const clan = await TrackerClan.findOne({ trackerId, 'members.userId': userId })
       .select('members')
       .lean<{ members?: Array<{ userId: unknown; role: 'co_owner' | 'member' }> }>();
-    return clan?.members?.find((member) => String(member.userId) === String(userId))?.role ?? 'outsider';
+    return (
+      clan?.members?.find((member) => String(member.userId) === String(userId))?.role ?? 'outsider'
+    );
   }
 
   private topicSignature(title: string, description?: string | null) {

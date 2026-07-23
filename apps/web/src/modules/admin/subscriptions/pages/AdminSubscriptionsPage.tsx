@@ -1,7 +1,7 @@
-import { AlertTriangle, Download, FileText, LoaderCircle, X } from "lucide-react";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
-import type { UseQueryResult } from "@tanstack/react-query";
-import { useSearchParams } from "react-router-dom";
+import { AlertTriangle, Download, FileText, LoaderCircle, X } from 'lucide-react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import type { UseQueryResult } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import {
   AdminEmpty,
   AdminError,
@@ -17,58 +17,54 @@ import {
   AdminTableSkeleton,
   downloadCsv,
   downloadTablePdf,
-} from "../../../../components/admin";
-import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
-import { getUserFacingError } from "../../../../lib/user-facing-error";
-import { toast } from "../../../../lib/toast";
-import Modal from "../../../../components/admin/AdminModal";
-import { ADMIN_SUBSCRIPTION_STATUS_OPTIONS } from "../constants/admin-subscriptions.constants";
-import { useAdminSubscriptions } from "../hooks/useAdminSubscriptions";
-import { useExportAdminSubscriptions } from "../hooks/useExportAdminSubscriptions";
-import { useUpdateAdminPlan } from "../hooks/useUpdateAdminPlan";
+} from '../../../../components/admin';
+import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { toast } from '../../../../lib/toast';
+import Modal from '../../../../components/admin/AdminModal';
+import { ADMIN_SUBSCRIPTION_STATUS_OPTIONS } from '../constants/admin-subscriptions.constants';
+import { useAdminSubscriptions } from '../hooks/useAdminSubscriptions';
+import { useExportAdminSubscriptions } from '../hooks/useExportAdminSubscriptions';
+import { useUpdateAdminPlan } from '../hooks/useUpdateAdminPlan';
 import type {
   AdminSubscriptionPlan,
   AdminSubscriptionOverview,
   AdminPlanLimitField,
   AdminSubscriptionItem,
   AdminSubscriptionPlanInput,
-} from "../types/admin-subscriptions.types";
-import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
+} from '../types/admin-subscriptions.types';
+import AdminActionPasswordField from '../../../../components/admin/AdminActionPasswordField';
+import { isAdminActionPasswordReady } from '../../../../lib/admin/admin-action-password';
 
-const number = new Intl.NumberFormat("en-IN");
-const money = new Intl.NumberFormat("en-IN", {
-  style: "currency",
-  currency: "INR",
+const number = new Intl.NumberFormat('en-IN');
+const money = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
   maximumFractionDigits: 0,
 });
 const formatMoney = (paise: number) => money.format(paise / 100);
 export default function AdminSubscriptionsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [search, setSearch] = useState(() => searchParams.get("q") || "");
+  const [search, setSearch] = useState(() => searchParams.get('q') || '');
   const debouncedSearch = useDebouncedValue(search, 300);
-  const requestedStatus = searchParams.get("status") || "all";
-  const status = (
-    ADMIN_SUBSCRIPTION_STATUS_OPTIONS as readonly string[]
-  ).includes(requestedStatus)
+  const requestedStatus = searchParams.get('status') || 'all';
+  const status = (ADMIN_SUBSCRIPTION_STATUS_OPTIONS as readonly string[]).includes(requestedStatus)
     ? requestedStatus
-    : "all";
-  const requestedPage = Number(searchParams.get("page") || 1);
-  const page =
-    Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+    : 'all';
+  const requestedPage = Number(searchParams.get('page') || 1);
+  const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
   const updateParams = (updates: Record<string, string | number | null>) => {
     const next = new URLSearchParams(searchParams);
     for (const [key, value] of Object.entries(updates)) {
-      if (value === null || value === "" || value === "all" || value === 1)
-        next.delete(key);
+      if (value === null || value === '' || value === 'all' || value === 1) next.delete(key);
       else next.set(key, String(value));
     }
     setSearchParams(next, { replace: true });
   };
 
   useEffect(() => {
-    if ((searchParams.get("q") || "") === debouncedSearch) return;
+    if ((searchParams.get('q') || '') === debouncedSearch) return;
     updateParams({ q: debouncedSearch || null, page: null });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
@@ -118,18 +114,15 @@ function SubscriptionView({
   setStatus: (value: string) => void;
   setPage: (value: number) => void;
 }) {
-  const [exportFormat, setExportFormat] = useState<"csv" | "pdf" | null>(null);
-  const [selectedPlan, setSelectedPlan] =
-    useState<AdminSubscriptionPlan | null>(null);
+  const [exportFormat, setExportFormat] = useState<'csv' | 'pdf' | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<AdminSubscriptionPlan | null>(null);
   const exportSubscriptions = useExportAdminSubscriptions();
   if (query.isLoading) return <AdminLoading variant="subscriptions" />;
   if (query.isError || !query.data)
-    return (
-      <AdminError error={query.error} onRetry={() => void query.refetch()} />
-    );
+    return <AdminError error={query.error} onRetry={() => void query.refetch()} />;
   const data = query.data;
   const pagination = data.subscriptions.pagination;
-  const exportLedger = async (format: "csv" | "pdf") => {
+  const exportLedger = async (format: 'csv' | 'pdf') => {
     setExportFormat(format);
     try {
       const rows: AdminSubscriptionItem[] = await exportSubscriptions.mutateAsync({
@@ -137,19 +130,19 @@ function SubscriptionView({
         status,
       });
       const date = new Date().toISOString().slice(0, 10);
-      if (format === "csv") {
+      if (format === 'csv') {
         downloadCsv(`subscription-ledger-${date}.csv`, [
           [
-            "Buyer",
-            "Email",
-            "Plan",
-            "Billing cycle",
-            "Amount (paise)",
-            "Currency",
-            "Status",
-            "Payment ID",
-            "Purchased",
-            "Valid until",
+            'Buyer',
+            'Email',
+            'Plan',
+            'Billing cycle',
+            'Amount (paise)',
+            'Currency',
+            'Status',
+            'Payment ID',
+            'Purchased',
+            'Valid until',
           ],
           ...rows.map((item) => [
             item.userName,
@@ -159,50 +152,49 @@ function SubscriptionView({
             item.amount,
             item.currency,
             item.status,
-            item.paymentId ?? "",
+            item.paymentId ?? '',
             item.purchasedAt,
-            item.endsAt ?? "",
+            item.endsAt ?? '',
           ]),
         ]);
       } else {
         await downloadTablePdf({
           filename: `subscription-ledger-${date}.pdf`,
-          title: "Subscription Ledger",
-          description:
-            "Premium purchases matching the selected administrator filters.",
+          title: 'Subscription Ledger',
+          description: 'Premium purchases matching the selected administrator filters.',
           filters: [
-            `Status: ${status === "all" ? "All statuses" : status}`,
-            `Search: ${exportSearch || "All buyers and payments"}`,
+            `Status: ${status === 'all' ? 'All statuses' : status}`,
+            `Search: ${exportSearch || 'All buyers and payments'}`,
             `Matching purchases: ${rows.length}`,
           ],
           summary: [
             {
-              label: "Revenue earned",
+              label: 'Revenue earned',
               value: formatMoney(data.metrics.totalRevenue),
             },
             {
-              label: "Purchases",
+              label: 'Purchases',
               value: data.metrics.subscriptionsBought,
             },
             {
-              label: "Active premium",
+              label: 'Active premium',
               value: data.metrics.activePremiumSubscriptions,
             },
             {
-              label: "Monthly recurring",
+              label: 'Monthly recurring',
               value: formatMoney(data.metrics.monthlyRecurringRevenue),
             },
           ],
           columns: [
-            { header: "Buyer", key: "buyer", width: 88 },
-            { header: "Email", key: "email", width: 112 },
-            { header: "Plan", key: "plan", width: 52 },
-            { header: "Cycle", key: "cycle", width: 48 },
-            { header: "Amount", key: "amount", width: 60 },
-            { header: "Status", key: "status", width: 54 },
-            { header: "Payment ID", key: "payment", width: 92 },
-            { header: "Purchased", key: "purchased", width: 76 },
-            { header: "Valid until", key: "validUntil", width: 66 },
+            { header: 'Buyer', key: 'buyer', width: 88 },
+            { header: 'Email', key: 'email', width: 112 },
+            { header: 'Plan', key: 'plan', width: 52 },
+            { header: 'Cycle', key: 'cycle', width: 48 },
+            { header: 'Amount', key: 'amount', width: 60 },
+            { header: 'Status', key: 'status', width: 54 },
+            { header: 'Payment ID', key: 'payment', width: 92 },
+            { header: 'Purchased', key: 'purchased', width: 76 },
+            { header: 'Valid until', key: 'validUntil', width: 66 },
           ],
           rows: rows.map((item) => ({
             buyer: item.userName,
@@ -211,20 +203,18 @@ function SubscriptionView({
             cycle: item.billingCycle,
             amount: formatMoney(item.amount),
             status: item.status,
-            payment: item.paymentId || "Awaiting payment",
+            payment: item.paymentId || 'Awaiting payment',
             purchased: new Date(item.purchasedAt).toLocaleString(),
-            validUntil: item.endsAt
-              ? new Date(item.endsAt).toLocaleDateString()
-              : "No expiry",
+            validUntil: item.endsAt ? new Date(item.endsAt).toLocaleDateString() : 'No expiry',
           })),
         });
       }
       toast.success(
         `Subscription ${format.toUpperCase()} downloaded`,
-        `${rows.length} matching purchases exported.`,
+        `${rows.length} matching purchases exported.`
       );
     } catch (error) {
-      toast.error("Subscription export failed", getUserFacingError(error));
+      toast.error('Subscription export failed', getUserFacingError(error));
     } finally {
       setExportFormat(null);
     }
@@ -235,36 +225,36 @@ function SubscriptionView({
       <AdminMetricGrid
         metrics={[
           {
-            label: "Revenue earned",
+            label: 'Revenue earned',
             value: formatMoney(data.metrics.totalRevenue),
-            tone: "accent",
+            tone: 'accent',
           },
           {
-            label: "Subscriptions bought",
+            label: 'Subscriptions bought',
             value: data.metrics.subscriptionsBought,
-            tone: "info",
+            tone: 'info',
           },
           {
-            label: "Active premium",
+            label: 'Active premium',
             value: data.metrics.activePremiumSubscriptions,
-            tone: "success",
+            tone: 'success',
           },
           {
-            label: "Monthly recurring revenue",
+            label: 'Monthly recurring revenue',
             value: formatMoney(data.metrics.monthlyRecurringRevenue),
-            tone: "warning",
+            tone: 'warning',
           },
         ]}
       />
       <AdminPanel title="Subscription plans">
         <div className="border-b border-[rgba(255,255,255,0.09)] px-6 py-4 text-xs text-[#aaa59d]">
-          Select a plan to review its customer-facing details. Changes to
-          pricing, features, and limits are available only after choosing Edit.
+          Select a plan to review its customer-facing details. Changes to pricing, features, and
+          limits are available only after choosing Edit.
         </div>
         <div className="grid gap-3 p-6 sm:grid-cols-3">
           {data.plans.map((plan) => (
             <PlanButton
-              key={`${plan.planId}-${plan.updatedAt ?? "default"}`}
+              key={`${plan.planId}-${plan.updatedAt ?? 'default'}`}
               plan={plan}
               onClick={() => setSelectedPlan(plan)}
             />
@@ -273,9 +263,7 @@ function SubscriptionView({
       </AdminPanel>
       <PlanDialog
         key={
-          selectedPlan
-            ? `${selectedPlan.planId}-${selectedPlan.updatedAt ?? "default"}`
-            : "closed"
+          selectedPlan ? `${selectedPlan.planId}-${selectedPlan.updatedAt ?? 'default'}` : 'closed'
         }
         plan={selectedPlan}
         onClose={() => setSelectedPlan(null)}
@@ -323,29 +311,25 @@ function SubscriptionView({
             <button
               className="admin-button inline-flex items-center gap-2"
               disabled={Boolean(exportFormat)}
-              onClick={() => void exportLedger("csv")}
+              onClick={() => void exportLedger('csv')}
             >
               <Download size={15} aria-hidden="true" />
-              {exportFormat === "csv" ? "Preparing CSV…" : "Export CSV"}
+              {exportFormat === 'csv' ? 'Preparing CSV…' : 'Export CSV'}
             </button>
             <button
               className="admin-button inline-flex items-center gap-2"
               disabled={Boolean(exportFormat)}
-              onClick={() => void exportLedger("pdf")}
+              onClick={() => void exportLedger('pdf')}
             >
               <FileText size={15} aria-hidden="true" />
-              {exportFormat === "pdf" ? "Preparing PDF…" : "Export PDF"}
+              {exportFormat === 'pdf' ? 'Preparing PDF…' : 'Export PDF'}
             </button>
           </div>
         }
       >
         {query.isLoading || query.isPlaceholderData ? (
           <div className="admin-table-scroll overflow-x-auto">
-            <AdminTableSkeleton
-              columns={7}
-              rows={7}
-              label="Updating subscription purchases"
-            />
+            <AdminTableSkeleton columns={7} rows={7} label="Updating subscription purchases" />
           </div>
         ) : data.subscriptions.items.length === 0 ? (
           <AdminEmpty>No purchases match these filters.</AdminEmpty>
@@ -380,38 +364,27 @@ function SubscriptionView({
               </thead>
               <tbody>
                 {data.subscriptions.items.map((item) => (
-                  <tr
-                    key={item.id}
-                    className="border-t border-[rgba(255,255,255,0.09)]"
-                  >
+                  <tr key={item.id} className="border-t border-[rgba(255,255,255,0.09)]">
                     <td className="px-6 py-4">
                       <div className="font-semibold">{item.userName}</div>
-                      <div className="text-xs text-[#aaa59d]">
-                        {item.userEmail}
-                      </div>
+                      <div className="text-xs text-[#aaa59d]">{item.userEmail}</div>
                     </td>
                     <td className="px-6 py-4 capitalize">
                       {item.planName}
-                      <div className="text-xs text-[#aaa59d]">
-                        {item.billingCycle}
-                      </div>
+                      <div className="text-xs text-[#aaa59d]">{item.billingCycle}</div>
                     </td>
-                    <td className="px-6 py-4 font-semibold">
-                      {formatMoney(item.amount)}
-                    </td>
+                    <td className="px-6 py-4 font-semibold">{formatMoney(item.amount)}</td>
                     <td className="px-6 py-4">
                       <AdminStatusBadge value={item.status} />
                     </td>
                     <td className="max-w-50 truncate px-6 py-4 font-mono text-xs text-[#aaa59d]">
-                      {item.paymentId || "Awaiting payment"}
+                      {item.paymentId || 'Awaiting payment'}
                     </td>
                     <td className="px-6 py-4 text-xs text-[#aaa59d]">
                       {new Date(item.purchasedAt).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 text-xs text-[#aaa59d]">
-                      {item.endsAt
-                        ? new Date(item.endsAt).toLocaleDateString()
-                        : "—"}
+                      {item.endsAt ? new Date(item.endsAt).toLocaleDateString() : '—'}
                     </td>
                   </tr>
                 ))}
@@ -437,30 +410,20 @@ function SubscriptionView({
   );
 }
 
-function PlanButton({
-  plan,
-  onClick,
-}: {
-  plan: AdminSubscriptionPlan;
-  onClick: () => void;
-}) {
-  const isFree = plan.planId === "free";
+function PlanButton({ plan, onClick }: { plan: AdminSubscriptionPlan; onClick: () => void }) {
+  const isFree = plan.planId === 'free';
   return (
     <button
       type="button"
       onClick={onClick}
       className={`admin-interactive-card group rounded-xl border p-5 text-left ${
-        plan.highlighted
-          ? "border-[#e8816a]/50 bg-[#e8816a]/8"
-          : "border-white/10 bg-[#24211e]"
+        plan.highlighted ? 'border-[#e8816a]/50 bg-[#e8816a]/8' : 'border-white/10 bg-[#24211e]'
       }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="font-editorial text-xl font-bold">{plan.name}</div>
-          <div className="mt-1 text-xs capitalize text-[#aaa59d]">
-            {plan.planId} plan
-          </div>
+          <div className="mt-1 text-xs capitalize text-[#aaa59d]">{plan.planId} plan</div>
         </div>
         {plan.highlighted && (
           <span className="rounded border border-[#e8816a]/40 bg-[#e8816a]/10 px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-[#f0aa98]">
@@ -468,12 +431,10 @@ function PlanButton({
           </span>
         )}
       </div>
-      <p className="mt-4 min-h-10 text-sm leading-5 text-[#aaa59d]">
-        {plan.description}
-      </p>
+      <p className="mt-4 min-h-10 text-sm leading-5 text-[#aaa59d]">{plan.description}</p>
       <div className="mt-5 flex items-end justify-between gap-3">
         <span className="font-editorial text-lg text-[#f2f0eb]">
-          {isFree ? "Free" : `${formatMoney(plan.monthlyAmount)} / mo`}
+          {isFree ? 'Free' : `${formatMoney(plan.monthlyAmount)} / mo`}
         </span>
         <span className="text-xs font-semibold text-[#e8816a] group-hover:text-[#f0aa98]">
           View details
@@ -492,11 +453,11 @@ function PlanDialog({
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const fields: Array<[AdminPlanLimitField, string]> = [
-    ["maxTrackers", "Maximum trackers"],
-    ["trackerGenerationsPerMonth", "Generated trackers / month"],
-    ["lessonGenerationsPerDay", "Generated lessons / day"],
-    ["mockTestGenerationsPerMonth", "Generated mock tests / month"],
-    ["aiTutorRequestsPerDay", "AI tutor requests / day"],
+    ['maxTrackers', 'Maximum trackers'],
+    ['trackerGenerationsPerMonth', 'Generated trackers / month'],
+    ['lessonGenerationsPerDay', 'Generated lessons / day'],
+    ['mockTestGenerationsPerMonth', 'Generated mock tests / month'],
+    ['aiTutorRequestsPerDay', 'AI tutor requests / day'],
   ];
 
   return (
@@ -514,9 +475,7 @@ function PlanDialog({
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#e8816a]">
                 {plan.planId} subscription plan
               </p>
-              <h2 className="mt-1 font-editorial text-3xl font-bold">
-                {plan.name}
-              </h2>
+              <h2 className="mt-1 font-editorial text-3xl font-bold">{plan.name}</h2>
             </div>
             {!isEditing && (
               <button
@@ -530,32 +489,18 @@ function PlanDialog({
             )}
           </div>
           {isEditing ? (
-            <PlanEditor
-              plan={plan}
-              onCancel={() => setIsEditing(false)}
-              onSaved={onClose}
-            />
+            <PlanEditor plan={plan} onCancel={() => setIsEditing(false)} onSaved={onClose} />
           ) : (
             <div className="p-6">
-              <p className="max-w-2xl text-sm leading-6 text-[#aaa59d]">
-                {plan.description}
-              </p>
+              <p className="max-w-2xl text-sm leading-6 text-[#aaa59d]">{plan.description}</p>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 <DetailCard
                   label="Monthly price"
-                  value={
-                    plan.planId === "free"
-                      ? "Free"
-                      : formatMoney(plan.monthlyAmount)
-                  }
+                  value={plan.planId === 'free' ? 'Free' : formatMoney(plan.monthlyAmount)}
                 />
                 <DetailCard
                   label="Annual price"
-                  value={
-                    plan.planId === "free"
-                      ? "Free"
-                      : formatMoney(plan.annualAmount)
-                  }
+                  value={plan.planId === 'free' ? 'Free' : formatMoney(plan.annualAmount)}
                 />
               </div>
               <div className="mt-6 grid gap-6 lg:grid-cols-2">
@@ -581,9 +526,7 @@ function PlanDialog({
                       >
                         <span className="text-[#aaa59d]">{label}</span>
                         <span className="font-semibold">
-                          {plan.limits[key] === 0
-                            ? "Unlimited"
-                            : number.format(plan.limits[key])}
+                          {plan.limits[key] === 0 ? 'Unlimited' : number.format(plan.limits[key])}
                         </span>
                       </div>
                     ))}
@@ -610,9 +553,7 @@ function PlanDialog({
 function DetailCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="admin-info-tile p-4">
-      <div className="text-[10px] uppercase tracking-wide text-[#aaa59d]">
-        {label}
-      </div>
+      <div className="text-[10px] uppercase tracking-wide text-[#aaa59d]">{label}</div>
       <div className="mt-1 font-editorial text-xl font-bold">{value}</div>
     </div>
   );
@@ -639,38 +580,33 @@ function PlanEditor({
       highlighted: plan.highlighted,
       limits: plan.limits,
     }),
-    [plan],
+    [plan]
   );
-  const [propagateLimitFields, setPropagateLimitFields] = useState<
-    AdminPlanLimitField[]
-  >([]);
+  const [propagateLimitFields, setPropagateLimitFields] = useState<AdminPlanLimitField[]>([]);
   const [form, setForm] = useState<AdminSubscriptionPlanInput>(initialForm);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
-  const [changeReason, setChangeReason] = useState("");
-  const [actionPassword, setActionPassword] = useState("");
-  const changes = useMemo(
-    () => collectPlanChanges(initialForm, form),
-    [initialForm, form],
-  );
+  const [changeReason, setChangeReason] = useState('');
+  const [actionPassword, setActionPassword] = useState('');
+  const changes = useMemo(() => collectPlanChanges(initialForm, form), [initialForm, form]);
   const isDirty = changes.length > 0 || propagateLimitFields.length > 0;
 
   const fields: Array<[AdminPlanLimitField, string, number]> = [
-    ["maxTrackers", "Maximum trackers", 1_000],
-    ["trackerGenerationsPerMonth", "Generated trackers / month", 500],
-    ["lessonGenerationsPerDay", "Generated lessons / day", 500],
-    ["mockTestGenerationsPerMonth", "Generated mock tests / month", 500],
-    ["aiTutorRequestsPerDay", "AI tutor requests / day", 2_000],
+    ['maxTrackers', 'Maximum trackers', 1_000],
+    ['trackerGenerationsPerMonth', 'Generated trackers / month', 500],
+    ['lessonGenerationsPerDay', 'Generated lessons / day', 500],
+    ['mockTestGenerationsPerMonth', 'Generated mock tests / month', 500],
+    ['aiTutorRequestsPerDay', 'AI tutor requests / day', 2_000],
   ];
 
   useEffect(() => {
     const warnBeforeUnload = (event: BeforeUnloadEvent) => {
       if (!isDirty || update.isPending) return;
       event.preventDefault();
-      event.returnValue = "";
+      event.returnValue = '';
     };
-    window.addEventListener("beforeunload", warnBeforeUnload);
-    return () => window.removeEventListener("beforeunload", warnBeforeUnload);
+    window.addEventListener('beforeunload', warnBeforeUnload);
+    return () => window.removeEventListener('beforeunload', warnBeforeUnload);
   }, [isDirty, update.isPending]);
 
   const submit = (event: FormEvent) => {
@@ -691,13 +627,12 @@ function PlanEditor({
         actionPassword,
         changeReason: changeReason.trim(),
       },
-      { onSuccess: onSaved },
+      { onSuccess: onSaved }
     );
   };
 
   const reviewReady =
-    changeReason.trim().length >= 10 &&
-    isAdminActionPasswordReady(actionPassword);
+    changeReason.trim().length >= 10 && isAdminActionPasswordReady(actionPassword);
 
   return (
     <>
@@ -709,14 +644,14 @@ function PlanEditor({
           <span
             className={`rounded-full border px-3 py-1.5 text-xs font-bold ${
               isDirty
-                ? "border-[#f0a842]/30 bg-[#f0a842]/10 text-[#f0a842]"
-                : "border-[#52c58c]/25 bg-[#52c58c]/10 text-[#52c58c]"
+                ? 'border-[#f0a842]/30 bg-[#f0a842]/10 text-[#f0a842]'
+                : 'border-[#52c58c]/25 bg-[#52c58c]/10 text-[#52c58c]'
             }`}
             role="status"
           >
             {isDirty
-              ? `${changes.length} changed field${changes.length === 1 ? "" : "s"}`
-              : "No changes"}
+              ? `${changes.length} changed field${changes.length === 1 ? '' : 's'}`
+              : 'No changes'}
           </span>
         </div>
 
@@ -746,29 +681,25 @@ function PlanEditor({
             label="Monthly price (paise)"
             value={form.monthlyAmount}
             maximum={100_000_000}
-            onChange={(monthlyAmount) =>
-              setForm((current) => ({ ...current, monthlyAmount }))
-            }
+            onChange={(monthlyAmount) => setForm((current) => ({ ...current, monthlyAmount }))}
           />
           <PlanNumberField
             label="Annual price (paise)"
             value={form.annualAmount}
             maximum={1_000_000_000}
-            onChange={(annualAmount) =>
-              setForm((current) => ({ ...current, annualAmount }))
-            }
+            onChange={(annualAmount) => setForm((current) => ({ ...current, annualAmount }))}
           />
           <label className="admin-field">
             <span>Features (one per line)</span>
             <textarea
               required
               rows={5}
-              value={form.features.join("\n")}
+              value={form.features.join('\n')}
               onChange={(event) =>
                 setForm((current) => ({
                   ...current,
                   features: event.target.value
-                    .split("\n")
+                    .split('\n')
                     .map((value) => value.trim())
                     .filter(Boolean)
                     .slice(0, 30),
@@ -800,18 +731,16 @@ function PlanEditor({
         <div className="mt-7 border-t border-white/10 pt-5 text-xs font-semibold uppercase tracking-wide text-[#aaa59d]">
           Usage limits
         </div>
-        {plan.planId !== "free" && (
+        {plan.planId !== 'free' && (
           <p className="mt-2 text-xs leading-5 text-[#aaa59d]">
-            Select changed limits that should be evaluated for active
-            subscribers. The backend must apply them only where the new value is
-            an upgrade.
+            Select changed limits that should be evaluated for active subscribers. The backend must
+            apply them only where the new value is an upgrade.
           </p>
         )}
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {fields.map(([key, label, maximum]) => {
             const change = getLimitChange(plan.limits[key], form.limits[key]);
-            const canPropagate =
-              plan.planId !== "free" && change !== "unchanged";
+            const canPropagate = plan.planId !== 'free' && change !== 'unchanged';
             return (
               <div key={key} className="admin-policy-section p-4">
                 <div className="mb-2 flex items-center justify-between gap-3">
@@ -830,22 +759,18 @@ function PlanEditor({
                       ...current,
                       limits: { ...current.limits, [key]: value },
                     }));
-                    if (
-                      getLimitChange(plan.limits[key], value) === "unchanged"
-                    ) {
+                    if (getLimitChange(plan.limits[key], value) === 'unchanged') {
                       setPropagateLimitFields((current) =>
-                        current.filter((field) => field !== key),
+                        current.filter((field) => field !== key)
                       );
                     }
                   }}
                   className="w-full rounded-lg border border-[rgba(255,255,255,0.12)] bg-[#24211e] px-3 py-2 text-sm outline-none focus:border-[#e8816a]"
                 />
-                {plan.planId !== "free" && (
+                {plan.planId !== 'free' && (
                   <label
                     className={`mt-3 flex items-start gap-2 text-xs ${
-                      canPropagate
-                        ? "cursor-pointer text-[#d7d2ca]"
-                        : "text-[#817c75]"
+                      canPropagate ? 'cursor-pointer text-[#d7d2ca]' : 'text-[#817c75]'
                     }`}
                   >
                     <input
@@ -856,7 +781,7 @@ function PlanEditor({
                         setPropagateLimitFields((current) =>
                           event.target.checked
                             ? [...new Set([...current, key])]
-                            : current.filter((field) => field !== key),
+                            : current.filter((field) => field !== key)
                         )
                       }
                       className="mt-0.5 accent-[#52c58c]"
@@ -874,15 +799,13 @@ function PlanEditor({
             className="mt-4 rounded-lg border border-[#e26767]/25 bg-[#e26767]/10 p-3 text-sm text-[#e26767]"
             role="alert"
           >
-            {getUserFacingError(update.error, "Plan could not be saved.")}
+            {getUserFacingError(update.error, 'Plan could not be saved.')}
           </div>
         )}
 
         <div className="admin-sticky-action-bar mt-6">
           <div>
-            <strong className="block text-sm">
-              Customer-facing plan configuration
-            </strong>
+            <strong className="block text-sm">Customer-facing plan configuration</strong>
             <span className="text-xs text-[#aaa59d]">
               Review pricing and limits before publishing.
             </span>
@@ -919,21 +842,16 @@ function PlanEditor({
             <AlertTriangle size={20} aria-hidden="true" />
           </span>
           <div>
-            <h2 className="font-editorial text-2xl font-bold">
-              Review plan changes
-            </h2>
+            <h2 className="font-editorial text-2xl font-bold">Review plan changes</h2>
             <p className="mt-1 text-sm leading-6 text-[#aaa59d]">
-              Pricing and limits are customer-visible. Verify every value before
-              publishing.
+              Pricing and limits are customer-visible. Verify every value before publishing.
             </p>
           </div>
         </div>
 
         <div className="admin-table-scroll mt-5 max-h-72 overflow-auto rounded-xl border border-white/10">
           <table className="admin-table w-full min-w-125 text-left text-sm">
-            <caption className="sr-only">
-              Review of subscription plan changes
-            </caption>
+            <caption className="sr-only">Review of subscription plan changes</caption>
             <thead>
               <tr>
                 <th scope="col">Field</th>
@@ -946,9 +864,7 @@ function PlanEditor({
                 <tr key={change.key}>
                   <td className="font-semibold">{change.label}</td>
                   <td className="text-[#aaa59d]">{change.before}</td>
-                  <td className="font-semibold text-[#e8816a]">
-                    {change.after}
-                  </td>
+                  <td className="font-semibold text-[#e8816a]">{change.after}</td>
                 </tr>
               ))}
             </tbody>
@@ -959,8 +875,8 @@ function PlanEditor({
           <div className="admin-dialog-section mt-4 p-4 text-sm">
             <strong>
               {propagateLimitFields.length} limit field
-              {propagateLimitFields.length === 1 ? "" : "s"}
-            </strong>{" "}
+              {propagateLimitFields.length === 1 ? '' : 's'}
+            </strong>{' '}
             will be evaluated for eligible active-subscriber upgrades.
           </div>
         )}
@@ -977,17 +893,13 @@ function PlanEditor({
           />
         </label>
         <AdminActionPasswordField
-        value={actionPassword}
-        onChange={setActionPassword}
-        className="admin-field mt-4"
-      />
+          value={actionPassword}
+          onChange={setActionPassword}
+          className="admin-field mt-4"
+        />
 
         <div className="mt-6 flex flex-wrap justify-end gap-2">
-          <button
-            type="button"
-            className="admin-button"
-            onClick={() => setReviewOpen(false)}
-          >
+          <button type="button" className="admin-button" onClick={() => setReviewOpen(false)}>
             Back to edit
           </button>
           <button
@@ -1013,25 +925,15 @@ function PlanEditor({
         ariaLabel="Discard unsaved plan changes"
         contentClassName="max-w-md bg-[#1c1a18] text-[#f2f0eb]"
       >
-        <h2 className="font-editorial text-2xl font-bold">
-          Discard unsaved changes?
-        </h2>
+        <h2 className="font-editorial text-2xl font-bold">Discard unsaved changes?</h2>
         <p className="mt-2 text-sm leading-6 text-[#aaa59d]">
           Your edits to this subscription plan will be permanently lost.
         </p>
         <div className="mt-6 flex justify-end gap-2">
-          <button
-            type="button"
-            className="admin-button"
-            onClick={() => setDiscardOpen(false)}
-          >
+          <button type="button" className="admin-button" onClick={() => setDiscardOpen(false)}>
             Keep editing
           </button>
-          <button
-            type="button"
-            className="admin-danger-button"
-            onClick={onCancel}
-          >
+          <button type="button" className="admin-danger-button" onClick={onCancel}>
             Discard changes
           </button>
         </div>
@@ -1044,7 +946,7 @@ type PlanChange = { key: string; label: string; before: string; after: string };
 
 function collectPlanChanges(
   before: AdminSubscriptionPlanInput,
-  after: AdminSubscriptionPlanInput,
+  after: AdminSubscriptionPlanInput
 ): PlanChange[] {
   const changes: PlanChange[] = [];
   const add = (
@@ -1052,54 +954,42 @@ function collectPlanChanges(
     label: string,
     left: unknown,
     right: unknown,
-    format?: (value: unknown) => string,
+    format?: (value: unknown) => string
   ) => {
     if (JSON.stringify(left) === JSON.stringify(right)) return;
-    changes.push({ key, label, before: format?.(left) ?? String(left), after: format?.(right) ?? String(right) });
+    changes.push({
+      key,
+      label,
+      before: format?.(left) ?? String(left),
+      after: format?.(right) ?? String(right),
+    });
   };
 
-  add("name", "Display name", before.name, after.name);
-  add("description", "Description", before.description, after.description);
-  add(
-    "monthlyAmount",
-    "Monthly price",
-    before.monthlyAmount,
-    after.monthlyAmount,
-    (value) => formatMoney(Number(value)),
+  add('name', 'Display name', before.name, after.name);
+  add('description', 'Description', before.description, after.description);
+  add('monthlyAmount', 'Monthly price', before.monthlyAmount, after.monthlyAmount, (value) =>
+    formatMoney(Number(value))
   );
-  add(
-    "annualAmount",
-    "Annual price",
-    before.annualAmount,
-    after.annualAmount,
-    (value) => formatMoney(Number(value)),
+  add('annualAmount', 'Annual price', before.annualAmount, after.annualAmount, (value) =>
+    formatMoney(Number(value))
   );
-  add("features", "Features", before.features, after.features, (value) =>
-    (value as string[]).join(" · "),
+  add('features', 'Features', before.features, after.features, (value) =>
+    (value as string[]).join(' · ')
   );
-  add(
-    "highlighted",
-    "Featured plan",
-    before.highlighted,
-    after.highlighted,
-    (value) => (value ? "Yes" : "No"),
+  add('highlighted', 'Featured plan', before.highlighted, after.highlighted, (value) =>
+    value ? 'Yes' : 'No'
   );
 
   const labels: Record<AdminPlanLimitField, string> = {
-    maxTrackers: "Maximum trackers",
-    trackerGenerationsPerMonth: "Generated trackers / month",
-    lessonGenerationsPerDay: "Generated lessons / day",
-    mockTestGenerationsPerMonth: "Generated mock tests / month",
-    aiTutorRequestsPerDay: "AI tutor requests / day",
+    maxTrackers: 'Maximum trackers',
+    trackerGenerationsPerMonth: 'Generated trackers / month',
+    lessonGenerationsPerDay: 'Generated lessons / day',
+    mockTestGenerationsPerMonth: 'Generated mock tests / month',
+    aiTutorRequestsPerDay: 'AI tutor requests / day',
   };
   for (const key of Object.keys(labels) as AdminPlanLimitField[]) {
-    add(
-      `limits.${key}`,
-      labels[key],
-      before.limits[key],
-      after.limits[key],
-      (value) =>
-        Number(value) === 0 ? "Unlimited" : number.format(Number(value)),
+    add(`limits.${key}`, labels[key], before.limits[key], after.limits[key], (value) =>
+      Number(value) === 0 ? 'Unlimited' : number.format(Number(value))
     );
   }
   return changes;
@@ -1155,26 +1045,24 @@ function PlanNumberField({
   );
 }
 
-type LimitChange = "upgrade" | "downgrade" | "unchanged";
+type LimitChange = 'upgrade' | 'downgrade' | 'unchanged';
 
 function getLimitChange(current: number, next: number): LimitChange {
-  if (current === next) return "unchanged";
-  if (current === 0) return "downgrade";
-  if (next === 0 || next > current) return "upgrade";
-  return "downgrade";
+  if (current === next) return 'unchanged';
+  if (current === 0) return 'downgrade';
+  if (next === 0 || next > current) return 'upgrade';
+  return 'downgrade';
 }
 
 function LimitChangeBadge({ change }: { change: LimitChange }) {
   const className =
-    change === "upgrade"
-      ? "border-[#52c58c]/40 bg-[#52c58c]/10 text-[#52c58c]"
-      : change === "downgrade"
-        ? "border-[#f0a842]/40 bg-[#f0a842]/10 text-[#f0a842]"
-        : "border-white/10 text-[#817c75]";
+    change === 'upgrade'
+      ? 'border-[#52c58c]/40 bg-[#52c58c]/10 text-[#52c58c]'
+      : change === 'downgrade'
+        ? 'border-[#f0a842]/40 bg-[#f0a842]/10 text-[#f0a842]'
+        : 'border-white/10 text-[#817c75]';
   return (
-    <span
-      className={`rounded border px-1.5 py-0.5 text-[9px] font-bold uppercase ${className}`}
-    >
+    <span className={`rounded border px-1.5 py-0.5 text-[9px] font-bold uppercase ${className}`}>
       {change}
     </span>
   );
@@ -1188,17 +1076,12 @@ function SummaryPanel({ title, rows }: { title: string; rows: string[][] }) {
       ) : (
         <div className="divide-y divide-[rgba(255,255,255,0.09)]">
           {rows.map(([label, detail, value]) => (
-            <div
-              key={label}
-              className="flex items-center justify-between gap-4 px-6 py-4"
-            >
+            <div key={label} className="flex items-center justify-between gap-4 px-6 py-4">
               <div>
                 <div className="font-semibold capitalize">{label}</div>
                 <div className="text-xs text-[#aaa59d]">{detail}</div>
               </div>
-              <div className="font-editorial text-lg text-[#52c58c]">
-                {value}
-              </div>
+              <div className="font-editorial text-lg text-[#52c58c]">{value}</div>
             </div>
           ))}
         </div>

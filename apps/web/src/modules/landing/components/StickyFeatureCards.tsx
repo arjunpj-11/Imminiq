@@ -17,15 +17,15 @@ export default function StickyFeatureCards() {
         <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
-              Product stack
+              The living tracker
             </p>
             <h2 className="mt-3 max-w-170 font-['Playfair_Display',serif] text-[clamp(38px,7vw,86px)] font-extrabold leading-[0.95] tracking-[-0.07em]">
-              Four loops, one learning system.
+              AI begins it. People complete it.
             </h2>
           </div>
           <p className="max-w-94 text-[14px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
-            A connected system for planning, understanding, collaborating, practising, and proving
-            what you know.
+            More than a generated roadmap: a shared learning path that becomes more useful as its
+            community grows.
           </p>
         </div>
 

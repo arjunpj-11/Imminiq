@@ -88,15 +88,15 @@ The application does not need Redux for its current architecture.
 
 ## State stack
 
-| Type of state | Correct owner |
-|---|---|
-| API/server data | TanStack Query |
-| Search, filters, pagination, tabs that should survive refresh | URL search parameters |
-| Global authenticated client state | Root Zustand stores |
-| Multi-step feature drafts | Module Zustand store |
-| Small temporary UI state | Local React state |
-| Durable preferences | Safe local storage through a store/helper |
-| Current-session workflow state | Safe session storage through a module store/helper |
+| Type of state                                                 | Correct owner                                      |
+| ------------------------------------------------------------- | -------------------------------------------------- |
+| API/server data                                               | TanStack Query                                     |
+| Search, filters, pagination, tabs that should survive refresh | URL search parameters                              |
+| Global authenticated client state                             | Root Zustand stores                                |
+| Multi-step feature drafts                                     | Module Zustand store                               |
+| Small temporary UI state                                      | Local React state                                  |
+| Durable preferences                                           | Safe local storage through a store/helper          |
+| Current-session workflow state                                | Safe session storage through a module store/helper |
 
 ---
 
@@ -411,7 +411,7 @@ export default function ExamplePage() {
         {/* Feature content */}
       </SectionCard>
     </PageContainer>
-  )
+  );
 }
 ```
 
@@ -545,7 +545,7 @@ Examples:
 All API calls must use:
 
 ```ts
-import api from '../../../lib/axios'
+import api from '../../../lib/axios';
 ```
 
 Adjust the relative path as required.
@@ -579,9 +579,9 @@ Define precise response and payload types.
 
 ```ts
 interface ApiResponse<T> {
-  success: boolean
-  message: string
-  data: T
+  success: boolean;
+  message: string;
+  data: T;
 }
 ```
 
@@ -602,7 +602,7 @@ export const exampleKeys = {
   list: (query: ExampleListQuery) => [...exampleKeys.lists(), query] as const,
   details: () => [...exampleKeys.all, 'detail'] as const,
   detail: (id: string) => [...exampleKeys.details(), id] as const,
-}
+};
 ```
 
 Benefits:
@@ -619,15 +619,14 @@ export const useExamples = (query: ExampleListQuery) =>
   useQuery({
     queryKey: exampleKeys.list(query),
     queryFn: async () => {
-      const response = await api.get<ApiResponse<ExampleListResponse>>(
-        '/examples',
-        { params: query },
-      )
+      const response = await api.get<ApiResponse<ExampleListResponse>>('/examples', {
+        params: query,
+      });
 
-      return response.data.data
+      return response.data.data;
     },
     placeholderData: keepPreviousData,
-  })
+  });
 ```
 
 ## Detail query
@@ -640,31 +639,28 @@ export const useExample = (id?: string) =>
     queryKey: exampleKeys.detail(id ?? ''),
     enabled: Boolean(id),
     queryFn: async () => {
-      const response = await api.get<ApiResponse<Example>>(`/examples/${id}`)
-      return response.data.data
+      const response = await api.get<ApiResponse<Example>>(`/examples/${id}`);
+      return response.data.data;
     },
-  })
+  });
 ```
 
 ## Mutation hook
 
 ```ts
 export const useCreateExample = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (payload: CreateExamplePayload) => {
-      const response = await api.post<ApiResponse<Example>>(
-        '/examples',
-        payload,
-      )
-      return response.data.data
+      const response = await api.post<ApiResponse<Example>>('/examples', payload);
+      return response.data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: exampleKeys.all })
+      queryClient.invalidateQueries({ queryKey: exampleKeys.all });
     },
-  })
-}
+  });
+};
 ```
 
 ## Mutation rules
@@ -747,9 +743,9 @@ Good example:
 
 ```ts
 interface GenerateDraftStore {
-  draft: GenerateDraft
-  updateDraft: (patch: Partial<GenerateDraft>) => void
-  resetDraft: () => void
+  draft: GenerateDraft;
+  updateDraft: (patch: Partial<GenerateDraft>) => void;
+  resetDraft: () => void;
 }
 ```
 
@@ -757,9 +753,9 @@ Bad example:
 
 ```ts
 interface BadStore {
-  examplesFromApi: Example[]
-  loading: boolean
-  error: string | null
+  examplesFromApi: Example[];
+  loading: boolean;
+  error: string | null;
 }
 ```
 
@@ -772,24 +768,24 @@ That belongs in React Query.
 Use `useSearchParams` for shareable state.
 
 ```ts
-const [searchParams, setSearchParams] = useSearchParams()
+const [searchParams, setSearchParams] = useSearchParams();
 
-const search = searchParams.get('q') ?? ''
-const page = Math.max(1, Number(searchParams.get('page') ?? 1))
+const search = searchParams.get('q') ?? '';
+const page = Math.max(1, Number(searchParams.get('page') ?? 1));
 ```
 
 When filters change, reset pagination.
 
 ```ts
 const setSearch = (value: string) => {
-  const next = new URLSearchParams(searchParams)
+  const next = new URLSearchParams(searchParams);
 
-  if (value) next.set('q', value)
-  else next.delete('q')
+  if (value) next.set('q', value);
+  else next.delete('q');
 
-  next.delete('page')
-  setSearchParams(next, { replace: true })
-}
+  next.delete('page');
+  setSearchParams(next, { replace: true });
+};
 ```
 
 ## Use URL state for
@@ -850,7 +846,7 @@ Use the shared hook when leaving could discard meaningful work.
 const guard = useUnsavedChangesGuard({
   when: isDirty,
   onDiscard: resetForm,
-})
+});
 ```
 
 Render a confirmation dialog using the state returned by the hook.
@@ -1252,21 +1248,21 @@ Provide a retry action when useful.
 Use the root toast API:
 
 ```ts
-import { toast } from '../../../lib/toast'
+import { toast } from '../../../lib/toast';
 
-const toastId = toast.loading('Publishing tracker...')
+const toastId = toast.loading('Publishing tracker...');
 
 try {
-  await mutation.mutateAsync(payload)
+  await mutation.mutateAsync(payload);
   toast.update(toastId, {
     title: 'Tracker published',
     tone: 'success',
-  })
+  });
 } catch {
   toast.update(toastId, {
     title: 'Unable to publish tracker',
     tone: 'error',
-  })
+  });
 }
 ```
 
@@ -1301,11 +1297,7 @@ Override it through `contentClassName`.
 When a stronger class must override the default Tailwind max-width, use the important utility:
 
 ```tsx
-<Modal
-  contentClassName="w-full !max-w-[1100px]"
->
-  ...
-</Modal>
+<Modal contentClassName="w-full !max-w-[1100px]">...</Modal>
 ```
 
 ## Large modal pattern
@@ -1393,7 +1385,7 @@ Wrap isolated heavy widgets with `WidgetErrorBoundary` so one compiler, AI tutor
 Relative imports between files in the same module are allowed.
 
 ```ts
-import { useExamples } from '../hooks/useExamples'
+import { useExamples } from '../hooks/useExamples';
 ```
 
 ## Across modules
@@ -1403,13 +1395,13 @@ Use the target module’s public `index.ts`.
 Correct:
 
 ```ts
-import { useTrackers, type Tracker } from '../../trackers'
+import { useTrackers, type Tracker } from '../../trackers';
 ```
 
 Incorrect:
 
 ```ts
-import { useTrackers } from '../../trackers/hooks/useTrackerQueries'
+import { useTrackers } from '../../trackers/hooks/useTrackerQueries';
 ```
 
 Deep cross-module imports make unrelated modules depend on internal folder structure.
@@ -1428,8 +1420,8 @@ Import application-wide behavior from:
 Expose only what other modules genuinely need.
 
 ```ts
-export { useExamples } from './hooks/useExampleQueries'
-export type { Example, ExampleListQuery } from './types/example.types'
+export { useExamples } from './hooks/useExampleQueries';
+export type { Example, ExampleListQuery } from './types/example.types';
 ```
 
 Do not export every internal component automatically.
@@ -1630,35 +1622,35 @@ Not every module needs every folder. Create folders only when they have a real r
 // modules/achievements/types/achievement.types.ts
 
 export interface ApiResponse<T> {
-  success: boolean
-  message: string
-  data: T
+  success: boolean;
+  message: string;
+  data: T;
 }
 
 export interface Achievement {
-  _id: string
-  title: string
-  description: string
-  category: string
-  earnedAt?: string | null
+  _id: string;
+  title: string;
+  description: string;
+  category: string;
+  earnedAt?: string | null;
 }
 
 export interface AchievementListQuery {
-  search?: string
-  category?: string
-  page?: number
-  limit?: number
+  search?: string;
+  category?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface AchievementListResponse {
-  achievements: Achievement[]
-  total: number
-  page: number
-  totalPages: number
+  achievements: Achievement[];
+  total: number;
+  page: number;
+  totalPages: number;
 }
 
 export interface ClaimAchievementPayload {
-  achievementId: string
+  achievementId: string;
 }
 ```
 
@@ -1667,17 +1659,15 @@ export interface ClaimAchievementPayload {
 ```ts
 // modules/achievements/hooks/achievement.keys.ts
 
-import type { AchievementListQuery } from '../types/achievement.types'
+import type { AchievementListQuery } from '../types/achievement.types';
 
 export const achievementKeys = {
   all: ['achievements'] as const,
   lists: () => [...achievementKeys.all, 'list'] as const,
-  list: (query: AchievementListQuery) =>
-    [...achievementKeys.lists(), query] as const,
+  list: (query: AchievementListQuery) => [...achievementKeys.lists(), query] as const,
   details: () => [...achievementKeys.all, 'detail'] as const,
-  detail: (achievementId: string) =>
-    [...achievementKeys.details(), achievementId] as const,
-}
+  detail: (achievementId: string) => [...achievementKeys.details(), achievementId] as const,
+};
 ```
 
 ## Queries
@@ -1685,43 +1675,40 @@ export const achievementKeys = {
 ```ts
 // modules/achievements/hooks/useAchievementQueries.ts
 
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
-import api from '../../../lib/axios'
+import api from '../../../lib/axios';
 import type {
   Achievement,
   AchievementListQuery,
   AchievementListResponse,
   ApiResponse,
-} from '../types/achievement.types'
-import { achievementKeys } from './achievement.keys'
+} from '../types/achievement.types';
+import { achievementKeys } from './achievement.keys';
 
 export const useAchievements = (query: AchievementListQuery) =>
   useQuery({
     queryKey: achievementKeys.list(query),
     queryFn: async () => {
-      const response = await api.get<ApiResponse<AchievementListResponse>>(
-        '/achievements',
-        { params: query },
-      )
+      const response = await api.get<ApiResponse<AchievementListResponse>>('/achievements', {
+        params: query,
+      });
 
-      return response.data.data
+      return response.data.data;
     },
     placeholderData: keepPreviousData,
-  })
+  });
 
 export const useAchievement = (achievementId?: string) =>
   useQuery({
     queryKey: achievementKeys.detail(achievementId ?? ''),
     enabled: Boolean(achievementId),
     queryFn: async () => {
-      const response = await api.get<ApiResponse<Achievement>>(
-        `/achievements/${achievementId}`,
-      )
+      const response = await api.get<ApiResponse<Achievement>>(`/achievements/${achievementId}`);
 
-      return response.data.data
+      return response.data.data;
     },
-  })
+  });
 ```
 
 ## Mutation
@@ -1729,45 +1716,38 @@ export const useAchievement = (achievementId?: string) =>
 ```ts
 // modules/achievements/hooks/useAchievementMutations.ts
 
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import api from '../../../lib/axios'
-import { toast } from '../../../lib/toast'
-import type {
-  Achievement,
-  ApiResponse,
-  ClaimAchievementPayload,
-} from '../types/achievement.types'
-import { achievementKeys } from './achievement.keys'
+import api from '../../../lib/axios';
+import { toast } from '../../../lib/toast';
+import type { Achievement, ApiResponse, ClaimAchievementPayload } from '../types/achievement.types';
+import { achievementKeys } from './achievement.keys';
 
 export const useClaimAchievement = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ achievementId }: ClaimAchievementPayload) => {
       const response = await api.post<ApiResponse<Achievement>>(
-        `/achievements/${achievementId}/claim`,
-      )
+        `/achievements/${achievementId}/claim`
+      );
 
-      return response.data.data
+      return response.data.data;
     },
     onSuccess: (achievement) => {
-      queryClient.setQueryData(
-        achievementKeys.detail(achievement._id),
-        achievement,
-      )
+      queryClient.setQueryData(achievementKeys.detail(achievement._id), achievement);
 
       queryClient.invalidateQueries({
         queryKey: achievementKeys.lists(),
-      })
+      });
 
-      toast.success('Achievement claimed')
+      toast.success('Achievement claimed');
     },
     onError: () => {
-      toast.error('Unable to claim achievement')
+      toast.error('Unable to claim achievement');
     },
-  })
-}
+  });
+};
 ```
 
 ## URL search state
@@ -1775,32 +1755,32 @@ export const useClaimAchievement = () => {
 ```ts
 // modules/achievements/hooks/useAchievementSearchState.ts
 
-import { useCallback } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 export const useAchievementSearchState = () => {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const search = searchParams.get('q') ?? ''
-  const category = searchParams.get('category') ?? 'all'
-  const page = Math.max(1, Number(searchParams.get('page') ?? 1))
+  const search = searchParams.get('q') ?? '';
+  const category = searchParams.get('category') ?? 'all';
+  const page = Math.max(1, Number(searchParams.get('page') ?? 1));
 
   const update = useCallback(
     (patch: Record<string, string | number | null>) => {
-      const next = new URLSearchParams(searchParams)
+      const next = new URLSearchParams(searchParams);
 
       Object.entries(patch).forEach(([key, value]) => {
         if (value === null || value === '' || value === 'all') {
-          next.delete(key)
+          next.delete(key);
         } else {
-          next.set(key, String(value))
+          next.set(key, String(value));
         }
-      })
+      });
 
-      setSearchParams(next, { replace: true })
+      setSearchParams(next, { replace: true });
     },
-    [searchParams, setSearchParams],
-  )
+    [searchParams, setSearchParams]
+  );
 
   return {
     search,
@@ -1809,8 +1789,8 @@ export const useAchievementSearchState = () => {
     setSearch: (value: string) => update({ q: value, page: null }),
     setCategory: (value: string) => update({ category: value, page: null }),
     setPage: (value: number) => update({ page: value }),
-  }
-}
+  };
+};
 ```
 
 ## Card
@@ -1818,34 +1798,24 @@ export const useAchievementSearchState = () => {
 ```tsx
 // modules/achievements/components/AchievementCard.tsx
 
-import Button from '../../../components/ui/Button'
-import SectionCard from '../../../components/layout/SectionCard'
-import type { Achievement } from '../types/achievement.types'
+import Button from '../../../components/ui/Button';
+import SectionCard from '../../../components/layout/SectionCard';
+import type { Achievement } from '../types/achievement.types';
 
 interface AchievementCardProps {
-  achievement: Achievement
-  claiming: boolean
-  onClaim: (achievementId: string) => void
+  achievement: Achievement;
+  claiming: boolean;
+  onClaim: (achievementId: string) => void;
 }
 
-export default function AchievementCard({
-  achievement,
-  claiming,
-  onClaim,
-}: AchievementCardProps) {
+export default function AchievementCard({ achievement, claiming, onClaim }: AchievementCardProps) {
   return (
     <SectionCard variant="flat" className="flex h-full flex-col">
-      <div className="type-label-sm text-[var(--brand-500)]">
-        {achievement.category}
-      </div>
+      <div className="type-label-sm text-(--brand-500)">{achievement.category}</div>
 
-      <h2 className="type-heading-md mt-2 text-[var(--text-primary)]">
-        {achievement.title}
-      </h2>
+      <h2 className="type-heading-md mt-2 text-(--text-primary)">{achievement.title}</h2>
 
-      <p className="type-body-sm mt-2 flex-1 text-[var(--text-secondary)]">
-        {achievement.description}
-      </p>
+      <p className="type-body-sm mt-2 flex-1 text-(--text-secondary)">{achievement.description}</p>
 
       {!achievement.earnedAt && (
         <Button
@@ -1858,7 +1828,7 @@ export default function AchievementCard({
         </Button>
       )}
     </SectionCard>
-  )
+  );
 }
 ```
 
@@ -1867,22 +1837,22 @@ export default function AchievementCard({
 ```tsx
 // modules/achievements/pages/AchievementsPage.tsx
 
-import { useMemo } from 'react'
+import { useMemo } from 'react';
 
-import EmptyState from '../../../components/feedback/EmptyState'
-import ErrorState from '../../../components/feedback/ErrorState'
-import SkeletonBlock from '../../../components/feedback/SkeletonBlock'
-import PageContainer from '../../../components/layout/PageContainer'
-import PageHeader from '../../../components/layout/PageHeader'
-import Pagination from '../../../components/navigation/Pagination'
-import SearchInput from '../../../components/filters/SearchInput'
-import AchievementCard from '../components/AchievementCard'
-import { useClaimAchievement } from '../hooks/useAchievementMutations'
-import { useAchievements } from '../hooks/useAchievementQueries'
-import { useAchievementSearchState } from '../hooks/useAchievementSearchState'
+import EmptyState from '../../../components/feedback/EmptyState';
+import ErrorState from '../../../components/feedback/ErrorState';
+import SkeletonBlock from '../../../components/feedback/SkeletonBlock';
+import PageContainer from '../../../components/layout/PageContainer';
+import PageHeader from '../../../components/layout/PageHeader';
+import Pagination from '../../../components/navigation/Pagination';
+import SearchInput from '../../../components/filters/SearchInput';
+import AchievementCard from '../components/AchievementCard';
+import { useClaimAchievement } from '../hooks/useAchievementMutations';
+import { useAchievements } from '../hooks/useAchievementQueries';
+import { useAchievementSearchState } from '../hooks/useAchievementSearchState';
 
 export default function AchievementsPage() {
-  const state = useAchievementSearchState()
+  const state = useAchievementSearchState();
   const query = useMemo(
     () => ({
       search: state.search,
@@ -1890,11 +1860,11 @@ export default function AchievementsPage() {
       page: state.page,
       limit: 12,
     }),
-    [state.category, state.page, state.search],
-  )
+    [state.category, state.page, state.search]
+  );
 
-  const achievementsQuery = useAchievements(query)
-  const claimMutation = useClaimAchievement()
+  const achievementsQuery = useAchievements(query);
+  const claimMutation = useClaimAchievement();
 
   return (
     <PageContainer>
@@ -1914,7 +1884,7 @@ export default function AchievementsPage() {
       {achievementsQuery.isLoading && !achievementsQuery.data ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <SkeletonBlock key={index} className="h-52 rounded-[var(--radius-lg)]" />
+            <SkeletonBlock key={index} className="h-52 rounded-lg" />
           ))}
         </div>
       ) : achievementsQuery.isError || !achievementsQuery.data ? (
@@ -1935,9 +1905,7 @@ export default function AchievementsPage() {
                   claimMutation.isPending &&
                   claimMutation.variables?.achievementId === achievement._id
                 }
-                onClaim={(achievementId) =>
-                  claimMutation.mutate({ achievementId })
-                }
+                onClaim={(achievementId) => claimMutation.mutate({ achievementId })}
               />
             ))}
           </div>
@@ -1951,7 +1919,7 @@ export default function AchievementsPage() {
         </>
       )}
     </PageContainer>
-  )
+  );
 }
 ```
 
@@ -1962,15 +1930,9 @@ export default function AchievementsPage() {
 ```ts
 // modules/achievements/index.ts
 
-export {
-  useAchievement,
-  useAchievements,
-} from './hooks/useAchievementQueries'
+export { useAchievement, useAchievements } from './hooks/useAchievementQueries';
 
-export type {
-  Achievement,
-  AchievementListQuery,
-} from './types/achievement.types'
+export type { Achievement, AchievementListQuery } from './types/achievement.types';
 ```
 
 ---
@@ -1982,14 +1944,12 @@ export type {
 ```tsx
 // routes/authenticated.routes.tsx
 
-const AchievementsPage = lazy(
-  () => import('../modules/achievements/pages/AchievementsPage'),
-)
+const AchievementsPage = lazy(() => import('../modules/achievements/pages/AchievementsPage'));
 
 export const authenticatedRoutes: RouteObject[] = [
   // existing routes
   { path: '/achievements', element: <AchievementsPage /> },
-]
+];
 ```
 
 The page automatically receives the authenticated app shell.
@@ -2010,7 +1970,7 @@ Create builders rather than repeating string interpolation everywhere.
 export const achievementRoutes = {
   root: '/achievements',
   detail: (achievementId: string) => `/achievements/${achievementId}`,
-}
+};
 ```
 
 ---
@@ -2241,7 +2201,7 @@ The route layout already owns them.
 const useExampleStore = create(() => ({
   examples: [],
   loading: false,
-}))
+}));
 ```
 
 Use React Query.
@@ -2250,7 +2210,7 @@ Use React Query.
 
 ```ts
 // Wrong
-import { useTrackers } from '../../trackers/hooks/useTrackerQueries'
+import { useTrackers } from '../../trackers/hooks/useTrackerQueries';
 ```
 
 Use the module public API.
@@ -2259,7 +2219,7 @@ Use the module public API.
 
 ```ts
 // Wrong
-window.localStorage.setItem('theme', value)
+window.localStorage.setItem('theme', value);
 ```
 
 Use typed storage keys and safe helpers/store.
@@ -2277,7 +2237,7 @@ Use the root `api` client.
 
 ```tsx
 // Avoid for normal shared UI
-className="bg-[#fdf8f5] text-[#1a1714] border-[#e0d0c5]"
+className = 'bg-[#fdf8f5] text-[#1a1714] border-[#e0d0c5]';
 ```
 
 Use semantic variables.
@@ -2286,7 +2246,7 @@ Use semantic variables.
 
 ```ts
 // Wrong
-activeModal: string | null
+activeModal: string | null;
 ```
 
 Use local state or a precise module UI store.

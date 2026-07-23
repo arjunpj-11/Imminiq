@@ -10,10 +10,7 @@ export const useAdminUserNotes = (userId: string) =>
   useQuery({
     queryKey: adminUsersKeys.notes(userId),
     queryFn: async () =>
-      (
-        await api.get<ApiEnvelope<AdminUserNotesData>>(
-          ADMIN_USERS_ENDPOINTS.notes(userId),
-        )
-      ).data.data,
+      (await api.get<ApiEnvelope<AdminUserNotesData>>(ADMIN_USERS_ENDPOINTS.notes(userId))).data
+        .data,
     enabled: Boolean(userId),
   });

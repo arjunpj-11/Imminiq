@@ -15,8 +15,16 @@ export type ReportTrackerReason =
 
 export const useReportCommunityTracker = () =>
   useMutation({
-    mutationFn: ({ trackerId, reason, details }: { trackerId: string; reason: ReportTrackerReason; details: string }) =>
-      api.post(COMMUNITY_ENDPOINTS.reportTracker(trackerId), { reason, details }),
-    onSuccess: () => toast.success('Report submitted', 'An administrator will review this tracker.'),
+    mutationFn: ({
+      trackerId,
+      reason,
+      details,
+    }: {
+      trackerId: string;
+      reason: ReportTrackerReason;
+      details: string;
+    }) => api.post(COMMUNITY_ENDPOINTS.reportTracker(trackerId), { reason, details }),
+    onSuccess: () =>
+      toast.success('Report submitted', 'An administrator will review this tracker.'),
     onError: (error) => toast.error('Report failed', getUserFacingError(error)),
   });

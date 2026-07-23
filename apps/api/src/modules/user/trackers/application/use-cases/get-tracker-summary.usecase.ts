@@ -1,6 +1,4 @@
-import type {
-  TrackerSummaryDTO,
-} from '../tracker.dto';
+import type { TrackerSummaryDTO } from '../tracker.dto';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerQueryRepository } from '../../domain/repositories/tracker-query.repository.interface';
 

@@ -1,10 +1,5 @@
-import {
-  type MouseEvent as ReactMouseEvent,
-  type ReactNode,
-  useEffect,
-  useRef,
-} from "react";
-import { createPortal } from "react-dom";
+import { type MouseEvent as ReactMouseEvent, type ReactNode, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 interface IAdminModalProps {
   open: boolean;
@@ -18,7 +13,7 @@ interface IAdminModalProps {
 let nextModalId = 0;
 const modalStack: number[] = [];
 let bodyLockCount = 0;
-let originalBodyOverflow = "";
+let originalBodyOverflow = '';
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',
@@ -27,15 +22,15 @@ const FOCUSABLE_SELECTOR = [
   'input:not([disabled])',
   'select:not([disabled])',
   '[tabindex]:not([tabindex="-1"])',
-].join(",");
+].join(',');
 
 export default function AdminModal({
   open,
   onClose,
   children,
   preventClose = false,
-  ariaLabel = "Admin dialog",
-  contentClassName = "",
+  ariaLabel = 'Admin dialog',
+  contentClassName = '',
 }: IAdminModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
@@ -60,30 +55,29 @@ export default function AdminModal({
 
     if (bodyLockCount === 0) {
       originalBodyOverflow = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden';
     }
     bodyLockCount += 1;
 
     const focusDialog = window.requestAnimationFrame(() => {
-      const firstFocusable =
-        dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+      const firstFocusable = dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
       (firstFocusable ?? dialogRef.current)?.focus();
     });
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (modalStack[modalStack.length - 1] !== currentModalId) return;
 
-      if (event.key === "Escape" && !preventCloseRef.current) {
+      if (event.key === 'Escape' && !preventCloseRef.current) {
         event.preventDefault();
         onCloseRef.current();
         return;
       }
 
-      if (event.key !== "Tab" || !dialogRef.current) return;
+      if (event.key !== 'Tab' || !dialogRef.current) return;
 
       const focusable = Array.from(
-        dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
-      ).filter((element) => !element.hasAttribute("disabled"));
+        dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+      ).filter((element) => !element.hasAttribute('disabled'));
 
       if (focusable.length === 0) {
         event.preventDefault();
@@ -104,11 +98,11 @@ export default function AdminModal({
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
       window.cancelAnimationFrame(focusDialog);
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener('keydown', handleKeyDown);
 
       const stackIndex = modalStack.lastIndexOf(currentModalId);
       if (stackIndex >= 0) modalStack.splice(stackIndex, 1);
@@ -122,7 +116,7 @@ export default function AdminModal({
     };
   }, [open]);
 
-  if (!open || typeof document === "undefined") return null;
+  if (!open || typeof document === 'undefined') return null;
 
   const hasZeroPadding = /(^|\s)p-0(\s|$)/.test(contentClassName);
 
@@ -136,7 +130,7 @@ export default function AdminModal({
       role="presentation"
       onMouseDown={handleBackdropMouseDown}
     >
-      <div className="admin-theme" style={{ display: "contents" }}>
+      <div className="admin-theme" style={{ display: 'contents' }}>
         <div
           ref={dialogRef}
           role="dialog"
@@ -145,12 +139,12 @@ export default function AdminModal({
           aria-busy={preventClose || undefined}
           tabIndex={-1}
           className={`admin-modal-panel relative flex max-h-[calc(100dvh-1rem)] min-h-0 w-full flex-col overflow-hidden rounded-xl border border-white/12 bg-[#1c1a18] text-[#f2f0eb] shadow-[0_28px_90px_rgba(0,0,0,0.58)] outline-none sm:max-h-[calc(100dvh-2rem)] sm:rounded-2xl ${contentClassName}`}
-          style={{ overflow: "hidden" }}
+          style={{ overflow: 'hidden' }}
           onMouseDown={(event) => event.stopPropagation()}
         >
           <div
             className={`admin-modal-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain ${
-              hasZeroPadding ? "p-0" : "p-4 sm:p-6"
+              hasZeroPadding ? 'p-0' : 'p-4 sm:p-6'
             }`}
             tabIndex={-1}
           >
@@ -159,6 +153,6 @@ export default function AdminModal({
         </div>
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }

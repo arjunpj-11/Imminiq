@@ -9,12 +9,7 @@ import type { QuestionType } from '../domain/value-objects/question-type.vo';
 import type { MockTestCodeTestCaseResult } from '../domain/services/mock-test-code-runner.interface';
 import type { MockTestQuestionIssueReason } from '../domain/repositories/mock-test-question-issue.repository.interface';
 
-export type {
-  DifficultyLevel,
-  MockTestCodingDetails,
-  MockTestCodingLanguage,
-  QuestionType,
-};
+export type { DifficultyLevel, MockTestCodingDetails, MockTestCodingLanguage, QuestionType };
 
 export interface MockTestDTO {
   _id: string;
@@ -173,15 +168,13 @@ export type MockTestGenerationStatusDTO = MockTestGenerationJobDTO & {
   errorMessage?: string;
 };
 
-export type PendingMockTestGenerationJobDTO = Pick<
-  MockTestGenerationJobDTO,
-  'jobId' | 'status'
-> & { status: 'pending' };
+export type PendingMockTestGenerationJobDTO = Pick<MockTestGenerationJobDTO, 'jobId' | 'status'> & {
+  status: 'pending';
+};
 
-export type ActiveMockTestGenerationJobDTO = Pick<
-  MockTestGenerationJobDTO,
-  'jobId' | 'status'
-> & { status: 'pending' | 'processing' };
+export type ActiveMockTestGenerationJobDTO = Pick<MockTestGenerationJobDTO, 'jobId' | 'status'> & {
+  status: 'pending' | 'processing';
+};
 
 export interface SubmitAnswerPayloadDTO {
   questionId: string;

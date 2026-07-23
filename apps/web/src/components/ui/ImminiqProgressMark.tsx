@@ -24,10 +24,7 @@ export default function ImminiqProgressMark({
   const clipWidth = (boundedProgress / 100) * 80;
 
   return (
-    <div
-      aria-hidden="true"
-      style={{ width: size + 24, height: size + 24, position: 'relative' }}
-    >
+    <div aria-hidden="true" style={{ width: size + 24, height: size + 24, position: 'relative' }}>
       <div
         style={{
           position: 'absolute',

@@ -2,11 +2,11 @@
 
 # Imminiq
 
-**An AI-powered learning platform — built with strict clean architecture, hardened authentication, personalized roadmaps, interactive lessons, and real-time code execution.**
+**An AI-powered learning platform with personalized roadmaps, interactive lessons, real-time code execution, and a complete Social experience for learning together.**
 
 ![Status](https://img.shields.io/badge/status-production%20baseline-brightgreen?style=flat-square)
 ![Started](https://img.shields.io/badge/started-May%206%2C%202026-blue?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-313%20passing-success?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-367%20passing-success?style=flat-square)
 ![License](https://img.shields.io/badge/license-private-lightgrey?style=flat-square)
 
 </div>
@@ -15,7 +15,9 @@
 
 ## Overview
 
-Imminiq is a full-stack, AI-first learning platform that generates personalized roadmaps, guides learners through structured lessons with AI chat support, and provides an in-browser code execution environment — all within a rigorously architected monorepo.
+Imminiq is a full-stack, AI-first learning platform that generates personalized roadmaps, guides learners through structured lessons with AI support, provides an in-browser code execution environment, and keeps learners connected through private chat, voice messages, tracker sharing, and contextual audio/video calls.
+
+The platform is organized as a rigorously architected monorepo. Backend capabilities use strict clean architecture, while the frontend exposes cohesive feature modules with stable public boundaries.
 
 ---
 
@@ -28,7 +30,7 @@ Imminiq is a full-stack, AI-first learning platform that generates personalized 
 | Architecture | Modular + Strict Clean Architecture |
 | Database | MongoDB Atlas |
 | Cache / Sessions | Redis |
-| Realtime | Socket.io |
+| Realtime | Socket.IO + WebRTC |
 | Background Jobs | BullMQ |
 | Code Execution | Piston |
 | AI Providers | Groq, Gemini, Cerebras |
@@ -55,6 +57,7 @@ src/modules/<feature>/
 - Dependencies always point inward
 - Domain and application layers have zero knowledge of Express, Mongoose, Redis, or BullMQ
 - Shared infrastructure lives outside feature modules
+- Frontend features expose public entry points and do not import another feature's internals
 
 ---
 
@@ -144,6 +147,22 @@ src/modules/<feature>/
 </details>
 
 <details>
+<summary><strong>Social & Communication</strong></summary>
+
+- One responsive Social workspace for chats, friends, requests, and call history
+- Separate backend `chat` and `calls` modules with the same strict clean-architecture boundaries as the rest of the API
+- Real-time direct messaging, typing indicators, read receipts, online presence, and last activity
+- Privacy controls for presence and last-activity visibility
+- Voice messages with accurate duration and in-chat playback
+- Code snippets with copy actions, image previews, files, forwarding, and media controls
+- Public tracker sharing from personal trackers and Community directly into a conversation
+- Audio and video calls built on WebRTC with a required call reason, incoming-call context, minimize behavior, outcome tracking, and stored duration
+- User blocking that prevents messaging, profile access, avatar visibility, and presence disclosure
+- Server-side Groq transcription for consistent voice input across supported product modules
+
+</details>
+
+<details>
 <summary><strong>Profile & Settings</strong></summary>
 
 - Avatar and banner upload (Cloudinary-backed)
@@ -160,10 +179,10 @@ src/modules/<feature>/
 
 | Suite | Status |
 |---|---|
-| Backend architecture, security, unit, and integration tests | ✅ 270 / 270 |
-| Frontend architecture, production configuration, and utility tests | ✅ 43 / 43 |
+| Backend architecture, security, unit, and integration tests | ✅ 303 / 303 |
+| Frontend architecture, production configuration, and utility tests | ✅ 64 / 64 |
 
-**Coverage includes:** auth flows, CSRF, refresh-token rotation, reuse detection, OAuth state protection, request-origin checks, password reset replay prevention, upload signature validation, and the 30-day account deletion recovery flow.
+**Coverage includes:** auth flows, CSRF, refresh-token rotation, reuse detection, OAuth state protection, request-origin checks, password reset replay prevention, upload signature validation, account deletion recovery, module-boundary enforcement, chat and call flows, voice-message duration, tracker sharing, and Social utilities.
 
 **CI pipelines:** Lint · Build · Test · Dependency Review · CodeQL Security Scanning
 
@@ -239,10 +258,8 @@ Imminiq/
 
 ## What's Next
 
-- Community module
-- Challenge module
-- Mock test module
-- Social learning and battle improvements
+- Production TURN capacity and regional call-quality monitoring
+- Deeper Social notification and call-recovery resilience
 - Expanded automated test coverage
 - API, database design, and frontend flow documentation
 
@@ -250,4 +267,4 @@ Imminiq/
 
 ## Project Timeline
 
-Development started **May 6, 2026**. Currently in active feature development and product module expansion.
+Development started **May 6, 2026**. Imminiq is currently a production-ready baseline under active feature development and operational hardening.

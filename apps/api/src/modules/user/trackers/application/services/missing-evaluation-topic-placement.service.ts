@@ -108,7 +108,10 @@ export class MissingEvaluationTopicPlacementService
 
     await Promise.all([
       this._repository.incrementTrackerSubtopicsCount(input.trackerId),
-      this._repository.recomputeTrackerProgress({ trackerId: input.trackerId, userId: input.userId }),
+      this._repository.recomputeTrackerProgress({
+        trackerId: input.trackerId,
+        userId: input.userId,
+      }),
       this._repository.markMissingEvaluationTopicAsAdded({
         evaluationJobId: input.evaluationJobId,
         topicIndex: input.topicIndex,

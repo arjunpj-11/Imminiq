@@ -10,7 +10,10 @@ import { closeSocket } from './infrastructure/realtime/socket';
 // Start BullMQ workers
 import { aiWorker, startAiWorker } from './infrastructure/queue/workers/ai.worker';
 import { emailWorker, startEmailWorker } from './infrastructure/queue/workers/email.worker';
-import { notificationWorker, startNotificationWorker } from './infrastructure/queue/workers/notification.worker';
+import {
+  notificationWorker,
+  startNotificationWorker,
+} from './infrastructure/queue/workers/notification.worker';
 
 const httpServer = http.createServer(app);
 httpServer.headersTimeout = 15_000;

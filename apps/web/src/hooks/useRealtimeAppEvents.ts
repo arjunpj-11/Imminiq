@@ -4,11 +4,10 @@ import type { Socket } from 'socket.io-client';
 
 import { notificationKeys } from '../modules/notifications';
 import { friendsQueryKeys } from '../modules/user/friends';
+import { socialQueryKeys } from '../modules/user/social';
+import { profileQueryKeys } from '../modules/user/users';
 
-const FRIEND_NOTIFICATION_TYPES = new Set([
-  'friend_request_received',
-  'friend_request_accepted',
-]);
+const FRIEND_NOTIFICATION_TYPES = new Set(['friend_request_received', 'friend_request_accepted']);
 
 type NotificationCreatedEvent = {
   type?: string;
@@ -26,7 +25,22 @@ export const useRealtimeAppEvents = (accessToken: string | null, enabled: boolea
         void queryClient.invalidateQueries({ queryKey: friendsQueryKeys.all });
       }
     };
-    const refreshAfterReconnect = () => refreshNotifications();
+    const refreshChat = () => {
+      void queryClient.invalidateQueries({ queryKey: socialQueryKeys.chat.all });
+    };
+    const refreshSocialBlocks = () => {
+      refreshChat();
+      void queryClient.invalidateQueries({
+        queryKey: socialQueryKeys.calls.all,
+      });
+      queryClient.removeQueries({
+        queryKey: profileQueryKeys.publicProfiles(),
+      });
+    };
+    const refreshAfterReconnect = () => {
+      refreshNotifications();
+      refreshChat();
+    };
     let active = true;
     let realtimeSocket: Socket | undefined;
 
@@ -35,6 +49,9 @@ export const useRealtimeAppEvents = (accessToken: string | null, enabled: boolea
       realtimeSocket = socket;
       socket.auth = { token: accessToken };
       socket.on('notification:created', refreshNotifications);
+      socket.on('chat:message', refreshChat);
+      socket.on('chat:read', refreshChat);
+      socket.on('chat:block-updated', refreshSocialBlocks);
       socket.on('connect', refreshAfterReconnect);
       if (!socket.connected) socket.connect();
     });
@@ -42,6 +59,9 @@ export const useRealtimeAppEvents = (accessToken: string | null, enabled: boolea
     return () => {
       active = false;
       realtimeSocket?.off('notification:created', refreshNotifications);
+      realtimeSocket?.off('chat:message', refreshChat);
+      realtimeSocket?.off('chat:read', refreshChat);
+      realtimeSocket?.off('chat:block-updated', refreshSocialBlocks);
       realtimeSocket?.off('connect', refreshAfterReconnect);
       realtimeSocket?.disconnect();
     };

@@ -8,12 +8,15 @@ import { AppShell } from './AppShell';
 
 export default function AuthenticatedAppLayout() {
   const location = useLocation();
+  const isOpenSocialConversation =
+    location.pathname === ROUTES.chat &&
+    new URLSearchParams(location.search).has('conversation');
   const routeAnimationKey = location.pathname.startsWith(ROUTES.settingsRoot)
     ? ROUTES.settingsRoot
     : location.pathname;
 
   return (
-    <AppShell>
+    <AppShell withFooter={!isOpenSocialConversation}>
       <AppErrorBoundary resetKey={location.pathname}>
         <div key={routeAnimationKey} className="route-enter min-w-0">
           <Suspense fallback={<AppPageSkeleton />}>

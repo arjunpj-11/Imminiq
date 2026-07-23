@@ -225,9 +225,7 @@ describe('TrackerClanService', () => {
       questionCount: 10,
       durationMinutes: 10,
     });
-    expect(clans.createChallenge).toHaveBeenCalledWith(
-      expect.objectContaining({ questions })
-    );
+    expect(clans.createChallenge).toHaveBeenCalledWith(expect.objectContaining({ questions }));
     expect(notifier.notify).toHaveBeenCalledWith({
       id: 'challenge-1',
       trackerId: 'tracker-1',
@@ -291,19 +289,23 @@ describe('TrackerClanService', () => {
     } as TrackerClanChallenge;
     vi.mocked(clans.answerChallengeNode).mockResolvedValue(challenge);
     const notifier: ITrackerClanChallengeNotifier = { notify: vi.fn() };
-    const useCase = new TrackerClanChallengeService(
-      clans,
-      { generate: vi.fn() },
-      notifier
-    );
+    const useCase = new TrackerClanChallengeService(clans, { generate: vi.fn() }, notifier);
 
-    await expect(useCase.answerNode({
-      trackerId: 'tracker-1', challengeId: 'challenge-1', userId: 'member-1',
-      questionId: 'question-1', answer: '42',
-    })).resolves.toBe(challenge);
+    await expect(
+      useCase.answerNode({
+        trackerId: 'tracker-1',
+        challengeId: 'challenge-1',
+        userId: 'member-1',
+        questionId: 'question-1',
+        answer: '42',
+      })
+    ).resolves.toBe(challenge);
     expect(notifier.notify).toHaveBeenCalledWith({
-      id: 'challenge-1', trackerId: 'tracker-1', status: 'active',
-      challengerId: 'member-1', opponentId: 'member-2',
+      id: 'challenge-1',
+      trackerId: 'tracker-1',
+      status: 'active',
+      challengerId: 'member-1',
+      opponentId: 'member-2',
     });
   });
 });

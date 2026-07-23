@@ -8,8 +8,8 @@ import {
   CommunityPublicTrackerPage,
   CommunityVerifySubmissionPage,
   DashboardPage,
-  FriendsPage,
   FriendsSearchPage,
+  SocialPage,
   LeaderboardPage,
   LeaderboardRewardsPage,
   MockTestAnalysisPage,
@@ -144,8 +144,12 @@ export const authenticatedRoutes: RouteObject[] = [
   },
 
   {
+    path: ROUTES.chat,
+    element: <SocialPage />,
+  },
+  {
     path: ROUTES.friends,
-    element: <FriendsPage />,
+    element: <Navigate to={`${ROUTES.chat}?view=friends`} replace />,
   },
   {
     path: ROUTES.friendsSearch,

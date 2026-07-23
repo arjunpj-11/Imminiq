@@ -6,8 +6,13 @@ import { notificationKeys } from './notifications.query-keys';
 export const useVoteNotificationPoll = () => {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: ({ notificationId, optionIndex }: { notificationId: string; optionIndex: number }) =>
-      api.post(NOTIFICATION_API_PATHS.vote(notificationId), { optionIndex }),
+    mutationFn: ({
+      notificationId,
+      optionIndex,
+    }: {
+      notificationId: string;
+      optionIndex: number;
+    }) => api.post(NOTIFICATION_API_PATHS.vote(notificationId), { optionIndex }),
     onSuccess: () => client.invalidateQueries({ queryKey: notificationKeys.all }),
   });
 };

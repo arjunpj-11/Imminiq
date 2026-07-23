@@ -82,7 +82,8 @@ export default function TrackerRoadmapPage() {
   const progress =
     currentNodes.length === 0 ? 0 : Math.round((completedCount / currentNodes.length) * 100);
 
-  const isMainLoading = trackerDetailsQuery.isLoading || (!trackerIsModerated && roadmapQuery.isLoading);
+  const isMainLoading =
+    trackerDetailsQuery.isLoading || (!trackerIsModerated && roadmapQuery.isLoading);
 
   const hasMainError = !trackerId || roadmapQuery.isError;
 

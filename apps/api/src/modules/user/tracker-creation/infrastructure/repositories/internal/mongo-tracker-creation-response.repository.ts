@@ -29,7 +29,9 @@ export class MongoTrackerCreationResponseRepository extends MongoTrackerCreation
     );
   }
 
-  async saveStep1(data: SaveTrackerCreationStep1Input): Promise<TrackerCreationResponseEntity | null> {
+  async saveStep1(
+    data: SaveTrackerCreationStep1Input
+  ): Promise<TrackerCreationResponseEntity | null> {
     return this.execute(
       'TRACKER_CREATION_STEP_ONE_SAVE_FAILED',
       'Failed to save tracker creation step one',
@@ -62,7 +64,9 @@ export class MongoTrackerCreationResponseRepository extends MongoTrackerCreation
     );
   }
 
-  async saveStep2(data: SaveTrackerCreationStep2Input): Promise<TrackerCreationResponseEntity | null> {
+  async saveStep2(
+    data: SaveTrackerCreationStep2Input
+  ): Promise<TrackerCreationResponseEntity | null> {
     return this.execute(
       'TRACKER_CREATION_STEP_TWO_SAVE_FAILED',
       'Failed to save tracker creation step two',

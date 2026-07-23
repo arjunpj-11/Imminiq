@@ -13,7 +13,7 @@ export default function ArenaPreview() {
               Built for
             </p>
             <h2 className="mt-4 font-['Playfair_Display',serif] text-[clamp(42px,7vw,90px)] font-black leading-[0.9] tracking-[-0.08em]">
-              Serious learners. Stronger together.
+              People who want to learn—and leave something better behind.
             </h2>
           </div>
           <div className="mt-10 space-y-3">
@@ -35,21 +35,35 @@ export default function ArenaPreview() {
           <div className="relative z-1 flex items-center justify-between border-b border-white/10 pb-4">
             <div>
               <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.18em] text-[#e8816a]">
-                Arena Preview
+                Community Tracker Preview
               </p>
-              <h3 className="mt-1 text-xl font-bold">A connected workspace for measurable growth.</h3>
+              <h3 className="mt-1 text-xl font-bold">
+                One shared path. A community growing around it.
+              </h3>
             </div>
             <span className="rounded-full border border-[#e8816a]/30 bg-[#e8816a]/10 px-3 py-1 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#e8816a]">
-              Built for mastery
+              Always evolving
             </span>
           </div>
 
           <div className="relative z-1 mt-6 grid gap-4 md:grid-cols-2">
             {[
-              ['Adaptive roadmap', 'Your learning path evolves with goals, progress, and evaluation.'],
-              ['Scribe guidance', 'Answers, hints, voice, and code support stay inside each lesson.'],
-              ['Guild workspace', 'Collaborate through clones, contributions, chat, and live battles.'],
-              ['Mastery signals', 'Tests, revision, streaks, and heatmaps show exactly where to return.'],
+              [
+                'Structured beginning',
+                'AI creates a practical first version from the community’s shared learning goal.',
+              ],
+              [
+                'Learning guild',
+                'People following the tracker discuss, practise, support, and challenge one another.',
+              ],
+              [
+                'Open contribution',
+                'Learners propose a missing topic or a better step when experience reveals a gap.',
+              ],
+              [
+                'Verified evolution',
+                'Trusted contributions strengthen the tracker and benefit everyone who follows it.',
+              ],
             ].map(([title, body], index) => (
               <article
                 key={title}

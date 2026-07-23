@@ -1,31 +1,19 @@
-import {
-  useEffect,
-  useMemo,
-  useState,
-  type FormEvent,
-  type ReactNode,
-} from "react";
-import {
-  AlertTriangle,
-  CheckCircle2,
-  LoaderCircle,
-  RotateCcw,
-  Save,
-} from "lucide-react";
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import { AlertTriangle, CheckCircle2, LoaderCircle, RotateCcw, Save } from 'lucide-react';
 import {
   AdminError,
   AdminLoading,
   AdminNumberInput,
   AdminPageHeader,
   AdminPanel,
-} from "../../../../components/admin";
-import { getUserFacingError } from "../../../../lib/user-facing-error";
-import { useAdminSettings } from "../hooks/useAdminSettings";
-import { useUpdateAdminSettings } from "../hooks/useUpdateAdminSettings";
-import type { AdminSettings } from "../types/admin-settings.types";
-import Modal from "../../../../components/admin/AdminModal";
-import AdminActionPasswordField from "../../../../components/admin/AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../../../lib/admin/admin-action-password";
+} from '../../../../components/admin';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { useAdminSettings } from '../hooks/useAdminSettings';
+import { useUpdateAdminSettings } from '../hooks/useUpdateAdminSettings';
+import type { AdminSettings } from '../types/admin-settings.types';
+import Modal from '../../../../components/admin/AdminModal';
+import AdminActionPasswordField from '../../../../components/admin/AdminActionPasswordField';
+import { isAdminActionPasswordReady } from '../../../../lib/admin/admin-action-password';
 export default function AdminSettingsPage() {
   const { data, isLoading, isError, error, refetch } = useAdminSettings();
   return (
@@ -53,27 +41,24 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
       aiBudgetWarningPercent: initial.aiBudgetWarningPercent,
       productPolicy: initial.productPolicy,
     }),
-    [initial],
+    [initial]
   );
   const [form, setForm] = useState(initialForm);
   const [reviewOpen, setReviewOpen] = useState(false);
-  const [changeReason, setChangeReason] = useState("");
-  const [actionPassword, setActionPassword] = useState("");
+  const [changeReason, setChangeReason] = useState('');
+  const [actionPassword, setActionPassword] = useState('');
 
-  const changes = useMemo(
-    () => collectSettingChanges(initialForm, form),
-    [initialForm, form],
-  );
+  const changes = useMemo(() => collectSettingChanges(initialForm, form), [initialForm, form]);
   const isDirty = changes.length > 0;
 
   useEffect(() => {
     const warnBeforeUnload = (event: BeforeUnloadEvent) => {
       if (!isDirty || update.isPending) return;
       event.preventDefault();
-      event.returnValue = "";
+      event.returnValue = '';
     };
-    window.addEventListener("beforeunload", warnBeforeUnload);
-    return () => window.removeEventListener("beforeunload", warnBeforeUnload);
+    window.addEventListener('beforeunload', warnBeforeUnload);
+    return () => window.removeEventListener('beforeunload', warnBeforeUnload);
   }, [isDirty, update.isPending]);
 
   const submit = (event: FormEvent) => {
@@ -87,22 +72,21 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
       {
         onSuccess: () => {
           setReviewOpen(false);
-          setChangeReason("");
-          setActionPassword("");
+          setChangeReason('');
+          setActionPassword('');
         },
-      },
+      }
     );
   };
 
   const reset = () => {
     setForm(initialForm);
-    setChangeReason("");
-    setActionPassword("");
+    setChangeReason('');
+    setActionPassword('');
   };
 
   const reviewReady =
-    changeReason.trim().length >= 10 &&
-    isAdminActionPasswordReady(actionPassword);
+    changeReason.trim().length >= 10 && isAdminActionPasswordReady(actionPassword);
 
   return (
     <>
@@ -112,15 +96,15 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
           <span
             className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-bold ${
               isDirty
-                ? "border-[#f0a842]/30 bg-[#f0a842]/10 text-[#f0a842]"
-                : "border-[#52c58c]/25 bg-[#52c58c]/10 text-[#52c58c]"
+                ? 'border-[#f0a842]/30 bg-[#f0a842]/10 text-[#f0a842]'
+                : 'border-[#52c58c]/25 bg-[#52c58c]/10 text-[#52c58c]'
             }`}
             role="status"
           >
             {isDirty ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />}
             {isDirty
-              ? `${changes.length} unsaved change${changes.length === 1 ? "" : "s"}`
-              : "All changes saved"}
+              ? `${changes.length} unsaved change${changes.length === 1 ? '' : 's'}`
+              : 'All changes saved'}
           </span>
         }
       >
@@ -129,9 +113,7 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
             label="Allow broadcasts"
             description="Permit admins to send new user notifications from Broadcast Centre."
             checked={form.allowBroadcasts}
-            setChecked={(value) =>
-              setForm((x) => ({ ...x, allowBroadcasts: value }))
-            }
+            setChecked={(value) => setForm((x) => ({ ...x, allowBroadcasts: value }))}
           />
           <PolicySection title="AI usage guardrails">
             <PolicyNumberField
@@ -139,9 +121,7 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
               value={form.aiMonthlyTokenBudget}
               min={1}
               max={10_000_000_000}
-              onChange={(aiMonthlyTokenBudget) =>
-                setForm((x) => ({ ...x, aiMonthlyTokenBudget }))
-              }
+              onChange={(aiMonthlyTokenBudget) => setForm((x) => ({ ...x, aiMonthlyTokenBudget }))}
             />
             <PolicyNumberField
               label="Budget warning threshold (%)"
@@ -551,7 +531,7 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
               className="rounded-lg border border-[#e26767]/25 bg-[#e26767]/10 p-3 text-sm text-[#e26767]"
               role="alert"
             >
-              {getUserFacingError(update.error, "Settings could not be saved.")}
+              {getUserFacingError(update.error, 'Settings could not be saved.')}
             </p>
           )}
 
@@ -571,10 +551,7 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
               >
                 <RotateCcw size={15} /> Reset
               </button>
-              <button
-                disabled={!isDirty || update.isPending}
-                className="admin-primary-button"
-              >
+              <button disabled={!isDirty || update.isPending} className="admin-primary-button">
                 <Save size={15} /> Review changes
               </button>
             </div>
@@ -594,21 +571,16 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
             <AlertTriangle size={20} />
           </span>
           <div>
-            <h2 className="font-editorial text-2xl font-bold">
-              Review global changes
-            </h2>
+            <h2 className="font-editorial text-2xl font-bold">Review global changes</h2>
             <p className="mt-1 text-sm leading-6 text-[#aaa59d]">
-              These values affect the full platform immediately. Confirm the
-              scope before saving.
+              These values affect the full platform immediately. Confirm the scope before saving.
             </p>
           </div>
         </div>
 
         <div className="admin-table-scroll mt-5 max-h-72 overflow-auto rounded-xl border border-white/10">
           <table className="admin-table w-full min-w-125 text-left text-sm">
-            <caption className="sr-only">
-              Review of global settings changes
-            </caption>
+            <caption className="sr-only">Review of global settings changes</caption>
             <thead>
               <tr>
                 <th scope="col">Setting</th>
@@ -621,9 +593,7 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
                 <tr key={change.path}>
                   <td className="font-semibold">{change.label}</td>
                   <td className="text-[#aaa59d]">{String(change.before)}</td>
-                  <td className="font-semibold text-[#e8816a]">
-                    {String(change.after)}
-                  </td>
+                  <td className="font-semibold text-[#e8816a]">{String(change.after)}</td>
                 </tr>
               ))}
             </tbody>
@@ -642,17 +612,13 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
           />
         </label>
         <AdminActionPasswordField
-        value={actionPassword}
-        onChange={setActionPassword}
-        className="admin-field mt-4"
-      />
+          value={actionPassword}
+          onChange={setActionPassword}
+          className="admin-field mt-4"
+        />
 
         <div className="mt-6 flex flex-wrap justify-end gap-2">
-          <button
-            type="button"
-            className="admin-button"
-            onClick={() => setReviewOpen(false)}
-          >
+          <button type="button" className="admin-button" onClick={() => setReviewOpen(false)}>
             Cancel
           </button>
           <button
@@ -666,7 +632,7 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
                 <LoaderCircle size={15} className="animate-spin" /> Saving…
               </>
             ) : (
-              "Apply global changes"
+              'Apply global changes'
             )}
           </button>
         </div>
@@ -683,31 +649,25 @@ type SettingChange = {
 };
 
 function collectSettingChanges(
-  before: Omit<AdminSettings, "updatedAt">,
-  after: Omit<AdminSettings, "updatedAt">,
+  before: Omit<AdminSettings, 'updatedAt'>,
+  after: Omit<AdminSettings, 'updatedAt'>
 ): SettingChange[] {
   const output: SettingChange[] = [];
   const walk = (left: unknown, right: unknown, path: string[]) => {
-    if (
-      left &&
-      right &&
-      typeof left === "object" &&
-      typeof right === "object"
-    ) {
+    if (left && right && typeof left === 'object' && typeof right === 'object') {
       for (const key of Object.keys(right as Record<string, unknown>)) {
-        walk(
-          (left as Record<string, unknown>)[key],
-          (right as Record<string, unknown>)[key],
-          [...path, key],
-        );
+        walk((left as Record<string, unknown>)[key], (right as Record<string, unknown>)[key], [
+          ...path,
+          key,
+        ]);
       }
       return;
     }
     if (left !== right) {
-      const fullPath = path.join(".");
+      const fullPath = path.join('.');
       output.push({
         path: fullPath,
-        label: path.map(humanizeSettingKey).join(" · "),
+        label: path.map(humanizeSettingKey).join(' · '),
         before: left as string | number | boolean,
         after: right as string | number | boolean,
       });
@@ -719,17 +679,11 @@ function collectSettingChanges(
 
 function humanizeSettingKey(value: string) {
   return value
-    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
     .replace(/^./, (character) => character.toUpperCase());
 }
 
-function PolicySection({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
+function PolicySection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="admin-policy-section space-y-4 p-5">
       <h3 className="font-semibold">{title}</h3>
@@ -754,13 +708,7 @@ function PolicyNumberField({
   return (
     <label className="admin-field">
       <span>{label}</span>
-      <AdminNumberInput
-        required
-        min={min}
-        max={max}
-        value={value}
-        onValueChange={onChange}
-      />
+      <AdminNumberInput required min={min} max={max} value={value} onValueChange={onChange} />
     </label>
   );
 }

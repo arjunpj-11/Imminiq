@@ -7,7 +7,11 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import { AppPageSkeleton } from '../../../../components/feedback/RouteSkeleton';
 import WidgetErrorBoundary from '../../../../components/system/WidgetErrorBoundary';
-import { useTrackerDetails, useTrackerLesson, useUpdateSubtopicProgress } from '../hooks/useTrackers';
+import {
+  useTrackerDetails,
+  useTrackerLesson,
+  useUpdateSubtopicProgress,
+} from '../hooks/useTrackers';
 import TrackerModerationNotice from '../components/TrackerModerationNotice';
 
 import CompilerCard from '../components/lesson/CompilerCard';
@@ -59,7 +63,8 @@ export default function TrackerLessonPage() {
     );
   }, [generatedLesson]);
 
-  const isMainLoading = trackerDetailsQuery.isLoading || (!trackerIsModerated && lessonQuery.isLoading);
+  const isMainLoading =
+    trackerDetailsQuery.isLoading || (!trackerIsModerated && lessonQuery.isLoading);
 
   const hasMainError = lessonQuery.isError || !trackerId || !subtopicId;
 

@@ -1,8 +1,5 @@
 import { TrackerApplicationError } from '../tracker-application.error';
-import type {
-  LessonQuestionPayloadDTO,
-  LessonQuestionSolutionDoubtsDTO,
-} from '../tracker.dto';
+import type { LessonQuestionPayloadDTO, LessonQuestionSolutionDoubtsDTO } from '../tracker.dto';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { IQuestionHasher } from '../../domain/services/question-hasher.interface';
@@ -11,7 +8,9 @@ export interface IGetLessonQuestionSolutionDoubtsUseCase {
   execute(input: LessonQuestionPayloadDTO): Promise<LessonQuestionSolutionDoubtsDTO>;
 }
 
-export class GetLessonQuestionSolutionDoubtsUseCase implements IGetLessonQuestionSolutionDoubtsUseCase {
+export class GetLessonQuestionSolutionDoubtsUseCase
+  implements IGetLessonQuestionSolutionDoubtsUseCase
+{
   constructor(
     private readonly _trackerRepository: Pick<
       ITrackerRepository,

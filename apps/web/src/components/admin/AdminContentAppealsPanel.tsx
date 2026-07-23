@@ -1,14 +1,12 @@
-import { ExternalLink, Eye, ShieldCheck } from "lucide-react";
-import { useState } from "react";
-import Modal from "./AdminModal";
-import {
-  useAdminContentAppeals,
-} from "../../hooks/admin/useAdminContentAppeals";
-import { useUpdateAdminContentAppeal } from "../../hooks/admin/useUpdateAdminContentAppeal";
+import { ExternalLink, Eye, ShieldCheck } from 'lucide-react';
+import { useState } from 'react';
+import Modal from './AdminModal';
+import { useAdminContentAppeals } from '../../hooks/admin/useAdminContentAppeals';
+import { useUpdateAdminContentAppeal } from '../../hooks/admin/useUpdateAdminContentAppeal';
 import type {
   AdminContentAppeal,
   AdminContentAppealDecision,
-} from "../../hooks/admin/admin-shared.types";
+} from '../../hooks/admin/admin-shared.types';
 import {
   AdminCardSkeleton,
   AdminEmpty,
@@ -18,18 +16,14 @@ import {
   AdminPaginationControls,
   AdminPanel,
   AdminStatusBadge,
-} from "./AdminPage";
-import AdminActionPasswordField from "./AdminActionPasswordField";
-import { isAdminActionPasswordReady } from "../../lib/admin/admin-action-password";
+} from './AdminPage';
+import AdminActionPasswordField from './AdminActionPasswordField';
+import { isAdminActionPasswordReady } from '../../lib/admin/admin-action-password';
 
-type DecisionInput = Omit<AdminContentAppealDecision, "id">;
+type DecisionInput = Omit<AdminContentAppealDecision, 'id'>;
 
-export function AdminContentAppealsPanel({
-  kind,
-}: {
-  kind: "trackers" | "mock-tests";
-}) {
-  const [status, setStatus] = useState<"all" | AdminContentAppeal["status"]>("pending");
+export function AdminContentAppealsPanel({ kind }: { kind: 'trackers' | 'mock-tests' }) {
+  const [status, setStatus] = useState<'all' | AdminContentAppeal['status']>('pending');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<AdminContentAppeal | null>(null);
   const query = useAdminContentAppeals(kind, status, page);
@@ -46,27 +40,27 @@ export function AdminContentAppealsPanel({
       ) : (
         <AdminMetricGrid
           metrics={[
-          {
-            label: "Appeals pending",
-            value: data?.stats.pending ?? 0,
-            tone: "warning",
-          },
-          {
-            label: "Under review",
-            value: data?.stats.underReview ?? 0,
-            tone: "info",
-          },
-          {
-            label: "Approved",
-            value: data?.stats.approved ?? 0,
-            tone: "success",
-          },
-          {
-            label: "Rejected",
-            value: data?.stats.rejected ?? 0,
-            tone: "error",
-          },
-        ]}
+            {
+              label: 'Appeals pending',
+              value: data?.stats.pending ?? 0,
+              tone: 'warning',
+            },
+            {
+              label: 'Under review',
+              value: data?.stats.underReview ?? 0,
+              tone: 'info',
+            },
+            {
+              label: 'Approved',
+              value: data?.stats.approved ?? 0,
+              tone: 'success',
+            },
+            {
+              label: 'Rejected',
+              value: data?.stats.rejected ?? 0,
+              tone: 'error',
+            },
+          ]}
         />
       )}
 
@@ -95,10 +89,7 @@ export function AdminContentAppealsPanel({
             <AdminTableSkeleton columns={7} rows={7} label="Loading content appeals" />
           </div>
         ) : query.isError ? (
-          <AdminError
-            error={query.error}
-            onRetry={() => void query.refetch()}
-          />
+          <AdminError error={query.error} onRetry={() => void query.refetch()} />
         ) : !data?.items.length ? (
           <AdminEmpty>No owner appeals match this view.</AdminEmpty>
         ) : (
@@ -124,15 +115,11 @@ export function AdminContentAppealsPanel({
                     <tr key={item.id}>
                       <td>
                         <strong>{item.title}</strong>
-                        <div className="text-xs text-[#817c75]">
-                          {item.moderationStatus}
-                        </div>
+                        <div className="text-xs text-[#817c75]">{item.moderationStatus}</div>
                       </td>
                       <td>
                         {item.ownerName}
-                        <div className="text-xs text-[#817c75]">
-                          {item.ownerEmail}
-                        </div>
+                        <div className="text-xs text-[#817c75]">{item.ownerEmail}</div>
                       </td>
                       <td className="max-w-80 truncate" title={item.reason}>
                         {item.reason}
@@ -141,12 +128,9 @@ export function AdminContentAppealsPanel({
                       <td>
                         <AdminStatusBadge value={item.status} />
                       </td>
-                      <td>{item.assignedTo || "Unassigned"}</td>
+                      <td>{item.assignedTo || 'Unassigned'}</td>
                       <td>
-                        <button
-                          className="admin-button"
-                          onClick={() => setSelected(item)}
-                        >
+                        <button className="admin-button" onClick={() => setSelected(item)}>
                           <Eye size={14} aria-hidden="true" /> Review
                         </button>
                       </td>
@@ -166,16 +150,13 @@ export function AdminContentAppealsPanel({
       </AdminPanel>
 
       <DecisionDialog
-        key={selected?.id ?? "closed"}
+        key={selected?.id ?? 'closed'}
         appeal={selected}
         pending={update.isPending}
         onClose={() => setSelected(null)}
         onSubmit={(payload) =>
           selected &&
-          update.mutate(
-            { id: selected.id, ...payload },
-            { onSuccess: () => setSelected(null) },
-          )
+          update.mutate({ id: selected.id, ...payload }, { onSuccess: () => setSelected(null) })
         }
       />
     </section>
@@ -194,12 +175,10 @@ function DecisionDialog({
   onSubmit: (input: DecisionInput) => void;
 }) {
   const [decisionStatus, setDecisionStatus] =
-    useState<DecisionInput["decisionStatus"]>("under_review");
-  const [decisionNote, setDecisionNote] = useState("");
-  const [actionPassword, setActionPassword] = useState("");
-  const ready =
-    decisionNote.trim().length >= 10 &&
-    isAdminActionPasswordReady(actionPassword);
+    useState<DecisionInput['decisionStatus']>('under_review');
+  const [decisionNote, setDecisionNote] = useState('');
+  const [actionPassword, setActionPassword] = useState('');
+  const ready = decisionNote.trim().length >= 10 && isAdminActionPasswordReady(actionPassword);
 
   return (
     <Modal
@@ -226,15 +205,8 @@ function DecisionDialog({
         {appeal?.evidenceUrls.length ? (
           <div className="mt-4 flex flex-wrap gap-2">
             {appeal.evidenceUrls.map((url, index) => (
-              <a
-                key={url}
-                className="admin-button"
-                href={url}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <ExternalLink size={14} aria-hidden="true" /> Evidence{" "}
-                {index + 1}
+              <a key={url} className="admin-button" href={url} target="_blank" rel="noreferrer">
+                <ExternalLink size={14} aria-hidden="true" /> Evidence {index + 1}
               </a>
             ))}
           </div>
@@ -246,9 +218,7 @@ function DecisionDialog({
         <select
           value={decisionStatus}
           onChange={(event) =>
-            setDecisionStatus(
-              event.target.value as DecisionInput["decisionStatus"],
-            )
+            setDecisionStatus(event.target.value as DecisionInput['decisionStatus'])
           }
         >
           <option value="under_review">Claim and investigate</option>
@@ -288,7 +258,7 @@ function DecisionDialog({
             })
           }
         >
-          {pending ? "Saving…" : "Save decision"}
+          {pending ? 'Saving…' : 'Save decision'}
         </button>
       </div>
     </Modal>

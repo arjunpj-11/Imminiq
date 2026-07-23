@@ -1,10 +1,7 @@
 import axios from 'axios';
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
-import {
-  saveBlockedAppealIdentifier,
-  saveBlockedModerationMessage,
-} from './blockedAppealSession';
+import { saveBlockedAppealIdentifier, saveBlockedModerationMessage } from './blockedAppealSession';
 import { getUserFacingError } from './user-facing-error';
 import { webEnvironment } from '../config/env';
 import { getCsrfToken, refreshAuthSession } from './auth-session-refresh';

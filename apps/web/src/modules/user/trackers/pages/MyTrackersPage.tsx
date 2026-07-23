@@ -1,14 +1,14 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
-import StatCard from "../../../../components/data-display/StatCard";
-import SkeletonBlock from "../../../../components/feedback/SkeletonBlock";
-import PageHero from "../../../../components/layout/PageHero";
-import { ROUTES } from "../../../../routes/config/route-paths";
-import TrackerCard, { type PublishFormData } from "../components/TrackerCard";
-import TrackerFilterBar from "../components/TrackerFilterBar";
-import TrackerShell from "../components/TrackerShell";
-import { useSubmitTrackerForVerification } from "../hooks/useSubmitTrackerForVerification";
-import { useTrackerFilters } from "../hooks/useTrackerFilters";
+import StatCard from '../../../../components/data-display/StatCard';
+import SkeletonBlock from '../../../../components/feedback/SkeletonBlock';
+import PageHero from '../../../../components/layout/PageHero';
+import { ROUTES } from '../../../../routes/config/route-paths';
+import TrackerCard, { type PublishFormData } from '../components/TrackerCard';
+import TrackerFilterBar from '../components/TrackerFilterBar';
+import TrackerShell from '../components/TrackerShell';
+import { useSubmitTrackerForVerification } from '../hooks/useSubmitTrackerForVerification';
+import { useTrackerFilters } from '../hooks/useTrackerFilters';
 import {
   useArchiveTracker,
   useDeleteTracker,
@@ -16,33 +16,16 @@ import {
   useRestoreTracker,
   useTrackerSummary,
   useTrackers,
-} from "../hooks/useTrackers";
+} from '../hooks/useTrackers';
 
 const PlusIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-  >
-    <path
-      d="M12 5v14M5 12h14"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-    />
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
   </svg>
 );
 
 const GlobeIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-  >
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.7" />
     <path
       d="M3 12h18M12 3c2.3 2.5 3.5 5.5 3.5 9S14.3 18.5 12 21c-2.3-2.5-3.5-5.5-3.5-9S9.7 5.5 12 3Z"
@@ -54,13 +37,7 @@ const GlobeIcon = () => (
 );
 
 const CompassIcon = () => (
-  <svg
-    width="30"
-    height="30"
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-  >
+  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
     <path
       d="m15.8 8.2-2.2 5.4-5.4 2.2 2.2-5.4 5.4-2.2Z"
@@ -72,13 +49,7 @@ const CompassIcon = () => (
 );
 
 const RefreshIcon = () => (
-  <svg
-    width="15"
-    height="15"
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-  >
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <path
       d="M20 11a8 8 0 1 0-2.35 5.65M20 5v6h-6"
       stroke="currentColor"
@@ -154,8 +125,8 @@ export default function MyTrackersPage() {
   const summaryQuery = useTrackerSummary();
   const trackersQuery = useTrackers({
     status,
-    domain: "all",
-    sortBy: "lastActive",
+    domain: 'all',
+    sortBy: 'lastActive',
     page: 1,
     limit: 12,
   });
@@ -164,14 +135,12 @@ export default function MyTrackersPage() {
   const deleteTrackerMutation = useDeleteTracker();
   const restoreTrackerMutation = useRestoreTracker();
   const publishTrackerMutation = usePublishTracker();
-  const submitTrackerForVerificationMutation =
-    useSubmitTrackerForVerification();
+  const submitTrackerForVerificationMutation = useSubmitTrackerForVerification();
 
   const summary = summaryQuery.data;
   const trackers = trackersQuery.data?.trackers ?? [];
   const isInitialLoad =
-    (summaryQuery.isLoading && !summary) ||
-    (trackersQuery.isLoading && !trackersQuery.data);
+    (summaryQuery.isLoading && !summary) || (trackersQuery.isLoading && !trackersQuery.data);
 
   if (isInitialLoad) return <MyTrackersPageSkeleton />;
 
@@ -186,8 +155,7 @@ export default function MyTrackersPage() {
             Trackers unavailable
           </h1>
           <p className="mx-auto mt-2 max-w-sm text-[13.5px] leading-[1.65] text-(--text-secondary)">
-            We could not load your tracker workspace. Your data is safe—please
-            try again.
+            We could not load your tracker workspace. Your data is safe—please try again.
           </p>
           <button
             type="button"
@@ -205,7 +173,7 @@ export default function MyTrackersPage() {
   }
 
   const handleArchiveToggle = (trackerId: string, trackerStatus?: string) => {
-    if (trackerStatus === "archived") restoreTrackerMutation.mutate(trackerId);
+    if (trackerStatus === 'archived') restoreTrackerMutation.mutate(trackerId);
     else archiveTrackerMutation.mutate(trackerId);
   };
 
@@ -217,7 +185,7 @@ export default function MyTrackersPage() {
       domain: data.domain,
       difficulty: data.difficulty,
       tags: data.tags
-        .split(",")
+        .split(',')
         .map((tag) => tag.trim())
         .filter(Boolean),
       allowClone: data.allowClone,
@@ -237,12 +205,11 @@ export default function MyTrackersPage() {
     await deleteTrackerMutation.mutateAsync(trackerId);
   };
 
-  const emptyTitle =
-    status === "all" ? "Create your first tracker" : `No ${status} trackers`;
+  const emptyTitle = status === 'all' ? 'Create your first tracker' : `No ${status} trackers`;
   const emptyDescription =
-    status === "all"
-      ? "Turn a learning goal into a structured roadmap, then continue from exactly where you stopped."
-      : "There are no trackers in this view. Choose another status or create a new learning path.";
+    status === 'all'
+      ? 'Turn a learning goal into a structured roadmap, then continue from exactly where you stopped.'
+      : 'There are no trackers in this view. Choose another status or create a new learning path.';
 
   return (
     <TrackerShell>
@@ -250,9 +217,7 @@ export default function MyTrackersPage() {
         eyebrow="Learning workspace"
         title={
           <>
-            Build your{" "}
-            <span className="text-(--brand-500)">zero-to-hero</span>{" "}
-            learning path
+            Build your <span className="text-(--brand-500)">zero-to-hero</span> learning path
           </>
         }
         description="Manage personalized roadmaps, continue exactly where you stopped, and turn every completed topic into visible mastery."
@@ -272,16 +237,25 @@ export default function MyTrackersPage() {
             >
               <GlobeIcon /> Published
               {summary.publishedTrackers > 0 && (
-                <span className="rounded-full bg-[rgba(45,106,71,0.12)] px-2 py-0.5 text-[10px] text-(--success)">{summary.publishedTrackers}</span>
+                <span className="rounded-full bg-[rgba(45,106,71,0.12)] px-2 py-0.5 text-[10px] text-(--success)">
+                  {summary.publishedTrackers}
+                </span>
               )}
             </button>
           </>
         }
         aside={
           <div>
-            <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-(--text-muted)">Overall mastery</div>
-            <div className="mt-3 font-ui text-[36px] font-extrabold leading-none text-(--brand-500)">{summary.averageProgress || 0}%</div>
-            <p className="mt-2 text-[12px] leading-5 text-(--text-secondary)">{summary.activeTrackers || 0} active path{summary.activeTrackers === 1 ? '' : 's'} moving forward.</p>
+            <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-(--text-muted)">
+              Overall mastery
+            </div>
+            <div className="mt-3 font-ui text-[36px] font-extrabold leading-none text-(--brand-500)">
+              {summary.averageProgress || 0}%
+            </div>
+            <p className="mt-2 text-[12px] leading-5 text-(--text-secondary)">
+              {summary.activeTrackers || 0} active path{summary.activeTrackers === 1 ? '' : 's'}{' '}
+              moving forward.
+            </p>
           </div>
         }
       />
@@ -337,21 +311,13 @@ export default function MyTrackersPage() {
             <TrackerCard
               key={tracker._id}
               tracker={tracker}
-              onOpenStudy={(trackerId) =>
-                navigate(`/trackers/${trackerId}/roadmap`)
-              }
+              onOpenStudy={(trackerId) => navigate(`/trackers/${trackerId}/roadmap`)}
               onPublish={handlePublish}
-              onViewPublished={(trackerId) =>
-                navigate(`/community/trackers/${trackerId}`)
-              }
+              onViewPublished={(trackerId) => navigate(`/community/trackers/${trackerId}`)}
               onInfo={(trackerId) => navigate(`/trackers/${trackerId}/manage`)}
-              onArchive={(trackerId) =>
-                handleArchiveToggle(trackerId, tracker.status)
-              }
+              onArchive={(trackerId) => handleArchiveToggle(trackerId, tracker.status)}
               onDelete={handleDelete}
-              onQuickRevision={(trackerId) =>
-                navigate(`/trackers/${trackerId}/revision`)
-              }
+              onQuickRevision={(trackerId) => navigate(`/trackers/${trackerId}/revision`)}
               onSendForVerification={handleSendForVerification}
             />
           ))}
@@ -369,10 +335,10 @@ export default function MyTrackersPage() {
             {emptyDescription}
           </p>
           <div className="relative mt-6 flex flex-wrap justify-center gap-2.5">
-            {status !== "all" && (
+            {status !== 'all' && (
               <button
                 type="button"
-                onClick={() => setStatus("all")}
+                onClick={() => setStatus('all')}
                 className="rounded-xl border-[1.5px] border-(--border-subtle) px-5 py-2.5 text-[13px] font-bold text-(--text-secondary) transition hover:border-(--brand-500) hover:text-(--brand-500)"
               >
                 View all trackers

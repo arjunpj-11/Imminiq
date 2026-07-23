@@ -1,8 +1,4 @@
-import type {
-  TrackerClanMessage,
-  TrackerClanOverview,
-  TrackerCloneSyncResult,
-} from '../domain';
+import type { TrackerClanMessage, TrackerClanOverview, TrackerCloneSyncResult } from '../domain';
 import type {
   DeleteClanSubtopicPayloadDTO,
   DeleteClanTopicPayloadDTO,

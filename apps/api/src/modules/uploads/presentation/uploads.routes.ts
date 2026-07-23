@@ -2,9 +2,12 @@ import { Router } from 'express';
 
 import { authenticate } from '../../../shared/middlewares/auth.middleware';
 import { validateUploadedImageSignature } from '../../../shared/middlewares/image-upload-signature.middleware';
-import { avatarUpload, bannerUpload } from '../../../shared/middlewares/profile-image-upload.middleware';
 import {
-  authenticatedApiIpLimiter,
+  avatarUpload,
+  bannerUpload,
+} from '../../../shared/middlewares/profile-image-upload.middleware';
+import {
+  authenticatedApiUserLimiter,
   profileImageUploadIpLimiter,
 } from '../../../shared/middlewares/security-rate-limit.middleware';
 import { validate } from '../../../shared/middlewares/validate.middleware';
@@ -19,7 +22,7 @@ export const createUploadsRoutes = (useCases: UploadsUseCases) => {
 
   // ─── PROTECTED ───────────────────────────────────────────────
 
-  router.use(authenticatedApiIpLimiter, authenticate);
+  router.use(authenticate, authenticatedApiUserLimiter);
 
   router.post(
     UPLOAD_ROUTE_PATHS.AVATAR,

@@ -5,9 +5,7 @@ import type { ITrackerClanChallenge } from '../types/tracker.types';
 import { syncTrackerClanChallengeCache } from './syncTrackerClanChallengeCache';
 import { trackerKeys } from './trackers.query-keys';
 
-const createChallenge = (
-  status: ITrackerClanChallenge['status']
-): ITrackerClanChallenge =>
+const createChallenge = (status: ITrackerClanChallenge['status']): ITrackerClanChallenge =>
   ({
     id: 'challenge-1',
     status,
@@ -26,9 +24,7 @@ describe('syncTrackerClanChallengeCache', () => {
     syncTrackerClanChallengeCache(queryClient, trackerId, completedChallenge);
 
     expect(
-      queryClient.getQueryData<ITrackerClanChallenge[]>(
-        trackerKeys.clanChallenges(trackerId)
-      )?.[0]
+      queryClient.getQueryData<ITrackerClanChallenge[]>(trackerKeys.clanChallenges(trackerId))?.[0]
     ).toEqual(completedChallenge);
     expect(
       queryClient.getQueryData(trackerKeys.clanChallenge(trackerId, completedChallenge.id))

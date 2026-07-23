@@ -1,5 +1,5 @@
 export const adminBroadcastKeys = {
-  all: ["admin", "broadcasts"] as const,
+  all: ['admin', 'broadcasts'] as const,
   list: (page: number, search: string) =>
-    [...adminBroadcastKeys.all, "list", page, search] as const,
+    [...adminBroadcastKeys.all, 'list', page, search] as const,
 };

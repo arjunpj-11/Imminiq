@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
-import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
+import { authenticatedApiUserLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
 import { validate } from '../../../../shared/middlewares/validate.middleware';
 import { SettingsController } from './settings.controller';
 import type { SettingsUseCases } from '../application/settings-use-cases.contract';
@@ -17,7 +17,7 @@ export const createSettingsRoutes = (useCases: SettingsUseCases) => {
   const settingsController = new SettingsController(useCases);
   const router = Router();
 
-  router.use(authenticatedApiIpLimiter, authenticate);
+  router.use(authenticate, authenticatedApiUserLimiter);
 
   // ─── READ SETTINGS ───────────────────────────────────────────
 

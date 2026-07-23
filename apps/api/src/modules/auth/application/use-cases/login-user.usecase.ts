@@ -15,10 +15,7 @@ import type { IIdentifierNormalizer } from '../../domain/services/identifier-nor
 import type { IAuthToken } from '../../domain/services/auth-token.interface';
 import type { IModerationAppealToken } from '../../domain/services/moderation-appeal-token.interface';
 
-type LoginRepository = Pick<
-  IAuthUserRepository,
-  'findByIdentifier'
-> &
+type LoginRepository = Pick<IAuthUserRepository, 'findByIdentifier'> &
   Pick<IAuthTwoFactorRepository, 'hasActiveTwoFactor'>;
 
 const LOGIN_SCOPE: SecurityAttemptScope = 'auth_login';
