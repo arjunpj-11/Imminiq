@@ -54,6 +54,11 @@ export interface ICallApiError {
   code?: string;
 }
 
+export interface ICallIceConfiguration {
+  iceServers: RTCIceServer[];
+  expiresInSeconds: number | null;
+}
+
 export type CallSignal =
   | { type: 'offer'; description: RTCSessionDescriptionInit }
   | { type: 'answer'; description: RTCSessionDescriptionInit }

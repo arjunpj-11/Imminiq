@@ -54,3 +54,14 @@ export type CallPageDTO = {
     hasMore: boolean;
   };
 };
+
+export type CallIceServerDTO = {
+  urls: string | string[];
+  username?: string;
+  credential?: string;
+};
+
+export type CallIceConfigurationDTO = {
+  iceServers: CallIceServerDTO[];
+  expiresInSeconds: number | null;
+};

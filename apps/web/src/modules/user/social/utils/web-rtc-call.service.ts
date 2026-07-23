@@ -1,4 +1,3 @@
-import { webEnvironment } from '../../../../config/env';
 import type { CallSignal, CallType } from '../types/call.types';
 
 export type WebRtcCallCallbacks = {
@@ -22,29 +21,21 @@ export class WebRtcCallService {
     return this._localStream;
   }
 
-  async prepare(type: CallType) {
+  async prepare(type: CallType, iceServers: RTCIceServer[]) {
     if (!navigator.mediaDevices?.getUserMedia) {
       throw new Error('Calling is not supported in this browser');
     }
     if (!this._localStream) {
       this._localStream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
         video: type === 'video',
       });
     }
     if (!this._peer) {
-      const iceServers: RTCIceServer[] = [{ urls: webEnvironment.webrtcStunUrl }];
-      if (webEnvironment.webrtcTurnUrl) {
-        iceServers.push({
-          urls: webEnvironment.webrtcTurnUrl,
-          ...(webEnvironment.webrtcTurnUsername
-            ? { username: webEnvironment.webrtcTurnUsername }
-            : {}),
-          ...(webEnvironment.webrtcTurnCredential
-            ? { credential: webEnvironment.webrtcTurnCredential }
-            : {}),
-        });
-      }
       const peer = new RTCPeerConnection({
         iceServers,
       });

@@ -12,6 +12,7 @@ export const createCallsRoutes = (useCases: CallsUseCases) => {
 
   router.use(authenticate, authenticatedApiUserLimiter);
   router.get(CALLS_ROUTE_PATHS.ACTIVE, controller.getActive);
+  router.get(CALLS_ROUTE_PATHS.ICE_SERVERS, controller.getIceServers);
   router.get(CALLS_ROUTE_PATHS.ROOT, controller.list);
   router.post(CALLS_ROUTE_PATHS.ROOT, controller.initiate);
   router.patch(CALLS_ROUTE_PATHS.RESPOND, controller.respond);

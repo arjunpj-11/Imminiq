@@ -37,6 +37,10 @@ Create a Render environment group named `imminiq-production` and populate every 
   (`RATE_LIMIT_GLOBAL_MAX=6000` and `RATE_LIMIT_AUTHENTICATED_API_MAX=3000` per
   15-minute window); login, OTP, password-reset, upload, and moderation routes
   retain their own substantially lower abuse limits.
+- configure `METERED_TURN_API_BASE_URL` with the HTTPS Metered domain and
+  `METERED_TURN_SECRET_KEY` with the server-only key from Metered Dashboard → Developers.
+  The calls module uses these values to issue expiring TURN credentials to authenticated
+  users; never expose the Metered secret through a `VITE_*` variable.
 
 HTTP rate-limit counters are stored in Redis and shared by every API instance. Size Redis for the
 configured request windows, and alert on Redis errors because the API intentionally fails closed
@@ -62,11 +66,11 @@ remain in `queued` or `processing` longer than the expected audience delivery wi
 
 Deploy `apps/web` as the Vercel project root. `VITE_API_URL=/api` uses the rewrite in `apps/web/vercel.json`. If the API hostname changes, update that rewrite in the same release or use an absolute `VITE_API_URL` and remove the proxy dependency.
 
-Configure a credentialed production TURN service through
-`VITE_WEBRTC_TURN_URL`, `VITE_WEBRTC_TURN_USERNAME`, and
-`VITE_WEBRTC_TURN_CREDENTIAL`. STUN remains the development fallback, but TURN
-is required for reliable audio and video calls across restrictive mobile,
-corporate, and carrier-grade NAT networks.
+Configure only the public `VITE_WEBRTC_STUN_URL` in the frontend. The authenticated
+`/api/calls/ice-servers` endpoint supplies the complete expiring ICE configuration
+from the API. TURN is required for reliable audio and video calls across restrictive
+mobile, corporate, and carrier-grade NAT networks, but its account secret must remain
+server-side.
 
 ## Release and rollback
 

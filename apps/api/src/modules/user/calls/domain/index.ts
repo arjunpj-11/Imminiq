@@ -8,3 +8,4 @@ export * from './repositories/call-participant.repository.interface';
 export * from './repositories/call-relationship.repository.interface';
 export * from './services/call-realtime-publisher.interface';
 export * from './services/call-timeout-scheduler.interface';
+export * from './services/call-ice-server.provider.interface';

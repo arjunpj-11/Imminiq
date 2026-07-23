@@ -26,6 +26,15 @@ export class CallsController {
     }
   };
 
+  getIceServers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this._useCases.getIceServers.execute(getAuthUser(req).userId);
+      res.json(new ApiResponse(CALL_RESPONSE_MESSAGES.ICE_SERVERS_LOADED, result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
   list = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const input = this.parse(listCallsSchema.safeParse(req.query));

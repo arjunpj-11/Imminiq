@@ -6,7 +6,7 @@
 
 ![Status](https://img.shields.io/badge/status-production%20baseline-brightgreen?style=flat-square)
 ![Started](https://img.shields.io/badge/started-May%206%2C%202026-blue?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-367%20passing-success?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-370%20passing-success?style=flat-square)
 ![License](https://img.shields.io/badge/license-private-lightgrey?style=flat-square)
 
 </div>
@@ -157,6 +157,7 @@ src/modules/<feature>/
 - Code snippets with copy actions, image previews, files, forwarding, and media controls
 - Public tracker sharing from personal trackers and Community directly into a conversation
 - Audio and video calls built on WebRTC with a required call reason, incoming-call context, minimize behavior, outcome tracking, and stored duration
+- Authenticated, server-issued, expiring TURN credentials with only the public STUN URL exposed to the frontend
 - User blocking that prevents messaging, profile access, avatar visibility, and presence disclosure
 - Server-side Groq transcription for consistent voice input across supported product modules
 
@@ -179,7 +180,7 @@ src/modules/<feature>/
 
 | Suite | Status |
 |---|---|
-| Backend architecture, security, unit, and integration tests | ✅ 303 / 303 |
+| Backend architecture, security, unit, and integration tests | ✅ 306 / 306 |
 | Frontend architecture, production configuration, and utility tests | ✅ 64 / 64 |
 
 **Coverage includes:** auth flows, CSRF, refresh-token rotation, reuse detection, OAuth state protection, request-origin checks, password reset replay prevention, upload signature validation, account deletion recovery, module-boundary enforcement, chat and call flows, voice-message duration, tracker sharing, and Social utilities.

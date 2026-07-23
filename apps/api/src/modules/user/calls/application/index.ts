@@ -7,6 +7,7 @@ export * from './services/call-view.service';
 export * from './use-cases/end-call.usecase';
 export * from './use-cases/expire-call.usecase';
 export * from './use-cases/get-active-call.usecase';
+export * from './use-cases/get-call-ice-servers.usecase';
 export * from './use-cases/initiate-call.usecase';
 export * from './use-cases/list-calls.usecase';
 export * from './use-cases/respond-call.usecase';

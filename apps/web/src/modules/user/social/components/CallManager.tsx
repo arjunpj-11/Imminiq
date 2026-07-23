@@ -35,6 +35,7 @@ import {
 } from '../hooks/useCalls';
 import { useCallLauncherStore } from '../store/useCallLauncherStore';
 import type { CallSignal, ICall } from '../types/call.types';
+import { loadCallIceServers } from '../utils/load-call-ice-servers';
 import { WebRtcCallService } from '../utils/web-rtc-call.service';
 
 const terminalStatuses = new Set(['declined', 'ended', 'missed', 'cancelled']);
@@ -147,7 +148,8 @@ export default function CallManager() {
     async (call: ICall) => {
       setMediaPending(true);
       try {
-        const stream = await callService.prepare(call.type);
+        const iceServers = await loadCallIceServers();
+        const stream = await callService.prepare(call.type, iceServers);
         setLocalStream(stream);
         return true;
       } catch (error) {
@@ -421,7 +423,7 @@ export default function CallManager() {
   if (minimized) {
     return (
       <div className="fixed bottom-4 left-1/2 z-190 w-[min(94vw,560px)] -translate-x-1/2 rounded-xl border border-(--border-subtle) bg-(--surface-elevated) p-3 shadow-(--shadow-3)">
-        <audio ref={remoteAudioRef} autoPlay playsInline />
+        <audio ref={remoteAudioRef} playsInline />
         <div className="flex items-center gap-3">
           <span className="relative">
             <UserAvatar
