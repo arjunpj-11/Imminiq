@@ -33,6 +33,10 @@ Create a Render environment group named `imminiq-production` and populate every 
   canonical API origin before the host-only state cookie is issued;
 - restrict OAuth callback URLs, Cloudinary credentials, payment webhooks, and provider keys to production domains;
 - keep Piston isolated from the API network and never expose a privileged executor directly to the public internet.
+- keep the general API ceilings at or above the checked-in production baseline
+  (`RATE_LIMIT_GLOBAL_MAX=6000` and `RATE_LIMIT_AUTHENTICATED_API_MAX=3000` per
+  15-minute window); login, OTP, password-reset, upload, and moderation routes
+  retain their own substantially lower abuse limits.
 
 HTTP rate-limit counters are stored in Redis and shared by every API instance. Size Redis for the
 configured request windows, and alert on Redis errors because the API intentionally fails closed
@@ -57,6 +61,12 @@ remain in `queued` or `processing` longer than the expected audience delivery wi
 ## Frontend deployment
 
 Deploy `apps/web` as the Vercel project root. `VITE_API_URL=/api` uses the rewrite in `apps/web/vercel.json`. If the API hostname changes, update that rewrite in the same release or use an absolute `VITE_API_URL` and remove the proxy dependency.
+
+Configure a credentialed production TURN service through
+`VITE_WEBRTC_TURN_URL`, `VITE_WEBRTC_TURN_USERNAME`, and
+`VITE_WEBRTC_TURN_CREDENTIAL`. STUN remains the development fallback, but TURN
+is required for reliable audio and video calls across restrictive mobile,
+corporate, and carrier-grade NAT networks.
 
 ## Release and rollback
 

@@ -15,5 +15,6 @@ export interface UpdatePrivacyPayloadDTO {
   showProfile?: boolean;
   showStats?: boolean;
   showActivity?: boolean;
+  showOnlineStatus?: boolean;
 }
 export type UserSettingsViewDTO = UserSettingsData;

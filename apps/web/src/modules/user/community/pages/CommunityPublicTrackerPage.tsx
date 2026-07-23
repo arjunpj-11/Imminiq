@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Flag } from 'lucide-react';
+import { Flag, Share2 } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ROUTES } from '../../../../routes/config/route-paths';
 
@@ -40,6 +40,7 @@ import {
 import { useAuthStore } from '../../../../store/useAuthStore';
 import { useRequestTrackerClanJoin, useTrackerClan } from '../../trackers';
 import { useOnboardingStore } from '../../tracker-creation';
+import { useSocialShareStore } from '../../social';
 
 type CommunityTrackerNavigationState = {
   returnTo?: string;
@@ -92,6 +93,7 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
   const reportTracker = useReportCommunityTracker();
   const currentUserId = useAuthStore((state) => state.user?._id);
   const requestClanJoin = useRequestTrackerClanJoin();
+  const shareTracker = useSocialShareStore((state) => state.shareTracker);
 
   const [cloned, setCloned] = useState(false);
   const [cloneConfirmOpen, setCloneConfirmOpen] = useState(false);
@@ -288,6 +290,24 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
                   >
                     <HeartIcon filled={tracker.likedByMe} />
                     {tracker.likedByMe ? 'Liked' : 'Like'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      shareTracker({
+                        trackerId: tracker._id,
+                        title: tracker.title,
+                        description:
+                          tracker.description ||
+                          tracker.goal ||
+                          'A focused learning roadmap.',
+                      })
+                    }
+                    className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-(--border-subtle) bg-white/60 px-4 py-2.5 text-[13px] font-bold text-(--text-secondary) transition hover:border-[rgba(184,76,43,0.25)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-white/4 dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
+                  >
+                    <Share2 size={15} />
+                    Share with a friend
                   </button>
 
                   {currentUserId !== tracker.ownerId &&

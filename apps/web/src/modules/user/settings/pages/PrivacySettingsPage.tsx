@@ -63,6 +63,20 @@ function PrivacyForm({ initial }: { initial: IPrivacySettings }) {
             onChange={(showActivity) => setForm((current) => ({ ...current, showActivity }))}
           />
         </SettingsCard>
+        <SettingsCard
+          title="Chat presence"
+          description="Control whether people you chat with can see when you are available."
+          icon="💬"
+        >
+          <ToggleRow
+            title="Show online status and last activity"
+            description="When disabled, people in your chats cannot see when you are online or when you were last active."
+            checked={form.showOnlineStatus}
+            onChange={(showOnlineStatus) =>
+              setForm((current) => ({ ...current, showOnlineStatus }))
+            }
+          />
+        </SettingsCard>
         <SaveBar
           isSaving={update.isPending}
           isDirty={dirty}

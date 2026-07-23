@@ -7,7 +7,7 @@ import {
   bannerUpload,
 } from '../../../shared/middlewares/profile-image-upload.middleware';
 import {
-  authenticatedApiIpLimiter,
+  authenticatedApiUserLimiter,
   profileImageUploadIpLimiter,
 } from '../../../shared/middlewares/security-rate-limit.middleware';
 import { validate } from '../../../shared/middlewares/validate.middleware';
@@ -22,7 +22,7 @@ export const createUploadsRoutes = (useCases: UploadsUseCases) => {
 
   // ─── PROTECTED ───────────────────────────────────────────────
 
-  router.use(authenticatedApiIpLimiter, authenticate);
+  router.use(authenticate, authenticatedApiUserLimiter);
 
   router.post(
     UPLOAD_ROUTE_PATHS.AVATAR,

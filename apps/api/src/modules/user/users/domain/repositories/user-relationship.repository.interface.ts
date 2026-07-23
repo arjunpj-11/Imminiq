@@ -8,4 +8,5 @@ export type GetRelationshipStateInput = {
 
 export interface IUserRelationshipRepository {
   getRelationshipState(input: GetRelationshipStateInput): Promise<RelationshipState>;
+  hasBlockBetween(firstUserId: UserIdInput, secondUserId: UserIdInput): Promise<boolean>;
 }

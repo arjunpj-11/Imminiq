@@ -14,6 +14,12 @@ import { useThemeStore } from './store/useThemeStore';
 const GlobalNavigationController = lazy(
   () => import('./components/navigation/GlobalNavigationController')
 );
+const CallManager = lazy(
+  () => import('./modules/user/social/components/CallManager')
+);
+const ShareTrackerDialog = lazy(
+  () => import('./modules/user/social/components/ShareTrackerDialog')
+);
 
 export default function App() {
   const initTheme = useThemeStore((state) => state.initTheme);
@@ -38,6 +44,8 @@ export default function App() {
       {isAuthenticated && (
         <Suspense fallback={null}>
           <GlobalNavigationController />
+          <CallManager />
+          <ShareTrackerDialog />
         </Suspense>
       )}
       <AppRoutes />

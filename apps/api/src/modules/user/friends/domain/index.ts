@@ -8,6 +8,7 @@ export * from './entities/friend-user.entity';
 export * from './friends-domain.error';
 
 export type { IFriendCommandRepository } from './repositories/friend-command.repository.interface';
+export type { IFriendBlockRepository } from './repositories/friend-block.repository.interface';
 export type { IFriendQueryRepository } from './repositories/friend-query.repository.interface';
 export type { IFriendRequestRepository } from './repositories/friend-request.repository.interface';
 export type { IFriendsRepository } from './repositories/friends.repository.interface';

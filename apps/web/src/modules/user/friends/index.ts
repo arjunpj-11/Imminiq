@@ -2,3 +2,11 @@ export * from './types/friends.types';
 export { friendsQueryKeys } from './hooks/friends.query-keys';
 export { useReceivedFriendRequests } from './hooks/useReceivedFriendRequests';
 export { useSendFriendRequest } from './hooks/useSendFriendRequest';
+export { useAcceptFriendRequest } from './hooks/useAcceptFriendRequest';
+export { useDeclineFriendRequest } from './hooks/useDeclineFriendRequest';
+export { useFriends } from './hooks/useFriends';
+export { FRIENDS_DEFAULT_PAGE_SIZE } from './constants/friends.constants';
+export {
+  mergeFriendRequestPages,
+  mergeFriendUserPages,
+} from './utils/friends-formatters';

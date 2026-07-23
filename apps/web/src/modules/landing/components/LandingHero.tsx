@@ -38,7 +38,8 @@ export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean
       className="relative z-1 flex min-h-[100svh] items-center justify-center overflow-hidden bg-[#f5ede4] px-4 py-24 text-[#1a1714] dark:bg-[#050505] dark:text-[#f2f0eb] max-[767px]:pb-28 max-[767px]:pt-20"
     >
       <h1 className="sr-only">
-        Imminiq — living learning trackers created by AI and evolved by communities
+        Imminiq — living learning trackers, AI-guided lessons, and Social learning with your
+        community
       </h1>
       <div className="pointer-events-none absolute inset-0 opacity-[0.045] landing-grid-mask">
         <div
@@ -82,8 +83,8 @@ export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean
             AI starts the tracker. The community makes it better.
           </p>
           <p className="mt-4 text-[18px] font-semibold leading-[1.45] text-[#3f3732] dark:text-[#d8d6cf]">
-            Start with a structured path, learn alongside others, and improve it for everyone who
-            follows.
+            Start with a structured path, learn alongside others in Social, and improve it for
+            everyone who follows.
           </p>
           <div className="mt-7 flex items-center justify-center gap-3">
             <Link

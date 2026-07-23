@@ -18,6 +18,7 @@ export const updatePrivacySchema = z.object({
   showProfile: z.boolean().optional(),
   showStats: z.boolean().optional(),
   showActivity: z.boolean().optional(),
+  showOnlineStatus: z.boolean().optional(),
 });
 
 export type UpdateAppearanceInput = z.infer<typeof updateAppearanceSchema>;

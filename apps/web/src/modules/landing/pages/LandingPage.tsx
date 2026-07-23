@@ -11,6 +11,7 @@ import LandingHero from '../components/LandingHero';
 import LandingLoader from '../components/LandingLoader';
 import LandingStudioStyles from '../components/LandingStudioStyles';
 import LandingTicker from '../components/LandingTicker';
+import SocialPreview from '../components/SocialPreview';
 import StickyFeatureCards from '../components/StickyFeatureCards';
 
 function shouldPlayLandingIntro() {
@@ -48,6 +49,7 @@ export default function LandingPage() {
           <IntroSection />
           <StickyFeatureCards />
           <HorizontalFlow />
+          <SocialPreview />
           <ArenaPreview />
           <FinalCta />
           <LandingFooter />

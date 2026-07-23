@@ -1,4 +1,5 @@
-import { rateLimit } from 'express-rate-limit';
+import type { Request } from 'express';
+import { ipKeyGenerator, rateLimit } from 'express-rate-limit';
 import { ApiError } from '../utils/api-error';
 import { env } from '../../config/env';
 import { redis } from '../../config/redis';
@@ -9,6 +10,8 @@ const createSensitiveLimiter = (config: {
   limit: number;
   message: string;
   code: string;
+  keyGenerator?: (request: Request) => string;
+  skipInDevelopment?: boolean;
 }) => {
   return rateLimit({
     windowMs: config.windowMs,
@@ -16,17 +19,28 @@ const createSensitiveLimiter = (config: {
     store: new RedisRateLimitStore(redis, config.code.toLowerCase()),
     standardHeaders: 'draft-8',
     legacyHeaders: false,
+    ...(config.keyGenerator ? { keyGenerator: config.keyGenerator } : {}),
+    ...(config.skipInDevelopment
+      ? { skip: () => env.NODE_ENV === 'development' }
+      : {}),
     handler: (_req, _res, next) => {
       next(new ApiError(429, config.message, config.code));
     },
   });
 };
 
-export const authenticatedApiIpLimiter = createSensitiveLimiter({
+export const getAuthenticatedApiRateLimitKey = (request: Request) =>
+  request.user?.userId
+    ? `user:${request.user.userId}`
+    : `ip:${ipKeyGenerator(request.ip ?? '')}`;
+
+export const authenticatedApiUserLimiter = createSensitiveLimiter({
   windowMs: env.RATE_LIMIT_AUTHENTICATED_API_WINDOW_MS,
   limit: env.RATE_LIMIT_AUTHENTICATED_API_MAX,
   message: 'Too many authenticated API requests. Please try again later.',
   code: 'AUTHENTICATED_API_RATE_LIMITED',
+  keyGenerator: getAuthenticatedApiRateLimitKey,
+  skipInDevelopment: true,
 });
 
 export const authSessionActionIpLimiter = createSensitiveLimiter({

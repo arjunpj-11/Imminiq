@@ -5,6 +5,7 @@ import { cn } from '../../../../lib/cn';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import { useAnalyzeClonedTracker } from '../../tracker-creation';
+import { useSocialShareStore } from '../../social';
 import type { ITracker } from '../types/tracker.types';
 import ConfirmDialog from './ConfirmDialog';
 import PublishTrackerModal, { type PublishFormData } from './PublishTrackerModal';
@@ -157,6 +158,7 @@ export default function TrackerCard({
 }: TrackerCardProps) {
   const navigate = useNavigate();
   const analyzeClone = useAnalyzeClonedTracker();
+  const shareTracker = useSocialShareStore((state) => state.shareTracker);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const nudgeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -180,6 +182,8 @@ export default function TrackerCard({
   const tone = getTone(tracker.status);
 
   const isPublished = tracker.visibility === 'public' || Boolean(tracker.publishedAt);
+  const isPubliclyPublished =
+    tracker.visibility === 'public' && Boolean(tracker.publishedAt);
   const isUnavailable = Boolean(tracker.moderationStatus && tracker.moderationStatus !== 'active');
   const isArchived = tracker.status === 'archived';
   const cloneSource = tracker.clonedFrom;
@@ -396,6 +400,19 @@ export default function TrackerCard({
               onOpenChange={setMenuOpen}
               onInfo={() => onInfo(tracker._id)}
               onQuickRevision={() => onQuickRevision(tracker._id)}
+              onShare={
+                isPubliclyPublished
+                  ? () =>
+                      shareTracker({
+                        trackerId: tracker._id,
+                        title: tracker.title,
+                        description:
+                          tracker.description ??
+                          tracker.goal ??
+                          'A focused learning roadmap.',
+                      })
+                  : undefined
+              }
               onSendForVerification={() => void handleSendForVerification()}
               onArchive={onArchive ? () => onArchive(tracker._id) : undefined}
               onDelete={() => {

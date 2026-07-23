@@ -12,6 +12,10 @@ describe('temporary current-page navigation', () => {
       label: 'Notifications',
       to: '/notifications',
     });
+    expect(getTemporaryUserNavItem('/chat', '?view=chats')).toEqual({
+      label: 'Social',
+      to: '/chat?view=chats',
+    });
   });
 
   it('does not duplicate a standard item for one of its child pages', () => {

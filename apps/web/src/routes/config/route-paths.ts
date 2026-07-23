@@ -44,6 +44,7 @@ export const ROUTES = {
   activity: '/activity',
   pricing: '/pricing',
   support: '/support',
+  chat: '/chat',
   friends: '/friends',
   friendsSearch: '/friends/search',
   mockTests: '/mock-tests',

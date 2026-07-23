@@ -41,6 +41,17 @@
   outline-offset: 3px;
 }
 
+.admin-theme
+  :where(
+    input:not([type='checkbox']):not([type='radio']),
+    textarea,
+    select,
+    [contenteditable='true'],
+    [role='textbox']
+  ):focus-visible {
+  outline: none;
+}
+
 .admin-theme :where(button, a, input, select, textarea) {
   -webkit-tap-highlight-color: transparent;
 }

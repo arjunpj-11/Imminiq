@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { NotificationsUseCases } from '../application';
 import { authenticate } from '../../../shared/middlewares/auth.middleware';
-import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware';
+import { authenticatedApiUserLimiter } from '../../../shared/middlewares/security-rate-limit.middleware';
 import {
   validate,
   validateIdentifierParam,
@@ -15,7 +15,7 @@ export const createNotificationsRoutes = (useCases: NotificationsUseCases) => {
   const controller = new NotificationsController(useCases);
   const router = Router();
   router.param('notificationId', validateIdentifierParam);
-  router.use(authenticatedApiIpLimiter, authenticate);
+  router.use(authenticate, authenticatedApiUserLimiter);
   router.get(
     NOTIFICATION_ROUTE_PATHS.ROOT,
     validateQuery(notificationsListQuerySchema),

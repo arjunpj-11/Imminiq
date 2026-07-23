@@ -13,7 +13,7 @@ import {
   validateOAuthState,
 } from '../../../shared/middlewares/oauth-state.middleware';
 import {
-  authenticatedApiIpLimiter,
+  authenticatedApiUserLimiter,
   authOtpSendIpLimiter,
   authOtpVerifyIpLimiter,
   authSessionActionIpLimiter,
@@ -104,7 +104,7 @@ export const createAuthRoutes = (useCases: AuthUseCases) => {
 
   // ─── PROTECTED ROUTES ────────────────────────────
 
-  router.get(AUTH_ROUTE_PATHS.ME, authenticatedApiIpLimiter, authenticate, authController.getMe);
+  router.get(AUTH_ROUTE_PATHS.ME, authenticate, authenticatedApiUserLimiter, authController.getMe);
 
   // ─── OAUTH ROUTES ────────────────────────────────
 

@@ -149,6 +149,13 @@ export class MongoUsersRepository implements IUsersRepository {
   getRelationshipState(input: GetRelationshipStateInput): Promise<RelationshipState> {
     return this._relationshipRepository.getRelationshipState(input);
   }
+
+  hasBlockBetween(firstUserId: UserIdInput, secondUserId: UserIdInput) {
+    return this._relationshipRepository.hasBlockBetween(
+      String(firstUserId),
+      String(secondUserId)
+    );
+  }
 }
 
 export const mongoUsersRepository = new MongoUsersRepository();

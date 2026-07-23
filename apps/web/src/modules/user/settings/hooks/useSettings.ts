@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
+import { socket } from '../../../../lib/socket';
 import { SETTINGS_API_PATHS } from '../constants/settings-tabs.constants';
 import { settingsKeys } from './settings.query-keys';
 import type {
@@ -137,8 +138,9 @@ export const useUpdatePrivacy = () =>
       SETTINGS_API_PATHS.privacy,
       payload
     );
-
-    return unwrap(response);
+    const settings = unwrap(response);
+    if (socket.connected) socket.emit('chat:presence:refresh');
+    return settings;
   });
 
 export const useResetSettings = () => {
@@ -146,8 +148,9 @@ export const useResetSettings = () => {
   return useMutation({
     mutationFn: async () => {
       const response = await api.post<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.reset);
-
-      return unwrap(response);
+      const settings = unwrap(response);
+      if (socket.connected) socket.emit('chat:presence:refresh');
+      return settings;
     },
 
     onSuccess: async (settings) => {

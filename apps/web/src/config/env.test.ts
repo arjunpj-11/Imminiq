@@ -5,11 +5,15 @@ describe('parseWebEnvironment', () => {
   it('accepts and normalizes an absolute API URL', () => {
     expect(parseWebEnvironment({ VITE_API_URL: 'https://api.imminiq.com/api/' })).toEqual({
       apiUrl: 'https://api.imminiq.com/api',
+      webrtcStunUrl: 'stun:stun.l.google.com:19302',
     });
   });
 
   it('accepts a same-origin API path used by the production proxy', () => {
-    expect(parseWebEnvironment({ VITE_API_URL: '/api' })).toEqual({ apiUrl: '/api' });
+    expect(parseWebEnvironment({ VITE_API_URL: '/api' })).toEqual({
+      apiUrl: '/api',
+      webrtcStunUrl: 'stun:stun.l.google.com:19302',
+    });
   });
 
   it.each([undefined, '', '   '])('rejects a missing API URL', (value) => {
@@ -31,7 +35,45 @@ describe('parseWebEnvironment', () => {
     ).toEqual({
       apiUrl: '/api',
       socketUrl: 'https://imminiq-api.onrender.com',
+      webrtcStunUrl: 'stun:stun.l.google.com:19302',
     });
+  });
+
+  it('accepts a custom WebRTC STUN server', () => {
+    expect(
+      parseWebEnvironment({
+        VITE_API_URL: '/api',
+        VITE_WEBRTC_STUN_URL: 'stuns:rtc.imminiq.com:5349',
+      })
+    ).toEqual({
+      apiUrl: '/api',
+      webrtcStunUrl: 'stuns:rtc.imminiq.com:5349',
+    });
+  });
+
+  it('accepts an authenticated WebRTC TURN relay for restrictive networks', () => {
+    expect(
+      parseWebEnvironment({
+        VITE_API_URL: '/api',
+        VITE_WEBRTC_TURN_URL: 'turns:rtc.imminiq.com:5349',
+        VITE_WEBRTC_TURN_USERNAME: 'imminiq-user',
+        VITE_WEBRTC_TURN_CREDENTIAL: 'relay-secret',
+      })
+    ).toMatchObject({
+      webrtcTurnUrl: 'turns:rtc.imminiq.com:5349',
+      webrtcTurnUsername: 'imminiq-user',
+      webrtcTurnCredential: 'relay-secret',
+    });
+  });
+
+  it('rejects incomplete WebRTC TURN credentials', () => {
+    expect(() =>
+      parseWebEnvironment({
+        VITE_API_URL: '/api',
+        VITE_WEBRTC_TURN_URL: 'turn:rtc.imminiq.com:3478',
+        VITE_WEBRTC_TURN_USERNAME: 'imminiq-user',
+      })
+    ).toThrow('WebRTC TURN username and credential must be configured together');
   });
 
   it('rejects unsupported Socket.IO URL protocols', () => {

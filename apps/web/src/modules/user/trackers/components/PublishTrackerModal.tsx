@@ -209,7 +209,7 @@ function DomainCombobox({ value, disabled, onChange }: DomainComboboxProps) {
     <div className="relative">
       <input
         id="publish-domain"
-        type="text"
+        type="search"
         role="combobox"
         aria-autocomplete="list"
         aria-expanded={open}

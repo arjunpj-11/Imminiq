@@ -10,6 +10,7 @@ export type PrivacySettingsData = {
   showProfile?: boolean;
   showStats?: boolean;
   showActivity?: boolean;
+  showOnlineStatus?: boolean;
 };
 
 export type UserSettingsData = {

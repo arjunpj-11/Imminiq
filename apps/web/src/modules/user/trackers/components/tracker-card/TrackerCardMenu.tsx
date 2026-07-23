@@ -1,4 +1,5 @@
 import type { RefObject } from 'react';
+import { Share2 } from 'lucide-react';
 
 import { cn } from '../../../../../lib/cn';
 import {
@@ -25,6 +26,7 @@ type TrackerCardMenuProps = {
   onOpenChange: (open: boolean) => void;
   onInfo: () => void;
   onQuickRevision: () => void;
+  onShare?: () => void;
   onSendForVerification: () => void;
   onArchive?: () => void;
   onDelete: () => void;
@@ -47,6 +49,7 @@ export default function TrackerCardMenu({
   onOpenChange,
   onInfo,
   onQuickRevision,
+  onShare,
   onSendForVerification,
   onArchive,
   onDelete,
@@ -108,6 +111,21 @@ export default function TrackerCardMenu({
             <RevisionIcon />
             Quick revision
           </button>
+
+          {onShare && (
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => runAction(onShare)}
+              className={cn(
+                menuItemClass,
+                'text-(--text-primary) hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500)'
+              )}
+            >
+              <Share2 size={16} />
+              Share with a friend
+            </button>
+          )}
 
           {!isSharedCoOwner && (
             <button

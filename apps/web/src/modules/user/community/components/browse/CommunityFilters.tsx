@@ -93,7 +93,7 @@ export default function CommunityFilters({
             <SearchIcon />
           </span>
           <input
-            type="text"
+            type="search"
             aria-label="Search community trackers"
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
@@ -125,7 +125,7 @@ export default function CommunityFilters({
             <div className="absolute left-0 top-[calc(100%+8px)] z-20 w-64 overflow-hidden rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-[0_16px_44px_rgba(26,23,20,0.14)] dark:border-(--border-subtle) dark:bg-(--surface-card)">
               <div className="border-b border-[#e8ddd6] p-3 dark:border-white/8">
                 <input
-                  type="text"
+                  type="search"
                   aria-label="Search community topics"
                   value={topicSearch}
                   onChange={(event) => setTopicSearch(event.target.value)}

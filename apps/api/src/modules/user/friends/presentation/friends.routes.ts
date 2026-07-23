@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
-import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
+import { authenticatedApiUserLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
 import { FriendsController } from './friends.controller';
 import type { FriendsUseCases } from '../application/friends-use-cases.contract';
 import { FRIENDS_ROUTE_PATHS } from './friends.route.constants';
@@ -12,57 +12,57 @@ export const createFriendsRoutes = (useCases: FriendsUseCases) => {
 
   router.get(
     FRIENDS_ROUTE_PATHS.ROOT,
-    authenticatedApiIpLimiter,
     authenticate,
+    authenticatedApiUserLimiter,
     friendsController.listFriends
   );
 
   router.get(
     FRIENDS_ROUTE_PATHS.SEARCH,
-    authenticatedApiIpLimiter,
     authenticate,
+    authenticatedApiUserLimiter,
     friendsController.searchUsers
   );
 
   router.get(
     FRIENDS_ROUTE_PATHS.REQUESTS,
-    authenticatedApiIpLimiter,
     authenticate,
+    authenticatedApiUserLimiter,
     friendsController.listRequests
   );
 
   router.post(
     FRIENDS_ROUTE_PATHS.REQUESTS,
-    authenticatedApiIpLimiter,
     authenticate,
+    authenticatedApiUserLimiter,
     friendsController.sendRequest
   );
 
   router.post(
     FRIENDS_ROUTE_PATHS.ACCEPT_REQUEST,
-    authenticatedApiIpLimiter,
     authenticate,
+    authenticatedApiUserLimiter,
     friendsController.acceptRequest
   );
 
   router.patch(
     FRIENDS_ROUTE_PATHS.DECLINE_REQUEST,
-    authenticatedApiIpLimiter,
     authenticate,
+    authenticatedApiUserLimiter,
     friendsController.declineRequest
   );
 
   router.patch(
     FRIENDS_ROUTE_PATHS.CANCEL_REQUEST,
-    authenticatedApiIpLimiter,
     authenticate,
+    authenticatedApiUserLimiter,
     friendsController.cancelRequest
   );
 
   router.delete(
     FRIENDS_ROUTE_PATHS.BY_FRIEND_USER_ID,
-    authenticatedApiIpLimiter,
     authenticate,
+    authenticatedApiUserLimiter,
     friendsController.removeFriend
   );
 

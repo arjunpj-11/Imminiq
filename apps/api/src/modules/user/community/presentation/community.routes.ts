@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
+import { authenticatedApiUserLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import {
   validate,
@@ -31,7 +31,7 @@ export const createCommunityRoutes = (
 
   // ─── PROTECTED ROUTES ────────────────────────────────────────────────
 
-  router.use(authenticatedApiIpLimiter, authenticate);
+  router.use(authenticate, authenticatedApiUserLimiter);
 
   router.get(
     COMMUNITY_ROUTE_PATHS.BROWSE,

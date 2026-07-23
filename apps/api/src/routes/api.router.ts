@@ -59,6 +59,12 @@ import {
 } from '../modules/user/adaptive-learning';
 import { createCommunityComposition, createCommunityRoutes } from '../modules/user/community';
 import { createDashboardComposition, createDashboardRoutes } from '../modules/user/dashboard';
+import { createChatComposition, createChatRoutes } from '../modules/user/chat';
+import { createCallsComposition, createCallsRoutes } from '../modules/user/calls';
+import {
+  createVoiceInputComposition,
+  createVoiceInputRoutes,
+} from '../modules/user/voice-input';
 import { createFriendsComposition, createFriendsRoutes } from '../modules/user/friends';
 import { createLeaderboardComposition, createLeaderboardRoutes } from '../modules/user/leaderboard';
 import { createMockTestsComposition, createMockTestsRoutes } from '../modules/user/mock-tests';
@@ -103,6 +109,9 @@ export const createApiRouter = () => {
     securityComposition.helpers.passwordHasher
   );
   const dashboardComposition = createDashboardComposition();
+  const chatComposition = createChatComposition();
+  const callsComposition = createCallsComposition();
+  const voiceInputComposition = createVoiceInputComposition();
   const friendsComposition = createFriendsComposition();
   const leaderboardComposition = createLeaderboardComposition();
   const moderationAppealComposition = createModerationAppealComposition();
@@ -248,6 +257,12 @@ export const createApiRouter = () => {
   router.use(API_ROUTE_PATHS.leaderboard, createLeaderboardRoutes(leaderboardComposition.useCases));
   router.use(API_ROUTE_PATHS.activity, createActivityRoutes(activityComposition.useCases));
   router.use(API_ROUTE_PATHS.friends, createFriendsRoutes(friendsComposition.useCases));
+  router.use(API_ROUTE_PATHS.chat, createChatRoutes(chatComposition.useCases));
+  router.use(API_ROUTE_PATHS.calls, createCallsRoutes(callsComposition.useCases));
+  router.use(
+    API_ROUTE_PATHS.voiceInput,
+    createVoiceInputRoutes(voiceInputComposition.useCases)
+  );
   router.use(
     API_ROUTE_PATHS.notifications,
     createNotificationsRoutes(notificationsComposition.useCases)

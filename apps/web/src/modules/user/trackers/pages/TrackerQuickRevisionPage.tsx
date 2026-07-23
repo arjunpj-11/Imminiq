@@ -502,7 +502,7 @@ export default function TrackerQuickRevisionPage() {
               />
             </svg>
             <input
-              type="text"
+              type="search"
               placeholder="Search topics or subtopics…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}

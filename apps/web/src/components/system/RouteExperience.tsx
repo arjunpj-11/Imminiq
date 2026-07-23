@@ -11,6 +11,7 @@ const routeNames: Array<[RegExp, string]> = [
   [/^\/community/, 'Community'],
   [/^\/leaderboard/, 'Leaderboard'],
   [/^\/activity/, 'Activity'],
+  [/^\/chat/, 'Chats'],
   [/^\/friends/, 'Friends'],
   [/^\/settings/, 'Settings'],
   [/^\/profile/, 'Profile'],

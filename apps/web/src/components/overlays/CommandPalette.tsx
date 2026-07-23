@@ -226,6 +226,7 @@ function CommandPaletteContent({ inputRef, onClose }: ICommandPaletteContentProp
         </span>
 
         <input
+          type="search"
           ref={inputRef}
           value={query}
           onChange={(event) => {

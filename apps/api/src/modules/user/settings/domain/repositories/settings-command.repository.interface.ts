@@ -7,6 +7,7 @@ export type SettingsPrivacyUpdateInput = {
   showProfile?: boolean;
   showStats?: boolean;
   showActivity?: boolean;
+  showOnlineStatus?: boolean;
 };
 export type UpdateSettingsAppearanceInput = { userId: string; data: SettingsAppearanceUpdateInput };
 export type UpdateSettingsNotificationsInput = {

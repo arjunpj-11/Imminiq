@@ -49,6 +49,7 @@ const routeLabels: Array<[RegExp, string]> = [
   [nestedRoute(ROUTES.verifyAndEarn), 'Verify and earn'],
   [nestedRoute(ROUTES.pricing), 'Plans'],
   [nestedRoute(ROUTES.support), 'Support'],
+  [nestedRoute(ROUTES.chat), 'Social'],
   [nestedRoute(ROUTES.friendsSearch), 'Find people'],
   [nestedRoute(ROUTES.friends), 'Friends'],
   [nestedRoute(ROUTES.publishedTrackers), 'Published trackers'],

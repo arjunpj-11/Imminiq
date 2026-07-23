@@ -12,22 +12,30 @@ import type {
 import type { PaginatedResult } from '../domain/friends.types';
 
 export interface IFriendsMapper {
-  toFriendUserView(user: FriendUserEntity): FriendUserViewDTO;
-  toFriendRequestView(summary: FriendRequestSummaryEntity): FriendRequestViewDTO;
-  toFriendUsersPageView(page: PaginatedResult<FriendUserEntity>): FriendUsersPageViewDTO;
+  toFriendUserView(user: FriendUserEntity, hideAvatar?: boolean): FriendUserViewDTO;
+  toFriendRequestView(
+    summary: FriendRequestSummaryEntity,
+    hideAvatar?: boolean
+  ): FriendRequestViewDTO;
+  toFriendUsersPageView(
+    page: PaginatedResult<FriendUserEntity>,
+    blockedByUserIds?: ReadonlySet<string>
+  ): FriendUsersPageViewDTO;
   toPaginationView<T>(page: PaginatedResult<T>): PaginationViewDTO;
   toRequestActionView(request: FriendRequestEntity): SendFriendRequestViewDTO['request'];
 }
 
 export class FriendsMapper implements IFriendsMapper {
-  toFriendUserView(user: FriendUserEntity): FriendUserViewDTO {
+  toFriendUserView(user: FriendUserEntity, hideAvatar = false): FriendUserViewDTO {
     return {
       id: user.id,
       fullName: user.fullName,
       username: user.username,
       handle: user.username.startsWith('@') ? user.username : `@${user.username}`,
       initials: this.getInitials(user.fullName || user.username),
-      ...(user.avatarUrl !== undefined ? { avatarUrl: user.avatarUrl } : {}),
+      ...(user.avatarUrl !== undefined
+        ? { avatarUrl: hideAvatar ? null : user.avatarUrl }
+        : {}),
       level: user.level,
       levelLabel: `Level ${Math.max(1, user.level)}`,
       mutualCount: user.mutualCount,
@@ -35,7 +43,10 @@ export class FriendsMapper implements IFriendsMapper {
     };
   }
 
-  toFriendRequestView(summary: FriendRequestSummaryEntity): FriendRequestViewDTO {
+  toFriendRequestView(
+    summary: FriendRequestSummaryEntity,
+    hideAvatar = false
+  ): FriendRequestViewDTO {
     return {
       id: summary.request.id,
       direction: summary.direction,
@@ -43,13 +54,18 @@ export class FriendsMapper implements IFriendsMapper {
       message: summary.request.message,
       createdAt: summary.request.createdAt,
       updatedAt: summary.request.updatedAt,
-      user: this.toFriendUserView(summary.user),
+      user: this.toFriendUserView(summary.user, hideAvatar),
     };
   }
 
-  toFriendUsersPageView(page: PaginatedResult<FriendUserEntity>): FriendUsersPageViewDTO {
+  toFriendUsersPageView(
+    page: PaginatedResult<FriendUserEntity>,
+    blockedByUserIds: ReadonlySet<string> = new Set()
+  ): FriendUsersPageViewDTO {
     return {
-      items: page.items.map((item) => this.toFriendUserView(item)),
+      items: page.items.map((item) =>
+        this.toFriendUserView(item, blockedByUserIds.has(item.id))
+      ),
       pagination: this.toPaginationView(page),
     };
   }

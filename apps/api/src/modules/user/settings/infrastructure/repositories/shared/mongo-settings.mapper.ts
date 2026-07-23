@@ -15,7 +15,12 @@ import type {
   UpdatableValue,
 } from './mongo-settings.types';
 
-const PRIVACY_KEYS = ['showProfile', 'showStats', 'showActivity'] as const;
+const PRIVACY_KEYS = [
+  'showProfile',
+  'showStats',
+  'showActivity',
+  'showOnlineStatus',
+] as const;
 
 export class MongoSettingsMapper {
   toPlainRecord<T>(document: MongooseObjectLike<T>): T {
@@ -30,6 +35,10 @@ export class MongoSettingsMapper {
       ...settings,
       ...(settings._id ? { _id: settings._id } : {}),
       ...(settings.userId ? { userId: this.toId(settings.userId) } : {}),
+      privacy: {
+        ...settings.privacy,
+        showOnlineStatus: settings.privacy?.showOnlineStatus ?? true,
+      },
     };
     const id = this.toId(settings._id);
     return new UserSettingsEntity({

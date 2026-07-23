@@ -12,6 +12,7 @@ export interface IUserSettingsDocument extends Document {
     showProfile: boolean;
     showStats: boolean;
     showActivity: boolean;
+    showOnlineStatus: boolean;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -42,6 +43,7 @@ const userSettingsSchema = new Schema<IUserSettingsDocument>(
       showProfile: { type: Boolean, default: true },
       showStats: { type: Boolean, default: true },
       showActivity: { type: Boolean, default: true },
+      showOnlineStatus: { type: Boolean, default: true },
     },
   },
   { timestamps: true, collection: 'user_settings' }

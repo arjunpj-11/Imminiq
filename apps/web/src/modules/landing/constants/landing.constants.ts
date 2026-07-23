@@ -2,6 +2,7 @@ export const navItems = [
   { label: 'Start', href: '#hero', tone: 'rust' },
   { label: 'Why', href: '#system', tone: 'blue' },
   { label: 'Evolution', href: '#flow', tone: 'green' },
+  { label: 'Social', href: '#social', tone: 'rust' },
   { label: 'Community', href: '#arena', tone: 'amber' },
 ];
 
@@ -15,7 +16,7 @@ export const heroTrailCards = [
   {
     eyebrow: 'Community',
     title: 'Learn with your people',
-    body: 'Meet learners following the same path, share context, and move together.',
+    body: 'Chat, call, share trackers, and move forward with learners following the same path.',
     tone: 'blue',
   },
   {
@@ -81,7 +82,7 @@ export const horizontalFlowCards = [
   {
     eyebrow: '03 · Gather',
     title: 'Find your learning community',
-    body: 'Study alongside people following the same tracker through guilds, discussion, practice, and challenges.',
+    body: 'Study alongside people following the same tracker through Social, guilds, discussion, practice, and challenges.',
   },
   {
     eyebrow: '04 · Contribute',
@@ -100,4 +101,19 @@ export const audienceCards = [
   'Students who want a complete, structured path to mastery',
   'Communities that learn, contribute, and improve together',
   'Experienced learners ready to share what the roadmap missed',
+];
+
+export const socialCapabilities = [
+  {
+    title: 'Everything in one conversation',
+    body: 'Send messages, voice notes, code, images, files, and public trackers without losing your learning context.',
+  },
+  {
+    title: 'Calls with context',
+    body: 'Start an audio or video call with a reason, minimize it while it rings, and keep a useful call history.',
+  },
+  {
+    title: 'Privacy that is actually respected',
+    body: 'Control online and last-active visibility, block unwanted contact, and keep your profile private from blocked people.',
+  },
 ];
