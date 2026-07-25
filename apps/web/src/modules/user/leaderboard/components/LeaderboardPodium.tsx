@@ -55,7 +55,7 @@ function PodiumCard({ entry }: { entry: ILeaderboardTopThreeEntry }) {
   return (
     <article
       className={cn(
-        'group relative flex flex-col items-center overflow-hidden rounded-xl border-[1.5px] px-5 pb-6 pt-6 transition-all duration-200',
+        'group relative flex flex-col items-center overflow-hidden rounded-xl border-[1.5px] px-5 pb-6 pt-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl',
         token.background,
         token.border,
         token.shadow,

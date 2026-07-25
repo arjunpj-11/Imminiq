@@ -36,10 +36,15 @@ export default function StickyFeatureCards() {
               className="relative mb-5 flex min-h-0 flex-col justify-between overflow-hidden rounded-[28px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 pb-7 shadow-[0_20px_60px_rgba(26,23,20,0.10)] dark:border-white/9 dark:bg-[#1e1c19] md:sticky md:top-0 md:min-h-[72vh] md:flex-row md:rounded-[34px] md:p-8 md:shadow-[0_28px_90px_rgba(26,23,20,0.12)]"
               style={{ zIndex: index + 1 }}
             >
-              <div className="flex flex-[0.38] justify-between gap-4">
-                <span className="font-['Playfair_Display',serif] text-[clamp(74px,12vw,150px)] font-black leading-none tracking-[-0.08em]">
-                  {card.number}
-                </span>
+              <div className="flex flex-[0.38] flex-col justify-between gap-4">
+                <div className="flex items-center justify-between gap-4">
+                  <span className="font-['Playfair_Display',serif] text-[clamp(74px,12vw,150px)] font-black leading-none tracking-[-0.08em]">
+                    {card.number}
+                  </span>
+                  <span className="rounded-full border border-[#b84c2b]/30 bg-[#b84c2b]/10 px-3 py-1 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-[0.14em] text-[#b84c2b] dark:border-[#e8816a]/30 dark:bg-[#e8816a]/10 dark:text-[#e8816a]">
+                    Step {String(index + 1).padStart(2, '0')} / {String(featureCards.length).padStart(2, '0')}
+                  </span>
+                </div>
                 <h3 className="max-w-42 text-right text-[22px] font-bold tracking-[-0.04em] md:text-left">
                   {card.title}
                 </h3>

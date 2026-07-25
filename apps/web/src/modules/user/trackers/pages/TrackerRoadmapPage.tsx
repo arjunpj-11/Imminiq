@@ -1,10 +1,12 @@
 import { cn } from '../../../../lib/cn';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { ROUTES } from '../../../../routes/config/route-paths';
 
+import { ROUTES } from '../../../../routes/config/route-paths';
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import { AppPageSkeleton } from '../../../../components/feedback/RouteSkeleton';
+import { triggerConfetti } from '../../../../components/ui/ConfettiCanvas';
+import { playUiSound } from '../../../../lib/ui-sound';
 import { useTrackerDetails, useTrackerRoadmap } from '../hooks/useTrackers';
 import TrackerModerationNotice from '../components/TrackerModerationNotice';
 import {
@@ -81,6 +83,13 @@ export default function TrackerRoadmapPage() {
 
   const progress =
     currentNodes.length === 0 ? 0 : Math.round((completedCount / currentNodes.length) * 100);
+
+  useEffect(() => {
+    if (progress === 100 && currentNodes.length > 0) {
+      triggerConfetti();
+      playUiSound('complete');
+    }
+  }, [progress, currentNodes.length]);
 
   const isMainLoading =
     trackerDetailsQuery.isLoading || (!trackerIsModerated && roadmapQuery.isLoading);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import SettingsContentLoading from '../components/SettingsContentLoading';
-import { PillButton, SaveBar, SettingsCard } from '../components/SettingsUi';
+import { SaveBar, SettingsCard } from '../components/SettingsUi';
 import { useAppearanceSettings, useResetSettings, useUpdateAppearance } from '../hooks/useSettings';
 import { useSettingsToast } from '../hooks/useSettingsToast';
 import { useThemeStore } from '../../../../store/useThemeStore';
@@ -41,19 +41,54 @@ function AppearanceForm({ initial }: { initial: ThemeType }) {
         description="Theme is persisted to your account and applied across signed-in devices."
         icon="🎨"
       >
-        <div className="flex flex-wrap gap-2">
-          {(['light', 'dark', 'system'] as const).map((value) => (
-            <PillButton
-              key={value}
-              active={theme === value}
-              onClick={() => {
-                setTheme(value);
-                previewThemeMode(value);
-              }}
-            >
-              {value[0].toUpperCase() + value.slice(1)}
-            </PillButton>
-          ))}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {(['light', 'dark', 'system'] as const).map((value) => {
+            const isSelected = theme === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() => {
+                  setTheme(value);
+                  previewThemeMode(value);
+                }}
+                className={`relative flex flex-col gap-3 rounded-2xl border-2 p-4 text-left transition-all ${
+                  isSelected
+                    ? 'border-[#b84c2b] bg-[#b84c2b]/5 shadow-sm dark:border-[#e8816a] dark:bg-[#e8816a]/10'
+                    : 'border-(--border-subtle) bg-(--surface-elevated) hover:border-(--border-strong)'
+                }`}
+              >
+                {/* Visual Mini Mockup */}
+                <div
+                  className={`h-20 w-full overflow-hidden rounded-xl border p-2 flex flex-col justify-between ${
+                    value === 'dark'
+                      ? 'bg-[#141412] border-white/10 text-white'
+                      : value === 'light'
+                        ? 'bg-[#f5ede4] border-[#e0d0c5] text-[#1a1714]'
+                        : 'bg-gradient-to-r from-[#f5ede4] to-[#141412] border-neutral-400 text-neutral-800'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="h-2 w-12 rounded-full bg-current opacity-40" />
+                    <div className="h-3 w-3 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="h-2 w-3/4 rounded-full bg-current opacity-30" />
+                    <div className="h-2 w-1/2 rounded-full bg-current opacity-20" />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold capitalize">{value}</span>
+                  {isSelected && (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#b84c2b] text-[10px] text-white dark:bg-[#e8816a] dark:text-black">
+                      ✓
+                    </span>
+                  )}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </SettingsCard>
       <SaveBar

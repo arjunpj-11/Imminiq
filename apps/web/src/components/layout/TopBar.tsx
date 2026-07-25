@@ -230,12 +230,12 @@ export default function TopBar({
           <button
             type="button"
             onClick={openCommandPalette}
-            className="mx-auto hidden h-9 w-full max-w-md items-center gap-2.5 rounded-md border border-(--border-subtle) bg-(--surface-elevated) px-3.5 text-left text-[12px] text-(--text-muted) shadow-(--shadow-1) transition hover:border-[color-mix(in_srgb,var(--brand-500)_28%,var(--border-subtle))] hover:text-(--text-secondary) md:flex"
+            className="mx-auto hidden h-9 w-full max-w-md items-center gap-2.5 rounded-xl border border-(--border-subtle) bg-(--surface-elevated) px-3.5 text-left text-[12px] text-(--text-muted) shadow-(--shadow-1) transition hover:border-[color-mix(in_srgb,var(--brand-500)_35%,var(--border-subtle))] hover:text-(--text-primary) md:flex"
             aria-label="Open command palette"
           >
             <SearchIcon />
-            <span className="min-w-0 flex-1 truncate">Search pages and actions</span>
-            <kbd className="rounded-sm bg-(--surface-muted) px-1.5 py-0.5 font-mono text-[9px]">
+            <span className="min-w-0 flex-1 truncate font-medium">Search pages and actions...</span>
+            <kbd className="rounded-md border border-(--border-strong) bg-(--surface-muted) px-2 py-0.5 font-mono text-[10px] font-bold text-(--text-primary) shadow-xs transition group-hover:border-(--brand-500)">
               {commandShortcutLabel}
             </kbd>
           </button>

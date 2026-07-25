@@ -11,13 +11,11 @@ import DashboardErrorState from '../components/DashboardErrorState';
 import DashboardStatsGrid from '../components/DashboardStatsGrid';
 import DashboardWelcome from '../components/DashboardWelcome';
 import FriendsCard from '../components/FriendsCard';
-import RecentBattles from '../components/RecentBattles';
 import RecommendedActions from '../components/RecommendedActions';
 import { useCurrentDashboardRoadmap } from '../hooks/useCurrentDashboardRoadmap';
 import { useDashboardActivityIntensity } from '../hooks/useDashboardActivityIntensity';
 import { useDashboardAIInsights } from '../hooks/useDashboardAIInsights';
 import { useDashboardFriendsHub } from '../hooks/useDashboardFriendsHub';
-import { useDashboardRecentBattles } from '../hooks/useDashboardRecentBattles';
 import { useDashboardRecommendedActions } from '../hooks/useDashboardRecommendedActions';
 import { useDashboardSummary } from '../hooks/useDashboardSummary';
 import { useDashboardViewState } from '../hooks/useDashboardViewState';
@@ -128,25 +126,6 @@ function DashboardMainContentSkeleton({ showDailyInsight }: { showDailyInsight: 
         </div>
       </section>
 
-      <section>
-        <SkeletonBlock className="mb-3.5 h-7 w-40 rounded-lg" />
-        <div className="space-y-2.5">
-          {Array.from({ length: 3 }, (_, index) => (
-            <div
-              key={index}
-              className="flex items-center gap-4 rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-5 py-4 shadow-(--shadow-1)"
-            >
-              <SkeletonBlock className="h-11 w-11 shrink-0 rounded-xl" />
-              <div className="min-w-0 flex-1">
-                <SkeletonBlock className="h-4 w-48" />
-                <SkeletonBlock className="mt-2 h-3 w-28" />
-              </div>
-              <SkeletonBlock className="h-7 w-24 rounded-full" />
-            </div>
-          ))}
-        </div>
-      </section>
-
       {showDailyInsight && (
         <section className="flex items-center gap-4 rounded-2xl bg-(--brand-500)/20 px-5.5 py-4">
           <SkeletonBlock className="h-9 w-9 shrink-0 rounded-xl" />
@@ -170,7 +149,6 @@ export default function DashboardPage() {
   const summaryQuery = useDashboardSummary();
   const roadmapQuery = useCurrentDashboardRoadmap();
   const activityQuery = useDashboardActivityIntensity(activityMonths);
-  const battlesQuery = useDashboardRecentBattles(3);
   const friendsQuery = useDashboardFriendsHub(4);
   const actionsQuery = useDashboardRecommendedActions();
   const insightQuery = useDashboardAIInsights();
@@ -178,7 +156,6 @@ export default function DashboardPage() {
   const summary = summaryQuery.data;
   const currentRoadmap = roadmapQuery.data;
   const activity = activityQuery.data ?? [];
-  const battles = battlesQuery.data ?? [];
   const friends = friendsQuery.data ?? [];
   const actions = actionsQuery.data ?? [];
   const aiInsight = insightQuery.data?.insight;
@@ -186,14 +163,12 @@ export default function DashboardPage() {
   const isMainContentLoading =
     summaryQuery.isLoading ||
     roadmapQuery.isLoading ||
-    battlesQuery.isLoading ||
     friendsQuery.isLoading ||
     actionsQuery.isLoading;
 
   const hasMainContentError =
     summaryQuery.isError ||
     roadmapQuery.isError ||
-    battlesQuery.isError ||
     friendsQuery.isError ||
     actionsQuery.isError;
 
@@ -241,8 +216,6 @@ export default function DashboardPage() {
             onMonthsChange={setActivityMonths}
             isLoading={activityQuery.isFetching}
           />
-
-          <RecentBattles battles={battles} />
 
           {!dailyInsightDismissed && (
             <DailyInsightCard insight={aiInsight} onDismiss={dismissDailyInsight} />

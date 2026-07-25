@@ -26,17 +26,17 @@ export default function HorizontalFlow() {
           </p>
         </div>
 
-        <div ref={trackRef} className="grid w-full gap-4 md:flex md:w-max md:will-change-transform">
+        <div ref={trackRef} className="relative grid w-full gap-5 max-md:before:absolute max-md:before:left-6 max-md:before:top-4 max-md:before:bottom-4 max-md:before:w-0.5 max-md:before:bg-[#b84c2b]/30 dark:max-md:before:bg-[#e8816a]/30 md:flex md:w-max md:will-change-transform">
           {horizontalFlowCards.map((card, index) => (
             <article
               key={card.title}
-              className="flex min-h-82 w-full shrink-0 flex-col justify-between rounded-[28px] border border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-[0_18px_54px_rgba(26,23,20,0.10)] dark:border-white/10 dark:bg-white/5.5 dark:shadow-[0_18px_54px_rgba(0,0,0,0.26)] backdrop-blur md:h-[54vh] md:w-[min(78vw,720px)] md:rounded-[34px] md:p-8 md:shadow-[0_28px_90px_rgba(26,23,20,0.12)]"
+              className="relative flex min-h-82 w-full shrink-0 flex-col justify-between rounded-[28px] border border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-[0_18px_54px_rgba(26,23,20,0.10)] dark:border-white/10 dark:bg-white/5.5 dark:shadow-[0_18px_54px_rgba(0,0,0,0.26)] backdrop-blur max-md:ml-2 md:h-[54vh] md:w-[min(78vw,720px)] md:rounded-[34px] md:p-8 md:shadow-[0_28px_90px_rgba(26,23,20,0.12)]"
             >
               <div className="flex items-center justify-between gap-4">
                 <span className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
                   {card.eyebrow}
                 </span>
-                <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[#d8c7bc] bg-[#f5ede4] dark:border-white/12 dark:bg-white/6 font-['DM_Mono',monospace] text-[12px]">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[#d8c7bc] bg-[#f5ede4] font-['DM_Mono',monospace] text-[12px] font-bold text-[#b84c2b] shadow-sm dark:border-white/12 dark:bg-white/6 dark:text-[#e8816a]">
                   {String(index + 1).padStart(2, '0')}
                 </span>
               </div>
