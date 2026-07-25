@@ -49,7 +49,7 @@ export default function StatCard({
   return (
     <div
       className={cn(
-        'relative flex min-w-0 flex-col overflow-hidden p-3.5 sm:p-4.5',
+        'relative flex min-w-0 flex-col overflow-hidden p-3.5 sm:p-4.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md',
         variant === 'flat' && 'surface-flat',
         variant === 'elevated' && 'surface-elevated',
         variant === 'spotlight' && 'surface-spotlight',

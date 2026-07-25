@@ -28,18 +28,34 @@ function SubtopicNode({
   index: number;
 }) {
   const locked = item.isLocked || item.status === 'locked';
+  const isInProgress = item.status === 'in_progress';
+  const isCompleted = item.status === 'completed';
+
   const content = (
     <div
       className={cn(
-        'rounded-lg border-[1.5px] p-4 shadow-(--shadow-1) transition',
+        'relative rounded-xl border-[1.5px] p-4 shadow-(--shadow-1) transition-all duration-200',
         locked
           ? 'border-(--border-subtle) bg-[rgba(26,23,20,0.035)] opacity-75 dark:border-(--border-subtle) dark:bg-white/[0.035]'
+          : isInProgress
+          ? 'border-(--brand-500) bg-(--surface-card) shadow-[0_0_20px_rgba(184,76,43,0.15)] ring-2 ring-(--brand-500)/20 hover:-translate-y-1 dark:shadow-[0_0_20px_rgba(232,129,106,0.2)]'
           : 'border-(--border-subtle) bg-(--surface-card) hover:-translate-y-1 hover:border-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-card)'
       )}
     >
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.08)] font-mono text-[12px] font-bold text-(--brand-500) dark:border-[rgba(232,129,106,0.24)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
-          {locked ? '🔒' : index + 1}
+        <div
+          className={cn(
+            'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-mono text-[12px] font-bold transition-all',
+            locked
+              ? 'border border-(--border-subtle) bg-black/5 dark:bg-white/5'
+              : isInProgress
+              ? 'border border-(--brand-500) bg-(--brand-500) text-white shadow-md'
+              : isCompleted
+              ? 'border border-[rgba(45,106,71,0.25)] bg-[rgba(45,106,71,0.12)] text-(--success)'
+              : 'border border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.08)] text-(--brand-500)'
+          )}
+        >
+          {locked ? '🔒' : isCompleted ? '✓' : index + 1}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -69,7 +85,16 @@ function SubtopicNode({
 
   return (
     <div className="relative pl-5">
-      <div className="absolute left-0 top-0 h-full w-px bg-[rgba(184,76,43,0.18)] dark:bg-[rgba(232,129,106,0.20)]" />
+      <div
+        className={cn(
+          'absolute left-0 top-0 h-full w-0.5 transition-colors',
+          isCompleted
+            ? 'bg-(--success)'
+            : isInProgress
+            ? 'bg-(--brand-500)'
+            : 'bg-[rgba(184,76,43,0.18)] dark:bg-[rgba(232,129,106,0.20)]'
+        )}
+      />
       {locked ? content : <Link to={`/trackers/${trackerId}/lessons/${item._id}`}>{content}</Link>}
       {item.children?.length ? (
         <div className="mt-3 space-y-3 pl-5">

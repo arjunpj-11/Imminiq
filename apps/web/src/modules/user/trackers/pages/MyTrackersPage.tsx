@@ -211,6 +211,9 @@ export default function MyTrackersPage() {
       ? 'Turn a learning goal into a structured roadmap, then continue from exactly where you stopped.'
       : 'There are no trackers in this view. Choose another status or create a new learning path.';
 
+  const activeResumeTracker =
+    trackers.find((t) => t.status === 'active' && (t.progressPercent ?? 0) < 100) ?? trackers[0];
+
   return (
     <TrackerShell>
       <PageHero
@@ -287,6 +290,51 @@ export default function MyTrackersPage() {
           tone="amber"
         />
       </section>
+
+      {activeResumeTracker && (
+        <section className="relative overflow-hidden rounded-2xl border border-[rgba(184,76,43,0.22)] bg-[color-mix(in_srgb,var(--surface-card)_94%,var(--brand-500)_6%)] p-5 shadow-sm transition hover:shadow-md dark:border-[rgba(232,129,106,0.25)]">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(184,76,43,0.12)] px-2.5 py-0.5 font-mono text-[9.5px] font-extrabold uppercase text-(--brand-500)">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-(--brand-500)" />
+                  Continue Learning
+                </span>
+                <span className="font-mono text-[10px] text-(--text-secondary)">
+                  {activeResumeTracker.domain ?? 'General'}
+                </span>
+              </div>
+
+              <h3 className="mt-2 truncate font-ui text-[18px] font-black text-(--text-primary)">
+                {activeResumeTracker.title}
+              </h3>
+
+              <div className="mt-2.5 flex items-center gap-3">
+                <div className="h-2 flex-1 max-w-xs overflow-hidden rounded-full bg-black/8 dark:bg-white/10">
+                  <div
+                    className="h-full rounded-full bg-(--brand-500) transition-all duration-300"
+                    style={{ width: `${Math.max(5, activeResumeTracker.progressPercent ?? 0)}%` }}
+                  />
+                </div>
+                <span className="font-mono text-[11px] font-bold text-(--brand-500)">
+                  {activeResumeTracker.progressPercent ?? 0}% completed
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => navigate(`/trackers/${activeResumeTracker._id}/roadmap`)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-(--brand-500) px-5 py-3 font-ui text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-0.5 hover:bg-(--brand-600) active:scale-[0.98] dark:text-[#141412]"
+            >
+              <span>Resume Roadmap</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </section>
+      )}
 
       <TrackerFilterBar status={status} onStatusChange={setStatus} />
 

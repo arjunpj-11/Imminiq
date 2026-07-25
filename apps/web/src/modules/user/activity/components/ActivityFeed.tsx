@@ -69,23 +69,23 @@ interface IActivityRowProps {
 }
 
 const ActivityRow = ({ event }: IActivityRowProps) => (
-  <article className="flex items-start gap-3.5 border-b border-[#ece3db] px-5 py-3.25 transition-colors duration-100 last:border-b-0 hover:bg-[rgba(26,23,20,0.012)] dark:border-white/6 dark:hover:bg-white/[0.012]">
+  <article className="flex items-start gap-3 sm:gap-3.5 border-b border-[#ece3db] px-3.5 sm:px-5 py-3 sm:py-3.25 transition-colors duration-100 last:border-b-0 hover:bg-[rgba(26,23,20,0.012)] dark:border-white/6 dark:hover:bg-white/[0.012]">
     <EventIconBubble type={event.icon} />
 
     <div className="min-w-0 flex-1">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[13px] font-semibold text-[#2a2420] dark:text-[#dedad5]">
+          <div className="text-[13px] font-semibold leading-snug text-[#2a2420] dark:text-[#dedad5] line-clamp-2 sm:truncate">
             {event.title}
           </div>
           {event.subtitle && (
-            <div className="mt-0.5 text-[11px] text-[#b0a097] dark:text-[#6b6460]">
+            <div className="mt-0.5 text-[11px] text-[#b0a097] dark:text-[#6b6460] line-clamp-2 sm:truncate">
               {event.subtitle}
             </div>
           )}
         </div>
 
-        <div className="shrink-0 text-right">
+        <div className="shrink-0 flex items-center justify-between gap-2 sm:block sm:text-right">
           <div className="flex flex-wrap justify-end gap-x-2 gap-y-1">
             {event.xp > 0 && (
               <span className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-(--brand-500) tabular-nums dark:text-(--brand-500)">
@@ -100,7 +100,7 @@ const ActivityRow = ({ event }: IActivityRowProps) => (
             )}
           </div>
 
-          <div className="mt-0.5 text-right font-mono text-[9.5px] text-[#c4b8b0] dark:text-[#5a5550]">
+          <div className="mt-0.5 font-mono text-[9.5px] text-[#c4b8b0] dark:text-[#5a5550] sm:text-right">
             {formatActivityTimestamp(event.occurredAt)}
           </div>
         </div>
@@ -110,7 +110,7 @@ const ActivityRow = ({ event }: IActivityRowProps) => (
 );
 
 const DateDivider = ({ label }: { label: string }) => (
-  <div className="flex items-center gap-3 border-b border-[#e8ddd6] bg-[rgba(26,23,20,0.018)] px-5 py-2.5 dark:border-white/8 dark:bg-white/[0.018]">
+  <div className="flex items-center gap-3 border-b border-[#e8ddd6] bg-[rgba(26,23,20,0.018)] px-3.5 sm:px-5 py-2.5 dark:border-white/8 dark:bg-white/[0.018]">
     <span className="select-none whitespace-nowrap font-mono text-[8px] uppercase tracking-[0.14em] text-[#b0a097] dark:text-[#6b6460]">
       {label}
     </span>

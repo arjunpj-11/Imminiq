@@ -24,13 +24,13 @@ export default function PageHero({
   return (
     <header
       className={cn(
-        'relative overflow-hidden rounded-3xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1)',
+        'relative overflow-hidden rounded-3xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1) backdrop-blur-md',
         compact ? 'p-5 sm:p-6' : 'p-5 sm:p-7 lg:p-8',
         className
       )}
     >
-      <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.16)_0%,transparent_68%)] dark:bg-[radial-gradient(circle,rgba(232,129,106,0.16)_0%,transparent_68%)]" />
-      <div className="pointer-events-none absolute -bottom-24 left-[18%] h-48 w-48 rounded-full bg-[radial-gradient(circle,rgba(59,108,183,0.09)_0%,transparent_70%)] dark:bg-[radial-gradient(circle,rgba(106,169,255,0.09)_0%,transparent_70%)]" />
+      <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.18)_0%,transparent_70%)] dark:bg-[radial-gradient(circle,rgba(232,129,106,0.18)_0%,transparent_70%)]" />
+      <div className="pointer-events-none absolute -bottom-24 left-[18%] h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(59,108,183,0.12)_0%,transparent_70%)] dark:bg-[radial-gradient(circle,rgba(106,169,255,0.12)_0%,transparent_70%)]" />
 
       <div
         className={cn(

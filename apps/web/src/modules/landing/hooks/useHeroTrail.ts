@@ -28,6 +28,9 @@ export const useHeroTrail = (enabled = true) => {
     const handleMove = (event: MouseEvent) => {
       if (window.innerWidth < 768) return;
 
+      const target = event.target as HTMLElement | null;
+      if (target?.closest('button, a, [role="button"], input, select, textarea')) return;
+
       const bounds = container.getBoundingClientRect();
       const isInsideHero =
         event.clientX >= bounds.left &&

@@ -189,8 +189,8 @@ export default function TrackerCard({
   const cloneSource = tracker.clonedFrom;
   const hasClanMembership = Boolean(tracker.clanRole);
   const shouldShowClan =
-    isPublished &&
-    Boolean(cloneSource || tracker.clanRole === 'owner' || tracker.clanRole === 'co_owner');
+    Boolean(cloneSource) ||
+    (isPublished && (tracker.clanRole === 'owner' || tracker.clanRole === 'co_owner'));
   const isSharedCoOwner = !cloneSource && tracker.clanRole === 'co_owner';
   const hasOwnerControls = !cloneSource && !isSharedCoOwner;
   const verificationStatus = (
@@ -328,7 +328,7 @@ export default function TrackerCard({
     <>
       <article
         className={cn(
-          'render-lazy group relative flex min-h-[430px] flex-col rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) transition duration-200',
+          'render-lazy group relative flex min-h-107.5 flex-col rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) transition duration-200',
           isUnavailable
             ? 'overflow-hidden border-amber-500/25'
             : 'overflow-visible hover:-translate-y-1 hover:border-[rgba(184,76,43,0.24)] hover:shadow-(--shadow-2) dark:hover:border-[rgba(232,129,106,0.26)]'
@@ -454,7 +454,7 @@ export default function TrackerCard({
               <div className="font-ui text-[28px] font-extrabold leading-none tracking-[-0.8px] text-(--text-primary)">
                 {progress}%
               </div>
-              <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.1em] text-(--text-secondary)">
+              <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-(--text-secondary)">
                 complete
               </div>
             </div>

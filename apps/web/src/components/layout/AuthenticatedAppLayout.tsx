@@ -6,6 +6,8 @@ import AppErrorBoundary from '../system/AppErrorBoundary';
 import { ROUTES } from '../../routes/config/route-paths';
 import { AppShell } from './AppShell';
 
+import ConfettiCanvas from '../ui/ConfettiCanvas';
+
 export default function AuthenticatedAppLayout() {
   const location = useLocation();
   const isOpenSocialConversation =
@@ -17,6 +19,7 @@ export default function AuthenticatedAppLayout() {
 
   return (
     <AppShell withFooter={!isOpenSocialConversation}>
+      <ConfettiCanvas />
       <AppErrorBoundary resetKey={location.pathname}>
         <div key={routeAnimationKey} className="route-enter min-w-0">
           <Suspense fallback={<AppPageSkeleton />}>

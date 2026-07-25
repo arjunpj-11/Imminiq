@@ -61,21 +61,22 @@ export default function LeaderboardControls({
   }));
 
   return (
-    <FilterBar surface className="justify-between gap-2 rounded-xl">
+    <FilterBar surface className="w-full flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-xl p-2.5 sm:p-3">
       <PillTabs
         value={activeSection}
         items={sectionItems}
         onValueChange={onSectionChange}
         ariaLabel="Leaderboard section"
-        className="border-0 bg-transparent p-0"
+        className="w-full sm:w-auto border-0 bg-transparent p-0 justify-start"
+        itemClassName="flex-1 sm:flex-none text-center"
       />
       <PillTabs
         value={activeScope}
         items={scopeItems}
         onValueChange={onScopeChange}
         ariaLabel="Leaderboard scope"
-        className="border-0 bg-transparent p-0"
-        itemClassName="px-3"
+        className="w-full sm:w-auto border-0 bg-transparent p-0 justify-start sm:justify-end overflow-x-auto"
+        itemClassName="flex-1 sm:flex-none px-3 text-center"
       />
     </FilterBar>
   );
