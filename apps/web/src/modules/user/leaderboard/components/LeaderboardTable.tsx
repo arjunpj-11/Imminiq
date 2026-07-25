@@ -18,21 +18,21 @@ const TrackBadge = ({ track }: { track: string }) => (
 
 function TableHeader({ section }: { section: LeaderboardSection }) {
   return (
-    <div className="flex items-center gap-4 border-b border-[#e8ddd6] bg-[rgba(26,23,20,0.02)] px-5 py-2.25 dark:border-white/8 dark:bg-white/2">
-      <span className="w-9 shrink-0 text-center font-mono text-[7.5px] uppercase tracking-[0.14em] text-[#b0a097] dark:text-[#6b6460]">
+    <div className="flex items-center gap-2 sm:gap-4 border-b border-[#e8ddd6] bg-[rgba(26,23,20,0.02)] px-3 sm:px-5 py-2.25 dark:border-white/8 dark:bg-white/2">
+      <span className="w-7 sm:w-9 shrink-0 text-center font-mono text-[7.5px] uppercase tracking-[0.14em] text-[#b0a097] dark:text-[#6b6460]">
         #
       </span>
-      <span className="w-9.5 shrink-0" />
+      <span className="w-8 sm:w-9.5 shrink-0" />
       <span className="flex-1 font-mono text-[7.5px] uppercase tracking-[0.14em] text-[#b0a097] dark:text-[#6b6460]">
         {LEADERBOARD_SECTION_LABELS[section].singular}
       </span>
-      <span className="hidden w-17 shrink-0 text-right font-mono text-[7.5px] uppercase tracking-[0.14em] text-[#b0a097] min-[480px]:block dark:text-[#6b6460]">
+      <span className="w-16 sm:w-17 shrink-0 text-right font-mono text-[7.5px] uppercase tracking-[0.14em] text-[#b0a097] dark:text-[#6b6460]">
         Score
       </span>
       <span className="hidden w-14 shrink-0 text-right font-mono text-[7.5px] uppercase tracking-[0.14em] text-[#b0a097] min-[560px]:block dark:text-[#6b6460]">
         Streak
       </span>
-      <span className="w-10 shrink-0 text-right font-mono text-[7.5px] uppercase tracking-[0.14em] text-[#b0a097] dark:text-[#6b6460]">
+      <span className="w-9 sm:w-10 shrink-0 text-right font-mono text-[7.5px] uppercase tracking-[0.14em] text-[#b0a097] dark:text-[#6b6460]">
         Δ
       </span>
     </div>
@@ -41,7 +41,7 @@ function TableHeader({ section }: { section: LeaderboardSection }) {
 
 function SectionDivider({ label }: { label: string }) {
   return (
-    <div className="flex items-center gap-3 border-b border-[#e8ddd6] bg-[rgba(26,23,20,0.018)] px-5 py-2.5 dark:border-white/8 dark:bg-white/[0.018]">
+    <div className="flex items-center gap-3 border-b border-[#e8ddd6] bg-[rgba(26,23,20,0.018)] px-3.5 sm:px-5 py-2.5 dark:border-white/8 dark:bg-white/[0.018]">
       <span className="select-none font-mono text-[8px] uppercase tracking-[0.14em] text-[#b0a097] dark:text-[#6b6460]">
         {label}
       </span>
@@ -54,7 +54,7 @@ function LeaderRow({ entry }: { entry: ILeaderboardEntry }) {
   return (
     <div
       className={cn(
-        'flex items-center gap-4 border-b border-[#ece3db] px-5 py-2.75 last:border-b-0 dark:border-white/6',
+        'flex items-center gap-2 sm:gap-4 border-b border-[#ece3db] px-3 sm:px-5 py-2.5 sm:py-2.75 last:border-b-0 dark:border-white/6',
         entry.isMe
           ? 'bg-[rgba(184,76,43,0.032)] dark:bg-[rgba(232,129,106,0.045)]'
           : 'transition-colors duration-100 hover:bg-[rgba(26,23,20,0.015)] dark:hover:bg-white/1.5'
@@ -62,7 +62,7 @@ function LeaderRow({ entry }: { entry: ILeaderboardEntry }) {
     >
       <span
         className={cn(
-          'w-9 shrink-0 text-center font-mono text-[12.5px] font-bold tabular-nums',
+          'w-7 sm:w-9 shrink-0 text-center font-mono text-[12px] sm:text-[12.5px] font-bold tabular-nums',
           entry.isMe
             ? 'text-(--brand-500) dark:text-(--brand-500)'
             : 'text-[#c4b8b0] dark:text-[#5a5550]'
@@ -71,19 +71,21 @@ function LeaderRow({ entry }: { entry: ILeaderboardEntry }) {
         {entry.rank}
       </span>
 
-      <LeaderboardAvatar
-        initials={entry.initials}
-        color={entry.avatarColor}
-        avatarUrl={entry.avatarUrl}
-        name={entry.name}
-        username={entry.username}
-      />
+      <div className="shrink-0">
+        <LeaderboardAvatar
+          initials={entry.initials}
+          color={entry.avatarColor}
+          avatarUrl={entry.avatarUrl}
+          name={entry.name}
+          username={entry.username}
+        />
+      </div>
 
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1 sm:gap-1.5">
           <span
             className={cn(
-              'truncate text-[13px] font-semibold',
+              'truncate text-[12.5px] sm:text-[13px] font-semibold',
               entry.isMe
                 ? 'text-(--text-primary) dark:text-(--text-primary)'
                 : 'text-[#2a2420] dark:text-[#dedad5]'
@@ -91,21 +93,26 @@ function LeaderRow({ entry }: { entry: ILeaderboardEntry }) {
           >
             {entry.name}
             {entry.isMe && (
-              <span className="ml-1.5 font-mono text-[10px] font-normal text-(--brand-500) dark:text-(--brand-500)">
+              <span className="ml-1 font-mono text-[9.5px] sm:text-[10px] font-normal text-(--brand-500) dark:text-(--brand-500)">
                 you
               </span>
             )}
           </span>
           <TrackBadge track={entry.track} />
         </div>
-        <div className="mt-px text-[11px] text-[#b0a097] dark:text-[#6b6460]">{entry.handle}</div>
+        <div className="mt-px flex items-center gap-2 text-[10.5px] sm:text-[11px] text-[#b0a097] dark:text-[#6b6460]">
+          <span className="truncate">{entry.handle}</span>
+          <span className="inline-flex items-center gap-0.5 min-[560px]:hidden font-mono text-[10px] text-[#b0a097] dark:text-[#6b6460]">
+            <FireIcon size={10} /> {entry.streak}d
+          </span>
+        </div>
       </div>
 
-      <div className="hidden w-17 shrink-0 text-right min-[480px]:block">
-        <div className="font-mono text-[13px] font-bold text-(--text-primary) tabular-nums dark:text-(--text-primary)">
+      <div className="w-16 sm:w-17 shrink-0 text-right">
+        <div className="font-mono text-[12px] sm:text-[13px] font-bold text-(--text-primary) tabular-nums dark:text-(--text-primary)">
           {formatNumber(entry.xp)}
         </div>
-        <div className="mt-px text-[9px] uppercase tracking-wider text-[#b0a097] dark:text-[#6b6460]">
+        <div className="mt-px font-mono text-[8.5px] sm:text-[9px] uppercase tracking-wider text-[#b0a097] dark:text-[#6b6460]">
           XP
         </div>
       </div>
@@ -114,7 +121,7 @@ function LeaderRow({ entry }: { entry: ILeaderboardEntry }) {
         <FireIcon size={11} /> {entry.streak}d
       </div>
 
-      <div className="w-10 shrink-0 text-right">
+      <div className="w-9 sm:w-10 shrink-0 text-right">
         <LeaderboardTrendBadge trend={entry.trend} />
       </div>
     </div>
