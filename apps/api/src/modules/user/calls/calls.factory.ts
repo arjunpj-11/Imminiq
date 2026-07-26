@@ -15,6 +15,7 @@ import { mongoCallRepository } from './infrastructure/repositories/internal/mong
 import { NodeCallTimeoutScheduler } from './infrastructure/services/node-call-timeout.scheduler';
 import { socketCallRealtimePublisher } from './infrastructure/services/socket-call-realtime.publisher';
 import { DirectCallIceServerProvider } from './infrastructure/services/direct-call-ice-server.provider';
+import { FallbackCallIceServerProvider } from './infrastructure/services/fallback-call-ice-server.provider';
 import { MeteredCallIceServerProvider } from './infrastructure/services/metered-call-ice-server.provider';
 
 export type CallsComposition = {
@@ -35,15 +36,26 @@ export const createCallsComposition = (): CallsComposition => {
     socketCallRealtimePublisher
   );
   const timeouts = new NodeCallTimeoutScheduler((callId) => expire.execute(callId));
-  const iceServerProvider =
-    env.METERED_TURN_API_BASE_URL && env.METERED_TURN_SECRET_KEY
+  const directIceServerProvider = new DirectCallIceServerProvider();
+  const meteredIceServerProvider =
+    env.METERED_TURN_API_BASE_URL &&
+    (env.METERED_TURN_SECRET_KEY || env.METERED_TURN_API_KEY)
       ? new MeteredCallIceServerProvider({
           apiBaseUrl: env.METERED_TURN_API_BASE_URL,
-          secretKey: env.METERED_TURN_SECRET_KEY,
+          ...(env.METERED_TURN_SECRET_KEY
+            ? { secretKey: env.METERED_TURN_SECRET_KEY }
+            : {}),
+          ...(env.METERED_TURN_API_KEY ? { apiKey: env.METERED_TURN_API_KEY } : {}),
           credentialTtlSeconds: env.METERED_TURN_CREDENTIAL_TTL_SECONDS,
           requestTimeoutMs: env.METERED_TURN_REQUEST_TIMEOUT_MS,
         })
-      : new DirectCallIceServerProvider();
+      : null;
+  const iceServerProvider = meteredIceServerProvider
+    ? new FallbackCallIceServerProvider(
+        meteredIceServerProvider,
+        directIceServerProvider
+      )
+    : directIceServerProvider;
 
   return {
     useCases: {

@@ -70,6 +70,7 @@ const envSchema = z
     YOUTUBE_DATA_API_KEY: z.string().optional().default(''),
     METERED_TURN_API_BASE_URL: z.string().url().optional(),
     METERED_TURN_SECRET_KEY: z.string().min(1).optional(),
+    METERED_TURN_API_KEY: z.string().min(1).optional(),
     METERED_TURN_CREDENTIAL_TTL_SECONDS: z.coerce
       .number()
       .int()
@@ -408,9 +409,10 @@ const envSchema = z
   })
   .refine(
     (value) =>
-      Boolean(value.METERED_TURN_API_BASE_URL) === Boolean(value.METERED_TURN_SECRET_KEY),
+      Boolean(value.METERED_TURN_API_BASE_URL) ===
+      Boolean(value.METERED_TURN_SECRET_KEY || value.METERED_TURN_API_KEY),
     {
-      message: 'Metered TURN API base URL and secret key must be configured together',
+      message: 'Metered TURN API base URL and a secret key or credential API key are required',
       path: ['METERED_TURN_SECRET_KEY'],
     }
   )
@@ -486,7 +488,10 @@ const envSchema = z
       });
     }
 
-    if (!value.METERED_TURN_API_BASE_URL || !value.METERED_TURN_SECRET_KEY) {
+    if (
+      !value.METERED_TURN_API_BASE_URL ||
+      (!value.METERED_TURN_SECRET_KEY && !value.METERED_TURN_API_KEY)
+    ) {
       context.addIssue({
         code: 'custom',
         path: ['METERED_TURN_SECRET_KEY'],
