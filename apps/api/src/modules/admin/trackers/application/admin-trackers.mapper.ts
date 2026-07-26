@@ -73,7 +73,7 @@ export class AdminTrackersMapper implements IAdminTrackersMapper {
   toReviewStatusResultDTO(
     result: AdminTrackerReviewStatusResult
   ): AdminTrackerReviewStatusResultDTO {
-    return { ...result };
+    return { id: result.id, status: result.status };
   }
 
   toReviewConsensusResultDTO(

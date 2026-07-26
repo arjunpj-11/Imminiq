@@ -143,7 +143,9 @@ export const createApiRouter = () => {
   const adminUsersComposition = createAdminUsersComposition(
     securityComposition.helpers.passwordHasher
   );
-  const adminTrackersComposition = createAdminTrackersComposition();
+  const adminTrackersComposition = createAdminTrackersComposition(
+    communityComposition.helpers.verificationRewards
+  );
   const adminMockTestsComposition = createAdminMockTestsComposition();
   const adminAnalyticsComposition = createAdminAnalyticsComposition();
   const adminBroadcastComposition = createAdminBroadcastComposition();

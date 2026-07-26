@@ -1,4 +1,5 @@
 import type { CallSignal, CallType } from '../types/call.types';
+import { requestMediaPermission } from '../../../../lib/media-permissions';
 
 export type WebRtcCallCallbacks = {
   onSignal: (signal: CallSignal) => void;
@@ -27,7 +28,7 @@ export class WebRtcCallService {
       throw new Error('Calling is not supported in this browser');
     }
     if (!this._localStream) {
-      this._localStream = await navigator.mediaDevices.getUserMedia({
+      this._localStream = await requestMediaPermission({
         audio: {
           echoCancellation: true,
           noiseSuppression: true,

@@ -8,7 +8,7 @@ import { MONGO_USERS_ACTIVE_FILTER } from '../shared/mongo-users-query.constants
 import type { MongoUserRecord } from '../shared/mongo-users.types';
 
 const USER_SELECT =
-  '_id fullName username email role status emailVerified phoneVerified onboardingCompleted coins xp level teacherXp teacherLevel streakCount avatarUrl provider referralCode createdAt updatedAt lastActiveAt';
+  '_id fullName username email role status emailVerified phoneVerified onboardingCompleted coins xp level teacherXp teacherLevel streakCount isPremium avatarUrl provider referralCode createdAt updatedAt lastActiveAt';
 
 export class MongoUsersUserRepository extends MongoUsersBaseRepository {
   constructor(private readonly _mapper = new MongoUsersMapper()) {

@@ -5,7 +5,7 @@ import {
   publicEmailChangeVerifyIpLimiter,
   securityTwoFactorIpLimiter,
 } from '../../../shared/middlewares/security-rate-limit.middleware';
-import { validate, validateIdentifierParam } from '../../../shared/middlewares/validate.middleware';
+import { validate, validateObjectIdParam } from '../../../shared/middlewares/validate.middleware';
 import { SecurityController } from './security.controller';
 import type { SecurityUseCases } from '../application/security-use-cases.contract';
 import { SECURITY_ROUTE_PATHS } from './security.route.constants';
@@ -21,7 +21,7 @@ import {
 export const createSecurityRoutes = (useCases: SecurityUseCases) => {
   const securityController = new SecurityController(useCases);
   const router = Router();
-  router.param('sessionId', validateIdentifierParam);
+  router.param('sessionId', validateObjectIdParam);
 
   // ─── PUBLIC ──────────────────────────────────────────────────
 

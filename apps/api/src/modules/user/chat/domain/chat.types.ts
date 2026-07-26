@@ -1,4 +1,11 @@
-export type ChatMessageKind = 'text' | 'code' | 'image' | 'file' | 'voice' | 'tracker';
+export type ChatMessageKind =
+  | 'text'
+  | 'code'
+  | 'image'
+  | 'file'
+  | 'voice'
+  | 'tracker'
+  | 'profile';
 
 export type PaginatedChatResult<T> = {
   items: T[];
@@ -16,6 +23,7 @@ export type ListChatConversationsInput = {
 
 export type ListChatMessagesInput = {
   conversationId: string;
+  viewerUserId: string;
   page: number;
   limit: number;
 };
@@ -28,6 +36,7 @@ export type CreateChatMessageCommandInput = {
   codeLanguage: string | null;
   attachment: StoredChatFile | null;
   sharedTracker?: SharedTracker | null;
+  sharedProfile?: SharedProfile | null;
   forwardedFromMessageId?: string | null;
 };
 
@@ -65,4 +74,12 @@ export type SharedTracker = {
   title: string;
   description: string;
   visibility: 'private' | 'public' | 'unlisted';
+};
+
+export type SharedProfile = {
+  userId: string;
+  username: string;
+  fullName: string;
+  headline: string;
+  avatarUrl: string | null;
 };

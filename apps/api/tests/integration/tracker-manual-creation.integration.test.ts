@@ -27,4 +27,18 @@ describe('manual tracker creation', () => {
     expect(second.slug).toMatch(/^react-mastery-[a-f0-9]{8}$/);
     expect(second.slug).not.toBe(first.slug);
   });
+
+  it('persists a custom reusable domain during manual creation', async () => {
+    const repository = new MongoTrackerManagementRepository();
+    const userId = new mongoose.Types.ObjectId().toHexString();
+
+    const tracker = await repository.createTracker({
+      userId,
+      title: 'Classical Mechanics',
+      domain: 'Physics',
+    });
+
+    expect(tracker.category).toBe('Physics');
+    await expect(repository.listDomains('phys', 10)).resolves.toContain('Physics');
+  });
 });

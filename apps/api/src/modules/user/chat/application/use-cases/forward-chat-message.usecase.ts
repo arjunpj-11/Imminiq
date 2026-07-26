@@ -61,6 +61,7 @@ export class ForwardChatMessageUseCase implements IForwardChatMessageUseCase {
       codeLanguage: source.codeLanguage,
       attachment: source.attachment,
       sharedTracker: source.sharedTracker,
+      sharedProfile: source.sharedProfile,
       forwardedFromMessageId: source.id,
     });
     this._realtime.messageCreated(targetConversation.participantIds, forwarded);

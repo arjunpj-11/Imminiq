@@ -21,6 +21,7 @@ export type MongoUserRecord = {
   teacherXp?: number | null;
   teacherLevel?: number | null;
   streakCount?: number | null;
+  isPremium?: boolean | null;
   avatarUrl?: string | null;
   provider?: string | null;
   referralCode?: string | null;

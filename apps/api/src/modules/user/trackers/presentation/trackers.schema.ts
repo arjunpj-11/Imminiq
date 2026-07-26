@@ -79,6 +79,11 @@ const outlineNodeTitleSchema = z
 const titleSchema = z.string().trim().min(2).max(120);
 
 const descriptionSchema = optionalTrimmedStringSchema(500, 'Description is too long');
+const customTrackerDomainSchema = z
+  .string()
+  .trim()
+  .min(1, 'Domain is required')
+  .max(80, 'Domain must be 80 characters or fewer');
 
 const longDescriptionSchema = optionalTrimmedStringSchema(700, 'Description is too long');
 
@@ -104,6 +109,7 @@ export const trackerDomainSchema = z.enum([
 export const trackerListQuerySchema = z.object({
   status: z.enum(['all', 'active', 'stalled', 'completed', 'archived']).optional(),
   domain: trackerDomainSchema.or(z.literal('all')).optional(),
+  search: z.string().trim().max(120).optional(),
   sortBy: z.enum(['lastActive', 'createdAt', 'progress', 'title']).optional(),
   page: z.coerce.number().int().min(1).optional(),
   limit: z.coerce.number().int().min(1).max(50).optional(),
@@ -113,7 +119,7 @@ export const createTrackerSchema = z
   .object({
     title: trackerTitleSchema,
     description: descriptionSchema,
-    domain: trackerDomainSchema.optional(),
+    domain: customTrackerDomainSchema.optional(),
     goal: optionalTrimmedStringSchema(500, 'Goal is too long'),
     level: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
     visibility: z.enum(['private', 'public']).optional(),

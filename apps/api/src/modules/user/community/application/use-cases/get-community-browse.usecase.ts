@@ -38,6 +38,7 @@ export class GetCommunityBrowseUseCase implements IGetCommunityBrowseUseCase {
         minRating: payload.minRating,
         verifiedOnly: payload.verifiedOnly,
         sort: payload.sort,
+        recentSearches: payload.recentSearches,
         page,
         limit,
       }),

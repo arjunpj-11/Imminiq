@@ -48,6 +48,7 @@ export type TrackerClanOverview = {
   canTransferOwnership: boolean;
   hasPendingJoinRequest: boolean;
   personalCloneTrackerId: string | null;
+  hasAcceptedChanges: boolean;
   members: TrackerClanPerson[];
   joinRequests: TrackerClanJoinRequest[];
   roleInvitations: TrackerClanRoleInvitation[];

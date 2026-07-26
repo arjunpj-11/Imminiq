@@ -9,9 +9,9 @@ import {
   parseTrackerOutlineJson,
   trackerOutlineExample,
   validateTrackerTitle,
+  DomainCombobox,
   useCreateTracker,
   useImportTrackerOutline,
-  type TrackerDomain,
   type TrackerLevel,
 } from '../../trackers';
 
@@ -25,7 +25,7 @@ export default function ManualTrackerCreationPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [goal, setGoal] = useState('');
-  const [domain, setDomain] = useState<TrackerDomain>('development');
+  const [domain, setDomain] = useState('development');
   const [level, setLevel] = useState<TrackerLevel>('beginner');
   const [outlineJson, setOutlineJson] = useState('');
   const [outlineFileName, setOutlineFileName] = useState<string | null>(null);
@@ -71,7 +71,7 @@ export default function ManualTrackerCreationPage() {
 
   return (
     <AppShellBoundary>
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 pb-28 sm:px-6 md:px-10">
+      <div className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 pb-28 sm:px-6 md:px-10">
         <button
           type="button"
           onClick={() => navigate(ROUTES.trackerCreate)}
@@ -102,65 +102,66 @@ export default function ManualTrackerCreationPage() {
           <section className="rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) sm:p-6">
             <h2 className="font-serif text-2xl font-bold">Tracker details</h2>
             <div className="mt-5 grid gap-4">
-              <input
-                value={title}
-                onChange={(e) => {
-                  setTitle(e.target.value);
-                  setError(null);
-                }}
-                className={inputClass}
-                placeholder="Tracker title *"
-                maxLength={120}
-                aria-invalid={Boolean(titleError)}
-                aria-describedby={titleError ? 'tracker-title-error' : undefined}
-              />
+              <label className="grid gap-1.5 text-xs font-bold text-(--text-secondary)">
+                Tracker title
+                <input
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    setError(null);
+                  }}
+                  className={inputClass}
+                  placeholder="e.g. Master TypeScript"
+                  maxLength={120}
+                  required
+                  aria-invalid={Boolean(titleError)}
+                  aria-describedby={titleError ? 'tracker-title-error' : undefined}
+                />
+              </label>
               {titleError && (
                 <p id="tracker-title-error" className="-mt-2 text-xs font-semibold text-red-600">
                   {titleError}
                 </p>
               )}
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className={cn(inputClass, 'min-h-24 resize-y')}
-                placeholder="Description"
-              />
-              <textarea
-                value={goal}
-                onChange={(e) => setGoal(e.target.value)}
-                className={cn(inputClass, 'min-h-20 resize-y')}
-                placeholder="Learning goal"
-              />
-              <select
-                value={domain}
-                onChange={(e) => setDomain(e.target.value as TrackerDomain)}
-                className={inputClass}
-              >
-                {[
-                  'development',
-                  'frontend',
-                  'backend',
-                  'engineering',
-                  'algorithms',
-                  'architecture',
-                  'design',
-                  'ai',
-                  'other',
-                ].map((value) => (
-                  <option key={value} value={value}>
-                    {value[0].toUpperCase() + value.slice(1)}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={level}
-                onChange={(e) => setLevel(e.target.value as TrackerLevel)}
-                className={inputClass}
-              >
-                <option value="beginner">Beginner</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="advanced">Advanced</option>
-              </select>
+              <label className="grid gap-1.5 text-xs font-bold text-(--text-secondary)">
+                Description
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className={cn(inputClass, 'min-h-24 resize-y')}
+                  placeholder="What will this tracker cover?"
+                />
+              </label>
+              <label className="grid gap-1.5 text-xs font-bold text-(--text-secondary)">
+                Learning goal
+                <textarea
+                  value={goal}
+                  onChange={(e) => setGoal(e.target.value)}
+                  className={cn(inputClass, 'min-h-20 resize-y')}
+                  placeholder="What should learners be able to do?"
+                />
+              </label>
+              <div className="grid gap-1.5 text-xs font-bold text-(--text-secondary)">
+                <label htmlFor="manual-tracker-domain">Domain</label>
+                <DomainCombobox
+                  inputId="manual-tracker-domain"
+                  value={domain}
+                  disabled={pending}
+                  onChange={setDomain}
+                />
+              </div>
+              <label className="grid gap-1.5 text-xs font-bold text-(--text-secondary)">
+                Difficulty
+                <select
+                  value={level}
+                  onChange={(e) => setLevel(e.target.value as TrackerLevel)}
+                  className={inputClass}
+                >
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+              </label>
             </div>
           </section>
 
@@ -270,7 +271,7 @@ export default function ManualTrackerCreationPage() {
                 : 'Create & manage topics'}
           </button>
         </div>
-      </main>
+      </div>
     </AppShellBoundary>
   );
 }

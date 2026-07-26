@@ -4,7 +4,8 @@ export type ChatMessageKind =
   | 'image'
   | 'file'
   | 'voice'
-  | 'tracker';
+  | 'tracker'
+  | 'profile';
 export type ChatSection = 'chats' | 'friends' | 'requests' | 'calls';
 
 export interface IChatParticipant {
@@ -35,6 +36,14 @@ export interface ISharedTracker {
   visibility: 'private' | 'public' | 'unlisted';
 }
 
+export interface ISharedProfile {
+  userId: string;
+  username: string;
+  fullName: string;
+  headline: string;
+  avatarUrl: string | null;
+}
+
 export interface IChatMessage {
   id: string;
   conversationId: string;
@@ -44,10 +53,12 @@ export interface IChatMessage {
   codeLanguage: string | null;
   attachment: IChatAttachment | null;
   sharedTracker: ISharedTracker | null;
+  sharedProfile: ISharedProfile | null;
   isForwarded: boolean;
   createdAt: string;
   updatedAt: string;
   isRead: boolean;
+  isStarred: boolean;
 }
 
 export interface IChatConversation {
@@ -84,4 +95,10 @@ export interface IChatApiError {
 export interface IUserBlocks {
   blockedUserIds: string[];
   blockedByUserIds: string[];
+}
+
+export interface IClearChatResult {
+  conversationId: string;
+  clearedCount: number;
+  preservedStarredMessages: boolean;
 }

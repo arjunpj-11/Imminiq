@@ -15,6 +15,7 @@ import type {
   IChatConversation,
   IChatMessage,
   IChatPage,
+  IClearChatResult,
   IUserBlocks,
 } from '../types/chat.types';
 import { resolveOutgoingMessageKind } from '../utils/resolve-outgoing-message-kind';
@@ -193,6 +194,55 @@ export const useForwardChatMessage = () => {
   });
 };
 
+export const useToggleChatMessageStar = () => {
+  const queryClient = useQueryClient();
+  return useMutation<IChatMessage, AxiosError<IChatApiError>, string>({
+    mutationFn: async (messageId) => {
+      const response = await api.patch<IChatApiResponse<IChatMessage>>(
+        CHAT_ENDPOINTS.star(messageId)
+      );
+      return response.data.data;
+    },
+    onSuccess: (updated) => {
+      queryClient.setQueryData<InfiniteData<IChatPage<IChatMessage>>>(
+        socialQueryKeys.chat.messages(updated.conversationId),
+        (current) =>
+          current
+            ? {
+                ...current,
+                pages: current.pages.map((chatPage) => ({
+                  ...chatPage,
+                  items: chatPage.items.map((message) =>
+                    message.id === updated.id ? updated : message
+                  ),
+                })),
+              }
+            : current
+      );
+    },
+  });
+};
+
+export const useClearChatConversation = () => {
+  const queryClient = useQueryClient();
+  return useMutation<IClearChatResult, AxiosError<IChatApiError>, string>({
+    mutationFn: async (conversationId) => {
+      const response = await api.delete<IChatApiResponse<IClearChatResult>>(
+        CHAT_ENDPOINTS.clear(conversationId)
+      );
+      return response.data.data;
+    },
+    onSuccess: (result) => {
+      void queryClient.invalidateQueries({
+        queryKey: socialQueryKeys.chat.messages(result.conversationId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: socialQueryKeys.chat.conversations(),
+      });
+    },
+  });
+};
+
 export const useShareTrackerToChat = () => {
   const queryClient = useQueryClient();
   return useMutation<
@@ -204,6 +254,34 @@ export const useShareTrackerToChat = () => {
       const response = await api.post<IChatApiResponse<IChatMessage>>(
         CHAT_ENDPOINTS.trackerShares,
         input
+      );
+      return response.data.data;
+    },
+    onSuccess: (message) => {
+      void queryClient.invalidateQueries({
+        queryKey: socialQueryKeys.chat.conversations(),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: socialQueryKeys.chat.messages(message.conversationId),
+      });
+    },
+  });
+};
+
+export const useShareProfileToChat = () => {
+  const queryClient = useQueryClient();
+  return useMutation<
+    IChatMessage,
+    AxiosError<IChatApiError>,
+    {
+      targetConversationId: string;
+      username: string;
+    }
+  >({
+    mutationFn: async ({ targetConversationId, username }) => {
+      const response = await api.post<IChatApiResponse<IChatMessage>>(
+        CHAT_ENDPOINTS.profileShares,
+        { targetConversationId, username }
       );
       return response.data.data;
     },

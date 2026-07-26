@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import { requireAdminPermission } from '../../../../shared/middlewares/admin.middleware';
 import type { PrivilegedAdminMiddleware } from '../../../../shared/middlewares/admin.middleware';
-import { validateIdentifierParam } from '../../../../shared/middlewares/validate.middleware';
+import { validateObjectIdParam } from '../../../../shared/middlewares/validate.middleware';
 import type { AdminMockTestsUseCases } from '../application/admin-mock-tests-use-cases.contract';
 import { AdminMockTestsController } from './admin-mock-tests.controller';
 import { ADMIN_MOCK_TESTS_ROUTE_PATHS } from './admin-mock-tests.route.constants';
@@ -13,10 +13,10 @@ export const createAdminMockTestsRoutes = (
   const router = Router();
   const controller = new AdminMockTestsController(useCases);
   router.use(authenticate, requireAdminPermission('content:read'));
-  router.param('id', validateIdentifierParam);
-  router.param('issueId', validateIdentifierParam);
-  router.param('questionId', validateIdentifierParam);
-  router.param('appealId', validateIdentifierParam);
+  router.param('id', validateObjectIdParam);
+  router.param('issueId', validateObjectIdParam);
+  router.param('questionId', validateObjectIdParam);
+  router.param('appealId', validateObjectIdParam);
   router.get(ADMIN_MOCK_TESTS_ROUTE_PATHS.ROOT, controller.list);
   router.get(ADMIN_MOCK_TESTS_ROUTE_PATHS.EXPORT, controller.exportCsv);
   router.post(

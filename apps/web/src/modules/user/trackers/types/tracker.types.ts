@@ -141,6 +141,7 @@ export interface ITrackerClanOverview {
   canTransferOwnership: boolean;
   hasPendingJoinRequest: boolean;
   personalCloneTrackerId: string | null;
+  hasAcceptedChanges: boolean;
   members: ITrackerClanPerson[];
   joinRequests: ITrackerClanJoinRequest[];
   roleInvitations: ITrackerClanRoleInvitation[];
@@ -255,6 +256,7 @@ export interface ITrackerListResponse {
 export interface ITrackerListQuery {
   status?: TrackerStatusFilter;
   domain?: TrackerDomainFilter;
+  search?: string;
   sortBy?: TrackerSortBy;
   page?: number;
   limit?: number;
@@ -263,7 +265,7 @@ export interface ITrackerListQuery {
 export interface ICreateTrackerPayload {
   title: string;
   description?: string;
-  domain?: TrackerDomain;
+  domain?: string;
   goal?: string;
   level?: TrackerLevel;
   visibility?: TrackerVisibility;

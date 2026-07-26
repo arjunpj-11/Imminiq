@@ -1,7 +1,10 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { MicButton } from '../../../../components/input/VoiceInputButton';
+import {
+  MicButton,
+  VoiceInputStatus,
+} from '../../../../components/input/VoiceInputButton';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import { useVoiceInput } from '../../../../hooks/useVoiceInput';
 import { ROUTES } from '../../../../routes/config/route-paths';
@@ -586,13 +589,17 @@ export default function OnboardingStepOnePage() {
                     onSubmit={(event) => void submitAnswer(event)}
                     className="rounded-2xl border border-(--border-subtle) bg-(--surface-canvas)/50 p-2 transition focus-within:border-(--brand-500) focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.08)] dark:border-white/15 dark:bg-(--surface-canvas)/35"
                   >
-                    <textarea
-                      value={answer}
-                      onChange={(event) => setAnswer(event.target.value)}
-                      placeholder="Type your answer, or use the microphone…"
-                      rows={2}
-                      className="max-h-32 min-h-13 w-full resize-none bg-transparent px-2.5 py-2 text-[13px] leading-5 outline-none placeholder:text-(--text-secondary)/65"
-                    />
+                    <div className="relative overflow-hidden rounded-xl">
+                      <textarea
+                        value={answer}
+                        onChange={(event) => setAnswer(event.target.value)}
+                        disabled={voice.phase !== 'idle'}
+                        placeholder="Type your answer, or use the microphone…"
+                        rows={2}
+                        className="max-h-32 min-h-13 w-full resize-none bg-transparent px-2.5 py-2 text-[13px] leading-5 outline-none placeholder:text-(--text-secondary)/65"
+                      />
+                      <VoiceInputStatus phase={voice.phase} audioLevel={voice.audioLevel} />
+                    </div>
                     <div className="flex items-center justify-between gap-3 border-t border-(--border-subtle) px-1 pt-2 dark:border-white/10">
                       <span className="hidden text-[10px] text-(--text-secondary) sm:inline">
                         Share only the detail needed to personalise your roadmap.
@@ -600,12 +607,15 @@ export default function OnboardingStepOnePage() {
                       <div className="ml-auto flex items-center gap-2">
                         <MicButton
                           isListening={voice.isListening}
+                          phase={voice.phase}
                           isSupported={voice.isSupported}
                           onToggle={voice.toggle}
                         />
                         <button
                           type="submit"
-                          disabled={!answer.trim() || intake.isPending}
+                          disabled={
+                            !answer.trim() || intake.isPending || voice.phase !== 'idle'
+                          }
                           className="flex h-10 items-center justify-center gap-2 rounded-xl bg-(--brand-500) px-4 text-[12px] font-bold text-white transition hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-50 dark:text-[#141412]"
                         >
                           Send <SendIcon />

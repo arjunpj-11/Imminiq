@@ -205,7 +205,15 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
 
   async listOwnedTrackers(filter: TrackerListFilter) {
     return this.execute('TRACKER_LIST_READ_FAILED', 'Failed to read owned trackers', async () => {
-      const { userId, status = 'all', domain = 'all', sortBy = 'lastActive', page, limit } = filter;
+      const {
+        userId,
+        status = 'all',
+        domain = 'all',
+        search = '',
+        sortBy = 'lastActive',
+        page,
+        limit,
+      } = filter;
 
       const userObjId = this.mapper.toObjectId(userId);
       const clans = await TrackerClan.find({
@@ -226,8 +234,17 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
         ...ownedOriginals.map((tracker) => tracker._id),
       ];
 
+      const normalizedSearch = search.trim();
+      const searchPattern = normalizedSearch
+        ? new RegExp(normalizedSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')
+        : null;
       const query = {
-        $or: [{ ownerId: userObjId }, { _id: { $in: managedTrackerIds } }],
+        $and: [
+          { $or: [{ ownerId: userObjId }, { _id: { $in: managedTrackerIds } }] },
+          ...(searchPattern
+            ? [{ $or: [{ title: searchPattern }, { description: searchPattern }] }]
+            : []),
+        ],
         ...(sharedOriginalIds.length ? { sourceTrackerId: { $nin: sharedOriginalIds } } : {}),
         deletedAt: null,
       } as unknown as MongoQuery;
@@ -404,7 +421,8 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
             title: data.title,
             slug,
             description: data.description || '',
-            domain: data.domain || 'other',
+            // The public contract calls this value `domain`; Mongo stores it as `category`.
+            category: data.domain || 'other',
             goal: data.goal || '',
             level: data.level || 'beginner',
             status: 'active',

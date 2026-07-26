@@ -32,8 +32,17 @@ export type MongoChatMessageRecord = {
     description?: string;
     visibility: 'private' | 'public' | 'unlisted';
   } | null;
+  sharedProfile?: {
+    userId: Types.ObjectId;
+    username: string;
+    fullName: string;
+    headline?: string;
+    avatarUrl?: string | null;
+  } | null;
   forwardedFromMessageId?: Types.ObjectId | null;
   readBy?: Types.ObjectId[];
+  starredBy?: Types.ObjectId[];
+  clearedFor?: Types.ObjectId[];
   deletedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;

@@ -14,6 +14,7 @@ export type UserEntityProps = {
   teacherXp: number;
   teacherLevel: number;
   streakCount: number;
+  isPremium?: boolean;
   avatarUrl: string;
   provider: string;
   referralCode: string;
@@ -37,6 +38,7 @@ export class UserEntity {
   readonly teacherXp: number;
   readonly teacherLevel: number;
   readonly streakCount: number;
+  readonly isPremium: boolean;
   readonly avatarUrl: string;
   readonly provider: string;
   readonly referralCode: string;
@@ -59,6 +61,7 @@ export class UserEntity {
     this.teacherXp = props.teacherXp;
     this.teacherLevel = props.teacherLevel;
     this.streakCount = props.streakCount;
+    this.isPremium = Boolean(props.isPremium);
     this.avatarUrl = props.avatarUrl;
     this.provider = props.provider;
     this.referralCode = props.referralCode;

@@ -67,6 +67,13 @@ export class MongoChatRepository implements IChatRepository {
     return this._dependencies.messageRepository.findMessagesByIds(messageIds);
   }
 
+  findLatestVisibleMessages(conversationIds: string[], viewerUserId: string) {
+    return this._dependencies.messageRepository.findLatestVisibleMessages(
+      conversationIds,
+      viewerUserId
+    );
+  }
+
   findUnreadCounts(conversationIds: string[], viewerUserId: string) {
     return this._dependencies.messageRepository.findUnreadCounts(
       conversationIds,
@@ -80,6 +87,20 @@ export class MongoChatRepository implements IChatRepository {
 
   markConversationRead(conversationId: string, viewerUserId: string) {
     return this._dependencies.messageRepository.markConversationRead(
+      conversationId,
+      viewerUserId
+    );
+  }
+
+  toggleMessageStar(messageId: string, viewerUserId: string) {
+    return this._dependencies.messageRepository.toggleMessageStar(
+      messageId,
+      viewerUserId
+    );
+  }
+
+  clearConversationMessages(conversationId: string, viewerUserId: string) {
+    return this._dependencies.messageRepository.clearConversationMessages(
       conversationId,
       viewerUserId
     );

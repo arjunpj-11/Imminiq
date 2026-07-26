@@ -25,7 +25,7 @@ export default function SocialPreview() {
   return (
     <section
       id="social"
-      className="render-lazy-section bg-[#141412] px-4 py-24 text-[#f2f0eb] sm:px-8 lg:px-10"
+      className="render-lazy-section bg-[#141412] px-4 py-16 text-[#f2f0eb] sm:px-8 sm:py-20 lg:px-10"
     >
       <div className="mx-auto max-w-340">
         <div className="grid items-end gap-8 lg:grid-cols-[1.1fr_0.9fr]">
@@ -66,7 +66,7 @@ export default function SocialPreview() {
           </div>
 
           <div
-            className="grid min-h-155 md:grid-cols-[minmax(220px,0.36fr)_minmax(0,1fr)]"
+            className="grid min-h-135 md:grid-cols-[minmax(220px,0.36fr)_minmax(0,1fr)]"
             aria-label="Preview of the Imminiq Social conversation experience"
           >
             <aside className="hidden border-r border-white/8 bg-[#11110f] p-4 md:block">

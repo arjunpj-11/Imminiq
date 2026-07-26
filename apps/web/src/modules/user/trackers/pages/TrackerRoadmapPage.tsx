@@ -145,7 +145,7 @@ export default function TrackerRoadmapPage() {
   return (
     <AppShellBoundary>
       {isMainLoading ? (
-        <AppPageSkeleton kind="roadmap" label="Loading roadmap" />
+        <AppPageSkeleton kind="roadmap" label="Preparing your roadmap" />
       ) : trackerIsModerated && trackerDetailsQuery.data ? (
         <TrackerModerationNotice tracker={trackerDetailsQuery.data} />
       ) : hasMainError || !roadmapData ? (
@@ -155,8 +155,27 @@ export default function TrackerRoadmapPage() {
               Roadmap unavailable
             </h1>
             <p className="mt-2 text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
-              Something went wrong while fetching your study roadmap.
+              This tracker could not be found, or its roadmap is temporarily unavailable.
             </p>
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  void trackerDetailsQuery.refetch();
+                  void roadmapQuery.refetch();
+                }}
+                className="rounded-xl border border-(--border-subtle) bg-(--surface-elevated) px-4 py-2.5 text-[13px] font-bold text-(--text-primary) transition hover:border-(--brand-500)"
+              >
+                Try again
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate(ROUTES.trackers)}
+                className="rounded-xl bg-(--brand-500) px-4 py-2.5 text-[13px] font-bold text-white transition hover:bg-(--brand-600)"
+              >
+                Back to trackers
+              </button>
+            </div>
           </div>
         </div>
       ) : (

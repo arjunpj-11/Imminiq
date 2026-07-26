@@ -28,6 +28,7 @@ export class ListChatMessagesUseCase implements IListChatMessagesUseCase {
     if (!conversation) throw ChatApplicationError.conversationNotFound();
     const page = await this._messageQueryRepository.listMessages({
       conversationId,
+      viewerUserId,
       page: payload.page,
       limit: payload.limit,
     });

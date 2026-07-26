@@ -5,6 +5,7 @@ export {
   useRequestTrackerClanJoin,
 } from './hooks/useTrackerMutations';
 export { useActiveTrackerClanChallenge, useTrackerClan } from './hooks/useTrackerQueries';
+export { DomainCombobox } from './components/PublishTrackerModal';
 
 export type {
   IRoadmapSubtopic,

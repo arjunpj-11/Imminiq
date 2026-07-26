@@ -87,6 +87,7 @@ export default function TrackerClanPage() {
   const [memberActionError, setMemberActionError] = useState<string | null>(null);
   const [memberActionNotice, setMemberActionNotice] = useState<string | null>(null);
   const [syncNotice, setSyncNotice] = useState<string | null>(null);
+  const [acceptedChangesConsumed, setAcceptedChangesConsumed] = useState(false);
   const [roleInvitationAction, setRoleInvitationAction] = useState<'accept' | 'decline' | null>(
     null
   );
@@ -96,6 +97,15 @@ export default function TrackerClanPage() {
   );
   const [chatClock, setChatClock] = useState(() => Date.now());
   const endRef = useRef<HTMLDivElement | null>(null);
+  const previousAcceptedChangesRef = useRef(Boolean(clan?.hasAcceptedChanges));
+
+  useEffect(() => {
+    const hasAcceptedChanges = Boolean(clan?.hasAcceptedChanges);
+    if (hasAcceptedChanges && !previousAcceptedChangesRef.current) {
+      setAcceptedChangesConsumed(false);
+    }
+    previousAcceptedChangesRef.current = hasAcceptedChanges;
+  }, [clan?.hasAcceptedChanges]);
 
   const messages = useMemo(() => {
     const combined = [...(messagesQuery.data ?? []), ...liveMessages];
@@ -299,6 +309,7 @@ export default function TrackerClanPage() {
       {
         onSuccess: (response) => {
           const result = response.data;
+          setAcceptedChangesConsumed(true);
           setSyncNotice(
             `Fetched ${result.addedTopics} new topic${result.addedTopics === 1 ? '' : 's'} and ${result.addedSubtopics} new subtopic${result.addedSubtopics === 1 ? '' : 's'}. Your personal additions were kept.`
           );
@@ -424,16 +435,19 @@ export default function TrackerClanPage() {
                   Edit tracker
                 </button>
               )}
-              {clan.role === 'member' && clan.personalCloneTrackerId && (
+              {clan.role === 'member' &&
+                clan.personalCloneTrackerId &&
+                clan.hasAcceptedChanges &&
+                !acceptedChangesConsumed && (
                 <button
                   type="button"
                   disabled={fetchGuildChanges.isPending}
                   onClick={fetchLatestGuildChanges}
                   className="rounded-lg border border-[#f4c95d]/35 bg-[#f4c95d]/12 px-4 py-3 text-xs font-extrabold text-[#f4c95d] transition hover:bg-[#f4c95d]/20 disabled:opacity-50"
                 >
-                  {fetchGuildChanges.isPending ? 'Fetching…' : '↻ Fetch changes'}
+                  {fetchGuildChanges.isPending ? 'Updating your clone…' : '↻ Apply accepted changes'}
                 </button>
-              )}
+                )}
               <button
                 type="button"
                 onClick={() => {

@@ -13,6 +13,7 @@ export const communityKeys = {
       query.sort ?? 'top-rated',
       query.page ?? 1,
       query.limit,
+      query.recentSearches?.join(',') ?? '',
     ] as const,
   trackers: () => [...communityKeys.all, 'trackers'] as const,
   tracker: (trackerId: string) => [...communityKeys.trackers(), trackerId] as const,

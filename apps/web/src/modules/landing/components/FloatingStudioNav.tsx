@@ -18,7 +18,7 @@ export default function FloatingStudioNav() {
 
   return (
     <div
-      className={`fixed bottom-3 left-1/2 z-1000 w-[min(520px,calc(100%-24px))] -translate-x-1/2 transition-all duration-300 ${
+      className={`fixed bottom-[max(0.75rem,env(safe-area-inset-bottom,0px))] left-1/2 z-1000 w-[min(520px,calc(100%-24px))] -translate-x-1/2 transition-all duration-300 ${
         scrolled ? 'scale-[0.96] opacity-95' : 'scale-100 opacity-100'
       }`}
     >

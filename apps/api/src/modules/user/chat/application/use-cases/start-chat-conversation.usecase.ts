@@ -45,8 +45,9 @@ export class StartChatConversationUseCase implements IStartChatConversationUseCa
     );
     const [participants, messages, unreadCounts] = await Promise.all([
       this._participantRepository.findParticipants([payload.friendUserId]),
-      this._messageQueryRepository.findMessagesByIds(
-        result.conversation.lastMessageId ? [result.conversation.lastMessageId] : []
+      this._messageQueryRepository.findLatestVisibleMessages(
+        [result.conversation.id],
+        viewerUserId
       ),
       this._messageQueryRepository.findUnreadCounts(
         [result.conversation.id],

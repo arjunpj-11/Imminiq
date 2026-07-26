@@ -2,6 +2,7 @@ import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface';
 import type { PublicMockTestQuestionDTO } from '../mock-tests.dto';
 import type { IMockTestsMapper } from '../mock-tests.mapper';
+import { MockTestsApplicationError } from '../mock-tests-application.error';
 import type { IAttemptQuestionSnapshotService } from '../services/attempt-question-snapshot.service';
 
 type GetAttemptQuestionsRepository = IMockTestAttemptRepository & IMockTestQuestionRepository;
@@ -21,7 +22,7 @@ export class GetAttemptQuestionsUseCase implements IGetAttemptQuestionsUseCase {
     const attempt = await this._repository.findAttemptById(attemptId);
 
     if (!attempt || attempt.userId !== userId) {
-      return [];
+      throw MockTestsApplicationError.notFound('Attempt not found');
     }
 
     const questions = await this._repository.findQuestionsByTest(attempt.testId);

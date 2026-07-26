@@ -17,6 +17,7 @@ import { Tracker } from '../../../../../infrastructure/database/models/tracker.m
 import { TrackerLesson } from '../../../../../infrastructure/database/models/tracker-lesson.model';
 import { TrackerProgress } from '../../../../../infrastructure/database/models/tracker-progress.model';
 import { TrackerSubtopic } from '../../../../../infrastructure/database/models/tracker-subtopic.model';
+import { TrackerTopicContribution } from '../../../../../infrastructure/database/models/tracker-topic-contribution.model';
 import { TrackerTopic } from '../../../../../infrastructure/database/models/tracker-topic.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
 import { UserSubtopicProgress } from '../../../../../infrastructure/database/models/user-subtopic-progress.model';
@@ -526,6 +527,14 @@ export class MongoTrackerClanRepository
       Tracker.findOne({ ownerId: userId, sourceTrackerId, deletedAt: null }).lean(),
     ]);
     if (!sourceTracker || !clone) return null;
+    const syncStartedAt = new Date();
+    const changesFetchedAt = clone.guildChangesFetchedAt ?? clone.createdAt;
+    const hasAcceptedChanges = await TrackerTopicContribution.exists({
+      sourceTrackerId,
+      status: 'approved',
+      reviewedAt: { $gt: changesFetchedAt },
+    });
+    if (!hasAcceptedChanges) return null;
 
     const [sourceTopics, cloneTopics] = await Promise.all([
       TrackerTopic.find({ trackerId: sourceTrackerId, deletedAt: null }).sort({ order: 1 }).lean(),
@@ -629,7 +638,14 @@ export class MongoTrackerClanRepository
     ]);
     await Tracker.updateOne(
       { _id: clone._id },
-      { $set: { topicsCount, subtopicsCount, lastActiveAt: new Date() } }
+      {
+        $set: {
+          topicsCount,
+          subtopicsCount,
+          lastActiveAt: new Date(),
+          guildChangesFetchedAt: syncStartedAt,
+        },
+      }
     );
     return {
       cloneTrackerId: String(clone._id),
@@ -1858,9 +1874,20 @@ export class MongoTrackerClanRepository
         sourceTrackerId: trackerId,
         deletedAt: null,
       })
-        .select('_id')
-        .lean<{ _id: unknown }>(),
+        .select('_id createdAt guildChangesFetchedAt')
+        .lean<{ _id: unknown; createdAt: Date; guildChangesFetchedAt?: Date | null }>(),
     ]);
+    const hasAcceptedChanges = personalClone
+      ? Boolean(
+          await TrackerTopicContribution.exists({
+            sourceTrackerId: trackerId,
+            status: 'approved',
+            reviewedAt: {
+              $gt: personalClone.guildChangesFetchedAt ?? personalClone.createdAt,
+            },
+          })
+        )
+      : false;
     const userMap = new Map(users.map((user) => [String(user._id), user]));
     const person = (id: unknown) => {
       const user = userMap.get(String(id));
@@ -1887,6 +1914,7 @@ export class MongoTrackerClanRepository
         (request) => String(request.userId) === String(viewerId) && request.status === 'pending'
       ),
       personalCloneTrackerId: personalClone ? String(personalClone._id) : null,
+      hasAcceptedChanges,
       members: [
         { ...person(ownerId), role: 'owner' as const, joinedAt: tracker.createdAt },
         ...clan.members.map((member) => ({

@@ -1,5 +1,4 @@
 import SectionCard from '../../../../components/layout/SectionCard';
-import { cn } from '../../../../lib/cn';
 import type { IProfileData } from '../types/profile.types';
 
 interface IProfileAboutCardProps {
@@ -52,26 +51,32 @@ export default function ProfileAboutCard({ profile, onMissingLink }: IProfileAbo
 
       <ProfileSectionLabel>Links</ProfileSectionLabel>
       <div className="flex flex-wrap gap-2">
-        {links.map((link) => (
-          <a
-            key={link.label}
-            href={link.url || '#'}
-            target={link.url ? '_blank' : undefined}
-            rel={link.url ? 'noreferrer' : undefined}
-            onClick={(event) => {
-              if (link.url) return;
-              event.preventDefault();
-              onMissingLink(link.label);
-            }}
-            className={cn(
-              'inline-flex items-center gap-1.5 rounded-lg border-[1.5px] border-(--border-subtle) px-3.5 py-1.75 text-[12px] font-medium text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary)',
-              !link.url && 'opacity-55'
-            )}
-          >
-            {link.icon}
-            {link.label}
-          </a>
-        ))}
+        {links.map((link) =>
+          link.url ? (
+            <a
+              key={link.label}
+              href={link.url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border-[1.5px] border-(--border-subtle) px-3.5 py-1.75 text-[12px] font-medium text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary)"
+            >
+              {link.icon}
+              {link.label}
+            </a>
+          ) : (
+            <button
+              key={link.label}
+              type="button"
+              onClick={() => onMissingLink(link.label)}
+              aria-label={`${link.label} link not added`}
+              className="inline-flex cursor-help items-center gap-1.5 rounded-lg border-[1.5px] border-(--border-subtle) px-3.5 py-1.75 text-[12px] font-medium text-(--text-secondary) opacity-65 transition hover:opacity-100 dark:border-(--border-subtle) dark:text-(--text-secondary)"
+            >
+              {link.icon}
+              {link.label}
+              <span className="sr-only">(not added)</span>
+            </button>
+          )
+        )}
       </div>
     </SectionCard>
   );
@@ -79,7 +84,7 @@ export default function ProfileAboutCard({ profile, onMissingLink }: IProfileAbo
 
 function ProfileSectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-2 font-mono text-[8px] uppercase tracking-[0.16em] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
+    <div className="mb-2 font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-(--text-secondary) dark:text-(--text-secondary)">
       {children}
     </div>
   );

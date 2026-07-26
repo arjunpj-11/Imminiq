@@ -12,7 +12,7 @@ const toneClasses = {
 
 export default function StickyFeatureCards() {
   return (
-    <section className="bg-[#f5ede4] px-4 py-16 text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb] sm:px-8 lg:px-10">
+    <section className="bg-[#f5ede4] px-4 py-12 text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb] sm:px-8 lg:px-10">
       <div className="mx-auto max-w-340">
         <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -33,7 +33,7 @@ export default function StickyFeatureCards() {
           {featureCards.map((card, index) => (
             <article
               key={card.title}
-              className="relative mb-5 flex min-h-0 flex-col justify-between overflow-hidden rounded-[28px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 pb-7 shadow-[0_20px_60px_rgba(26,23,20,0.10)] dark:border-white/9 dark:bg-[#1e1c19] md:sticky md:top-0 md:min-h-[72vh] md:flex-row md:rounded-[34px] md:p-8 md:shadow-[0_28px_90px_rgba(26,23,20,0.12)]"
+              className="relative mb-5 flex min-h-0 flex-col justify-between overflow-hidden rounded-[28px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 pb-7 shadow-[0_20px_60px_rgba(26,23,20,0.10)] dark:border-white/9 dark:bg-[#1e1c19] md:sticky md:top-0 md:min-h-[64vh] md:flex-row md:rounded-[34px] md:p-8 md:shadow-[0_28px_90px_rgba(26,23,20,0.12)]"
               style={{ zIndex: index + 1 }}
             >
               <div className="flex flex-[0.38] flex-col justify-between gap-4">

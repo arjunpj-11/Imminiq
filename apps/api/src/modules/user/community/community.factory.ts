@@ -28,6 +28,10 @@ import {
   mongoCommunityReviewRepository,
 } from './infrastructure';
 import { mongoPlatformPolicyReader } from '../../../infrastructure/mongo-platform-policy.reader';
+import {
+  CommunityVerificationRewardService,
+  type ICommunityVerificationRewardService,
+} from './application/services/community-verification-reward.service';
 
 export type CommunityServiceHelpers = {
   mapper: ICommunityMapper;
@@ -46,6 +50,7 @@ export type CommunityServiceHelpers = {
       bypassClonePermission?: boolean;
     }): Promise<boolean>;
   };
+  verificationRewards: ICommunityVerificationRewardService;
 };
 
 export type CommunityComposition = {
@@ -69,6 +74,11 @@ export const createCommunityComposition = (
   const reviewMapper = new CommunityReviewMapper();
 
   const verificationPolicy = new CommunityVerificationPolicy(systemClock);
+  const verificationRewards = new CommunityVerificationRewardService(
+    communityRepository,
+    communityActivityRecorder,
+    mongoPlatformPolicyReader
+  );
 
   const personalCloneProvisioner: CommunityServiceHelpers['personalCloneProvisioner'] = {
     ensureClone: async ({ trackerId, userId, bypassClonePermission }) =>
@@ -129,7 +139,8 @@ export const createCommunityComposition = (
         verificationPolicy,
         communityActivityRecorder,
         mapper,
-        mongoPlatformPolicyReader
+        mongoPlatformPolicyReader,
+        verificationRewards
       ),
     },
 
@@ -139,6 +150,7 @@ export const createCommunityComposition = (
       verificationPolicy,
       coinLedger,
       personalCloneProvisioner,
+      verificationRewards,
     },
   };
 };

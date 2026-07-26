@@ -14,6 +14,7 @@ interface IProfileHeaderProps {
   streak?: IStreakSummary | null;
   levelLabel: string;
   location: string;
+  isPremium: boolean;
   isOwnView: boolean;
   isPublicView: boolean;
   relationship: ProfileRelationshipState;
@@ -22,7 +23,7 @@ interface IProfileHeaderProps {
   onChangeAvatar: () => void;
   onEdit: () => void;
   onSendFriendRequest: () => void;
-  onCopyProfileLink: () => void;
+  onShareProfile: () => void;
 }
 
 function BannerIcon() {
@@ -63,8 +64,11 @@ function CameraIcon() {
 function ProfileAvatar({
   profile,
   isOwnView,
+  isPremium,
   onChange,
-}: Pick<IProfileHeaderProps, 'profile' | 'isOwnView'> & { onChange: () => void }) {
+}: Pick<IProfileHeaderProps, 'profile' | 'isOwnView' | 'isPremium'> & {
+  onChange: () => void;
+}) {
   return (
     <div className="relative z-20 -mt-18 shrink-0 max-[640px]:-mt-13.5">
       <button
@@ -97,9 +101,11 @@ function ProfileAvatar({
         )}
       </button>
 
-      <div className="absolute bottom-0.75 left-1/2 z-3 -translate-x-1/2 whitespace-nowrap rounded-sm bg-(--brand-500) px-1.75 py-0.5 font-mono text-[8px] font-medium tracking-[0.12em] text-white dark:bg-(--brand-500) dark:text-[#141412]">
-        PRO
-      </div>
+      {isPremium && (
+        <div className="absolute bottom-0.75 left-1/2 z-3 -translate-x-1/2 whitespace-nowrap rounded-sm bg-(--brand-500) px-1.75 py-0.5 font-mono text-[8px] font-medium tracking-[0.12em] text-white dark:bg-(--brand-500) dark:text-[#141412]">
+          PRO
+        </div>
+      )}
     </div>
   );
 }
@@ -110,7 +116,7 @@ function ProfileActions({
   isSendingFriendRequest,
   onSendFriendRequest,
   onEdit,
-  onCopyProfileLink,
+  onShareProfile,
 }: Omit<
   IProfileHeaderProps,
   | 'profile'
@@ -118,6 +124,7 @@ function ProfileActions({
   | 'streak'
   | 'levelLabel'
   | 'location'
+  | 'isPremium'
   | 'isOwnView'
   | 'onChangeBanner'
   | 'onChangeAvatar'
@@ -188,7 +195,7 @@ function ProfileActions({
 
       <button
         type="button"
-        onClick={onCopyProfileLink}
+        onClick={onShareProfile}
         className="inline-flex items-center gap-1.75 whitespace-nowrap rounded-md border-[1.5px] border-(--border-subtle) px-4.5 py-2.5 text-[13px] font-semibold text-(--text-primary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-primary) max-[640px]:flex-[1_1_170px] max-[640px]:justify-center"
       >
         <svg
@@ -200,10 +207,12 @@ function ProfileActions({
           strokeWidth="2"
           aria-hidden="true"
         >
-          <rect x="9" y="9" width="13" height="13" rx="2" />
-          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+          <circle cx="18" cy="5" r="3" />
+          <circle cx="6" cy="12" r="3" />
+          <circle cx="18" cy="19" r="3" />
+          <path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4" />
         </svg>
-        Copy Profile URL
+        Share Profile
       </button>
     </div>
   );
@@ -261,6 +270,7 @@ export default function ProfileHeader({
   streak,
   levelLabel,
   location,
+  isPremium,
   isOwnView,
   isPublicView,
   relationship,
@@ -269,7 +279,7 @@ export default function ProfileHeader({
   onChangeAvatar,
   onEdit,
   onSendFriendRequest,
-  onCopyProfileLink,
+  onShareProfile,
 }: IProfileHeaderProps) {
   return (
     <>
@@ -312,7 +322,12 @@ export default function ProfileHeader({
       <div className="animate-[fadeUp_0.38s_ease_0.05s_both] border-x border-b border-(--border-subtle) bg-(--surface-card) px-7 pb-5.5 dark:border-(--border-subtle) dark:bg-(--surface-card) max-[640px]:px-4">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
           <div className="flex min-w-0 flex-1 items-start gap-4 max-[640px]:flex-col max-[640px]:gap-3">
-            <ProfileAvatar profile={profile} isOwnView={isOwnView} onChange={onChangeAvatar} />
+            <ProfileAvatar
+              profile={profile}
+              isOwnView={isOwnView}
+              isPremium={isPremium}
+              onChange={onChangeAvatar}
+            />
 
             <div className="min-w-0 flex-1 pt-2 max-[640px]:pt-0">
               <div className="flex flex-wrap items-center gap-2.5">
@@ -344,7 +359,7 @@ export default function ProfileHeader({
             isSendingFriendRequest={isSendingFriendRequest}
             onSendFriendRequest={onSendFriendRequest}
             onEdit={onEdit}
-            onCopyProfileLink={onCopyProfileLink}
+            onShareProfile={onShareProfile}
           />
         </div>
 

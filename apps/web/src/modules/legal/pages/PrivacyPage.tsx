@@ -25,8 +25,8 @@ const TOC = [
   { id: 's3', num: '03', label: 'How We Use Your Data' },
   { id: 's4', num: '04', label: 'Legal Basis' },
   { id: 's5', num: '05', label: 'Data Sharing' },
-  { id: 's6', num: '06', label: 'AI & Learning Data' },
-  { id: 's7', num: '07', label: 'Cookies & Tracking' },
+  { id: 's6', num: '06', label: 'AI, Voice & Personalization' },
+  { id: 's7', num: '07', label: 'Cookies & Device Storage' },
   { id: 's8', num: '08', label: 'Data Retention' },
   { id: 's9', num: '09', label: 'Security' },
   { id: 's10', num: '10', label: 'Your Rights' },
@@ -34,7 +34,7 @@ const TOC = [
   { id: 's12', num: '12', label: 'International Transfers' },
   { id: 's13', num: '13', label: 'Third-Party Links' },
   { id: 's14', num: '14', label: 'Changes to Policy' },
-  { id: 's15', num: '15', label: 'Contact & DPO' },
+  { id: 's15', num: '15', label: 'Contact & Grievances' },
 ];
 
 export default function PrivacyPage() {
@@ -78,7 +78,7 @@ export default function PrivacyPage() {
             />
 
             <span className="hidden truncate font-mono text-[9.5px] uppercase tracking-[0.14em] text-(--text-secondary) dark:text-(--text-secondary) sm:block">
-              Scholarly Privacy Policy
+              Privacy Policy
             </span>
           </div>
 
@@ -135,7 +135,7 @@ export default function PrivacyPage() {
             <div className="mx-3 my-3 h-px bg-(--border-subtle) dark:bg-white/15" />
 
             <div className="px-3 font-mono text-[9px] tracking-[0.06em] text-(--text-secondary)/60 dark:text-(--text-secondary)/60">
-              Version 6.6.2 · May 2026
+              Version 7.0.0 · July 2026
             </div>
           </aside>
 
@@ -154,17 +154,17 @@ export default function PrivacyPage() {
               </div>
 
               <h1 className="mb-3.5 font-serif text-[clamp(30px,5vw,48px)] font-extrabold leading-[1.08] tracking-[-1px] text-(--text-primary) dark:text-(--text-primary)">
-                Scholarly Privacy Policy
+                Privacy Policy
               </h1>
 
               <p className="mb-5 max-w-150 text-[15px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
-                We believe your learning data is yours. This policy explains what we collect, why we
-                collect it, who sees it, and the controls you have over it — written in plain
-                language.
+                This policy explains how Imminiq handles account, learning, community,
+                communication, device-permission, and payment data—and the controls available to
+                you.
               </p>
 
               <div className="flex flex-wrap items-center gap-4">
-                {['Effective: 1 May 2026', 'Last Updated: 10 May 2026', 'Version 6.6.2'].map(
+                {['Effective: 26 July 2026', 'Last Updated: 26 July 2026', 'Version 7.0.0'].map(
                   (item) => (
                     <div
                       key={item}
@@ -194,7 +194,7 @@ export default function PrivacyPage() {
                 },
                 {
                   title: 'Secure by design',
-                  desc: 'JWT auth, HTTP-only cookies, bcrypt hashing, and encrypted storage.',
+                  desc: 'Protected cookies, rotated sessions, one-way password hashing, and encrypted transport.',
                   variant: 'rust',
                 },
               ].map((item) => (
@@ -238,14 +238,15 @@ export default function PrivacyPage() {
 
             <Section id="s1" num="01" title="Introduction">
               <BodyP>
-                This Scholarly Privacy Policy describes how Imminiq collects, uses, stores, and
-                shares information when you use our website, applications, APIs, and learning
-                services.
+                This Privacy Policy describes how Imminiq collects, uses, stores, and shares
+                information when you use our website, APIs, AI-assisted learning tools, community,
+                Social, calls, and related services.
               </BodyP>
 
               <BodyP>
-                By using Imminiq, you agree to this policy. If you do not agree, please stop using
-                the platform and contact us for help with data deletion.
+                This policy is a notice about our practices, not a request to waive your privacy
+                rights. Where consent is legally required, we request it separately and you may
+                withdraw it as described below.
               </BodyP>
             </Section>
 
@@ -279,8 +280,18 @@ export default function PrivacyPage() {
                       ],
                       [
                         'Learning data',
-                        'Trackers, progress, mock tests, answers, streaks',
-                        'Personalize your roadmap and analytics',
+                        'Goals, trackers, lessons, progress, mock tests, answers, searches, streaks',
+                        'Deliver lessons, progress insights, and relevant tracker suggestions',
+                      ],
+                      [
+                        'Community and Social data',
+                        'Profiles, follows, reviews, votes, contributions, chats, starred messages, call history',
+                        'Enable sharing, collaboration, moderation, and communication',
+                      ],
+                      [
+                        'Files and media',
+                        'Images, documents, voice notes, voice-typing audio, and profile media',
+                        'Deliver uploads, messages, transcription, and requested media features',
                       ],
                       [
                         'Billing data',
@@ -319,7 +330,8 @@ export default function PrivacyPage() {
                 items={[
                   'To create and manage your Imminiq account.',
                   'To generate personalized learning trackers, AI explanations, mock tests, and progress summaries.',
-                  'To operate community features such as publishing, comments, likes, verification, and referrals.',
+                  'To personalize community discovery using your trackers, filters, and recent searches.',
+                  'To operate profiles, publishing, cloning, contributions, reviews, likes, verification votes, rewards, messages, and calls.',
                   'To process subscriptions, payments, invoices, and support requests.',
                   'To detect abuse, prevent fraud, improve reliability, and secure the platform.',
                 ]}
@@ -328,14 +340,15 @@ export default function PrivacyPage() {
 
             <Section id="s4" num="04" title="Legal Basis">
               <BodyP>
-                We process your data only when we have a valid reason, such as providing the
-                service, protecting our platform, meeting legal obligations, or using data with your
-                consent.
+                Depending on where you live and the purpose involved, we process data to perform
+                our contract with you, comply with law, pursue legitimate interests such as
+                security and service reliability, protect users, or act on your consent.
               </BodyP>
 
               <HighlightCard label="Consent">
-                Optional features such as analytics cookies, marketing messages, public profile
-                visibility, and community sharing can be controlled from settings.
+                Browser access to your microphone or camera requires a permission prompt. Public
+                profile visibility and community publishing are controlled by the choices you make
+                in the product. You can withdraw browser permissions from your device settings.
               </HighlightCard>
             </Section>
 
@@ -347,12 +360,13 @@ export default function PrivacyPage() {
 
               <div className="flex flex-wrap gap-2">
                 {[
-                  'Cloud hosting',
+                  'Cloud, database, and cache hosting',
                   'Email delivery',
                   'Payment provider',
-                  'AI provider',
-                  'Analytics',
-                  'Error tracking',
+                  'AI and transcription providers',
+                  'File and media storage',
+                  'Call relay infrastructure',
+                  'Video and learning-resource providers',
                 ].map((item) => (
                   <span
                     key={item}
@@ -365,31 +379,43 @@ export default function PrivacyPage() {
               </div>
             </Section>
 
-            <Section id="s6" num="06" title="AI & Learning Data">
+            <Section id="s6" num="06" title="AI, Voice & Personalization">
               <BodyP>
                 Imminiq uses AI to generate roadmaps, explanations, summaries, mock tests, and
-                learning insights. Inputs may include your survey answers, selected field, skill
-                level, goals, tracker data, and learning progress.
+                learning insights. Inputs may include your goals, selected domain, skill level,
+                tracker structure, answers, prompts, and learning progress. Relevant content is
+                sent to configured AI providers to produce the feature you request.
               </BodyP>
 
+              <TermsList
+                items={[
+                  'Voice typing records audio only after you approve microphone access and sends that recording to a transcription provider. Imminiq returns the text and does not intentionally store the temporary voice-typing recording as a chat message.',
+                  'Voice notes you choose to send are stored as chat attachments until deleted under the product and retention rules.',
+                  'Audio and video calls use browser WebRTC. Imminiq stores call participants, type, reason, status, and duration; it does not record call media. Encrypted media may pass through a relay when a direct connection is unavailable.',
+                  'Recent community searches are retained on your device and may be included with a discovery request to rank relevant public trackers. They are not used for advertising.',
+                  'Do not include passwords, financial credentials, health records, or other highly sensitive information in AI prompts, voice input, chats, or public content.',
+                ]}
+              />
+
               <HighlightCard label="Daily Quota" variant="green">
-                AI usage is metered by subscription plan. Free users have a smaller daily quota than
-                Pro and Premium users. Quota data may be stored with your user settings and usage
-                records.
+                AI usage may be metered by subscription plan. We keep limited usage records to
+                enforce quotas, prevent abuse, and operate the requested feature.
               </HighlightCard>
             </Section>
 
-            <Section id="s7" num="07" title="Cookies & Tracking Technologies">
+            <Section id="s7" num="07" title="Cookies & Device Storage">
               <BodyP>
-                We use cookies to keep you logged in, remember preferences, and understand basic
-                platform usage. We do not use advertising or cross-site tracking cookies.
+                We use strictly necessary cookies for authentication, two-factor and OAuth flows,
+                and request-forgery protection. We also use browser storage for preferences,
+                drafts, recent searches, and the cookie-notice acknowledgement. We do not currently
+                use advertising, behavioural-tracking, or cross-site analytics cookies.
               </BodyP>
 
               <div className="overflow-x-auto rounded-xl border border-(--border-subtle) dark:border-white/15">
                 <table className="w-full border-collapse text-[13px]">
                   <thead>
                     <tr className="bg-[rgba(184,76,43,0.08)] dark:bg-[rgba(232,129,106,0.09)]">
-                      {['Cookie Type', 'Purpose', 'Duration', 'Required?'].map((heading) => (
+                      {['Storage Type', 'Purpose', 'Typical Duration', 'Status'].map((heading) => (
                         <th
                           key={heading}
                           className="whitespace-nowrap border-b border-(--border-subtle) px-4 py-3 text-left font-mono text-[9.5px] uppercase tracking-widest text-(--brand-500) dark:border-white/15 dark:text-(--brand-500)"
@@ -404,24 +430,23 @@ export default function PrivacyPage() {
                     {[
                       [
                         'Authentication',
-                        'HTTP-only session and refresh cookies',
-                        'Session / 30 days',
-                        'Essential',
+                        'Encrypted HTTP-only refresh session',
+                        'Configured session lifetime',
+                        'Strictly necessary',
                         'rust',
                       ],
-                      ['Preferences', 'Theme, language, timezone', '1 year', 'Essential', 'rust'],
                       [
-                        'Analytics',
-                        'Anonymised page views and usage',
-                        '90 days',
-                        'Optional',
-                        'amber',
+                        'Security',
+                        'CSRF protection and temporary OAuth or two-factor state',
+                        'Minutes to 7 days',
+                        'Strictly necessary',
+                        'rust',
                       ],
                       [
-                        'Error tracking',
-                        'Application error context',
-                        'Session',
-                        'Optional',
+                        'Local and session storage',
+                        'Theme, navigation state, drafts, recent searches, and notice acknowledgement',
+                        'Until used, cleared, or expired',
+                        'Device storage',
                         'amber',
                       ],
                     ].map(([type, purpose, duration, required, variant]) => (
@@ -457,7 +482,8 @@ export default function PrivacyPage() {
               <TermsList
                 items={[
                   'Account data is retained while your account is active.',
-                  'Deleted accounts are removed or anonymised within a reasonable period unless legal retention is required.',
+                  'Deleting an account starts the recovery period shown in Settings. After that period, account data is deleted or anonymised unless continued retention is legally required.',
+                  'Chat messages, attachments, community content, votes, call history, and learning records remain while needed to provide those features or until deleted, cleared, anonymised, or no longer required.',
                   'Security logs may be retained for abuse prevention and auditing.',
                   'Payment records may be retained for tax, invoice, and compliance purposes.',
                 ]}
@@ -497,7 +523,8 @@ export default function PrivacyPage() {
             <Section id="s10" num="10" title="Your Rights">
               <BodyP>
                 Depending on your location, you may have the right to access, correct, export,
-                restrict, or delete your personal data.
+                delete, restrict, object to, or obtain a portable copy of your personal data, and
+                to complain to an appropriate regulator.
               </BodyP>
 
               <TermsList
@@ -505,27 +532,31 @@ export default function PrivacyPage() {
                 items={[
                   'Access a copy of your personal data.',
                   'Correct inaccurate account or profile information.',
+                  'Export available account and learning data from Settings.',
                   'Delete your account and associated learning data.',
-                  'Withdraw optional consent for analytics, marketing, or public sharing.',
-                  'Contact us for privacy requests. We aim to respond within 30 days.',
+                  'Change profile visibility, notification, and communication preferences.',
+                  'Withdraw consent or browser media permissions where processing depends on them.',
+                  'Ask about a decision, lodge a grievance, or contact the relevant supervisory authority.',
                 ]}
               />
 
               <HighlightCard label="Response Time" variant="green">
-                We aim to respond to reasonable privacy requests within 30 days. We will not charge
-                a fee for reasonable requests.
+                We aim to acknowledge and respond within the period required by applicable law.
+                We may verify your identity and may decline or charge for manifestly unfounded or
+                excessive requests where the law permits.
               </HighlightCard>
             </Section>
 
             <Section id="s11" num="11" title="Children's Privacy">
               <BodyP>
-                Imminiq is intended for users aged 13 and above. We do not knowingly collect
-                personal data from children under 13.
+                Imminiq is not directed to children under 13. If you are under the age of legal
+                majority where you live, a parent or legal guardian must review the Terms and
+                provide any consent required by applicable law.
               </BodyP>
 
               <BodyP>
-                If we discover that we collected personal data from a child under 13 without
-                parental consent, we will take steps to delete that information. Contact us at{' '}
+                If we learn that we collected a child's personal data without legally valid
+                authorisation, we will restrict or delete it as required. Contact us at{' '}
                 <EmailLink>privacy@imminiq.com</EmailLink>.
               </BodyP>
             </Section>
@@ -552,9 +583,10 @@ export default function PrivacyPage() {
               </BodyP>
 
               <BodyP>
-                OAuth integrations with Google and GitHub are governed by their own privacy
-                policies. When you connect a social provider, we receive only the limited
-                information required for login.
+                OAuth integrations with Google and GitHub, payment checkout through Razorpay,
+                recommended videos from YouTube, AI providers, and any external links are governed
+                by those providers' own terms and privacy notices. For social login, we request the
+                limited account information needed to authenticate and create or link your account.
               </BodyP>
             </Section>
 
@@ -570,7 +602,7 @@ export default function PrivacyPage() {
               </HighlightCard>
             </Section>
 
-            <Section id="s15" num="15" title="Contact & DPO">
+            <Section id="s15" num="15" title="Contact & Grievances">
               <BodyP>
                 For privacy questions, data requests, security concerns, or account deletion help,
                 contact the Imminiq privacy team.
@@ -600,7 +632,7 @@ export default function PrivacyPage() {
                     onClick={handleBack}
                     className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-[rgba(184,76,43,0.16)] bg-transparent px-5 py-3 text-sm font-semibold text-(--brand-500) transition hover:-translate-y-px hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.05)] dark:border-[rgba(232,129,106,0.22)] dark:text-(--brand-500) dark:hover:border-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.07)]"
                   >
-                    Back to Register
+                    Back
                   </button>
                 </div>
               </div>

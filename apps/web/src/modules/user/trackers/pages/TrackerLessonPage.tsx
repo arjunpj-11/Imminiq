@@ -2,6 +2,7 @@
 // ─── DIFF: Added LessonVisualizerCard import and placement in <aside> ─────────
 
 import { useMemo, useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
@@ -24,6 +25,7 @@ import type { LessonLocationState } from '../types/lesson.types';
 import { formatLessonType } from '../utils/lesson-formatters';
 import { readSavedRoadmapStack } from '../utils/roadmap.utils';
 import { ROUTES } from '../../../../routes/config/route-paths';
+import { useBackNavigation } from '../../../../hooks/useBackNavigation';
 
 export default function TrackerLessonPage() {
   const navigate = useNavigate();
@@ -35,6 +37,9 @@ export default function TrackerLessonPage() {
   }>();
 
   const trackerDetailsQuery = useTrackerDetails(trackerId);
+  const goBack = useBackNavigation(
+    trackerId ? ROUTES.trackerRoadmap(trackerId) : ROUTES.trackers
+  );
   const trackerIsModerated = Boolean(
     trackerDetailsQuery.data?.moderationStatus &&
       trackerDetailsQuery.data.moderationStatus !== 'active'
@@ -119,7 +124,11 @@ export default function TrackerLessonPage() {
       className="bg-(--surface-sunken)"
     >
       {isMainLoading ? (
-        <AppPageSkeleton kind="lesson" label="Loading lesson" />
+        <AppPageSkeleton
+          kind="lesson"
+          label="Preparing your lesson"
+          description="Immi is creating the lesson explanation, examples, and practice tasks. New lessons may take up to a minute."
+        />
       ) : trackerIsModerated && trackerDetailsQuery.data ? (
         <TrackerModerationNotice tracker={trackerDetailsQuery.data} />
       ) : hasMainError || !lessonData || !tracker || !lessonNode || !generatedLesson ? (
@@ -129,12 +138,42 @@ export default function TrackerLessonPage() {
               Lesson unavailable
             </h1>
             <p className="mt-2 text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
-              Something went wrong while fetching this lesson.
+              This lesson could not be found, or it is temporarily unavailable.
             </p>
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  void trackerDetailsQuery.refetch();
+                  void lessonQuery.refetch();
+                }}
+                className="rounded-xl border border-(--border-subtle) bg-(--surface-elevated) px-4 py-2.5 text-[13px] font-bold text-(--text-primary) transition hover:border-(--brand-500)"
+              >
+                Try again
+              </button>
+              <button
+                type="button"
+                onClick={goBack}
+                className="rounded-xl bg-(--brand-500) px-4 py-2.5 text-[13px] font-bold text-white transition hover:bg-(--brand-600)"
+              >
+                Back to trackers
+              </button>
+            </div>
           </div>
         </div>
       ) : (
-        <div className="mx-auto mt-6 grid w-[min(1280px,calc(100%-48px))] max-w-full grid-cols-[1fr_340px] gap-6 pb-8 max-[1024px]:grid-cols-1 max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[900px]:pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
+        <div className="mx-auto mt-6 w-[min(1280px,calc(100%-48px))] max-w-full pb-8 max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[900px]:pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
+          <button
+            type="button"
+            onClick={goBack}
+            className="mb-4 inline-flex min-h-10 items-center gap-2 rounded-xl border border-(--border-subtle) bg-(--surface-card) px-4 text-[12px] font-bold text-(--text-secondary) shadow-(--shadow-1) transition hover:border-(--brand-500) hover:text-(--brand-500)"
+            aria-label="Go back"
+          >
+            <ArrowLeft size={15} aria-hidden="true" />
+            Back
+          </button>
+
+          <div className="grid grid-cols-[1fr_340px] gap-6 max-[1024px]:grid-cols-1">
           {/* ── Main content column ─────────────────────────────────── */}
           <div className="flex min-w-0 flex-col gap-6">
             <section className="rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-6 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) max-[640px]:p-4.5">
@@ -268,6 +307,7 @@ export default function TrackerLessonPage() {
               Back to Current Roadmap Level
             </button>
           </aside>
+          </div>
         </div>
       )}
     </AppShellBoundary>

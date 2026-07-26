@@ -9,11 +9,15 @@ import { ListBlockedUsersUseCase } from './application/use-cases/list-blocked-us
 import { MarkChatConversationReadUseCase } from './application/use-cases/mark-chat-conversation-read.usecase';
 import { SendChatMessageUseCase } from './application/use-cases/send-chat-message.usecase';
 import { ShareTrackerToChatUseCase } from './application/use-cases/share-tracker-to-chat.usecase';
+import { ShareProfileToChatUseCase } from './application/use-cases/share-profile-to-chat.usecase';
 import { StartChatConversationUseCase } from './application/use-cases/start-chat-conversation.usecase';
 import { UnblockUserUseCase } from './application/use-cases/unblock-user.usecase';
+import { ToggleChatMessageStarUseCase } from './application/use-cases/toggle-chat-message-star.usecase';
+import { ClearChatConversationUseCase } from './application/use-cases/clear-chat-conversation.usecase';
 import { cloudinaryChatFileStorageGateway } from './infrastructure/gateways/cloudinary-chat-file-storage.gateway';
 import { mongoChatBlockRepository } from './infrastructure/repositories/internal/mongo-chat-block.repository';
 import { mongoSharedTrackerRepository } from './infrastructure/repositories/internal/mongo-shared-tracker.repository';
+import { mongoSharedProfileRepository } from './infrastructure/repositories/internal/mongo-shared-profile.repository';
 import { mongoChatRepository } from './infrastructure/repositories/mongo-chat.repository';
 import { socketChatRealtimePublisher } from './infrastructure/services/socket-chat-realtime.publisher';
 import { chatPresenceProvider } from '../../../infrastructure/realtime/chat-presence.provider';
@@ -77,6 +81,14 @@ export const createChatComposition = (): ChatComposition => {
         socketChatRealtimePublisher,
         mapper
       ),
+      shareProfile: new ShareProfileToChatUseCase(
+        mongoChatRepository,
+        mongoChatRepository,
+        mongoSharedProfileRepository,
+        mongoChatBlockRepository,
+        socketChatRealtimePublisher,
+        mapper
+      ),
       listBlockedUsers: new ListBlockedUsersUseCase(mongoChatBlockRepository),
       blockUser: new BlockUserUseCase(
         mongoChatBlockRepository,
@@ -86,6 +98,16 @@ export const createChatComposition = (): ChatComposition => {
       unblockUser: new UnblockUserUseCase(
         mongoChatBlockRepository,
         socketChatRealtimePublisher
+      ),
+      toggleMessageStar: new ToggleChatMessageStarUseCase(
+        mongoChatRepository,
+        mongoChatRepository,
+        mongoChatRepository,
+        mapper
+      ),
+      clearConversation: new ClearChatConversationUseCase(
+        mongoChatRepository,
+        mongoChatRepository
       ),
     },
   };

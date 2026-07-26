@@ -80,7 +80,7 @@ const links = [
   },
   {
     to: ADMIN_ROUTES.subscriptions,
-    label: 'Premium / Subscriptions',
+    label: 'Subscriptions',
     section: 'Business',
     icon: ShieldCheck,
     roles: ADMIN_ROUTE_ROLES.subscriptions,

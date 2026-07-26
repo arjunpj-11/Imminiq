@@ -13,6 +13,9 @@ export const communityTrackerQuerySchema = z.object({
   minRating: z.coerce.number().min(0).max(5).optional(),
   verifiedOnly: z.enum(['true', 'false']).optional(),
   sort: z.enum(['top-rated', 'most-cloned', 'newest']).optional(),
+  recentSearches: z
+    .union([z.string().max(500), z.array(z.string().trim().min(2).max(120)).max(8)])
+    .optional(),
   ...paginationQueryFields,
 });
 

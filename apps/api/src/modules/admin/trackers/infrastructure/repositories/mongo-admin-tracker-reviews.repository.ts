@@ -124,14 +124,52 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
   async resolve(id: string, status: string, actor: AdminActor) {
     const session = await mongoose.startSession();
     try {
-      let result: { id: string; status: string } | null = null;
+      let result:
+        | {
+            id: string;
+            status: string;
+            rewardContext: {
+              submissionId: string;
+              consensusChoice: 'pass' | 'fail';
+              trackerId: string;
+              ownerId: string;
+              trackerTitle: string;
+            };
+          }
+        | null = null;
       await session.withTransaction(async () => {
-        const review = await CommunityVerificationSubmission.findOneAndUpdate(
-          { _id: id, deletedAt: null, status: 'open' },
-          { $set: { status, consensusChoice: status === 'approved' ? 'pass' : 'fail' } },
-          { returnDocument: 'after', session }
-        );
+        const review = await CommunityVerificationSubmission.findOne({
+          _id: id,
+          deletedAt: null,
+        }).session(session);
         if (!review) return;
+
+        const consensusChoice = status === 'approved' ? 'pass' : 'fail';
+        const rewardContext = {
+          submissionId: String(review._id),
+          consensusChoice,
+          trackerId: String(review.trackerId),
+          ownerId: String(review.ownerId),
+          trackerTitle: review.title,
+        } as const;
+
+        /*
+         * A reward write can fail after the moderation decision commits.
+         * Returning the same resolution on retry lets the idempotent reward
+         * service finish without reopening or double-paying the review.
+         */
+        if (review.status !== 'open') {
+          if (review.status === status && review.consensusChoice === consensusChoice) {
+            result = { id, status: review.status, rewardContext };
+          }
+          return;
+        }
+
+        review.status = status as 'approved' | 'rejected';
+        review.consensusChoice = consensusChoice;
+        review.progress = 100;
+        await review.save({ session });
+
         await Tracker.updateOne(
           { _id: review.trackerId },
           {
@@ -149,7 +187,7 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
           { reviewId: id, status, trackerId: String(review.trackerId) },
           session
         );
-        result = { id, status: review.status };
+        result = { id, status: review.status, rewardContext };
       });
       return result;
     } finally {

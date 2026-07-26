@@ -27,6 +27,7 @@ export type TrackerListFilter = {
   userId: string;
   status?: TrackerStatus | 'all';
   domain?: TrackerDomain | 'all';
+  search?: string;
   sortBy?: TrackerSortBy;
   page: number;
   limit: number;
@@ -36,7 +37,7 @@ export type CreateTrackerInput = {
   userId: string;
   title: string;
   description?: string;
-  domain?: TrackerDomain;
+  domain?: string;
   goal?: string;
   level?: TrackerLevel;
   visibility?: TrackerVisibility;
@@ -60,7 +61,7 @@ export type UpdateTrackerInput = {
   userId: string;
   title?: string;
   description?: string;
-  domain?: TrackerDomain;
+  domain?: string;
   goal?: string;
   level?: TrackerLevel;
 };

@@ -8,6 +8,7 @@ import {
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../routes/config/route-paths';
+import { useAuthStore } from '../store/useAuthStore';
 
 const HomeIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -138,6 +139,7 @@ const CompassIcon = ({ className = '' }: { className?: string }) => {
 };
 
 export default function NotFoundPage() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [toast, setToast] = useState('');
   const [isToastVisible, setIsToastVisible] = useState(false);
 
@@ -157,7 +159,7 @@ export default function NotFoundPage() {
 
       <SystemPageHeader
         brandTo={ROUTES.home}
-        actionTo={ROUTES.dashboard}
+        actionTo={isAuthenticated ? ROUTES.dashboard : ROUTES.home}
         actionLabel="Go home"
         actionIcon={<HomeIcon />}
         onUnavailableLink={showToast}
@@ -206,49 +208,62 @@ export default function NotFoundPage() {
         </p>
 
         {/* Quick Links */}
-        <div className="flex flex-wrap justify-center gap-2">
+        <div className="flex flex-wrap justify-center gap-2" aria-label="Helpful destinations">
           <Link
-            to={ROUTES.dashboard}
+            to={isAuthenticated ? ROUTES.dashboard : ROUTES.home}
             className="inline-flex items-center gap-1.5 rounded-md border-[1.5px] border-(--brand-500) bg-(--brand-500) px-4 py-2 text-[12.5px] font-semibold text-[#fdf8f5] shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-[#963d22] hover:bg-(--brand-600) hover:shadow-(--shadow-2) dark:border-(--brand-500) dark:bg-(--brand-500) dark:text-[#141412] dark:hover:border-[#d4705a] dark:hover:bg-(--brand-600)"
           >
             <DashboardIcon />
-            Dashboard
+            {isAuthenticated ? 'Dashboard' : 'Home'}
           </Link>
 
-          <Link
-            to={ROUTES.community}
-            className="inline-flex items-center gap-1.5 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2 text-[12.5px] font-semibold text-(--text-secondary) shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) hover:shadow-(--shadow-2) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:border-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-(--brand-500)"
-          >
-            <CommunityIcon />
-            Community
-          </Link>
-
-          <button
-            type="button"
-            onClick={() => showToast('Roadmaps page can be linked later.')}
-            className="inline-flex items-center gap-1.5 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2 text-[12.5px] font-semibold text-(--text-secondary) shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) hover:shadow-(--shadow-2) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:border-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-(--brand-500)"
-          >
-            <RoadmapIcon />
-            Roadmaps
-          </button>
-
-          <button
-            type="button"
-            onClick={() => showToast('Mock tests page can be linked later.')}
-            className="inline-flex items-center gap-1.5 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2 text-[12.5px] font-semibold text-(--text-secondary) shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) hover:shadow-(--shadow-2) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:border-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-(--brand-500)"
-          >
-            <MockTestIcon />
-            Mock Tests
-          </button>
-
-          <button
-            type="button"
-            onClick={() => showToast('Leaderboard page can be linked later.')}
-            className="inline-flex items-center gap-1.5 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2 text-[12.5px] font-semibold text-(--text-secondary) shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) hover:shadow-(--shadow-2) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:border-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-(--brand-500)"
-          >
-            <LeaderboardIcon />
-            Leaderboard
-          </button>
+          {isAuthenticated ? (
+            <>
+              <Link
+                to={ROUTES.community}
+                className="inline-flex items-center gap-1.5 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2 text-[12.5px] font-semibold text-(--text-secondary) shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) hover:shadow-(--shadow-2)"
+              >
+                <CommunityIcon />
+                Community
+              </Link>
+              <Link
+                to={ROUTES.trackers}
+                className="inline-flex items-center gap-1.5 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2 text-[12.5px] font-semibold text-(--text-secondary) shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:text-(--brand-500)"
+              >
+                <RoadmapIcon />
+                Trackers
+              </Link>
+              <Link
+                to={ROUTES.mockTests}
+                className="inline-flex items-center gap-1.5 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2 text-[12.5px] font-semibold text-(--text-secondary) shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:text-(--brand-500)"
+              >
+                <MockTestIcon />
+                Mock tests
+              </Link>
+              <Link
+                to={ROUTES.leaderboard}
+                className="inline-flex items-center gap-1.5 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2 text-[12.5px] font-semibold text-(--text-secondary) shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:text-(--brand-500)"
+              >
+                <LeaderboardIcon />
+                Leaderboard
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                to={ROUTES.login}
+                className="inline-flex items-center rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2 text-[12.5px] font-semibold text-(--text-secondary) shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:text-(--brand-500)"
+              >
+                Sign in
+              </Link>
+              <Link
+                to={ROUTES.register}
+                className="inline-flex items-center rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2 text-[12.5px] font-semibold text-(--text-secondary) shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:text-(--brand-500)"
+              >
+                Create account
+              </Link>
+            </>
+          )}
         </div>
       </section>
 

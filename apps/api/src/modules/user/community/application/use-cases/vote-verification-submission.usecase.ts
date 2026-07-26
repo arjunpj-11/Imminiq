@@ -7,26 +7,8 @@ import type {
 import { CommunityApplicationError } from '../community-application.error';
 import type { ICommunityMapper } from '../community.mapper';
 import type { ICommunityVerificationPolicy } from '../community-verification.policy';
-import type {
-  CommunityPolicy,
-  ICommunityPolicyReader,
-} from '../../../../../shared/platform-policy';
-
-type ConsensusRewardInput = {
-  submissionId: string;
-  currentUserId: string;
-  consensusChoice: 'pass' | 'fail' | null;
-  trackerId: string;
-  ownerId: string;
-  trackerTitle: string;
-  policy: CommunityPolicy;
-};
-
-type ConsensusRewardResult = {
-  currentUserAwarded: boolean;
-  currentUserRewardCoins: number;
-  currentUserBalance: number;
-};
+import type { ICommunityPolicyReader } from '../../../../../shared/platform-policy';
+import type { ICommunityVerificationRewardService } from '../services/community-verification-reward.service';
 
 export interface IVoteVerificationSubmissionUseCase {
   execute(
@@ -39,16 +21,15 @@ export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmi
     private readonly _repository: Pick<
       ICommunityVerificationRepository,
       | 'createVerificationVote'
-      | 'findUnrewardedMajorityVotes'
       | 'findVerificationSubmissionById'
       | 'findVoteBySubmissionAndUser'
       | 'getUserCoinBalance'
-      | 'markVerificationVoteRewarded'
     >,
     private readonly _policy: ICommunityVerificationPolicy,
     private readonly _activityRecorder: ICommunityActivityRecorder,
     private readonly _mapper: ICommunityMapper,
-    private readonly _policyReader: ICommunityPolicyReader
+    private readonly _policyReader: ICommunityPolicyReader,
+    private readonly _rewardService: ICommunityVerificationRewardService
   ) {}
 
   async execute(
@@ -120,86 +101,39 @@ export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmi
       throw CommunityApplicationError.notFound('Verification submission not found after voting');
     }
 
-    if (updatedSubmission.consensusChoice === 'pass') {
-      await this._activityRecorder.recordTrackerVerified({
-        ownerId: updatedSubmission.ownerId,
-        trackerId: updatedSubmission.trackerId,
-        submissionId: updatedSubmission.id,
-        trackerTitle: updatedSubmission.title,
-      });
-    }
-
-    const rewardResult = await this.awardConsensusRewards({
+    await this._rewardService.settle({
       submissionId: updatedSubmission.id,
-      currentUserId: payload.userId,
       consensusChoice: updatedSubmission.consensusChoice ?? null,
       trackerId: updatedSubmission.trackerId,
       ownerId: updatedSubmission.ownerId,
       trackerTitle: updatedSubmission.title,
       policy,
     });
+    const [currentUserVote, currentUserBalance] = await Promise.all([
+      this._repository.findVoteBySubmissionAndUser(
+        updatedSubmission.id,
+        payload.userId
+      ),
+      this._repository.getUserCoinBalance(payload.userId),
+    ]);
+    const currentUserRewardCoins = Math.max(
+      0,
+      Number(currentUserVote?.rewardCoins ?? 0)
+    );
 
     const voteView = this._mapper.toVoteView(vote);
 
     return {
       vote: {
         ...voteView,
-        rewardCoins: rewardResult.currentUserRewardCoins,
+        rewardCoins: currentUserRewardCoins,
       },
       submission: this._mapper.toVerificationSubmissionView(updatedSubmission),
       reward: {
-        awarded: rewardResult.currentUserAwarded,
-        coins: rewardResult.currentUserRewardCoins,
-        balance: rewardResult.currentUserBalance,
+        awarded: currentUserRewardCoins > 0,
+        coins: currentUserRewardCoins,
+        balance: currentUserBalance,
       },
-    };
-  }
-
-  private async awardConsensusRewards(data: ConsensusRewardInput): Promise<ConsensusRewardResult> {
-    if (data.consensusChoice) {
-      const rewardableVotes = await this._repository.findUnrewardedMajorityVotes(
-        data.submissionId,
-        data.consensusChoice
-      );
-
-      for (const rewardableVote of rewardableVotes) {
-        /*
-         * Award through the activity module first.
-         *
-         * If marking the vote fails afterward, retrying is safe:
-         * the activity event key is based on voteId and cannot
-         * add XP or coins twice.
-         */
-        await this._activityRecorder.recordVerificationMajorityWon({
-          userId: rewardableVote.userId,
-          ownerId: data.ownerId,
-          trackerId: data.trackerId,
-          submissionId: data.submissionId,
-          voteId: rewardableVote.id,
-          trackerTitle: data.trackerTitle,
-          xpAwarded: data.policy.majorityTeacherXp,
-          coinsAwarded: data.policy.reviewRewardCoins,
-        });
-
-        await this._repository.markVerificationVoteRewarded(
-          rewardableVote.id,
-          data.policy.reviewRewardCoins
-        );
-      }
-    }
-
-    const [currentUserVote, currentUserBalance] = await Promise.all([
-      this._repository.findVoteBySubmissionAndUser(data.submissionId, data.currentUserId),
-
-      this._repository.getUserCoinBalance(data.currentUserId),
-    ]);
-
-    const currentUserRewardCoins = Math.max(0, Number(currentUserVote?.rewardCoins ?? 0));
-
-    return {
-      currentUserAwarded: currentUserRewardCoins > 0,
-      currentUserRewardCoins,
-      currentUserBalance,
     };
   }
 }

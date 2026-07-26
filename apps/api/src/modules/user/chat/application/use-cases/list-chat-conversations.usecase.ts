@@ -35,19 +35,21 @@ export class ListChatConversationsUseCase implements IListChatConversationsUseCa
     const participantIds = page.items
       .map((conversation) => conversation.otherParticipantId(viewerUserId))
       .filter((id): id is string => Boolean(id));
-    const lastMessageIds = page.items
-      .map((conversation) => conversation.lastMessageId)
-      .filter((id): id is string => Boolean(id));
     const [participants, messages, unreadCounts, blockedByUserIds] = await Promise.all([
       this._participantRepository.findParticipants(participantIds),
-      this._messageQueryRepository.findMessagesByIds(lastMessageIds),
+      this._messageQueryRepository.findLatestVisibleMessages(
+        page.items.map((conversation) => conversation.id),
+        viewerUserId
+      ),
       this._messageQueryRepository.findUnreadCounts(
         page.items.map((conversation) => conversation.id),
         viewerUserId
       ),
       this._blockRepository.listBlockedByUserIds(viewerUserId),
     ]);
-    const messageMap = new Map(messages.map((message) => [message.id, message]));
+    const messageMap = new Map(
+      messages.map((message) => [message.conversationId, message])
+    );
     const summaries = page.items.map((conversation) => {
       const participantId = conversation.otherParticipantId(viewerUserId);
       const participant = participantId ? participants.get(participantId) : undefined;
@@ -55,9 +57,7 @@ export class ListChatConversationsUseCase implements IListChatConversationsUseCa
       return new ChatConversationSummaryEntity({
         conversation,
         participant,
-        lastMessage: conversation.lastMessageId
-          ? messageMap.get(conversation.lastMessageId) ?? null
-          : null,
+        lastMessage: messageMap.get(conversation.id) ?? null,
         unreadCount: unreadCounts.get(conversation.id) ?? 0,
       });
     });

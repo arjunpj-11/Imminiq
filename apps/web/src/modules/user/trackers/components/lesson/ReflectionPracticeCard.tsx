@@ -17,7 +17,10 @@ import type { IGeneratedLesson, VerifyLessonAnswerResponse } from '../../types/t
 import { cn } from '../../utils/tracker-ui';
 import MathText from './MathText';
 import ConfirmDialog from '../ConfirmDialog';
-import { MicButton } from '../../../../../components/input/VoiceInputButton';
+import {
+  MicButton,
+  VoiceInputStatus,
+} from '../../../../../components/input/VoiceInputButton';
 import { useVoiceInput } from '../../../../../hooks/useVoiceInput';
 import {
   formatDateTime,
@@ -460,17 +463,21 @@ export default function ReflectionPracticeCard({
               <textarea
                 value={answer}
                 onChange={(event) => setAnswer(event.target.value)}
-                placeholder={
-                  answerVoice.isListening
-                    ? 'Listening... speak your answer'
-                    : 'Type your answer here...'
-                }
+                disabled={answerVoice.phase !== 'idle'}
+                placeholder="Type your answer here..."
                 className="min-h-44 w-full resize-none rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-4 pr-16 text-[13px] leading-[1.6] text-(--text-primary) outline-none transition focus:border-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-primary)"
               />
 
-              <div className="absolute bottom-3 right-3">
+              <VoiceInputStatus
+                phase={answerVoice.phase}
+                audioLevel={answerVoice.audioLevel}
+                className="pr-16"
+              />
+
+              <div className="absolute bottom-3 right-3 z-20">
                 <MicButton
                   isListening={answerVoice.isListening}
+                  phase={answerVoice.phase}
                   isSupported={answerVoice.isSupported}
                   onToggle={answerVoice.toggle}
                   size="sm"
@@ -482,7 +489,11 @@ export default function ReflectionPracticeCard({
               <button
                 type="button"
                 onClick={verifyAnswer}
-                disabled={verifyAnswerMutation.isPending || !answer.trim()}
+                disabled={
+                  verifyAnswerMutation.isPending ||
+                  answerVoice.phase !== 'idle' ||
+                  !answer.trim()
+                }
                 className="rounded-md bg-(--brand-500) px-3 py-2 text-[11px] font-bold text-[#fdf8f5] transition hover:bg-(--brand-600) disabled:cursor-wait disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
               >
                 {verifyAnswerMutation.isPending ? 'Checking...' : 'Verify Answer'}
@@ -692,18 +703,23 @@ export default function ReflectionPracticeCard({
                   <textarea
                     value={doubt}
                     onChange={(event) => setDoubt(event.target.value)}
-                    disabled={clearSolutionDoubtsMutation.isPending}
-                    placeholder={
-                      doubtVoice.isListening
-                        ? 'Listening... speak your doubt'
-                        : 'Example: I did not understand the second point...'
+                    placeholder="Example: I did not understand the second point..."
+                    disabled={
+                      clearSolutionDoubtsMutation.isPending || doubtVoice.phase !== 'idle'
                     }
                     className="min-h-28 w-full resize-none rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-3 pr-16 text-[13px] text-(--text-primary) outline-none transition focus:border-(--brand-500) disabled:cursor-not-allowed disabled:opacity-60 dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-primary)"
                   />
 
-                  <div className="absolute bottom-3 right-3">
+                  <VoiceInputStatus
+                    phase={doubtVoice.phase}
+                    audioLevel={doubtVoice.audioLevel}
+                    className="pr-16"
+                  />
+
+                  <div className="absolute bottom-3 right-3 z-20">
                     <MicButton
                       isListening={doubtVoice.isListening}
+                      phase={doubtVoice.phase}
                       isSupported={doubtVoice.isSupported}
                       onToggle={doubtVoice.toggle}
                       size="sm"
@@ -717,6 +733,7 @@ export default function ReflectionPracticeCard({
                   disabled={
                     doubtMutation.isPending ||
                     clearSolutionDoubtsMutation.isPending ||
+                    doubtVoice.phase !== 'idle' ||
                     !doubt.trim() ||
                     !activeSolution
                   }

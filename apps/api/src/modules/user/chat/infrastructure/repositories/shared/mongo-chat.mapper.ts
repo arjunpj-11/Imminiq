@@ -48,8 +48,19 @@ export class MongoChatMapper {
             visibility: record.sharedTracker.visibility,
           }
         : null,
+      sharedProfile: record.sharedProfile
+        ? {
+            userId: record.sharedProfile.userId.toString(),
+            username: record.sharedProfile.username,
+            fullName: record.sharedProfile.fullName,
+            headline: record.sharedProfile.headline ?? '',
+            avatarUrl: record.sharedProfile.avatarUrl ?? null,
+          }
+        : null,
       forwardedFromMessageId: record.forwardedFromMessageId?.toString() ?? null,
       readBy: (record.readBy ?? []).map(String),
+      starredBy: (record.starredBy ?? []).map(String),
+      clearedFor: (record.clearedFor ?? []).map(String),
       ...(record.deletedAt !== undefined ? { deletedAt: record.deletedAt } : {}),
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,

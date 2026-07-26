@@ -4,7 +4,7 @@ import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import { authenticatedApiUserLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
 import {
   validate,
-  validateIdentifierParam,
+  validateObjectIdParam,
 } from '../../../../shared/middlewares/validate.middleware';
 import { TrackerCreationController } from './tracker-creation.controller';
 import type { TrackerCreationUseCases } from '../application/tracker-creation-use-cases.contract';
@@ -23,8 +23,8 @@ export const createTrackerCreationRoutes = (
 ) => {
   const trackerCreationController = new TrackerCreationController(useCases);
   const router = Router();
-  router.param('jobId', validateIdentifierParam);
-  router.param('trackerId', validateIdentifierParam);
+  router.param('jobId', validateObjectIdParam);
+  router.param('trackerId', validateObjectIdParam);
 
   // ─── PROTECTED ────────────────────────────────────────────────
 

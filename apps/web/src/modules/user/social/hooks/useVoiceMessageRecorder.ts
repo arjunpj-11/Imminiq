@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { CHAT_MAX_VOICE_DURATION_SECONDS } from '../constants/chat.constants';
+import {
+  explainMediaPermissionError,
+  requestMediaPermission,
+} from '../../../../lib/media-permissions';
 import { calculateVoiceDurationSeconds } from '../utils/voice-recording-duration';
 
 type RecordedVoiceMessage = {
@@ -66,7 +70,7 @@ export const useVoiceMessageRecorder = (
     }
     startPendingRef.current = true;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await requestMediaPermission({ audio: true });
       const mimeType = selectMimeType();
       const recorder = new MediaRecorder(
         stream,
@@ -111,10 +115,10 @@ export const useVoiceMessageRecorder = (
       };
       recorder.start(250);
       setIsRecording(true);
-    } catch {
+    } catch (cause) {
       startedAtRef.current = null;
       release();
-      setError('Allow microphone access to record a voice message.');
+      setError(explainMediaPermissionError(cause, { audio: true }));
     } finally {
       startPendingRef.current = false;
     }

@@ -5,6 +5,7 @@ import { authenticatedApiUserLimiter } from '../../../../shared/middlewares/secu
 import {
   validate,
   validateIdentifierParam,
+  validateObjectIdParam,
   validateQuery,
 } from '../../../../shared/middlewares/validate.middleware';
 import { MockTestsController } from './mock-tests.controller';
@@ -28,10 +29,10 @@ export const createMockTestsRoutes = (
 ) => {
   const mockTestsController = new MockTestsController(useCases);
   const router = Router();
-  router.param('attemptId', validateIdentifierParam);
-  router.param('questionId', validateIdentifierParam);
-  router.param('testId', validateIdentifierParam);
-  router.param('jobId', validateIdentifierParam);
+  router.param('attemptId', validateObjectIdParam);
+  router.param('questionId', validateObjectIdParam);
+  router.param('testId', validateObjectIdParam);
+  router.param('jobId', validateObjectIdParam);
   router.param('shareToken', validateIdentifierParam);
 
   // ─── PROTECTED ───────────────────────────────────────────────

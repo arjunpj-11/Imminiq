@@ -3,7 +3,10 @@ import { useNavigate } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import PageHero from '../../../../components/layout/PageHero';
-import { MicButton } from '../../../../components/input/VoiceInputButton';
+import {
+  MicButton,
+  VoiceInputStatus,
+} from '../../../../components/input/VoiceInputButton';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import { useVoiceInput } from '../../../../hooks/useVoiceInput';
 import { ROUTES } from '../../../../routes/config/route-paths';
@@ -242,20 +245,25 @@ export default function AdaptiveLearningPage() {
               onSubmit={(event) => void sendQuestion(event)}
               className="flex gap-2 border-t border-(--border-subtle) p-4"
             >
-              <input
-                value={question}
-                onChange={(event) => setQuestion(event.target.value)}
-                placeholder="Ask what to prepare next…"
-                className="min-w-0 flex-1 rounded-xl border border-(--border-subtle) bg-transparent px-4 py-3 text-[13px] text-(--text-primary) outline-none focus:border-(--brand-500)"
-              />
+              <div className="relative min-w-0 flex-1 overflow-hidden rounded-xl">
+                <input
+                  value={question}
+                  onChange={(event) => setQuestion(event.target.value)}
+                  disabled={voice.phase !== 'idle'}
+                  placeholder="Ask what to prepare next…"
+                  className="h-full w-full rounded-xl border border-(--border-subtle) bg-transparent px-4 py-3 text-[13px] text-(--text-primary) outline-none focus:border-(--brand-500)"
+                />
+                <VoiceInputStatus phase={voice.phase} audioLevel={voice.audioLevel} />
+              </div>
               <MicButton
                 isListening={voice.isListening}
+                phase={voice.phase}
                 isSupported={voice.isSupported}
                 onToggle={voice.toggle}
               />
               <button
                 type="submit"
-                disabled={chat.isPending || !question.trim()}
+                disabled={chat.isPending || voice.phase !== 'idle' || !question.trim()}
                 className="rounded-xl bg-(--brand-500) px-5 py-3 text-[12px] font-bold text-white disabled:opacity-50"
               >
                 Send

@@ -9,6 +9,7 @@ import { Tracker } from '../../src/infrastructure/database/models/tracker.model'
 import { User } from '../../src/infrastructure/database/models/user.model';
 import { UserBlock } from '../../src/infrastructure/database/models/user-block.model';
 import { UserSettings } from '../../src/infrastructure/database/models/user-settings.model';
+import { UserProfile } from '../../src/infrastructure/database/models/user-profile.model';
 import { chatPresenceProvider } from '../../src/infrastructure/realtime/chat-presence.provider';
 import { createChatComposition } from '../../src/modules/user/chat';
 
@@ -26,6 +27,7 @@ describe('chat module', () => {
       User.init(),
       UserBlock.init(),
       UserSettings.init(),
+      UserProfile.init(),
     ]);
   });
 
@@ -38,6 +40,7 @@ describe('chat module', () => {
       User.deleteMany({}),
       UserBlock.deleteMany({}),
       UserSettings.deleteMany({}),
+      UserProfile.deleteMany({}),
     ]);
   });
 
@@ -107,6 +110,75 @@ describe('chat module', () => {
       limit: 30,
     });
     expect(refreshed.items[0]?.unreadCount).toBe(0);
+  });
+
+  it('keeps each viewer’s starred messages when that viewer clears the chat', async () => {
+    const [alice, bob] = await Promise.all([
+      createUser('Alice Learner', 'alice'),
+      createUser('Bob Learner', 'bob'),
+    ]);
+    await Friend.create({
+      userId: alice._id,
+      friendId: bob._id,
+      status: 'active',
+      deletedAt: null,
+    });
+    const { useCases } = createChatComposition();
+    const { conversation } = await useCases.startConversation.execute(alice.id, {
+      friendUserId: bob.id,
+    });
+    const first = await useCases.sendMessage.execute(alice.id, {
+      conversationId: conversation.id,
+      kind: 'text',
+      text: 'Remove this message',
+    });
+    const starred = await useCases.sendMessage.execute(bob.id, {
+      conversationId: conversation.id,
+      kind: 'text',
+      text: 'Keep this message',
+    });
+    await useCases.sendMessage.execute(alice.id, {
+      conversationId: conversation.id,
+      kind: 'text',
+      text: 'Remove this too',
+    });
+
+    await expect(
+      useCases.toggleMessageStar.execute(alice.id, starred.id)
+    ).resolves.toMatchObject({ id: starred.id, isStarred: true });
+    await expect(
+      useCases.clearConversation.execute(alice.id, conversation.id)
+    ).resolves.toMatchObject({ clearedCount: 2, preservedStarredMessages: true });
+
+    const aliceMessages = await useCases.listMessages.execute(
+      alice.id,
+      conversation.id,
+      { page: 1, limit: 30 }
+    );
+    expect(aliceMessages.items).toEqual([
+      expect.objectContaining({
+        id: starred.id,
+        text: 'Keep this message',
+        isStarred: true,
+      }),
+    ]);
+    const aliceConversations = await useCases.listConversations.execute(alice.id, {
+      page: 1,
+      limit: 30,
+    });
+    expect(aliceConversations.items[0]?.lastMessage?.id).toBe(starred.id);
+
+    const bobMessages = await useCases.listMessages.execute(
+      bob.id,
+      conversation.id,
+      { page: 1, limit: 30 }
+    );
+    expect(bobMessages.items.map((message) => message.id)).toEqual([
+      first.id,
+      starred.id,
+      expect.any(String),
+    ]);
+    expect(bobMessages.items.every((message) => !message.isStarred)).toBe(true);
   });
 
   it('rejects conversations between users who are not friends', async () => {
@@ -339,5 +411,49 @@ describe('chat module', () => {
         visibility: 'public',
       },
     });
+  });
+
+  it('shares a server-verified profile as a rich profile message', async () => {
+    const [alice, bob, charlie] = await Promise.all([
+      createUser('Alice Learner', 'alice'),
+      createUser('Bob Learner', 'bob'),
+      createUser('Charlie Mentor', 'charlie'),
+    ]);
+    await Promise.all([
+      Friend.create({
+        userId: alice._id,
+        friendId: bob._id,
+        status: 'active',
+        deletedAt: null,
+      }),
+      UserProfile.create({
+        userId: charlie._id,
+        fullName: 'Charlie Mentor',
+        headline: 'Mathematics mentor',
+        publicProfileEnabled: true,
+      }),
+    ]);
+    const { useCases } = createChatComposition();
+    const { conversation } = await useCases.startConversation.execute(alice.id, {
+      friendUserId: bob.id,
+    });
+
+    const message = await useCases.shareProfile.execute(alice.id, {
+      username: 'charlie',
+      targetConversationId: conversation.id,
+    });
+
+    expect(message).toMatchObject({
+      kind: 'profile',
+      text: '',
+      sharedProfile: {
+        userId: charlie.id,
+        username: 'charlie',
+        fullName: 'Charlie Mentor',
+        headline: 'Mathematics mentor',
+      },
+    });
+    const stored = await ChatMessage.findById(message.id).lean();
+    expect(stored?.sharedProfile?.userId.toString()).toBe(charlie.id);
   });
 });

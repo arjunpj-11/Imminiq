@@ -360,7 +360,7 @@ export default function TrackerQuickRevisionPage() {
       className="bg-(--surface-sunken)"
     >
       {isMainLoading ? (
-        <AppPageSkeleton kind="lesson" label="Loading revision" />
+        <AppPageSkeleton kind="lesson" label="Preparing your revision" />
       ) : trackerIsModerated && trackerDetailsQuery.data ? (
         <TrackerModerationNotice tracker={trackerDetailsQuery.data} />
       ) : hasMainError || !roadmapData ? (
@@ -370,8 +370,27 @@ export default function TrackerQuickRevisionPage() {
               Revision unavailable
             </h1>
             <p className="mt-2 text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
-              Something went wrong loading the revision content.
+              This tracker could not be found, or its revision content is temporarily unavailable.
             </p>
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  void trackerDetailsQuery.refetch();
+                  void roadmapQuery.refetch();
+                }}
+                className="rounded-xl border border-(--border-subtle) bg-(--surface-elevated) px-4 py-2.5 text-[13px] font-bold text-(--text-primary) transition hover:border-(--brand-500)"
+              >
+                Try again
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate(ROUTES.trackers)}
+                className="rounded-xl bg-(--brand-500) px-4 py-2.5 text-[13px] font-bold text-white transition hover:bg-(--brand-600)"
+              >
+                Back to trackers
+              </button>
+            </div>
           </div>
         </div>
       ) : (
