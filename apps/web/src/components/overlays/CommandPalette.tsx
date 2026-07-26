@@ -17,7 +17,17 @@ import {
   type NavigationShortcut,
 } from '../../lib/navigation-commands';
 import { useThemeStore } from '../../store/useThemeStore';
+import { useDebouncedValue } from '../../hooks/useDebouncedValue';
+import { useTrackers } from '../../modules/user/trackers';
+import { mergeFriendUserPages, useFriends } from '../../modules/user/friends';
+import { ROUTES } from '../../routes/config/route-paths';
 import Modal from './Modal';
+import {
+  FEATURE_AVAILABILITY_SAFE_FALLBACK,
+  isPathAvailable,
+} from '../../config/feature-availability';
+import { paginationConfig } from '../../config/pagination';
+import { useFeatureAvailability } from '../../hooks/useFeatureAvailability';
 
 interface ICommandPaletteProps {
   open: boolean;
@@ -33,7 +43,7 @@ interface ICommand {
   id: string;
   label: string;
   description: string;
-  group: 'Navigate' | 'Actions';
+  group: 'Navigate' | 'Trackers' | 'People' | 'Actions';
   keywords: readonly string[];
   path?: string;
   shortcut?: NavigationShortcut;
@@ -42,7 +52,9 @@ interface ICommand {
 
 const GROUP_ORDER: Record<ICommand['group'], number> = {
   Navigate: 0,
-  Actions: 1,
+  Trackers: 1,
+  People: 2,
+  Actions: 3,
 };
 
 const SearchIcon = () => (
@@ -80,10 +92,38 @@ export default function CommandPalette({ open, onClose }: ICommandPaletteProps) 
 function CommandPaletteContent({ inputRef, onClose }: ICommandPaletteContentProps) {
   const navigate = useNavigate();
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
+  const featureQuery = useFeatureAvailability();
+  const features = featureQuery.data ?? FEATURE_AVAILABILITY_SAFE_FALLBACK;
 
   const optionRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
+  const debouncedQuery = useDebouncedValue(query.trim(), 180);
+  const trackersQuery = useTrackers(
+    {
+      status: 'all',
+      search: debouncedQuery || undefined,
+      sortBy: 'lastActive',
+      page: 1,
+      limit: paginationConfig.compactLimit,
+    },
+    features.trackers
+  );
+  const friendsQuery = useFriends(
+    {
+      search: debouncedQuery || undefined,
+      limit: paginationConfig.compactLimit,
+    },
+    features.social
+  );
+  const trackerResults = useMemo(
+    () => trackersQuery.data?.trackers ?? [],
+    [trackersQuery.data?.trackers]
+  );
+  const friendResults = useMemo(
+    () => mergeFriendUserPages(friendsQuery.data?.pages ?? []),
+    [friendsQuery.data?.pages]
+  );
 
   const go = useCallback(
     (path: string) => {
@@ -95,11 +135,75 @@ function CommandPaletteContent({ inputRef, onClose }: ICommandPaletteContentProp
 
   const commands = useMemo<ICommand[]>(
     () => [
-      ...NAVIGATION_COMMANDS.map((command) => ({
-        ...command,
-        group: 'Navigate' as const,
-        run: () => go(command.path),
+      ...NAVIGATION_COMMANDS.filter((command) => isPathAvailable(command.path, features)).map(
+        (command) => ({
+          ...command,
+          group: 'Navigate' as const,
+          run: () => go(command.path),
+        })
+      ),
+      ...(features.trackers ? trackerResults : []).map((tracker) => ({
+        id: `tracker-${tracker._id}`,
+        label: tracker.title,
+        description: `${tracker.progressPercent ?? 0}% complete · Open roadmap`,
+        group: 'Trackers' as const,
+        keywords: [tracker.title, tracker.domain ?? '', tracker.level ?? '', 'lesson', 'roadmap'],
+        run: () => go(ROUTES.trackerRoadmap(tracker._id)),
       })),
+      ...(features.social ? friendResults : [])
+        .slice(0, paginationConfig.compactLimit)
+        .map((friend) => ({
+          id: `person-${friend.id}`,
+          label: friend.fullName,
+          description: `${friend.handle} · View profile`,
+          group: 'People' as const,
+          keywords: [friend.fullName, friend.username, friend.handle, 'friend', 'person'],
+          run: () => go(ROUTES.publicProfileFor(friend.username)),
+        })),
+      ...(features.trackers && features.trackerCreation
+        ? [
+            {
+              id: 'create-tracker',
+              label: 'Create a tracker',
+              description: 'Start a new AI-guided or manual learning path',
+              group: 'Actions' as const,
+              keywords: ['new', 'create', 'tracker', 'roadmap', 'learn'],
+              run: () => go(ROUTES.trackerCreate),
+            } satisfies ICommand,
+          ]
+        : []),
+      ...(features.social
+        ? [
+            {
+              id: 'message-friend',
+              label: 'Message a friend',
+              description: 'Open Social and choose a conversation',
+              group: 'Actions' as const,
+              keywords: ['chat', 'message', 'friend', 'social'],
+              run: () => go(ROUTES.chat),
+            } satisfies ICommand,
+          ]
+        : []),
+      ...(features.savedItems
+        ? [
+            {
+              id: 'saved-items',
+              label: 'Open saved items',
+              description: 'View bookmarked trackers and lessons',
+              group: 'Actions' as const,
+              keywords: ['saved', 'bookmark', 'library', 'tracker', 'lesson'],
+              run: () => go(ROUTES.saved),
+            } satisfies ICommand,
+          ]
+        : []),
+      {
+        id: 'notification-settings',
+        label: 'Notification settings',
+        description: 'Control alerts, quiet hours, and message noise',
+        group: 'Actions' as const,
+        keywords: ['mute', 'quiet', 'notification', 'alerts'],
+        run: () => go(ROUTES.settingsNotifications),
+      },
       {
         id: 'theme',
         label: 'Toggle theme',
@@ -112,7 +216,7 @@ function CommandPaletteContent({ inputRef, onClose }: ICommandPaletteContentProp
         },
       },
     ],
-    [go, onClose, toggleTheme]
+    [features, friendResults, go, onClose, toggleTheme, trackerResults]
   );
 
   const filtered = useMemo(() => {
@@ -233,8 +337,8 @@ function CommandPaletteContent({ inputRef, onClose }: ICommandPaletteContentProp
             setQuery(event.target.value);
             setActiveIndex(0);
           }}
-          placeholder="Search every page and action…"
-          aria-label="Search pages and actions"
+          placeholder="Search pages, trackers, people, and actions…"
+          aria-label="Search pages, trackers, people, and actions"
           aria-controls="imminiq-command-list"
           aria-activedescendant={activeCommand ? `imminiq-command-${activeCommand.id}` : undefined}
           aria-autocomplete="list"
@@ -252,7 +356,7 @@ function CommandPaletteContent({ inputRef, onClose }: ICommandPaletteContentProp
         id="imminiq-command-list"
         className="max-h-[min(56vh,430px)] overflow-y-auto overscroll-contain p-2"
         role="listbox"
-        aria-label="Pages and actions"
+        aria-label="Pages, trackers, people, and actions"
       >
         {filtered.length > 0 ? (
           filtered.map((command, index) => {
@@ -316,10 +420,10 @@ function CommandPaletteContent({ inputRef, onClose }: ICommandPaletteContentProp
           })
         ) : (
           <div className="px-5 py-12 text-center" role="status">
-            <div className="type-heading-md text-(--text-primary)">No matching page or action</div>
+            <div className="type-heading-md text-(--text-primary)">No matching result</div>
 
             <p className="type-body-sm mt-1 text-(--text-secondary)">
-              Try a page name, related word, or shortcut such as GD.
+              Try a tracker title, person, page name, or shortcut such as GD.
             </p>
           </div>
         )}

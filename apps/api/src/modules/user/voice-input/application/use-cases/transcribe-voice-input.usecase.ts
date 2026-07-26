@@ -1,8 +1,5 @@
 import type { IVoiceTranscriptionGateway } from '../../domain/gateways/voice-transcription.gateway.interface';
-import type {
-  TranscribeVoiceInputDTO,
-  VoiceTranscriptViewDTO,
-} from '../voice-input.dto';
+import type { TranscribeVoiceInputDTO, VoiceTranscriptViewDTO } from '../voice-input.dto';
 import { VoiceInputApplicationError } from '../voice-input-application.error';
 import type { IVoiceInputMapper } from '../voice-input.mapper';
 

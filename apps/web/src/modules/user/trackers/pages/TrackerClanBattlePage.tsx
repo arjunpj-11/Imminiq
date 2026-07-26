@@ -179,7 +179,7 @@ export default function TrackerClanBattlePage() {
   if (challengeQuery.isLoading || (!challenge && unavailableChallengeId !== challengeId)) {
     return (
       <AppShellBoundary>
-        <AppPageSkeleton kind="detail" label="Loading clan battle" />
+        <AppPageSkeleton kind="detail" label="Loading guild battle" />
       </AppShellBoundary>
     );
   }
@@ -243,6 +243,7 @@ export default function TrackerClanBattlePage() {
         <section className="grid items-center gap-5 rounded-2xl border border-(--border-subtle) bg-(--surface-card) px-5 py-6 shadow-sm md:grid-cols-[1fr_auto_1fr] dark:border-white/15">
           <Player
             name={me!.name}
+            username={me!.username}
             avatarUrl={me!.avatarUrl}
             position={challenge.viewerPosition}
             total={challenge.totalNodes}
@@ -263,6 +264,7 @@ export default function TrackerClanBattlePage() {
           </div>
           <Player
             name={rival!.name}
+            username={rival!.username}
             avatarUrl={rival!.avatarUrl}
             position={challenge.opponentPosition}
             total={challenge.totalNodes}
@@ -319,6 +321,7 @@ export default function TrackerClanBattlePage() {
                         <UserAvatar
                           name={me!.name}
                           src={me!.avatarUrl}
+                          profileUsername={me!.username}
                           sizeClassName="h-7 w-7 text-[7px]"
                           className="border-2 border-(--brand-500)"
                         />
@@ -327,6 +330,7 @@ export default function TrackerClanBattlePage() {
                         <UserAvatar
                           name={rival!.name}
                           src={rival!.avatarUrl}
+                          profileUsername={rival!.username}
                           sizeClassName="h-7 w-7 text-[7px]"
                           className="border-2 border-[#d6ad47]"
                         />
@@ -645,12 +649,14 @@ export default function TrackerClanBattlePage() {
 
 function Player({
   name,
+  username,
   avatarUrl,
   position,
   total,
   align,
 }: {
   name: string;
+  username: string;
   avatarUrl?: string | null;
   position: number;
   total: number;
@@ -666,6 +672,7 @@ function Player({
       <UserAvatar
         name={name}
         src={avatarUrl}
+        profileUsername={username}
         sizeClassName="h-13 w-13 text-xs"
         className="border-2 border-(--brand-500)"
       />

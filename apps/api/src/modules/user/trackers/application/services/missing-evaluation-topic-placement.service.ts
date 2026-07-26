@@ -26,9 +26,7 @@ export interface IMissingEvaluationTopicPlacementService {
   place(input: PlacementInput): Promise<AddMissingEvaluationTopicResult>;
 }
 
-export class MissingEvaluationTopicPlacementService
-  implements IMissingEvaluationTopicPlacementService
-{
+export class MissingEvaluationTopicPlacementService implements IMissingEvaluationTopicPlacementService {
   constructor(private readonly _repository: IMissingEvaluationTopicPlacementRepository) {}
 
   async place(input: PlacementInput): Promise<AddMissingEvaluationTopicResult> {

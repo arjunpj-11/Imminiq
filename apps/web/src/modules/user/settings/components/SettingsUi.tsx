@@ -50,7 +50,7 @@ export function SettingsCard({
 
 export function MonoLabel({ children }: { children: ReactNode }) {
   return (
-    <div className="mb-2 font-mono text-[8.5px] uppercase tracking-[0.16em] text-(--text-secondary) opacity-70 dark:text-(--text-secondary)">
+    <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.16em] text-(--text-secondary) opacity-75 dark:text-(--text-secondary)">
       {children}
     </div>
   );

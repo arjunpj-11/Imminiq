@@ -8,6 +8,12 @@ describe('tracker publishing domains', () => {
     expect(publishTrackerSchema.parse({ domain: '  English  ' }).domain).toBe('English');
   });
 
+  it('does not accept a per-tracker cloning restriction', () => {
+    expect(publishTrackerSchema.parse({ domain: 'English', allowClone: false })).toEqual({
+      domain: 'English',
+    });
+  });
+
   it('rejects empty and excessively long custom domains', () => {
     expect(() => publishTrackerSchema.parse({ domain: '   ' })).toThrow();
     expect(() => publishTrackerSchema.parse({ domain: 'a'.repeat(81) })).toThrow();

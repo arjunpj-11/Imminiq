@@ -1,5 +1,3 @@
-// apps/api/src/infrastructure/database/models/lesson-answer-attempt.model.ts
-
 import mongoose, { Schema } from 'mongoose';
 
 const lessonAnswerAttemptSchema = new Schema(

@@ -137,6 +137,19 @@ export default function ToastProvider() {
             )}
           </div>
 
+          {item.actionLabel && item.onAction && (
+            <button
+              type="button"
+              onClick={() => {
+                item.onAction?.();
+                remove(item.id);
+              }}
+              className="shrink-0 rounded-md border border-(--border-subtle) px-2.5 py-1.5 text-[11px] font-bold text-(--brand-500) transition hover:border-(--brand-500) hover:bg-(--surface-muted)"
+            >
+              {item.actionLabel}
+            </button>
+          )}
+
           <button
             type="button"
             aria-label="Dismiss notification"

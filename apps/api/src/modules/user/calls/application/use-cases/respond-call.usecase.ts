@@ -36,8 +36,7 @@ export class RespondCallUseCase implements IRespondCallUseCase {
     const bundle = await this._views.toParticipantBundle(changed);
     for (const event of bundle.views) this._realtime.updated(event.userId, bundle.realtime);
     return (
-      bundle.views.find((event) => event.userId === calleeUserId)?.call ??
-      bundle.views[0]!.call
+      bundle.views.find((event) => event.userId === calleeUserId)?.call ?? bundle.views[0]!.call
     );
   }
 }

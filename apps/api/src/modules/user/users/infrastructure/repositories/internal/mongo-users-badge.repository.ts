@@ -1,5 +1,6 @@
 import { Badge } from '../../../../../../infrastructure/database/models/badge.model';
 import { UserBadge } from '../../../../../../infrastructure/database/models/user-badge.model';
+import { paginationConfig } from '../../../../../../config/pagination';
 import type { EarnedUserBadgeEntity } from '../../../domain/entities/earned-user-badge.entity';
 import type { UserBadgeEntity } from '../../../domain/entities/user-badge.entity';
 import type { FindEarnedUserBadgesPaginatedInput } from '../../../domain/repositories/users.repository.interface';
@@ -51,7 +52,7 @@ export class MongoUsersBadgeRepository extends MongoUsersBaseRepository {
     input: FindEarnedUserBadgesPaginatedInput
   ): Promise<{ items: EarnedUserBadgeEntity[]; total: number }> {
     return this.execute('USER_BADGE_READ_FAILED', 'Failed to read earned user badges', async () => {
-      const { userId, page = 1, limit = 10 } = input;
+      const { userId, page = 1, limit = paginationConfig.profileLimit } = input;
       const skip = (page - 1) * limit;
 
       const filter = {

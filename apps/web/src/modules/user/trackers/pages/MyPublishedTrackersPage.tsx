@@ -1,7 +1,5 @@
 import { cn } from '../../../../lib/cn';
 
-// apps/web/src/modules/user/trackers/pages/MyPublishedTrackersPage.tsx
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../../../routes/config/route-paths';
@@ -9,7 +7,11 @@ import { ROUTES } from '../../../../routes/config/route-paths';
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import PageHero from '../../../../components/layout/PageHero';
 import Modal from '../../../../components/overlays/Modal';
-import { useTrackers, useUnpublishTracker } from '../hooks/useTrackers';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { toast } from '../../../../lib/toast';
+import { paginationConfig } from '../../../../config/pagination';
+import { DomainCombobox } from '../components/PublishTrackerModal';
+import { useTrackers, useUnpublishTracker, useUpdateTracker } from '../hooks/useTrackers';
 import type { ITracker } from '../types/tracker.types';
 
 const formatDate = (value: string | null | undefined) => {
@@ -93,6 +95,18 @@ const CopyIcon = () => (
       stroke="currentColor"
       strokeWidth="1.25"
       strokeLinecap="round"
+    />
+  </svg>
+);
+
+const EditIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+    <path
+      d="M8.2 2.2 11.8 5.8M2 12l.8-3.6L9.7 1.5a1.4 1.4 0 0 1 2 0l.8.8a1.4 1.4 0 0 1 0 2L5.6 11.2 2 12Z"
+      stroke="currentColor"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
@@ -290,6 +304,163 @@ function UnpublishConfirmModal({
   );
 }
 
+type PublishedTrackerEditForm = {
+  title: string;
+  description: string;
+  domain: string;
+  level: 'beginner' | 'intermediate' | 'advanced';
+  tags: string;
+};
+
+type PublishedTrackerEditModalProps = {
+  tracker: ITracker | null;
+  isSaving: boolean;
+  error: string | null;
+  onClose: () => void;
+  onSave: (form: PublishedTrackerEditForm) => Promise<void>;
+};
+
+const editFieldClass =
+  'mt-2 w-full rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-3.5 py-3 text-[13px] text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:ring-2 focus:ring-[rgba(184,76,43,0.12)] disabled:cursor-not-allowed disabled:opacity-60';
+
+function PublishedTrackerEditModal({
+  tracker,
+  isSaving,
+  error,
+  onClose,
+  onSave,
+}: PublishedTrackerEditModalProps) {
+  const [form, setForm] = useState<PublishedTrackerEditForm>(() => ({
+    title: tracker?.title ?? '',
+    description: tracker?.description ?? tracker?.goal ?? '',
+    domain: tracker?.domain ?? tracker?.category ?? '',
+    level: tracker?.level ?? 'beginner',
+    tags: (tracker?.tags ?? []).join(', '),
+  }));
+  const isValid = form.title.trim().length >= 2 && Boolean(form.domain.trim());
+
+  if (!tracker) return null;
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      preventClose={isSaving}
+      ariaLabel="Edit published tracker"
+      contentClassName="max-h-[calc(100dvh-2rem)] max-w-xl overflow-y-auto"
+    >
+      <h2 className="font-ui text-2xl font-extrabold text-(--text-primary)">
+        Edit published tracker
+      </h2>
+      <p className="mt-2 text-[13px] leading-6 text-(--text-secondary)">
+        These changes update the tracker and its public community page.
+      </p>
+
+      <div className="mt-6 space-y-4">
+        <label className="block text-[12px] font-bold text-(--text-primary)">
+          Title <span className="text-(--brand-500)">*</span>
+          <input
+            type="text"
+            maxLength={120}
+            value={form.title}
+            disabled={isSaving}
+            onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
+            className={editFieldClass}
+          />
+        </label>
+
+        <label className="block text-[12px] font-bold text-(--text-primary)">
+          Description
+          <textarea
+            rows={4}
+            maxLength={500}
+            value={form.description}
+            disabled={isSaving}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, description: event.target.value }))
+            }
+            className={`${editFieldClass} resize-none leading-6`}
+          />
+        </label>
+
+        <div>
+          <label
+            htmlFor={`published-domain-${tracker._id}`}
+            className="block text-[12px] font-bold text-(--text-primary)"
+          >
+            Domain <span className="text-(--brand-500)">*</span>
+          </label>
+          <DomainCombobox
+            inputId={`published-domain-${tracker._id}`}
+            value={form.domain}
+            disabled={isSaving}
+            onChange={(domain) => setForm((current) => ({ ...current, domain }))}
+          />
+        </div>
+
+        <label className="block text-[12px] font-bold text-(--text-primary)">
+          Difficulty
+          <select
+            value={form.level}
+            disabled={isSaving}
+            onChange={(event) =>
+              setForm((current) => ({
+                ...current,
+                level: event.target.value as PublishedTrackerEditForm['level'],
+              }))
+            }
+            className={editFieldClass}
+          >
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+        </label>
+
+        <label className="block text-[12px] font-bold text-(--text-primary)">
+          Tags
+          <input
+            type="text"
+            value={form.tags}
+            disabled={isSaving}
+            onChange={(event) => setForm((current) => ({ ...current, tags: event.target.value }))}
+            placeholder="react, frontend, interview"
+            className={editFieldClass}
+          />
+          <span className="mt-1.5 block text-[11px] font-normal text-(--text-secondary)">
+            Separate up to 10 tags with commas.
+          </span>
+        </label>
+      </div>
+
+      {error && (
+        <p className="mt-4 rounded-lg border border-red-500/20 bg-red-500/6 px-3 py-2 text-[12px] text-red-600 dark:text-red-400">
+          {error}
+        </p>
+      )}
+
+      <div className="mt-6 flex justify-end gap-2 border-t border-(--border-subtle) pt-5">
+        <button
+          type="button"
+          disabled={isSaving}
+          onClick={onClose}
+          className="rounded-xl border border-(--border-subtle) px-4 py-2.5 text-[13px] font-bold text-(--text-secondary) disabled:opacity-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          disabled={!isValid || isSaving}
+          onClick={() => void onSave(form)}
+          className="rounded-xl bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50 dark:text-[#141412]"
+        >
+          {isSaving ? 'Saving…' : 'Save changes'}
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
 // Small globe icon for the modal list item
 const GlobeSmallIcon = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -309,6 +480,7 @@ const GlobeSmallIcon = () => (
 type PublishedTrackerCardProps = {
   tracker: ITracker;
   onView: (trackerId: string) => void;
+  onEdit: (tracker: ITracker) => void;
   onRequestUnpublish: (tracker: ITracker) => void;
   isUnpublishing: boolean;
   canUnpublish: boolean;
@@ -317,6 +489,7 @@ type PublishedTrackerCardProps = {
 function PublishedTrackerCard({
   tracker,
   onView,
+  onEdit,
   onRequestUnpublish,
   isUnpublishing,
   canUnpublish,
@@ -359,7 +532,7 @@ function PublishedTrackerCard({
             {tracker.level ?? 'beginner'}
           </span>
           <span className="rounded-full border border-(--border-subtle) bg-[rgba(26,23,20,0.03)] px-2.5 py-1 text-[10.5px] font-semibold text-(--text-secondary) dark:bg-white/4">
-            {domainLabel(tracker.domain)}
+            {domainLabel(tracker.domain ?? tracker.category)}
           </span>
         </div>
         <span
@@ -434,7 +607,14 @@ function PublishedTrackerCard({
             onClick={() => onView(tracker._id)}
             className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-(--brand-500) px-4 text-[13px] font-extrabold text-[#fdf8f5] shadow-[0_8px_22px_rgba(184,76,43,0.18)] transition hover:-translate-y-px hover:bg-(--brand-600) dark:text-[#141412]"
           >
-            <EyeIcon /> View public page
+            <EyeIcon /> View
+          </button>
+          <button
+            type="button"
+            onClick={() => onEdit(tracker)}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border-[1.5px] border-(--border-subtle) px-4 text-[13px] font-bold text-(--text-secondary) transition hover:-translate-y-px hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.06)] hover:text-(--brand-500)"
+          >
+            <EditIcon /> Edit
           </button>
           <button
             type="button"
@@ -530,15 +710,18 @@ export default function MyPublishedTrackersPage() {
   const navigate = useNavigate();
   const [unpublishingId, setUnpublishingId] = useState<string | null>(null);
   const [confirmTracker, setConfirmTracker] = useState<ITracker | null>(null);
+  const [editTracker, setEditTracker] = useState<ITracker | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
 
   const trackersQuery = useTrackers({
     status: 'all',
     domain: 'all',
     sortBy: 'lastActive',
     page: 1,
-    limit: 50,
+    limit: paginationConfig.batchLimit,
   });
   const unpublishMutation = useUnpublishTracker();
+  const updateTrackerMutation = useUpdateTracker();
 
   const allTrackers = trackersQuery.data?.trackers ?? [];
   const publishedTrackers = allTrackers.filter(
@@ -567,6 +750,34 @@ export default function MyPublishedTrackersPage() {
     setConfirmTracker(null);
   };
 
+  const handleEdit = (tracker: ITracker) => {
+    setEditError(null);
+    setEditTracker(tracker);
+  };
+
+  const handleSaveEdit = async (form: PublishedTrackerEditForm) => {
+    if (!editTracker) return;
+    setEditError(null);
+
+    try {
+      await updateTrackerMutation.mutateAsync({
+        trackerId: editTracker._id,
+        title: form.title.trim(),
+        description: form.description.trim(),
+        domain: form.domain.trim(),
+        level: form.level,
+        tags: form.tags
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean),
+      });
+      setEditTracker(null);
+      toast.success('Published tracker updated');
+    } catch (error) {
+      setEditError(getUserFacingError(error, 'Unable to update this tracker.'));
+    }
+  };
+
   if (isLoading) {
     return <PageSkeleton />;
   }
@@ -579,6 +790,16 @@ export default function MyPublishedTrackersPage() {
         isUnpublishing={unpublishingId === confirmTracker?._id}
         onConfirm={handleConfirmUnpublish}
         onCancel={handleCancelUnpublish}
+      />
+      <PublishedTrackerEditModal
+        key={editTracker?._id ?? 'closed'}
+        tracker={editTracker}
+        isSaving={updateTrackerMutation.isPending}
+        error={editError}
+        onClose={() => {
+          if (!updateTrackerMutation.isPending) setEditTracker(null);
+        }}
+        onSave={handleSaveEdit}
       />
 
       <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
@@ -632,6 +853,7 @@ export default function MyPublishedTrackersPage() {
                 key={tracker._id}
                 tracker={tracker}
                 onView={(id) => navigate(`/community/trackers/${id}`)}
+                onEdit={handleEdit}
                 onRequestUnpublish={handleRequestUnpublish}
                 isUnpublishing={unpublishingId === tracker._id}
                 canUnpublish={tracker.clanRole !== 'co_owner'}

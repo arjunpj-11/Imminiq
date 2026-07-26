@@ -38,23 +38,17 @@ export const createCallsComposition = (): CallsComposition => {
   const timeouts = new NodeCallTimeoutScheduler((callId) => expire.execute(callId));
   const directIceServerProvider = new DirectCallIceServerProvider();
   const meteredIceServerProvider =
-    env.METERED_TURN_API_BASE_URL &&
-    (env.METERED_TURN_SECRET_KEY || env.METERED_TURN_API_KEY)
+    env.METERED_TURN_API_BASE_URL && (env.METERED_TURN_SECRET_KEY || env.METERED_TURN_API_KEY)
       ? new MeteredCallIceServerProvider({
           apiBaseUrl: env.METERED_TURN_API_BASE_URL,
-          ...(env.METERED_TURN_SECRET_KEY
-            ? { secretKey: env.METERED_TURN_SECRET_KEY }
-            : {}),
+          ...(env.METERED_TURN_SECRET_KEY ? { secretKey: env.METERED_TURN_SECRET_KEY } : {}),
           ...(env.METERED_TURN_API_KEY ? { apiKey: env.METERED_TURN_API_KEY } : {}),
           credentialTtlSeconds: env.METERED_TURN_CREDENTIAL_TTL_SECONDS,
           requestTimeoutMs: env.METERED_TURN_REQUEST_TIMEOUT_MS,
         })
       : null;
   const iceServerProvider = meteredIceServerProvider
-    ? new FallbackCallIceServerProvider(
-        meteredIceServerProvider,
-        directIceServerProvider
-      )
+    ? new FallbackCallIceServerProvider(meteredIceServerProvider, directIceServerProvider)
     : directIceServerProvider;
 
   return {

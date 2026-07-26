@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from 'express';
+import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import { Router } from 'express';
 import type { ZodTypeAny } from 'zod';
 
@@ -58,7 +58,8 @@ import {
 
 export const createTrackerRoutes = (
   useCases: TrackerUseCases,
-  enforcePlanLimit: PlanLimitMiddleware
+  enforcePlanLimit: PlanLimitMiddleware,
+  requireTrackerCreation: RequestHandler
 ) => {
   const managementController = new TrackerManagementController(useCases);
   const roadmapController = new TrackerRoadmapController(useCases);
@@ -108,6 +109,7 @@ export const createTrackerRoutes = (
 
   router.post(
     TRACKER_ROUTE_PATHS.ROOT,
+    requireTrackerCreation,
     validate(createTrackerSchema),
     enforcePlanLimit('tracker_capacity'),
     managementController.createTracker

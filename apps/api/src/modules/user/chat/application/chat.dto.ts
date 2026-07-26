@@ -3,6 +3,8 @@ import type { ChatMessageKind, UploadedChatFile } from '../domain/chat.types';
 export type ListChatInputDTO = {
   page: number;
   limit: number;
+  search?: string;
+  before?: string;
 };
 
 export type CreateConversationInputDTO = {
@@ -16,6 +18,17 @@ export type SendChatMessageInputDTO = {
   codeLanguage?: string;
   file?: UploadedChatFile;
   durationSeconds?: number;
+  replyToMessageId?: string;
+};
+
+export type EditChatMessageInputDTO = {
+  messageId: string;
+  text: string;
+};
+
+export type ToggleChatReactionInputDTO = {
+  messageId: string;
+  emoji: string;
 };
 
 export type ForwardChatMessageInputDTO = {
@@ -83,6 +96,18 @@ export type ChatMessageDTO = {
     avatarUrl: string | null;
   } | null;
   isForwarded: boolean;
+  replyTo: {
+    messageId: string;
+    senderId: string;
+    kind: ChatMessageKind;
+    text: string;
+  } | null;
+  reactions: Array<{
+    emoji: string;
+    count: number;
+    reactedByViewer: boolean;
+  }>;
+  editedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
   isRead: boolean;
@@ -104,6 +129,7 @@ export type ChatPageDTO<T> = {
     limit: number;
     total: number;
     hasMore: boolean;
+    nextCursor?: string | null;
   };
 };
 

@@ -42,6 +42,8 @@ import { useRequestTrackerClanJoin, useTrackerClan } from '../../trackers';
 import { useOnboardingStore } from '../../tracker-creation';
 import { useSocialShareStore } from '../../social';
 import { useBackNavigation } from '../../../../hooks/useBackNavigation';
+import { FEATURE_AVAILABILITY_SAFE_FALLBACK } from '../../../../config/feature-availability';
+import { useFeatureAvailability } from '../../../../hooks/useFeatureAvailability';
 
 type CommunityTrackerNavigationState = {
   returnTo?: string;
@@ -82,6 +84,8 @@ export default function CommunityPublicTrackerPage() {
 }
 
 function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTrackerDetail }) {
+  const featureQuery = useFeatureAvailability();
+  const features = featureQuery.data ?? FEATURE_AVAILABILITY_SAFE_FALLBACK;
   const navigate = useNavigate();
   const location = useLocation();
   const navigationState = location.state as CommunityTrackerNavigationState | null;
@@ -107,6 +111,8 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState<ReportTrackerReason>('incorrect_or_misleading');
   const [reportDetails, setReportDetails] = useState('');
+  const reportDetailsRequired = reportReason === 'other';
+  const canSubmitReport = !reportDetailsRequired || Boolean(reportDetails.trim());
 
   const totalSubtopics = useMemo(() => getTotalSubtopics(tracker), [tracker]);
 
@@ -130,7 +136,10 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
   }, [tracker.reviews, sortBy]);
 
   const isCloned = cloned || tracker.inDashboard;
-  const clanQuery = useTrackerClan(tracker._id, currentUserId === tracker.ownerId || isCloned);
+  const clanQuery = useTrackerClan(
+    tracker._id,
+    features.trackers && (currentUserId === tracker.ownerId || isCloned)
+  );
   const likeCount = tracker.likes;
   const cloneCount = tracker.clones + (cloned ? 1 : 0);
   const ratingSummary = tracker.ratingSummary;
@@ -294,25 +303,26 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
                     {tracker.likedByMe ? 'Liked' : 'Like'}
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      shareTracker({
-                        trackerId: tracker._id,
-                        title: tracker.title,
-                        description:
-                          tracker.description ||
-                          tracker.goal ||
-                          'A focused learning roadmap.',
-                      })
-                    }
-                    className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-(--border-subtle) bg-white/60 px-4 py-2.5 text-[13px] font-bold text-(--text-secondary) transition hover:border-[rgba(184,76,43,0.25)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-white/4 dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
-                  >
-                    <Share2 size={15} />
-                    Share with a friend
-                  </button>
+                  {features.social ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        shareTracker({
+                          trackerId: tracker._id,
+                          title: tracker.title,
+                          description:
+                            tracker.description || tracker.goal || 'A focused learning roadmap.',
+                        })
+                      }
+                      className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-(--border-subtle) bg-white/60 px-4 py-2.5 text-[13px] font-bold text-(--text-secondary) transition hover:border-[rgba(184,76,43,0.25)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-white/4 dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
+                    >
+                      <Share2 size={15} />
+                      Share with a friend
+                    </button>
+                  ) : null}
 
-                  {currentUserId !== tracker.ownerId &&
+                  {features.trackers &&
+                    currentUserId !== tracker.ownerId &&
                     isCloned &&
                     clanQuery.data?.role === 'outsider' && (
                       <button
@@ -321,17 +331,17 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
                         disabled={requestClanJoin.isPending}
                         className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-[#d6ad47]/45 bg-[#f4c95d]/12 px-4 py-2.5 text-[13px] font-bold text-[#8a6509] transition hover:-translate-y-px hover:bg-[#f4c95d]/20 disabled:cursor-not-allowed disabled:opacity-65 dark:text-[#f4c95d]"
                       >
-                        🛡 {requestClanJoin.isPending ? 'Joining clan...' : 'Join tracker clan'}
+                        🛡 {requestClanJoin.isPending ? 'Joining guild...' : 'Join tracker guild'}
                       </button>
                     )}
 
-                  {clanQuery.data && clanQuery.data.role !== 'outsider' && (
+                  {features.trackers && clanQuery.data && clanQuery.data.role !== 'outsider' && (
                     <button
                       type="button"
                       onClick={() => navigate(ROUTES.trackerClan(tracker._id))}
                       className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-[#d6ad47]/45 bg-[#f4c95d]/12 px-4 py-2.5 text-[13px] font-bold text-[#8a6509] transition hover:-translate-y-px hover:bg-[#f4c95d]/20 dark:text-[#f4c95d]"
                     >
-                      🛡 Open tracker clan
+                      🛡 Open tracker guild
                     </button>
                   )}
 
@@ -345,24 +355,26 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
                     </button>
                   )}
 
-                  <button
-                    type="button"
-                    onClick={handleClone}
-                    disabled={
-                      (isCloned && !navigationState?.finishTrackerCreationOnClone) ||
-                      cloneTracker.isPending
-                    }
-                    className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-white transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-70 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
-                  >
-                    <CopyIcon />
-                    {cloneTracker.isPending
-                      ? 'Cloning...'
-                      : isCloned
-                        ? navigationState?.finishTrackerCreationOnClone
-                          ? 'Use this tracker'
-                          : 'In dashboard'
-                        : 'Clone tracker'}
-                  </button>
+                  {features.trackers && features.trackerCreation ? (
+                    <button
+                      type="button"
+                      onClick={handleClone}
+                      disabled={
+                        (isCloned && !navigationState?.finishTrackerCreationOnClone) ||
+                        cloneTracker.isPending
+                      }
+                      className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-white transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-70 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
+                    >
+                      <CopyIcon />
+                      {cloneTracker.isPending
+                        ? 'Cloning...'
+                        : isCloned
+                          ? navigationState?.finishTrackerCreationOnClone
+                            ? 'Use this tracker'
+                            : 'In dashboard'
+                          : 'Clone tracker'}
+                    </button>
+                  ) : null}
                 </div>
 
                 {toggleLike.isError && (
@@ -384,7 +396,7 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
                 )}
                 {requestClanJoin.isError && (
                   <p className="mt-3 text-[12px] font-medium text-(--brand-500)">
-                    {getApiErrorMessage('Unable to send clan request.', requestClanJoin.error)}
+                    {getApiErrorMessage('Unable to send guild request.', requestClanJoin.error)}
                   </p>
                 )}
               </div>
@@ -398,7 +410,7 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
                       tracker.author.username && navigate(`/profile/${tracker.author.username}`)
                     }
                     aria-label={`Open ${tracker.author.name}'s profile`}
-                    className="rounded-xl transition hover:ring-2 hover:ring-(--brand-500)/30 disabled:cursor-default"
+                    className="inline-flex h-11 w-11 aspect-square shrink-0 items-center justify-center rounded-full p-0 leading-none transition hover:ring-2 hover:ring-(--brand-500)/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500) disabled:cursor-default"
                   >
                     <Avatar
                       initials={tracker.author.initials}
@@ -774,15 +786,27 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
         </label>
         <label className="mt-4 block text-sm font-bold text-(--text-primary)">
           Details
+          {reportDetailsRequired && <span className="text-(--brand-500)"> *</span>}
           <textarea
             rows={5}
             maxLength={1500}
             value={reportDetails}
             onChange={(event) => setReportDetails(event.target.value)}
-            placeholder="Describe the affected topic, lesson, or problem…"
+            required={reportDetailsRequired}
+            aria-required={reportDetailsRequired}
+            placeholder={
+              reportDetailsRequired
+                ? 'Explain the reason for this report…'
+                : 'Describe the affected topic, lesson, or problem…'
+            }
             className="mt-2 w-full rounded-lg border border-(--border-subtle) bg-(--surface-card) px-3 py-2"
           />
         </label>
+        {reportDetailsRequired && !reportDetails.trim() && (
+          <p className="mt-2 text-xs text-(--text-secondary)">
+            Add a short explanation when choosing Other.
+          </p>
+        )}
         {reportTracker.isError && (
           <p className="mt-3 text-sm text-red-600">
             {getApiErrorMessage(
@@ -802,7 +826,7 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
           <button
             type="button"
             className="rounded-md bg-(--brand-500) px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
-            disabled={reportTracker.isPending}
+            disabled={reportTracker.isPending || !canSubmitReport}
             onClick={() =>
               reportTracker.mutate(
                 {
@@ -813,6 +837,7 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
                 {
                   onSuccess: () => {
                     setReportOpen(false);
+                    setReportReason('incorrect_or_misleading');
                     setReportDetails('');
                   },
                 }

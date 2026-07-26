@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Eye, ShieldCheck } from 'lucide-react';
+import { Eye, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router';
 import Modal from '../../../../components/admin/AdminModal';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
@@ -37,15 +37,15 @@ export default function AdminUserAppealsPage() {
 
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
-      <Link
-        to={ADMIN_USERS_ROUTES.list}
-        className="mb-5 inline-flex items-center gap-2 text-sm text-[#aaa59d] hover:text-[#e8816a]"
-      >
-        <ArrowLeft size={16} /> Back to user management
-      </Link>
       <AdminPageHeader
         title="Account Appeals"
         description="Claim, investigate, and decide restricted-account appeals with a complete review record."
+        meta={{
+          updatedAt: query.dataUpdatedAt,
+          isRefreshing: query.isFetching && !query.isLoading,
+          resultCount: data?.pagination.total,
+          activeFilterCount: Number(Boolean(search)) + Number(status !== 'all'),
+        }}
       />
       {query.isLoading ? (
         <div className="mt-7">

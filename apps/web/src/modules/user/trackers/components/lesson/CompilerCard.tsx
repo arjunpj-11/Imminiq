@@ -48,7 +48,6 @@ const getSafeStatus = (
   };
 };
 
-// *** CHANGED: Modal for expanded submission details
 function SubmissionModal({
   item,
   buildOutput,
@@ -234,10 +233,8 @@ export default function CompilerCard({
     GetOptimizedSolutionResponse['data'] | null
   >(null);
 
-  // *** CHANGED: state for the submission detail modal
   const [expandedSubmission, setExpandedSubmission] = useState<LessonCodeSubmission | null>(null);
 
-  // *** CHANGED: state for the maximize overlay
   const [isMaximized, setIsMaximized] = useState(false);
 
   const displayFileName = selectedLanguage.fileName || fileName || 'main.js';
@@ -406,10 +403,8 @@ export default function CompilerCard({
 
   const lineCount = Math.max(1, code.split('\n').length);
 
-  // *** CHANGED: the card wraps in a maximizable container
   return (
     <>
-      {/* *** CHANGED: submission detail modal */}
       {expandedSubmission && (
         <SubmissionModal
           item={expandedSubmission}
@@ -422,7 +417,6 @@ export default function CompilerCard({
         />
       )}
 
-      {/* *** CHANGED: maximize overlay wrapper */}
       <div
         className={cn(
           'transition-all duration-300',
@@ -437,7 +431,6 @@ export default function CompilerCard({
             isMaximized && 'mx-auto max-w-6xl'
           )}
         >
-          {/* *** CHANGED: maximize button in the top-right of the card header */}
           <div className="border-b border-white/10 bg-[#161616] px-5 py-4 dark:bg-[#0a0a0a]">
             <div className="mb-4 rounded-md border border-white/10 bg-[#111] p-4">
               <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.12em] text-[#4caf50]">
@@ -516,7 +509,6 @@ export default function CompilerCard({
                   ✓ {submitCodeMutation.isPending ? 'Submitting' : 'Submit'}
                 </button>
 
-                {/* *** CHANGED: maximize/restore button */}
                 <button
                   type="button"
                   onClick={() => setIsMaximized((v) => !v)}
@@ -663,7 +655,6 @@ export default function CompilerCard({
             </div>
           )}
 
-          {/* *** CHANGED: submission history section — compact rows only */}
           <div className="border-t border-white/10 bg-[#161616] p-5 dark:bg-[#0a0a0a]">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -692,7 +683,6 @@ export default function CompilerCard({
                 No previous submissions yet.
               </div>
             ) : (
-              // *** CHANGED: compact clickable rows instead of expanded articles
               <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
                 {historyItems.map((item) => (
                   <div
@@ -733,7 +723,6 @@ export default function CompilerCard({
                       <button
                         type="button"
                         onClick={(e) => {
-                          // *** restore without opening the modal
                           e.stopPropagation();
                           restoreSubmission(item);
                         }}

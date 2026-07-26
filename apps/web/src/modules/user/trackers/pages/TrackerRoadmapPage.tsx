@@ -40,7 +40,7 @@ export default function TrackerRoadmapPage() {
   const trackerDetailsQuery = useTrackerDetails(trackerId);
   const trackerIsModerated = Boolean(
     trackerDetailsQuery.data?.moderationStatus &&
-      trackerDetailsQuery.data.moderationStatus !== 'active'
+    trackerDetailsQuery.data.moderationStatus !== 'active'
   );
   const roadmapQuery = useTrackerRoadmap(
     trackerId || '',
@@ -83,6 +83,9 @@ export default function TrackerRoadmapPage() {
 
   const progress =
     currentNodes.length === 0 ? 0 : Math.round((completedCount / currentNodes.length) * 100);
+  const nextActionNode =
+    currentNodes.find((node) => getNodeState(node, isFirstLevel) === 'active') ??
+    currentNodes.find((node) => getNodeState(node, isFirstLevel) === 'available');
 
   useEffect(() => {
     if (progress === 100 && currentNodes.length > 0) {
@@ -185,7 +188,7 @@ export default function TrackerRoadmapPage() {
               <button
                 type="button"
                 onClick={() => navigate(ROUTES.trackers)}
-                className="font-mono text-[8.5px] uppercase tracking-[0.14em] text-(--text-secondary) transition hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
+                className="font-mono text-[10px] uppercase tracking-[0.14em] text-(--text-secondary) transition hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
               >
                 Trackers
               </button>
@@ -196,7 +199,7 @@ export default function TrackerRoadmapPage() {
                 type="button"
                 onClick={() => goToBreadcrumb(-1)}
                 className={cn(
-                  'font-mono text-[8.5px] uppercase tracking-[0.14em] transition',
+                  'font-mono text-[10px] uppercase tracking-[0.14em] transition',
                   syncedBreadcrumbStack.length === 0
                     ? 'text-(--brand-500) dark:text-(--brand-500)'
                     : 'text-(--text-secondary) hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)'
@@ -214,7 +217,7 @@ export default function TrackerRoadmapPage() {
                     type="button"
                     onClick={() => goToBreadcrumb(index)}
                     className={cn(
-                      'max-w-42 truncate font-mono text-[8.5px] uppercase tracking-[0.14em] transition',
+                      'max-w-42 truncate font-mono text-[10px] uppercase tracking-[0.14em] transition',
                       index === syncedBreadcrumbStack.length - 1
                         ? 'text-(--brand-500) dark:text-(--brand-500)'
                         : 'text-(--text-secondary) hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)'
@@ -238,14 +241,28 @@ export default function TrackerRoadmapPage() {
                   </span>
                   <span className="h-1 w-1 rounded-full bg-[#6b5f58]/40 dark:bg-[#9b9a92]/40" />
                   <span>
-                    {isFirstLevel ? 'Locked nodes apply here' : 'All inner nodes are open'}
+                    {isFirstLevel
+                      ? 'Complete each topic to unlock the next'
+                      : 'Choose any available lesson'}
                   </span>
                   <span className="h-1 w-1 rounded-full bg-[#6b5f58]/40 dark:bg-[#9b9a92]/40" />
-                  <span>Last node opens lesson</span>
+                  <span>Your current step is highlighted</span>
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
+                {nextActionNode && (
+                  <button
+                    type="button"
+                    onClick={() => handleNodeClick(nextActionNode)}
+                    className="min-h-11 rounded-xl bg-(--brand-500) px-4 py-2.5 text-[13px] font-extrabold text-white shadow-[0_8px_24px_rgba(184,76,43,0.20)] transition hover:-translate-y-px hover:bg-(--brand-600) dark:text-[#141412]"
+                  >
+                    {nextActionNode.children.length > 0
+                      ? 'Continue current topic'
+                      : 'Start next lesson'}{' '}
+                    →
+                  </button>
+                )}
                 {roadmapData.tracker.clonedFrom && (
                   <button
                     type="button"
@@ -277,7 +294,7 @@ export default function TrackerRoadmapPage() {
                 <CompassIcon />
               </div>
               <div>
-                <div className="font-mono text-[7.5px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-55 dark:text-(--text-secondary)">
+                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-70 dark:text-(--text-secondary)">
                   Current Level
                 </div>
                 <div className="font-ui text-[22px] font-extrabold leading-none text-(--text-primary) dark:text-(--text-primary)">
@@ -291,7 +308,7 @@ export default function TrackerRoadmapPage() {
                 <CheckIcon size={18} />
               </div>
               <div>
-                <div className="font-mono text-[7.5px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-55 dark:text-(--text-secondary)">
+                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-70 dark:text-(--text-secondary)">
                   Completed Here
                 </div>
                 <div className="font-ui text-[22px] font-extrabold leading-none text-(--text-primary) dark:text-(--text-primary)">
@@ -305,7 +322,7 @@ export default function TrackerRoadmapPage() {
                 <StarIcon />
               </div>
               <div>
-                <div className="font-mono text-[7.5px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-55 dark:text-(--text-secondary)">
+                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-70 dark:text-(--text-secondary)">
                   Level Mastery
                 </div>
                 <div className="font-ui text-[22px] font-extrabold leading-none text-(--text-primary) dark:text-(--text-primary)">
@@ -337,7 +354,7 @@ export default function TrackerRoadmapPage() {
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-(--brand-500) text-white shadow-[0_0_0_6px_rgba(184,76,43,0.08),0_0_0_12px_#f5ede4,0_8px_40px_rgba(184,76,43,0.18)] dark:bg-(--brand-500) dark:text-[#141412] dark:shadow-[0_0_0_6px_rgba(232,129,106,0.10),0_0_0_12px_#141412,0_8px_40px_rgba(232,129,106,0.18)]">
                 <LayersIcon />
               </div>
-              <span className="font-mono text-[8px] uppercase tracking-[0.14em] text-(--brand-500) dark:text-(--brand-500)">
+              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-(--brand-500) dark:text-(--brand-500)">
                 Start Here
               </span>
             </div>
@@ -368,7 +385,7 @@ export default function TrackerRoadmapPage() {
                   <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-dashed border-(--border-subtle) bg-[rgba(26,23,20,0.05)] text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/6 dark:text-(--text-secondary)">
                     <CheckIcon size={20} />
                   </div>
-                  <span className="font-mono text-[8px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-65 dark:text-(--text-secondary)">
                     End of this level
                   </span>
                 </div>

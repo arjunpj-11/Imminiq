@@ -1,7 +1,4 @@
-import {
-  emitCallIncoming,
-  emitCallUpdated,
-} from '../../../../../infrastructure/realtime/socket';
+import { emitCallIncoming, emitCallUpdated } from '../../../../../infrastructure/realtime/socket';
 import { CallMapper, type ICallMapper } from '../../application/call.mapper';
 import type { CallRealtimePayload } from '../../domain/services/call-realtime-publisher.interface';
 import type { ICallRealtimePublisher } from '../../domain/services/call-realtime-publisher.interface';

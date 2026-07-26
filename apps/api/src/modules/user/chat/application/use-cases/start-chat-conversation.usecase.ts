@@ -3,10 +3,7 @@ import type { IChatConversationCommandRepository } from '../../domain/repositori
 import type { IChatMessageQueryRepository } from '../../domain/repositories/chat-message-query.repository.interface';
 import type { IChatParticipantRepository } from '../../domain/repositories/chat-participant.repository.interface';
 import type { IChatRelationshipRepository } from '../../domain/repositories/chat-relationship.repository.interface';
-import type {
-  CreateConversationInputDTO,
-  StartChatConversationViewDTO,
-} from '../chat.dto';
+import type { CreateConversationInputDTO, StartChatConversationViewDTO } from '../chat.dto';
 import { ChatApplicationError } from '../chat-application.error';
 import type { IChatMapper } from '../chat.mapper';
 import type { IChatParticipantPolicy } from '../chat-participant.policy';
@@ -31,10 +28,7 @@ export class StartChatConversationUseCase implements IStartChatConversationUseCa
   async execute(viewerUserId: string, payload: CreateConversationInputDTO) {
     this._participantPolicy.ensureDifferentUsers(viewerUserId, payload.friendUserId);
     if (
-      !(await this._relationshipRepository.areActiveFriends(
-        viewerUserId,
-        payload.friendUserId
-      ))
+      !(await this._relationshipRepository.areActiveFriends(viewerUserId, payload.friendUserId))
     ) {
       throw ChatApplicationError.friendsOnly();
     }
@@ -49,10 +43,7 @@ export class StartChatConversationUseCase implements IStartChatConversationUseCa
         [result.conversation.id],
         viewerUserId
       ),
-      this._messageQueryRepository.findUnreadCounts(
-        [result.conversation.id],
-        viewerUserId
-      ),
+      this._messageQueryRepository.findUnreadCounts([result.conversation.id], viewerUserId),
     ]);
     const participant = participants.get(payload.friendUserId);
     if (!participant) throw ChatApplicationError.participantNotFound();

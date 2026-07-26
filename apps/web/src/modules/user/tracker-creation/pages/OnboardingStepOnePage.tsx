@@ -1,10 +1,7 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import {
-  MicButton,
-  VoiceInputStatus,
-} from '../../../../components/input/VoiceInputButton';
+import { MicButton, VoiceInputStatus } from '../../../../components/input/VoiceInputButton';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import { useVoiceInput } from '../../../../hooks/useVoiceInput';
 import { ROUTES } from '../../../../routes/config/route-paths';
@@ -613,9 +610,7 @@ export default function OnboardingStepOnePage() {
                         />
                         <button
                           type="submit"
-                          disabled={
-                            !answer.trim() || intake.isPending || voice.phase !== 'idle'
-                          }
+                          disabled={!answer.trim() || intake.isPending || voice.phase !== 'idle'}
                           className="flex h-10 items-center justify-center gap-2 rounded-xl bg-(--brand-500) px-4 text-[12px] font-bold text-white transition hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-50 dark:text-[#141412]"
                         >
                           Send <SendIcon />

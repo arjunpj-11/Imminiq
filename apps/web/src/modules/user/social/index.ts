@@ -5,3 +5,5 @@ export * from './types/call.types';
 export * from './hooks/useCalls';
 export * from './store/useCallLauncherStore';
 export * from './store/useSocialShareStore';
+export * from './hooks/useVoiceMessageRecorder';
+export { default as VoiceMessagePlayer } from './components/VoiceMessagePlayer';

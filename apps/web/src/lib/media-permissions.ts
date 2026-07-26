@@ -1,7 +1,7 @@
 type MediaPermissionKind = 'microphone' | 'camera';
 
 const permissionLabel = (kinds: MediaPermissionKind[]) =>
-  kinds.length === 2 ? 'microphone and camera' : kinds[0] ?? 'media';
+  kinds.length === 2 ? 'microphone and camera' : (kinds[0] ?? 'media');
 
 const permissionKinds = (constraints: MediaStreamConstraints): MediaPermissionKind[] => [
   ...(constraints.audio ? (['microphone'] as const) : []),

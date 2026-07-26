@@ -3,9 +3,7 @@ import api from '../../../../lib/axios';
 import { CALL_ENDPOINTS } from '../constants/calls.constants';
 import type { ICallApiResponse, ICallIceConfiguration } from '../types/call.types';
 
-const directConnectionFallback = (): RTCIceServer[] => [
-  { urls: webEnvironment.webrtcStunUrl },
-];
+const directConnectionFallback = (): RTCIceServer[] => [{ urls: webEnvironment.webrtcStunUrl }];
 
 export const loadCallIceServers = async (): Promise<RTCIceServer[]> => {
   try {

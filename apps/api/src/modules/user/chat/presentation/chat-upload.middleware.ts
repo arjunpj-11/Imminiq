@@ -20,6 +20,9 @@ const allowedFiles = new Map<string, Set<string>>([
   ['audio/mp4', new Set(['.m4a', '.mp4'])],
   ['audio/wav', new Set(['.wav'])],
   ['audio/x-wav', new Set(['.wav'])],
+  ['video/mp4', new Set(['.mp4'])],
+  ['video/webm', new Set(['.webm'])],
+  ['video/quicktime', new Set(['.mov'])],
 ]);
 
 export const chatFileUpload = multer({
@@ -31,7 +34,7 @@ export const chatFileUpload = multer({
       callback(
         new ApiError(
           400,
-          'Attach a supported image, document, archive, or voice recording',
+          'Attach a supported image, video, document, archive, or voice recording',
           'INVALID_CHAT_FILE'
         )
       );
@@ -46,11 +49,7 @@ export const chatFileUpload = multer({
   },
 });
 
-export const validateChatFileSignature = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const validateChatFileSignature = (req: Request, res: Response, next: NextFunction) => {
   if (!req.file?.mimetype.startsWith('image/')) {
     next();
     return;

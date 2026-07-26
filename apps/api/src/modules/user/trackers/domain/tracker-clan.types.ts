@@ -58,18 +58,37 @@ export type TrackerClanMessage = {
   id: string;
   trackerId: string;
   text: string;
+  kind: 'text' | 'image' | 'file' | 'voice';
+  attachment?: {
+    url: string;
+    name: string;
+    mimeType: string;
+    sizeBytes: number;
+    durationSeconds: number | null;
+  };
+  replyTo: {
+    messageId: string;
+    senderId: string;
+    text: string;
+    kind: 'text' | 'image' | 'file' | 'voice';
+  } | null;
+  reactions: Array<{
+    emoji: string;
+    count: number;
+    reactedByViewer: boolean;
+  }>;
   createdAt: Date;
   user: { userId: string; name: string; username: string; avatarUrl?: string | null };
 };
 
+export type TrackerClanMessagePage = {
+  items: TrackerClanMessage[];
+  nextCursor: string | null;
+  hasMore: boolean;
+};
+
 export type TrackerClanChallengeStatus =
-  | 'open'
-  | 'pending'
-  | 'active'
-  | 'completed'
-  | 'declined'
-  | 'cancelled'
-  | 'expired';
+  'open' | 'pending' | 'active' | 'completed' | 'declined' | 'cancelled' | 'expired';
 
 export type TrackerClanChallenge = {
   id: string;

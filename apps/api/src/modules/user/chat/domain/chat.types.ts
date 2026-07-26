@@ -1,11 +1,4 @@
-export type ChatMessageKind =
-  | 'text'
-  | 'code'
-  | 'image'
-  | 'file'
-  | 'voice'
-  | 'tracker'
-  | 'profile';
+export type ChatMessageKind = 'text' | 'code' | 'image' | 'file' | 'voice' | 'tracker' | 'profile';
 
 export type PaginatedChatResult<T> = {
   items: T[];
@@ -13,6 +6,7 @@ export type PaginatedChatResult<T> = {
   limit: number;
   total: number;
   hasMore: boolean;
+  nextCursor?: string | null;
 };
 
 export type ListChatConversationsInput = {
@@ -26,6 +20,8 @@ export type ListChatMessagesInput = {
   viewerUserId: string;
   page: number;
   limit: number;
+  search?: string;
+  before?: string;
 };
 
 export type CreateChatMessageCommandInput = {
@@ -38,6 +34,19 @@ export type CreateChatMessageCommandInput = {
   sharedTracker?: SharedTracker | null;
   sharedProfile?: SharedProfile | null;
   forwardedFromMessageId?: string | null;
+  replyTo?: ChatReplyPreview | null;
+};
+
+export type ChatReplyPreview = {
+  messageId: string;
+  senderId: string;
+  kind: ChatMessageKind;
+  text: string;
+};
+
+export type ChatReaction = {
+  emoji: string;
+  userIds: string[];
 };
 
 export type ChatConversationReadEvent = {

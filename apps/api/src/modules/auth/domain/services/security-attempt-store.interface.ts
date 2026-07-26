@@ -1,8 +1,5 @@
 export type SecurityAttemptScope =
-  | 'auth_login'
-  | 'auth_verify_account_otp'
-  | 'auth_verify_reset_otp'
-  | 'auth_two_factor_login';
+  'auth_login' | 'auth_verify_account_otp' | 'auth_verify_reset_otp' | 'auth_two_factor_login';
 
 export type SecurityAttemptPolicyName = 'authLogin' | 'otpVerification' | 'twoFactorVerification';
 

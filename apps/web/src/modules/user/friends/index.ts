@@ -5,8 +5,7 @@ export { useSendFriendRequest } from './hooks/useSendFriendRequest';
 export { useAcceptFriendRequest } from './hooks/useAcceptFriendRequest';
 export { useDeclineFriendRequest } from './hooks/useDeclineFriendRequest';
 export { useFriends } from './hooks/useFriends';
+export { useRemoveFriend } from './hooks/useRemoveFriend';
+export { default as RemoveFriendDialog } from './components/list/RemoveFriendDialog';
 export { FRIENDS_DEFAULT_PAGE_SIZE } from './constants/friends.constants';
-export {
-  mergeFriendRequestPages,
-  mergeFriendUserPages,
-} from './utils/friends-formatters';
+export { mergeFriendRequestPages, mergeFriendUserPages } from './utils/friends-formatters';

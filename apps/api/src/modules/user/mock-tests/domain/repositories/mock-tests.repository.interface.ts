@@ -10,7 +10,8 @@ import type { IMockTestSharingRepository } from './mock-test-sharing.repository.
 import type { IMockTestRepository } from './mock-test.repository.interface';
 
 export interface IMockTestsRepository
-  extends IMockTestRepository,
+  extends
+    IMockTestRepository,
     IMockTestQuestionRepository,
     IMockTestQuestionIssueRepository,
     IMockTestAttemptRepository,

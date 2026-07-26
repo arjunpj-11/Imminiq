@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { paginationConfig } from '../../../../config/pagination';
 import { createHttpUrlSchema } from '../../../../shared/validators/common.schemas';
 
 export const adminUsersQuerySchema = z.object({
@@ -8,7 +9,13 @@ export const adminUsersQuerySchema = z.object({
     .optional()
     .default('all'),
   page: z.coerce.number().int().min(1).optional().default(1),
-  limit: z.coerce.number().int().min(1).max(50).optional().default(10),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(paginationConfig.maxStandardLimit)
+    .optional()
+    .default(paginationConfig.profileLimit),
 });
 export const adminUserStatusSchema = z.object({
   status: z.enum(['active', 'paused', 'blocked']),
@@ -37,7 +44,13 @@ export const adminUserAppealsQuerySchema = z.object({
     .optional()
     .default('all'),
   page: z.coerce.number().int().min(1).optional().default(1),
-  limit: z.coerce.number().int().min(1).max(50).optional().default(10),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(paginationConfig.maxStandardLimit)
+    .optional()
+    .default(paginationConfig.profileLimit),
 });
 
 export const adminUserAppealUpdateSchema = z.object({
@@ -67,7 +80,13 @@ export const adminPrivacyRequestsQuerySchema = z.object({
     .default('all'),
   type: z.enum(['all', 'access', 'export', 'delete', 'correction']).optional().default('all'),
   page: z.coerce.number().int().min(1).optional().default(1),
-  limit: z.coerce.number().int().min(1).max(50).optional().default(20),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(paginationConfig.maxStandardLimit)
+    .optional()
+    .default(paginationConfig.defaultLimit),
 });
 
 export const adminPrivacyRequestUpdateSchema = z.object({

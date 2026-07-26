@@ -1,11 +1,26 @@
-import { AlertTriangle, Inbox, RefreshCw, Search, X } from 'lucide-react';
-import { useId, type CSSProperties, type InputHTMLAttributes, type ReactNode } from 'react';
+import { AlertTriangle, Clock3, Inbox, RefreshCw, Search, X } from 'lucide-react';
+import {
+  useEffect,
+  useId,
+  useRef,
+  type CSSProperties,
+  type InputHTMLAttributes,
+  type ReactNode,
+} from 'react';
 import { getUserFacingError } from '../../lib/user-facing-error';
+import { formatProductLabel } from '../../config/product-language';
 
 export type AdminMetric = {
   label: string;
   value: string | number;
   tone?: 'accent' | 'success' | 'warning' | 'error' | 'info';
+};
+
+export type AdminPageMeta = {
+  updatedAt?: number | string | Date;
+  isRefreshing?: boolean;
+  resultCount?: number;
+  activeFilterCount?: number;
 };
 
 const tones = {
@@ -20,10 +35,12 @@ export function AdminPageHeader({
   title,
   description,
   action,
+  meta,
 }: {
   title: string;
   description: string;
   action?: ReactNode;
+  meta?: AdminPageMeta;
 }) {
   return (
     <header className="admin-page-header flex flex-wrap items-end justify-between gap-5">
@@ -33,9 +50,50 @@ export function AdminPageHeader({
         </div>
         <h1 className="admin-page-title font-editorial mt-1 text-4xl font-bold">{title}</h1>
         <p className="admin-page-description mt-2 max-w-2xl text-sm">{description}</p>
+        {meta && <AdminDataMeta {...meta} />}
       </div>
       {action && <div className="flex min-w-0 flex-wrap items-center gap-3">{action}</div>}
     </header>
+  );
+}
+
+export function AdminDataMeta({
+  updatedAt,
+  isRefreshing = false,
+  resultCount,
+  activeFilterCount = 0,
+}: AdminPageMeta) {
+  const date = updatedAt ? new Date(updatedAt) : null;
+  const validDate = date && !Number.isNaN(date.getTime()) ? date : null;
+
+  return (
+    <div
+      className="admin-data-meta mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#aaa59d]"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      <span className="inline-flex items-center gap-1.5">
+        {isRefreshing ? (
+          <RefreshCw size={12} className="animate-spin text-[#e8816a]" aria-hidden="true" />
+        ) : (
+          <Clock3 size={12} aria-hidden="true" />
+        )}
+        {isRefreshing
+          ? 'Syncing current data…'
+          : validDate
+            ? `Updated ${validDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+            : 'Current data'}
+      </span>
+      {typeof resultCount === 'number' && (
+        <span>{resultCount.toLocaleString()} matching records</span>
+      )}
+      {activeFilterCount > 0 && (
+        <span>
+          {activeFilterCount} active filter{activeFilterCount === 1 ? '' : 's'}
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -129,22 +187,56 @@ export function AdminNumberInput({
   max: number;
   onValueChange: (value: number) => void;
 }) {
-  const commit = (rawValue: string) => {
-    if (rawValue.trim() === '') return;
-    const parsed = Number(rawValue);
-    if (!Number.isFinite(parsed)) return;
-    onValueChange(Math.min(max, Math.max(min, Math.trunc(parsed))));
+  const { onBlur, onFocus, ...restInputProps } = inputProps;
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const input = inputRef.current;
+    if (!input) return;
+
+    const parsed = Number(input.value);
+    if (input.value.trim() === '' || !Number.isInteger(parsed) || parsed !== value) {
+      input.value = String(value);
+    }
+  }, [value]);
+
+  const commit = (input: HTMLInputElement) => {
+    const parsed = Number(input.value);
+    if (input.value.trim() === '' || !Number.isFinite(parsed)) {
+      input.value = String(value);
+      return;
+    }
+
+    const nextValue = Math.min(max, Math.max(min, Math.trunc(parsed)));
+    input.value = String(nextValue);
+    if (nextValue !== value) onValueChange(nextValue);
   };
 
   return (
     <input
-      {...inputProps}
+      {...restInputProps}
+      ref={inputRef}
       type="number"
       min={min}
       max={max}
-      key={value}
       defaultValue={String(value)}
-      onChange={(event) => commit(event.target.value)}
+      onFocus={onFocus}
+      onBlur={(event) => {
+        commit(event.currentTarget);
+        onBlur?.(event);
+      }}
+      onChange={(event) => {
+        const parsed = Number(event.currentTarget.value);
+        if (
+          event.currentTarget.value.trim() !== '' &&
+          Number.isInteger(parsed) &&
+          parsed >= min &&
+          parsed <= max &&
+          parsed !== value
+        ) {
+          onValueChange(parsed);
+        }
+      }}
     />
   );
 }
@@ -178,7 +270,7 @@ export function AdminStatusBadge({ value }: { value: string }) {
         backgroundColor: `${tone}18`,
       }}
     >
-      {value.replaceAll('_', ' ')}
+      {formatProductLabel(value)}
     </span>
   );
 }

@@ -27,11 +27,7 @@ export const trackerOutlineUpload = multer({
       !allowedJsonMimeTypes.has(file.mimetype.toLowerCase())
     ) {
       callback(
-        new ApiError(
-          400,
-          'Upload a valid .json outline file',
-          'INVALID_TRACKER_OUTLINE_FILE'
-        )
+        new ApiError(400, 'Upload a valid .json outline file', 'INVALID_TRACKER_OUTLINE_FILE')
       );
       return;
     }
@@ -51,11 +47,7 @@ const readUtf8 = (buffer: Buffer) => {
   }
 };
 
-export const parseTrackerOutlineUpload = (
-  req: Request,
-  _res: Response,
-  next: NextFunction
-) => {
+export const parseTrackerOutlineUpload = (req: Request, _res: Response, next: NextFunction) => {
   if (!req.file) {
     next();
     return;
@@ -83,11 +75,7 @@ export const parseTrackerOutlineUpload = (
       return;
     }
     next(
-      new ApiError(
-        400,
-        'The uploaded outline is not valid JSON',
-        'MALFORMED_TRACKER_OUTLINE_FILE'
-      )
+      new ApiError(400, 'The uploaded outline is not valid JSON', 'MALFORMED_TRACKER_OUTLINE_FILE')
     );
   }
 };

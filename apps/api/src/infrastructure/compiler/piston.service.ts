@@ -1,5 +1,3 @@
-// apps/api/src/infrastructure/compiler/piston.service.ts
-
 import { dependencyFailure, invalidServiceInput } from '../../shared/errors/service.error';
 import { env } from '../../config/env';
 
@@ -64,7 +62,6 @@ const getPistonHeaders = () => {
   return headers;
 };
 
-// FIX: added `extends object` constraint so T is compatible with { raw?: string }
 const parseJsonResponse = async <T extends object>(
   response: Response
 ): Promise<T & { raw?: string }> => {

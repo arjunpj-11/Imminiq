@@ -43,14 +43,8 @@ export class CallMapper implements ICallMapper {
     hideOtherParticipantPrivateDetails = false
   ): CallViewDTO {
     const outgoing = call.callerId === viewerUserId;
-    const callerView = toParticipantView(
-      caller,
-      !outgoing && hideOtherParticipantPrivateDetails
-    );
-    const calleeView = toParticipantView(
-      callee,
-      outgoing && hideOtherParticipantPrivateDetails
-    );
+    const callerView = toParticipantView(caller, !outgoing && hideOtherParticipantPrivateDetails);
+    const calleeView = toParticipantView(callee, outgoing && hideOtherParticipantPrivateDetails);
     return {
       id: call.id,
       type: call.type,

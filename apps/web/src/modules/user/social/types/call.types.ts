@@ -1,11 +1,5 @@
 export type CallType = 'audio' | 'video';
-export type CallStatus =
-  | 'ringing'
-  | 'accepted'
-  | 'declined'
-  | 'ended'
-  | 'missed'
-  | 'cancelled';
+export type CallStatus = 'ringing' | 'accepted' | 'declined' | 'ended' | 'missed' | 'cancelled';
 
 export interface ICallParticipant {
   id: string;

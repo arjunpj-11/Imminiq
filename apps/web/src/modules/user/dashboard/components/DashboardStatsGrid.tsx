@@ -8,6 +8,7 @@ type DashboardStatsGridProps = {
     stats: { totalSubtopicsCompleted: number; publishedTrackers: number };
     user: { coinBalance: number };
   };
+  showTrackerStats?: boolean;
 };
 
 const ACCENTS: IStatAccent[] = [
@@ -17,8 +18,11 @@ const ACCENTS: IStatAccent[] = [
   { light: 'var(--info)', dark: 'var(--info)' },
 ];
 
-export default function DashboardStatsGrid({ summary }: DashboardStatsGridProps) {
-  const cards = [
+export default function DashboardStatsGrid({
+  summary,
+  showTrackerStats = true,
+}: DashboardStatsGridProps) {
+  const trackerCards = [
     {
       label: 'Total Trackers',
       value: formatCompactNumber(summary.trackers.total),
@@ -34,6 +38,9 @@ export default function DashboardStatsGrid({ summary }: DashboardStatsGridProps)
       value: formatCompactNumber(summary.stats.totalSubtopicsCompleted),
       helper: 'Across all trackers',
     },
+  ];
+  const cards = [
+    ...(showTrackerStats ? trackerCards : []),
     {
       label: 'Coins',
       value: formatCompactNumber(summary.user.coinBalance),

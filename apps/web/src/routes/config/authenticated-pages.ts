@@ -66,6 +66,12 @@ export const VerifyAndEarnPage = lazy(
 
 export const ActivityPage = lazy(() => import('../../modules/user/activity/pages/ActivityPage'));
 
+export const SavedItemsPage = lazy(() =>
+  import('../../modules/user/saved').then((module) => ({
+    default: module.SavedItemsPage,
+  }))
+);
+
 export const SubscriptionPlansPage = lazy(
   () => import('../../modules/user/subscriptions/pages/SubscriptionPlansPage')
 );

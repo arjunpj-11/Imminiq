@@ -3,7 +3,7 @@ import type { ChangeEvent, FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import AuthLayout from '../components/AuthLayout';
 import { ApiErrorBanner, FieldError } from '../components/AuthError';
-import { EyeIcon } from '../components/icons/AuthIcons';
+import PasswordVisibilityButton from '../../../components/input/PasswordVisibilityButton';
 import { authInputClass, authLabelClass, cn } from '../utils/auth-ui';
 import { getPasswordStrength, validatePassword } from '../utils/auth-validation';
 import { ROUTES } from '../../../routes/config/route-paths';
@@ -152,13 +152,12 @@ export default function ResetPasswordPage() {
               placeholder="Enter new password"
               autoComplete="new-password"
             />
-            <button
-              type="button"
+            <PasswordVisibilityButton
+              visible={showNew}
+              fieldLabel="new password"
               className="absolute right-3 top-1/2 -translate-y-1/2 text-(--text-secondary) dark:text-(--text-secondary)"
-              onClick={() => setShowNew((value) => !value)}
-            >
-              <EyeIcon open={showNew} />
-            </button>
+              onToggle={() => setShowNew((value) => !value)}
+            />
           </div>
           <FieldError message={errors.newPassword} />
           {form.newPassword && (
@@ -203,13 +202,12 @@ export default function ResetPasswordPage() {
               placeholder="Repeat new password"
               autoComplete="new-password"
             />
-            <button
-              type="button"
+            <PasswordVisibilityButton
+              visible={showConfirm}
+              fieldLabel="confirm password"
               className="absolute right-3 top-1/2 -translate-y-1/2 text-(--text-secondary) dark:text-(--text-secondary)"
-              onClick={() => setShowConfirm((value) => !value)}
-            >
-              <EyeIcon open={showConfirm} />
-            </button>
+              onToggle={() => setShowConfirm((value) => !value)}
+            />
           </div>
           <FieldError message={errors.confirmPassword} />
         </label>

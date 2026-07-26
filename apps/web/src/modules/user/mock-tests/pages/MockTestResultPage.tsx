@@ -1,11 +1,10 @@
 import { cn } from '../../../../lib/cn';
 
-// MockTestResultPage.tsx
-
 import { useNavigate, useParams } from 'react-router';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import SkeletonBlock from '../../../../components/feedback/SkeletonBlock';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import { useMockTestAttemptResult } from '../hooks/useMockTests';
 import { formatDuration } from '../utils/mock-tests-formatters';
@@ -119,6 +118,13 @@ export default function MockTestResultPage() {
                 className="mt-7 rounded-md bg-(--brand-500) px-6 py-3 font-ui text-[15px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-(--brand-600) dark:bg-(--brand-500) dark:shadow-none dark:hover:bg-[#d9522d]"
               >
                 View analysis
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate(ROUTES.mockTests)}
+                className="ml-2 mt-7 rounded-md border border-(--border-subtle) bg-(--surface-elevated) px-6 py-3 font-ui text-[14px] font-bold text-(--text-primary) transition hover:border-(--brand-500) hover:text-(--brand-500)"
+              >
+                Back to tests
               </button>
             </section>
           )}

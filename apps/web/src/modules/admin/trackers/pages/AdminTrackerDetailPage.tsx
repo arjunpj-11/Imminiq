@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { ArrowLeft, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
-import { Link, useLocation, useParams } from 'react-router';
+import { ExternalLink, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
+import { Link, useParams } from 'react-router';
 import {
   AdminEmpty,
   AdminError,
@@ -14,19 +14,15 @@ import type {
   AdminTrackerLifecyclePayload,
   AdminTrackerSubtopic,
 } from '../types/admin-trackers.types';
-import { ADMIN_TRACKERS_ROUTES } from '../constants/admin-trackers.constants';
 import AdminTrackerModerationDialog from '../components/AdminTrackerModerationDialog';
 import { useAuthStore } from '../../../../store/useAuthStore';
 import { isAdminRole } from '../../../../lib/auth-roles';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 export default function AdminTrackerDetailPage() {
   const [moderating, setModerating] = useState<AdminTrackerLifecyclePayload['action'] | null>(null);
   const canManageLifecycle = useAuthStore((state) => isAdminRole(state.user?.role));
   const { trackerId } = useParams();
-  const location = useLocation();
-  const fromTrackerReview = Boolean(
-    (location.state as { fromTrackerReview?: boolean } | null)?.fromTrackerReview
-  );
   const { data, isLoading, isError, error, refetch } = useAdminTrackerDetail(trackerId);
   if (isLoading)
     return (
@@ -37,13 +33,6 @@ export default function AdminTrackerDetailPage() {
   if (isError || !data) return <AdminError error={error} onRetry={() => void refetch()} />;
   return (
     <main className="mx-auto max-w-275 px-5 py-8 sm:px-8">
-      <Link
-        to={fromTrackerReview ? ADMIN_TRACKERS_ROUTES.reviews : ADMIN_TRACKERS_ROUTES.list}
-        className="mb-5 inline-flex items-center gap-2 text-sm text-[#aaa59d] hover:text-[#e8816a]"
-      >
-        <ArrowLeft size={16} />
-        {fromTrackerReview ? 'Back to community reviews' : 'Back to trackers'}
-      </Link>
       <AdminPageHeader
         title={data.title}
         description={data.description || 'No tracker description provided.'}
@@ -52,6 +41,17 @@ export default function AdminTrackerDetailPage() {
             <AdminStatusBadge value={data.status} />
             <AdminStatusBadge value={data.visibility} />
             <AdminStatusBadge value={data.moderationStatus} />
+            {data.visibility === 'public' && data.moderationStatus === 'active' && (
+              <Link
+                to={ROUTES.communityTracker(data.id)}
+                target="_blank"
+                rel="noreferrer"
+                className="admin-button inline-flex items-center gap-2"
+              >
+                <ExternalLink size={15} aria-hidden="true" />
+                View learner experience
+              </Link>
+            )}
             {canManageLifecycle && data.moderationStatus === 'active' && (
               <button
                 type="button"

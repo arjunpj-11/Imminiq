@@ -1,6 +1,6 @@
-import { ArrowLeft, Database, Eye, Flag, Trash2, Users } from 'lucide-react';
+import { Database, Eye, Flag, Trash2, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router';
 import {
   AdminEmpty,
   AdminError,
@@ -18,7 +18,6 @@ import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { isAdminActionPasswordReady } from '../../../../lib/admin/admin-action-password';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { toast } from '../../../../lib/toast';
-import { ADMIN_MOCK_TESTS_ROUTES } from '../constants/admin-mock-tests.constants';
 import { useAdminQuestionBank } from '../hooks/useAdminQuestionBank';
 import { useAdminQuestionBankItem } from '../hooks/useAdminQuestionBankItem';
 import { useDeleteAdminQuestionBankItem } from '../hooks/useDeleteAdminQuestionBankItem';
@@ -86,12 +85,6 @@ export default function AdminQuestionBankPage() {
 
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
-      <Link
-        to={ADMIN_MOCK_TESTS_ROUTES.list}
-        className="mb-5 inline-flex items-center gap-2 text-sm text-[#aaa59d] hover:text-[#e8816a]"
-      >
-        <ArrowLeft size={16} /> Back to mock tests
-      </Link>
       <AdminPageHeader
         title="Question Bank"
         description="Review reusable assessment questions and remove incorrect content from future tests without damaging completed-attempt history."

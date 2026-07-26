@@ -18,3 +18,7 @@ export * from './use-cases/block-user.usecase';
 export * from './use-cases/unblock-user.usecase';
 export * from './use-cases/toggle-chat-message-star.usecase';
 export * from './use-cases/clear-chat-conversation.usecase';
+export * from './use-cases/toggle-chat-message-reaction.usecase';
+export * from './use-cases/edit-chat-message.usecase';
+export * from './use-cases/delete-chat-message.usecase';
+export * from './use-cases/list-saved-chat-messages.usecase';

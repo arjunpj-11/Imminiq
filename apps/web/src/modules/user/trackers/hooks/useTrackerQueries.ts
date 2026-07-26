@@ -1,5 +1,6 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
+import { paginationConfig } from '../../../../config/pagination';
 import api from '../../../../lib/axios';
 import { TRACKER_API_PATHS } from '../constants/tracker-api.constants';
 import type {
@@ -19,7 +20,7 @@ import type {
   ITrackerSummary,
   ITrackerTopicContribution,
   ITrackerClanOverview,
-  ITrackerClanMessage,
+  ITrackerClanMessagePage,
   ITrackerClanChallenge,
   ITrackerClanChallengeHistory,
 } from '../types/tracker.types';
@@ -52,9 +53,10 @@ export const useTrackerDomains = (search: string) => {
   });
 };
 
-export const useTrackers = (query: ITrackerListQuery = {}) => {
+export const useTrackers = (query: ITrackerListQuery = {}, enabled = true) => {
   return useQuery({
     queryKey: trackerKeys.list(query),
+    enabled,
 
     queryFn: async () => {
       const response = await api.get<IApiResponse<ITrackerListResponse>>(TRACKER_API_PATHS.root, {
@@ -126,16 +128,25 @@ export const useTrackerClan = (trackerId?: string, enabled = true) =>
   });
 
 export const useTrackerClanMessages = (trackerId?: string, enabled = true) =>
-  useQuery({
+  useInfiniteQuery({
     queryKey: trackerKeys.clanMessages(trackerId || ''),
     enabled: Boolean(trackerId) && enabled,
-    queryFn: async () => {
-      const response = await api.get<IApiResponse<ITrackerClanMessage[]>>(
+    refetchOnMount: 'always',
+    initialPageParam: undefined as string | undefined,
+    queryFn: async ({ pageParam }) => {
+      const response = await api.get<IApiResponse<ITrackerClanMessagePage>>(
         TRACKER_API_PATHS.clanMessages(trackerId || ''),
-        { params: { limit: 60 } }
+        {
+          params: {
+            limit: paginationConfig.messageLimit,
+            ...(pageParam ? { before: pageParam } : {}),
+          },
+        }
       );
       return unwrap(response.data);
     },
+    getNextPageParam: (lastPage) =>
+      lastPage.hasMore ? (lastPage.nextCursor ?? undefined) : undefined,
   });
 
 export const useTrackerClanChallenges = (trackerId?: string, enabled = true) =>

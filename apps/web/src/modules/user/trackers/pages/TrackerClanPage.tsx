@@ -1,5 +1,17 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import {
+  File as FileIcon,
+  Image,
+  MessageSquareReply,
+  Mic,
+  Paperclip,
+  SmilePlus,
+  Square,
+  Trash2,
+  Video,
+  X,
+} from 'lucide-react';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import { AppPageSkeleton } from '../../../../components/feedback/RouteSkeleton';
@@ -8,6 +20,8 @@ import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import { cn } from '../../../../lib/cn';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { socket } from '../../../../lib/socket';
+import { safeLocalStorage, safeSessionStorage } from '../../../../lib/storage/safe-storage';
+import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys';
 import { useAuthStore } from '../../../../store/useAuthStore';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import {
@@ -35,6 +49,8 @@ import type {
 } from '../types/tracker.types';
 import ClanChallengeCard from '../components/clan/ClanChallengeCard';
 import ClanChallengeDialog from '../components/clan/ClanChallengeDialog';
+import { useVoiceMessageRecorder, VoiceMessagePlayer } from '../../social';
+import { mergeGuildMessages } from '../utils/merge-guild-messages';
 
 type GuildTab = 'chat' | 'members' | 'requests';
 type ClanChallengeEvent = {
@@ -62,6 +78,7 @@ export default function TrackerClanPage() {
   const clan = clanQuery.data;
   const isMember = Boolean(clan && clan.role !== 'outsider');
   const messagesQuery = useTrackerClanMessages(trackerId, isMember);
+  const refetchMessages = messagesQuery.refetch;
   const challengesQuery = useTrackerClanChallenges(trackerId, isMember);
   const refetchChallenges = challengesQuery.refetch;
   const contributionsQuery = useTrackerTopicContributions(trackerId, Boolean(clan?.canManage));
@@ -79,7 +96,8 @@ export default function TrackerClanPage() {
   const cancelChallenge = useCancelTrackerClanChallenge();
   const [tab, setTab] = useState<GuildTab>('chat');
   const [liveMessages, setLiveMessages] = useState<ITrackerClanMessage[]>([]);
-  const [draft, setDraft] = useState('');
+  const guildDraftKey = `${STORAGE_KEYS.guildChatDraftPrefix}:${trackerId}`;
+  const [draft, setDraft] = useState(() => safeSessionStorage.get(guildDraftKey) ?? '');
   const [chatError, setChatError] = useState<string | null>(null);
   const [connected, setConnected] = useState(false);
   const [memberMenuId, setMemberMenuId] = useState<string | null>(null);
@@ -96,8 +114,29 @@ export default function TrackerClanPage() {
     undefined
   );
   const [chatClock, setChatClock] = useState(() => Date.now());
-  const endRef = useRef<HTMLDivElement | null>(null);
+  const chatCanvasRef = useRef<HTMLDivElement | null>(null);
+  const historySentinelRef = useRef<HTMLDivElement | null>(null);
+  const prependHeightRef = useRef<number | null>(null);
+  const initialScrollDoneRef = useRef(false);
+  const [newMessageCount, setNewMessageCount] = useState(0);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [replyingTo, setReplyingTo] = useState<ITrackerClanMessage | null>(null);
+  const [reactionPickerMessageId, setReactionPickerMessageId] = useState<string | null>(null);
+  const [deletingGuildMessage, setDeletingGuildMessage] = useState<ITrackerClanMessage | null>(
+    null
+  );
+  const [guildDeletePending, setGuildDeletePending] = useState(false);
+  const [deletedGuildMessageIds, setDeletedGuildMessageIds] = useState<Set<string>>(
+    () => new Set()
+  );
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const previousAcceptedChangesRef = useRef(Boolean(clan?.hasAcceptedChanges));
+
+  useEffect(() => {
+    if (isMember) {
+      safeLocalStorage.set(STORAGE_KEYS.onboardingGuildVisited, 'true');
+    }
+  }, [isMember]);
 
   useEffect(() => {
     const hasAcceptedChanges = Boolean(clan?.hasAcceptedChanges);
@@ -108,14 +147,22 @@ export default function TrackerClanPage() {
   }, [clan?.hasAcceptedChanges]);
 
   const messages = useMemo(() => {
-    const combined = [...(messagesQuery.data ?? []), ...liveMessages];
+    const history = messagesQuery.data?.pages
+      ? [...messagesQuery.data.pages].reverse().flatMap((page) => page.items)
+      : [];
+    const combined = mergeGuildMessages(history, liveMessages);
     const chatWindowStart = chatClock - CHAT_RETENTION_MS;
     return combined.filter(
-      (message, index) =>
-        new Date(message.createdAt).getTime() >= chatWindowStart &&
-        combined.findIndex((candidate) => candidate.id === message.id) === index
+      (message) =>
+        !deletedGuildMessageIds.has(message.id) &&
+        new Date(message.createdAt).getTime() >= chatWindowStart
     );
-  }, [chatClock, liveMessages, messagesQuery.data]);
+  }, [chatClock, deletedGuildMessageIds, liveMessages, messagesQuery.data]);
+
+  useEffect(() => {
+    if (draft) safeSessionStorage.set(guildDraftKey, draft);
+    else safeSessionStorage.remove(guildDraftKey);
+  }, [draft, guildDraftKey]);
   const incomingRoleInvitation = clan?.roleInvitations.find(
     (invitation) => invitation.userId === currentUserId && invitation.status === 'pending'
   );
@@ -156,10 +203,24 @@ export default function TrackerClanPage() {
           : 'Could not connect to guild chat. Check that the API is running, then retry.'
       );
     };
-    const onMessage = (message: ITrackerClanMessage) => {
+    const onMessage = (incoming: ITrackerClanMessage) => {
+      const message = {
+        ...incoming,
+        reactions: (incoming.reactions ?? []).map((reaction) => ({
+          ...reaction,
+          reactedByViewer:
+            reaction.userIds?.includes(currentUserId ?? '') ?? reaction.reactedByViewer,
+        })),
+      };
       if (message.trackerId !== trackerId) return;
+      const canvas = chatCanvasRef.current;
+      if (canvas && canvas.scrollHeight - canvas.scrollTop - canvas.clientHeight > 180) {
+        setNewMessageCount((count) => count + 1);
+      }
       setLiveMessages((current) =>
-        current.some((item) => item.id === message.id) ? current : [...current, message].slice(-100)
+        current.some((item) => item.id === message.id)
+          ? current.map((item) => (item.id === message.id ? message : item))
+          : [...current, message].slice(-100)
       );
     };
     const onChallenge = (event: ClanChallengeEvent) => {
@@ -174,10 +235,17 @@ export default function TrackerClanPage() {
         }
       });
     };
+    const onMessageDeleted = (event: { trackerId?: string; messageId?: string }) => {
+      if (event.trackerId !== trackerId || !event.messageId) return;
+      setDeletedGuildMessageIds((current) => new Set(current).add(event.messageId!));
+      setLiveMessages((current) => current.filter((message) => message.id !== event.messageId));
+      void refetchMessages();
+    };
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('connect_error', onConnectError);
     socket.on('tracker-clan:message', onMessage);
+    socket.on('tracker-clan:message-deleted', onMessageDeleted);
     socket.on('tracker-clan:challenge', onChallenge);
     if (!socket.connected) socket.connect();
     else onConnect();
@@ -187,9 +255,18 @@ export default function TrackerClanPage() {
       socket.off('disconnect', onDisconnect);
       socket.off('connect_error', onConnectError);
       socket.off('tracker-clan:message', onMessage);
+      socket.off('tracker-clan:message-deleted', onMessageDeleted);
       socket.off('tracker-clan:challenge', onChallenge);
     };
-  }, [accessToken, currentUserId, isMember, navigate, refetchChallenges, trackerId]);
+  }, [
+    accessToken,
+    currentUserId,
+    isMember,
+    navigate,
+    refetchChallenges,
+    refetchMessages,
+    trackerId,
+  ]);
 
   useEffect(() => {
     if (!memberMenuId) return;
@@ -240,26 +317,160 @@ export default function TrackerClanPage() {
   const latestTimelineKey = timeline.at(-1)?.key;
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [latestTimelineKey, tab]);
+    if (tab !== 'chat' || newMessageCount > 0 || prependHeightRef.current !== null) return;
+    const canvas = chatCanvasRef.current;
+    if (!canvas) return;
+    canvas.scrollTo({
+      top: canvas.scrollHeight,
+      behavior: initialScrollDoneRef.current ? 'smooth' : 'auto',
+    });
+    if (timeline.length) initialScrollDoneRef.current = true;
+  }, [latestTimelineKey, newMessageCount, tab, timeline.length]);
+
+  const loadEarlierGuildMessages = useCallback(() => {
+    const canvas = chatCanvasRef.current;
+    if (
+      !canvas ||
+      !initialScrollDoneRef.current ||
+      !messagesQuery.hasNextPage ||
+      messagesQuery.isFetchingNextPage
+    ) {
+      return;
+    }
+    prependHeightRef.current = canvas.scrollHeight;
+    void messagesQuery.fetchNextPage();
+  }, [messagesQuery]);
+
+  useEffect(() => {
+    const root = chatCanvasRef.current;
+    const target = historySentinelRef.current;
+    if (!root || !target || tab !== 'chat') return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) loadEarlierGuildMessages();
+      },
+      { root, rootMargin: '180px 0px 0px' }
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [loadEarlierGuildMessages, tab]);
+
+  useEffect(() => {
+    const canvas = chatCanvasRef.current;
+    if (!canvas || prependHeightRef.current === null || messagesQuery.isFetchingNextPage) return;
+    canvas.scrollTop += canvas.scrollHeight - prependHeightRef.current;
+    prependHeightRef.current = null;
+  }, [messagesQuery.data?.pages.length, messagesQuery.isFetchingNextPage]);
   const challengeBusy =
     createChallenge.isPending ||
     acceptChallenge.isPending ||
     declineChallenge.isPending ||
     cancelChallenge.isPending;
-  const sendMessage = () => {
-    const text = draft.trim();
-    if (!text || !connected) return;
+  const sendMessage = async (
+    input?: string | { file?: File; kind?: 'image' | 'file' | 'voice'; durationSeconds?: number }
+  ) => {
+    const retryText = typeof input === 'string' ? input : undefined;
+    const file = typeof input === 'object' ? input.file : (selectedFile ?? undefined);
+    const text = (retryText ?? draft).trim();
+    if ((!text && !file) || !connected) return;
+    if (file && file.size > 10 * 1024 * 1024) {
+      setChatError('Choose a file up to 10 MB.');
+      return;
+    }
     setChatError(null);
+    const clientId = `guild-pending-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const kind = file
+      ? input && typeof input === 'object' && input.kind === 'voice'
+        ? 'voice'
+        : file.type.startsWith('image/')
+          ? 'image'
+          : 'file'
+      : 'text';
+    const optimisticAttachmentUrl = file ? URL.createObjectURL(file) : null;
+    const optimistic: ITrackerClanMessage = {
+      id: clientId,
+      clientId,
+      trackerId,
+      text,
+      kind,
+      replyTo: replyingTo
+        ? {
+            messageId: replyingTo.id,
+            senderId: replyingTo.user.userId,
+            text: replyingTo.text,
+            kind: replyingTo.kind,
+          }
+        : null,
+      reactions: [],
+      ...(file
+        ? {
+            attachment: {
+              url: optimisticAttachmentUrl ?? '',
+              name: file.name,
+              mimeType: file.type,
+              sizeBytes: file.size,
+              durationSeconds:
+                input && typeof input === 'object' ? (input.durationSeconds ?? null) : null,
+            },
+          }
+        : {}),
+      createdAt: new Date().toISOString(),
+      user: {
+        userId: currentUserId ?? '',
+        name: 'You',
+        username: '',
+        avatarUrl: null,
+      },
+      deliveryState: 'sending',
+    };
+    setLiveMessages((current) => [...current, optimistic]);
+    if (!retryText) {
+      setDraft('');
+      setSelectedFile(null);
+      setReplyingTo(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      safeSessionStorage.remove(guildDraftKey);
+    }
+    const fileData = file ? await file.arrayBuffer() : undefined;
     socket.emit(
       'tracker-clan:message',
-      { trackerId, text },
+      {
+        trackerId,
+        text,
+        kind,
+        ...(file
+          ? {
+              file: {
+                name: file.name,
+                mimeType: file.type,
+                size: file.size,
+                data: fileData,
+              },
+            }
+          : {}),
+        ...(input && typeof input === 'object' && input.durationSeconds
+          ? { durationSeconds: input.durationSeconds }
+          : {}),
+        ...(replyingTo ? { replyToMessageId: replyingTo.id } : {}),
+      },
       (result: { ok?: boolean; message?: string }) => {
-        if (result?.ok) setDraft('');
-        else setChatError(result?.message ?? 'Unable to send message.');
+        if (optimisticAttachmentUrl) URL.revokeObjectURL(optimisticAttachmentUrl);
+        if (result?.ok) {
+          setLiveMessages((current) => current.filter((item) => item.clientId !== clientId));
+        } else {
+          setLiveMessages((current) =>
+            current.map((item) =>
+              item.clientId === clientId ? { ...item, deliveryState: 'failed' } : item
+            )
+          );
+          setChatError(result?.message ?? 'Unable to send message.');
+        }
       }
     );
   };
+  const voice = useVoiceMessageRecorder(({ file, durationSeconds }) => {
+    void sendMessage({ file, kind: 'voice', durationSeconds });
+  });
 
   const confirmMemberAction = async () => {
     if (!memberAction) return;
@@ -287,7 +498,7 @@ export default function TrackerClanPage() {
       }
       setMemberAction(null);
     } catch (error) {
-      setMemberActionError(getUserFacingError(error, 'Unable to update this clan member.'));
+      setMemberActionError(getUserFacingError(error, 'Unable to update this guild member.'));
     }
   };
 
@@ -321,7 +532,7 @@ export default function TrackerClanPage() {
   if (clanQuery.isLoading) {
     return (
       <AppShellBoundary>
-        <AppPageSkeleton kind="detail" label="Loading tracker clan" />
+        <AppPageSkeleton kind="detail" label="Loading tracker guild" />
       </AppShellBoundary>
     );
   }
@@ -439,14 +650,16 @@ export default function TrackerClanPage() {
                 clan.personalCloneTrackerId &&
                 clan.hasAcceptedChanges &&
                 !acceptedChangesConsumed && (
-                <button
-                  type="button"
-                  disabled={fetchGuildChanges.isPending}
-                  onClick={fetchLatestGuildChanges}
-                  className="rounded-lg border border-[#f4c95d]/35 bg-[#f4c95d]/12 px-4 py-3 text-xs font-extrabold text-[#f4c95d] transition hover:bg-[#f4c95d]/20 disabled:opacity-50"
-                >
-                  {fetchGuildChanges.isPending ? 'Updating your clone…' : '↻ Apply accepted changes'}
-                </button>
+                  <button
+                    type="button"
+                    disabled={fetchGuildChanges.isPending}
+                    onClick={fetchLatestGuildChanges}
+                    className="rounded-lg border border-[#f4c95d]/35 bg-[#f4c95d]/12 px-4 py-3 text-xs font-extrabold text-[#f4c95d] transition hover:bg-[#f4c95d]/20 disabled:opacity-50"
+                  >
+                    {fetchGuildChanges.isPending
+                      ? 'Updating your clone…'
+                      : '↻ Apply accepted changes'}
+                  </button>
                 )}
               <button
                 type="button"
@@ -593,7 +806,29 @@ export default function TrackerClanPage() {
                 </button>
               </div>
             </div>
-            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain bg-(--surface-canvas) p-5">
+            <div
+              ref={chatCanvasRef}
+              onScroll={(event) => {
+                const element = event.currentTarget;
+                if (element.scrollHeight - element.scrollTop - element.clientHeight < 80) {
+                  setNewMessageCount(0);
+                }
+              }}
+              className="relative min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain bg-(--surface-canvas) p-5"
+            >
+              <div ref={historySentinelRef} className="h-px" aria-hidden="true" />
+              {messagesQuery.hasNextPage && (
+                <div className="flex justify-center">
+                  <button
+                    type="button"
+                    onClick={loadEarlierGuildMessages}
+                    disabled={messagesQuery.isFetchingNextPage}
+                    className={buttonClass}
+                  >
+                    {messagesQuery.isFetchingNextPage ? 'Loading…' : 'Load earlier messages'}
+                  </button>
+                </div>
+              )}
               {timeline.length === 0 && (
                 <div className="py-20 text-center text-sm text-(--text-secondary)">
                   No messages yet. Start the guild conversation.
@@ -631,19 +866,25 @@ export default function TrackerClanPage() {
                 }
                 const message = item.message;
                 const mine = message.user.userId === currentUserId;
+                const viewerReaction = message.reactions?.find(
+                  (reaction) => reaction.reactedByViewer
+                );
+                const reactionCount = (message.reactions ?? []).reduce(
+                  (total, reaction) => total + reaction.count,
+                  0
+                );
                 return (
-                  <div key={message.id} className={cn('flex gap-3', mine && 'flex-row-reverse')}>
-                    <button
-                      type="button"
-                      onClick={() => navigate(ROUTES.publicProfileFor(message.user.username))}
-                      className="shrink-0 rounded-full transition hover:ring-2 hover:ring-(--brand-500)/30"
-                    >
-                      <UserAvatar
-                        name={message.user.name}
-                        src={message.user.avatarUrl}
-                        sizeClassName="h-9 w-9 text-[10px]"
-                      />
-                    </button>
+                  <div
+                    key={message.id}
+                    id={`guild-message-${message.id}`}
+                    className={cn('flex items-start gap-3', mine && 'flex-row-reverse')}
+                  >
+                    <UserAvatar
+                      name={message.user.name}
+                      src={message.user.avatarUrl}
+                      profileUsername={message.user.username}
+                      sizeClassName="h-9 w-9 text-[10px]"
+                    />
                     <div className={cn('max-w-[78%]', mine && 'text-right')}>
                       <button
                         type="button"
@@ -654,37 +895,393 @@ export default function TrackerClanPage() {
                       </button>
                       <div
                         className={cn(
-                          'rounded-xl px-4 py-3 text-left text-sm leading-relaxed',
+                          'relative rounded-xl px-4 py-3 text-left text-sm leading-relaxed',
+                          reactionCount > 0 && 'mb-3',
                           mine
                             ? 'rounded-tr-sm bg-(--brand-500) text-white dark:text-[#171512]'
                             : 'rounded-tl-sm border border-(--border-subtle) bg-(--surface-card) dark:border-white/10'
                         )}
                       >
-                        {message.text}
+                        {message.replyTo && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const canvas = chatCanvasRef.current;
+                              const target = document.getElementById(
+                                `guild-message-${message.replyTo?.messageId}`
+                              );
+                              if (canvas && target) {
+                                canvas.scrollTo({
+                                  top:
+                                    target.offsetTop -
+                                    canvas.clientHeight / 2 +
+                                    target.clientHeight / 2,
+                                  behavior: 'smooth',
+                                });
+                              }
+                            }}
+                            className={cn(
+                              'mb-2 block w-full rounded-lg border-l-3 px-3 py-2 text-left',
+                              mine
+                                ? 'border-white/60 bg-black/10'
+                                : 'border-(--brand-500) bg-(--surface-muted)'
+                            )}
+                          >
+                            <span className="block text-[8px] font-bold uppercase tracking-wide opacity-70">
+                              Reply
+                            </span>
+                            <span className="mt-0.5 block truncate text-[10px] opacity-80">
+                              {message.replyTo.text || `${message.replyTo.kind} message`}
+                            </span>
+                          </button>
+                        )}
+                        {message.attachment?.mimeType.startsWith('image/') && (
+                          <img
+                            src={message.attachment.url}
+                            alt={message.text || message.attachment.name}
+                            className="mb-2 max-h-80 w-full rounded-lg object-cover"
+                            loading="lazy"
+                          />
+                        )}
+                        {message.attachment?.mimeType.startsWith('video/') && (
+                          <video
+                            controls
+                            playsInline
+                            preload="metadata"
+                            src={message.attachment.url}
+                            className="mb-2 max-h-80 w-full rounded-lg bg-black"
+                          />
+                        )}
+                        {message.kind === 'voice' && message.attachment && (
+                          <VoiceMessagePlayer attachment={message.attachment} mine={mine} />
+                        )}
+                        {message.attachment &&
+                          message.kind === 'file' &&
+                          !message.attachment.mimeType.startsWith('video/') && (
+                            <a
+                              href={message.attachment.url}
+                              download={message.attachment.name}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="mb-2 flex min-w-[220px] items-center gap-2 rounded-lg border border-current/20 p-3 underline-offset-2 hover:underline"
+                            >
+                              <FileIcon size={18} />
+                              <span className="min-w-0 truncate">{message.attachment.name}</span>
+                            </a>
+                          )}
+                        {message.text && (
+                          <p className="m-0 whitespace-pre-wrap break-words">{message.text}</p>
+                        )}
+                        {reactionPickerMessageId === message.id && (
+                          <div
+                            className={cn(
+                              'absolute top-[calc(100%+0.5rem)] z-20 flex w-[228px] flex-wrap gap-1 rounded-xl border border-(--border-subtle) bg-(--surface-elevated) p-1.5 text-(--text-primary) shadow-(--shadow-3)',
+                              mine ? 'right-2' : 'left-2'
+                            )}
+                          >
+                            {['👍', '❤️', '😂', '🎉', '🤔', '👏'].map((emoji) => (
+                              <button
+                                key={emoji}
+                                type="button"
+                                onClick={() => {
+                                  setReactionPickerMessageId(null);
+                                  socket.emit(
+                                    'tracker-clan:reaction',
+                                    { trackerId, messageId: message.id, emoji },
+                                    (result: { ok?: boolean; message?: string }) => {
+                                      if (!result?.ok) {
+                                        setChatError(
+                                          result?.message ?? 'Unable to update reaction.'
+                                        );
+                                      }
+                                    }
+                                  );
+                                }}
+                                className="flex h-9 w-9 items-center justify-center rounded-lg text-base hover:bg-(--surface-muted)"
+                                aria-label={`React with ${emoji}`}
+                              >
+                                {emoji}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {reactionCount > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (viewerReaction) {
+                                socket.emit(
+                                  'tracker-clan:reaction',
+                                  {
+                                    trackerId,
+                                    messageId: message.id,
+                                    emoji: viewerReaction.emoji,
+                                  },
+                                  (result: { ok?: boolean; message?: string }) => {
+                                    if (!result?.ok) {
+                                      setChatError(result?.message ?? 'Unable to update reaction.');
+                                    }
+                                  }
+                                );
+                              } else {
+                                setReactionPickerMessageId(message.id);
+                              }
+                            }}
+                            className={cn(
+                              'absolute -bottom-3 inline-flex min-h-7 items-center gap-1 rounded-full border border-(--border-subtle) bg-(--surface-elevated) px-2 text-[11px] text-(--text-primary) shadow-(--shadow-1)',
+                              mine ? 'right-3' : 'left-3',
+                              viewerReaction && 'border-(--brand-500)'
+                            )}
+                            aria-label={
+                              viewerReaction
+                                ? `Remove ${viewerReaction.emoji} reaction`
+                                : 'React to message'
+                            }
+                          >
+                            <span>
+                              {message.reactions
+                                .slice(0, 2)
+                                .map((reaction) => reaction.emoji)
+                                .join('')}
+                            </span>
+                            {reactionCount > 1 && (
+                              <span className="font-mono text-[9px]">{reactionCount}</span>
+                            )}
+                          </button>
+                        )}
+                        <div
+                          className={cn(
+                            'mt-2 flex items-center gap-1 font-mono text-[8px]',
+                            mine
+                              ? 'justify-end text-white/70 dark:text-black/55'
+                              : 'justify-end text-(--text-secondary)/70'
+                          )}
+                        >
+                          {!message.deliveryState && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setReplyingTo(message);
+                                  setReactionPickerMessageId(null);
+                                }}
+                                className={cn(
+                                  'flex h-8 w-8 items-center justify-center rounded-full transition',
+                                  mine
+                                    ? 'bg-black/10 hover:bg-black/20'
+                                    : 'bg-(--surface-muted) hover:text-(--brand-500)'
+                                )}
+                                aria-label="Reply to message"
+                              >
+                                <MessageSquareReply size={14} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setReactionPickerMessageId((current) =>
+                                    current === message.id ? null : message.id
+                                  )
+                                }
+                                className={cn(
+                                  'flex h-8 w-8 items-center justify-center rounded-full transition',
+                                  mine
+                                    ? 'bg-black/10 hover:bg-black/20'
+                                    : 'bg-(--surface-muted) hover:text-(--brand-500)'
+                                )}
+                                aria-label="React to message"
+                                aria-expanded={reactionPickerMessageId === message.id}
+                              >
+                                <SmilePlus size={14} />
+                              </button>
+                              {mine && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setReactionPickerMessageId(null);
+                                    setDeletingGuildMessage(message);
+                                  }}
+                                  className="flex h-8 w-8 items-center justify-center rounded-full bg-black/10 transition hover:bg-black/20 hover:text-red-200"
+                                  aria-label="Delete message"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              )}
+                            </>
+                          )}
+                          <time>
+                            {new Date(message.createdAt).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </time>
+                        </div>
                       </div>
-                      <time className="mt-1 block font-mono text-[8px] text-(--text-secondary)/60">
-                        {new Date(message.createdAt).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </time>
+                      {message.deliveryState && (
+                        <div className="mt-1 text-[9px] font-bold text-(--text-secondary)">
+                          {message.deliveryState === 'sending' ? (
+                            'Sending…'
+                          ) : (
+                            <button
+                              type="button"
+                              className="text-red-500 hover:underline"
+                              onClick={() => {
+                                setLiveMessages((current) =>
+                                  current.filter((item) => item.id !== message.id)
+                                );
+                                sendMessage(message.text);
+                              }}
+                            >
+                              Failed · Retry
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
               })}
-              <div ref={endRef} />
+              {newMessageCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewMessageCount(0);
+                    const canvas = chatCanvasRef.current;
+                    canvas?.scrollTo({ top: canvas.scrollHeight, behavior: 'smooth' });
+                  }}
+                  className="sticky bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-(--brand-500) px-4 py-2 text-[10px] font-bold text-white shadow-lg"
+                >
+                  {newMessageCount} new message{newMessageCount === 1 ? '' : 's'}
+                </button>
+              )}
             </div>
             <div className="border-t border-(--border-subtle) p-4 dark:border-white/10">
               {chatError && (
                 <p className="mb-2 text-[11px] font-semibold text-red-500">{chatError}</p>
+              )}
+              {selectedFile && (
+                <div className="mb-2 flex items-center gap-2 rounded-lg border border-(--border-subtle) bg-(--surface-muted) px-3 py-2 text-[11px]">
+                  {selectedFile.type.startsWith('image/') ? (
+                    <Image size={16} />
+                  ) : selectedFile.type.startsWith('video/') ? (
+                    <Video size={16} />
+                  ) : (
+                    <FileIcon size={16} />
+                  )}
+                  <span className="min-w-0 flex-1 truncate">{selectedFile.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedFile(null);
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                    className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-(--surface-card)"
+                    aria-label="Remove attachment"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
+              )}
+              {voice.error && (
+                <p className="mb-2 text-[11px] font-semibold text-red-500">{voice.error}</p>
+              )}
+              {replyingTo && (
+                <div className="mb-2 flex items-center gap-2 rounded-lg border-l-3 border-(--brand-500) bg-(--surface-muted) px-3 py-2 text-left">
+                  <MessageSquareReply size={15} className="shrink-0 text-(--brand-500)" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[9px] font-bold text-(--brand-500)">
+                      Replying to {replyingTo.user.name}
+                    </span>
+                    <span className="block truncate text-[10px] text-(--text-secondary)">
+                      {replyingTo.text || `${replyingTo.kind} message`}
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setReplyingTo(null)}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full hover:bg-(--surface-card)"
+                    aria-label="Cancel reply"
+                  >
+                    <X size={15} />
+                  </button>
+                </div>
               )}
               <form
                 onSubmit={(event) => {
                   event.preventDefault();
                   sendMessage();
                 }}
-                className="flex gap-2"
+                className="flex items-center gap-2"
               >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="sr-only"
+                  accept=".jpg,.jpeg,.png,.webp,.mp4,.webm,.mov,.pdf,.txt,.md,.csv,.zip,.mp3,.m4a,.wav,.ogg"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] ?? null;
+                    if (file && file.size > 10 * 1024 * 1024) {
+                      setChatError('Choose a file up to 10 MB.');
+                      event.target.value = '';
+                      return;
+                    }
+                    setChatError(null);
+                    setSelectedFile(file);
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={!connected || voice.isRecording}
+                  className={
+                    buttonClass + ' flex h-11 w-11 shrink-0 items-center justify-center p-0'
+                  }
+                  aria-label="Attach photo, video, or file"
+                >
+                  <Paperclip size={18} />
+                </button>
+                {voice.isSupported && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (voice.isRecording) voice.stop();
+                        else void voice.start();
+                      }}
+                      disabled={!connected || Boolean(selectedFile)}
+                      className={cn(
+                        buttonClass,
+                        'flex h-11 shrink-0 items-center justify-center gap-2 p-0',
+                        voice.isRecording ? 'w-auto px-3 text-red-500' : 'w-11'
+                      )}
+                      aria-label={voice.isRecording ? 'Send voice message' : 'Record voice message'}
+                    >
+                      {voice.isRecording ? (
+                        <Square size={15} fill="currentColor" />
+                      ) : (
+                        <Mic size={18} />
+                      )}
+                      {voice.isRecording && (
+                        <span className="font-mono text-[10px]">
+                          {Math.floor(voice.durationSeconds / 60)}:
+                          {String(voice.durationSeconds % 60).padStart(2, '0')}
+                        </span>
+                      )}
+                    </button>
+                    {voice.isRecording && (
+                      <button
+                        type="button"
+                        onClick={voice.cancel}
+                        className={
+                          buttonClass +
+                          ' flex h-11 w-11 shrink-0 items-center justify-center p-0 text-red-500'
+                        }
+                        aria-label="Cancel voice recording"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </>
+                )}
                 <input
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
@@ -694,7 +1291,7 @@ export default function TrackerClanPage() {
                 />
                 <button
                   type="submit"
-                  disabled={!draft.trim() || !connected}
+                  disabled={(!draft.trim() && !selectedFile) || !connected || voice.isRecording}
                   className="rounded-lg bg-[#171512] px-5 text-sm font-extrabold text-white disabled:opacity-50 dark:bg-[#f2f0eb] dark:text-[#171512]"
                 >
                   Send
@@ -711,17 +1308,18 @@ export default function TrackerClanPage() {
                 key={member.userId}
                 className="flex items-center justify-between gap-3 rounded-xl border border-(--border-subtle) bg-(--surface-card) p-4 dark:border-white/15"
               >
-                <button
-                  type="button"
-                  onClick={() => navigate(ROUTES.publicProfileFor(member.username))}
-                  className="flex min-w-0 items-center gap-3 text-left"
-                >
+                <div className="flex min-w-0 items-center gap-3 text-left">
                   <UserAvatar
                     name={member.name}
                     src={member.avatarUrl}
+                    profileUsername={member.username}
                     sizeClassName="h-11 w-11 text-xs"
                   />
-                  <span className="min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => navigate(ROUTES.publicProfileFor(member.username))}
+                    className="min-w-0 text-left"
+                  >
                     <strong className="block truncate text-sm">{member.name}</strong>
                     <span className="text-[11px] text-(--text-secondary)">
                       @{member.username} · {member.role.replace('_', ' ')}
@@ -734,8 +1332,8 @@ export default function TrackerClanPage() {
                         invite pending
                       </span>
                     )}
-                  </span>
-                </button>
+                  </button>
+                </div>
                 {member.userId !== currentUserId && (
                   <div className="relative">
                     <button
@@ -817,7 +1415,7 @@ export default function TrackerClanPage() {
                               }}
                               className="block w-full px-4 py-3 text-left text-[12px] font-semibold text-red-500 hover:bg-red-500/8"
                             >
-                              Remove from clan
+                              Remove from guild
                             </button>
                           )}
                       </div>
@@ -955,6 +1553,33 @@ export default function TrackerClanPage() {
         }}
       />
       <ConfirmDialog
+        open={Boolean(deletingGuildMessage)}
+        title="Delete this message?"
+        description="This message will be removed from the guild chat for everyone."
+        confirmText="Delete message"
+        variant="danger"
+        isLoading={guildDeletePending}
+        onClose={() => {
+          if (!guildDeletePending) setDeletingGuildMessage(null);
+        }}
+        onConfirm={() => {
+          if (!deletingGuildMessage || guildDeletePending) return;
+          setGuildDeletePending(true);
+          socket.emit(
+            'tracker-clan:delete-message',
+            { trackerId, messageId: deletingGuildMessage.id },
+            (result: { ok?: boolean; message?: string }) => {
+              setGuildDeletePending(false);
+              if (result?.ok) {
+                setDeletingGuildMessage(null);
+              } else {
+                setChatError(result?.message ?? 'Unable to delete message.');
+              }
+            }
+          );
+        }}
+      />
+      <ConfirmDialog
         open={leaveDialogOpen}
         title={clan.role === 'owner' ? 'Transfer ownership before leaving' : 'Leave this guild?'}
         description={
@@ -1015,8 +1640,8 @@ export default function TrackerClanPage() {
                 : memberAction.type === 'promote'
                   ? 'This sends a co-owner invitation. Their current clone and private topics remain available while they decide and prepare merge requests.'
                   : memberAction.type === 'demote'
-                    ? 'This co-owner will lose clan management permissions. Their retained personal clone becomes visible again.'
-                    : 'This member will lose access to guild chat and clan features.'}
+                    ? 'This co-owner will lose guild management permissions. Their retained personal clone becomes visible again.'
+                    : 'This member will lose access to guild chat and guild features.'}
               {memberActionError && (
                 <span className="mt-2 block font-semibold text-red-500">{memberActionError}</span>
               )}

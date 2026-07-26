@@ -43,7 +43,7 @@ export const NAVIGATION_COMMANDS: readonly INavigationCommandDefinition[] = [
   },
   {
     id: 'adaptive-learning',
-    label: 'Adaptive Learning',
+    label: 'Ask Immi',
     description: 'Ask Immi what to study or prepare next',
     path: ROUTES.learningAgent,
     keywords: [

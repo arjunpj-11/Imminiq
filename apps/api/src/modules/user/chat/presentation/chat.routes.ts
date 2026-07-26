@@ -24,6 +24,10 @@ export const createChatRoutes = (useCases: ChatUseCases) => {
   router.patch(CHAT_ROUTE_PATHS.READ, controller.markRead);
   router.post(CHAT_ROUTE_PATHS.FORWARD, controller.forwardMessage);
   router.patch(CHAT_ROUTE_PATHS.STAR, controller.toggleMessageStar);
+  router.patch(CHAT_ROUTE_PATHS.REACTION, controller.toggleMessageReaction);
+  router.patch(CHAT_ROUTE_PATHS.MESSAGE, controller.editMessage);
+  router.delete(CHAT_ROUTE_PATHS.MESSAGE, controller.deleteMessage);
+  router.get(CHAT_ROUTE_PATHS.SAVED_MESSAGES, controller.listSavedMessages);
   router.delete(CHAT_ROUTE_PATHS.CLEAR, controller.clearConversation);
   router.post(CHAT_ROUTE_PATHS.TRACKER_SHARES, controller.shareTracker);
   router.post(CHAT_ROUTE_PATHS.PROFILE_SHARES, controller.shareProfile);

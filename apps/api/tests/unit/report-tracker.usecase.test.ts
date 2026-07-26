@@ -5,7 +5,7 @@ import type { ITrackerRepository } from '../../src/modules/user/trackers/domain/
 import { reportTrackerSchema } from '../../src/modules/user/trackers/presentation/trackers.schema';
 
 describe('tracker reports', () => {
-  it('creates a normalized report for a public tracker', async () => {
+  it('creates a normalized Other report for a public tracker', async () => {
     const repository = {
       findReportableTrackerById: vi.fn().mockResolvedValue({ ownerId: 'owner-id' }),
       createOrReopenTrackerReport: vi.fn().mockResolvedValue({
@@ -19,15 +19,15 @@ describe('tracker reports', () => {
     await new ReportTrackerUseCase(repository).execute({
       trackerId: 'tracker-id',
       userId: 'reporter-id',
-      reason: 'broken_learning_path',
-      details: '  Topic three has no lessons.  ',
+      reason: 'other',
+      details: '  The issue does not match a listed reason.  ',
     });
 
     expect(repository.createOrReopenTrackerReport).toHaveBeenCalledWith({
       trackerId: 'tracker-id',
       reporterId: 'reporter-id',
-      reason: 'broken_learning_path',
-      details: 'Topic three has no lessons.',
+      reason: 'other',
+      details: 'The issue does not match a listed reason.',
     });
   });
 
@@ -51,6 +51,12 @@ describe('tracker reports', () => {
     expect(
       reportTrackerSchema.parse({ reason: 'privacy_concern', details: '  Personal data  ' })
     ).toEqual({ reason: 'privacy_concern', details: 'Personal data' });
+    expect(
+      reportTrackerSchema.parse({ reason: 'other', details: '  A different concern  ' })
+    ).toEqual({ reason: 'other', details: 'A different concern' });
+    expect(() => reportTrackerSchema.parse({ reason: 'other', details: '   ' })).toThrow(
+      'Please describe the reason for this report'
+    );
     expect(() => reportTrackerSchema.parse({ reason: 'dislike' })).toThrow();
   });
 });

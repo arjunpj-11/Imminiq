@@ -61,19 +61,19 @@ export default function FinalCta() {
         <div className="flex flex-col gap-3 text-[14px] text-[#6b5f58] dark:text-[#b8b4aa]">
           <Link
             to={ROUTES.privacy}
-            className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
+            className="inline-flex min-h-11 items-center transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
           >
             Privacy
           </Link>
           <Link
             to={ROUTES.terms}
-            className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
+            className="inline-flex min-h-11 items-center transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
           >
             Terms
           </Link>
           <Link
             to={ROUTES.login}
-            className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
+            className="inline-flex min-h-11 items-center transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
           >
             Sign in
           </Link>
@@ -96,20 +96,22 @@ export default function FinalCta() {
         )}
         aria-label="Create a learning tracker with Imminiq"
       >
-        {'Start now'.split('').map((char, i) => (
-          <span
-            key={i}
-            className="inline-block transition-all"
-            style={{
-              opacity: bigVisible ? 1 : 0,
-              transform: bigVisible ? 'none' : 'translateY(40px)',
-              transitionDuration: '0.7s',
-              transitionDelay: bigVisible ? `${i * 55}ms` : '0ms',
-            }}
-          >
-            {char === ' ' ? '\u00A0' : char}
-          </span>
-        ))}
+        <span aria-hidden="true">
+          {'Start now'.split('').map((char, i) => (
+            <span
+              key={i}
+              className="inline-block transition-all"
+              style={{
+                opacity: bigVisible ? 1 : 0,
+                transform: bigVisible ? 'none' : 'translateY(40px)',
+                transitionDuration: '0.7s',
+                transitionDelay: bigVisible ? `${i * 55}ms` : '0ms',
+              }}
+            >
+              {char === ' ' ? '\u00A0' : char}
+            </span>
+          ))}
+        </span>
       </Link>
     </section>
   );

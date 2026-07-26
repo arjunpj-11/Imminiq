@@ -1,5 +1,3 @@
-// apps/api/src/modules/user/trackers/application/use-cases/clear-lesson-question-solution-doubts.usecase.ts
-
 import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
@@ -10,9 +8,7 @@ export interface IClearLessonQuestionSolutionDoubtsUseCase {
   execute(input: LessonQuestionPayloadDTO): Promise<ClearLessonHistoryResultDTO>;
 }
 
-export class ClearLessonQuestionSolutionDoubtsUseCase
-  implements IClearLessonQuestionSolutionDoubtsUseCase
-{
+export class ClearLessonQuestionSolutionDoubtsUseCase implements IClearLessonQuestionSolutionDoubtsUseCase {
   constructor(
     private readonly _trackerRepository: Pick<
       ITrackerRepository,

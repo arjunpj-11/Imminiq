@@ -1,12 +1,14 @@
 import { cn } from '../../../../lib/cn';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 
-import { type ChangeEvent, useCallback, useMemo, useState } from 'react';
+import { type ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import Modal from '../../../../components/overlays/Modal';
 import { toast } from '../../../../lib/toast';
+import { safeSessionStorage } from '../../../../lib/storage/safe-storage';
+import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import { CheckCircleIcon, HintIcon } from '../components/MockTestAttemptIcons';
 import { MockTestAttemptFooter, MockTestAttemptHeader } from '../components/MockTestAttemptChrome';
@@ -39,12 +41,32 @@ import type {
   MockTestQuestionIssueReason,
 } from '../types/mock-tests.types';
 
+type AttemptDraft = {
+  currentIndex?: number;
+  answers?: Record<string, string>;
+  confidence?: Record<number, Confidence>;
+  codeByQuestion?: Record<string, string>;
+  languageByQuestion?: Record<string, MockTestCodingLanguage>;
+};
+
+const readAttemptDraft = (attemptId: string): AttemptDraft => {
+  if (!attemptId) return {};
+  try {
+    return JSON.parse(
+      safeSessionStorage.get(`${STORAGE_KEYS.mockTestAttemptDraftPrefix}:${attemptId}`) ?? '{}'
+    ) as AttemptDraft;
+  } catch {
+    return {};
+  }
+};
+
 export default function MockTestAttemptPage() {
   const { attemptId = '' } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
 
   const initial = location.state as IStartAttemptResponse | undefined;
+  const [draft] = useState(() => readAttemptDraft(attemptId));
   const shouldFetch = !initial?.questions?.length && Boolean(attemptId);
   const questionsQuery = useMockTestAttemptQuestions(shouldFetch ? attemptId : undefined);
 
@@ -54,10 +76,10 @@ export default function MockTestAttemptPage() {
     return (questionsQuery.data || []) as IPublicMockTestQuestion[];
   }, [initial?.questions, questionsQuery.data]);
 
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(draft.currentIndex ?? 0);
   const [visited, setVisited] = useState<Set<number>>(new Set([0]));
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [confidence, setConfidence] = useState<Record<number, Confidence>>({});
+  const [answers, setAnswers] = useState<Record<string, string>>(draft.answers ?? {});
+  const [confidence, setConfidence] = useState<Record<number, Confidence>>(draft.confidence ?? {});
   const [flagged, setFlagged] = useState<Set<number>>(
     () =>
       new Set(
@@ -67,13 +89,17 @@ export default function MockTestAttemptPage() {
       )
   );
   const [reportOpen, setReportOpen] = useState(false);
+  const [finishReviewOpen, setFinishReviewOpen] = useState(false);
+  const [online, setOnline] = useState(() => navigator.onLine);
   const [reportReason, setReportReason] = useState<MockTestQuestionIssueReason>('incorrect_answer');
   const [reportDetails, setReportDetails] = useState('');
 
   const [languageByQuestion, setLanguageByQuestion] = useState<
     Record<string, MockTestCodingLanguage>
-  >({});
-  const [codeByQuestion, setCodeByQuestion] = useState<Record<string, string>>({});
+  >(draft.languageByQuestion ?? {});
+  const [codeByQuestion, setCodeByQuestion] = useState<Record<string, string>>(
+    draft.codeByQuestion ?? {}
+  );
   const [codeResultByQuestion, setCodeResultByQuestion] = useState<
     Record<string, IMockTestCodeRunResponse | null>
   >({});
@@ -92,6 +118,26 @@ export default function MockTestAttemptPage() {
   const question = questions[currentIndex];
   const isMCQ = question?.type === 'mcq' && Boolean(question.options?.length);
   const isCoding = question?.type === 'coding' && Boolean(question.coding);
+  const answeredCount = questions.filter((item) => Boolean(answers[item._id]?.trim())).length;
+  const unansweredCount = Math.max(0, totalQuestions - answeredCount);
+
+  useEffect(() => {
+    const setOnlineState = () => setOnline(navigator.onLine);
+    window.addEventListener('online', setOnlineState);
+    window.addEventListener('offline', setOnlineState);
+    return () => {
+      window.removeEventListener('online', setOnlineState);
+      window.removeEventListener('offline', setOnlineState);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!attemptId) return;
+    safeSessionStorage.set(
+      `${STORAGE_KEYS.mockTestAttemptDraftPrefix}:${attemptId}`,
+      JSON.stringify({ currentIndex, answers, confidence, codeByQuestion, languageByQuestion })
+    );
+  }, [answers, attemptId, codeByQuestion, confidence, currentIndex, languageByQuestion]);
 
   const selectedLanguage = useMemo(() => {
     if (!question?._id) return COMPILER_LANGUAGES[0];
@@ -224,6 +270,7 @@ export default function MockTestAttemptPage() {
 
     try {
       await finishMutation.mutateAsync({ attemptId });
+      safeSessionStorage.remove(`${STORAGE_KEYS.mockTestAttemptDraftPrefix}:${attemptId}`);
       navigate(ROUTES.mockTestResult(attemptId));
     } catch (error) {
       toast.error(
@@ -341,9 +388,7 @@ export default function MockTestAttemptPage() {
             <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-(--brand-500)/10 text-xl text-(--brand-500)">
               !
             </div>
-            <h1 className="mt-4 text-2xl font-black text-(--text-primary)">
-              Attempt unavailable
-            </h1>
+            <h1 className="mt-4 text-2xl font-black text-(--text-primary)">Attempt unavailable</h1>
             <p className="mt-2 text-sm leading-6 text-(--text-secondary)">
               This mock-test attempt does not exist, is no longer available, or belongs to another
               account.
@@ -380,6 +425,14 @@ export default function MockTestAttemptPage() {
       className="bg-(--surface-sunken)"
     >
       <div className="flex h-dvh min-h-0 flex-col overflow-hidden">
+        {!online && (
+          <div
+            className="shrink-0 border-b border-amber-500/25 bg-amber-500/10 px-4 py-2 text-center text-[12px] font-bold text-amber-800 dark:text-amber-200"
+            role="status"
+          >
+            You’re offline. Your draft stays on this device; reconnect before saving or finishing.
+          </div>
+        )}
         <MockTestAttemptHeader
           timerDisplay={timerDisplay}
           currentIndex={currentIndex}
@@ -391,7 +444,7 @@ export default function MockTestAttemptPage() {
           isFinishing={isFinishing}
           canFinish={Boolean(attemptId && questions.length)}
           onToggleFlag={toggleFlag}
-          onFinish={finish}
+          onFinish={() => setFinishReviewOpen(true)}
           onGoTo={goTo}
         />
 
@@ -838,6 +891,63 @@ export default function MockTestAttemptPage() {
           answers={answers}
           onGoTo={goTo}
         />
+        <Modal
+          open={finishReviewOpen}
+          onClose={() => setFinishReviewOpen(false)}
+          preventClose={isFinishing}
+          ariaLabel="Review before finishing mock test"
+        >
+          <h2 className="text-xl font-black text-(--text-primary)">Ready to finish?</h2>
+          <p className="mt-2 text-sm leading-6 text-(--text-secondary)">
+            Review your coverage before submitting. You cannot change answers after the test is
+            finished.
+          </p>
+          <div className="mt-5 grid grid-cols-3 gap-2">
+            <div className="rounded-xl border border-(--border-subtle) bg-(--surface-muted) p-3 text-center">
+              <div className="text-xl font-black text-(--success)">{answeredCount}</div>
+              <div className="text-[11px] font-bold text-(--text-secondary)">Answered</div>
+            </div>
+            <div className="rounded-xl border border-(--border-subtle) bg-(--surface-muted) p-3 text-center">
+              <div className="text-xl font-black text-(--warning)">{unansweredCount}</div>
+              <div className="text-[11px] font-bold text-(--text-secondary)">Unanswered</div>
+            </div>
+            <div className="rounded-xl border border-(--border-subtle) bg-(--surface-muted) p-3 text-center">
+              <div className="text-xl font-black text-(--brand-500)">{flagged.size}</div>
+              <div className="text-[11px] font-bold text-(--text-secondary)">Flagged</div>
+            </div>
+          </div>
+          {unansweredCount > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                const firstUnanswered = questions.findIndex((item) => !answers[item._id]?.trim());
+                setFinishReviewOpen(false);
+                goTo(firstUnanswered);
+              }}
+              className="mt-4 min-h-11 w-full rounded-xl border border-(--warning) px-4 text-[13px] font-bold text-(--warning)"
+            >
+              Review first unanswered question
+            </button>
+          )}
+          <div className="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setFinishReviewOpen(false)}
+              disabled={isFinishing}
+              className="min-h-11 rounded-xl border border-(--border-subtle) px-4 text-sm font-bold"
+            >
+              Keep working
+            </button>
+            <button
+              type="button"
+              onClick={() => void finish()}
+              disabled={isFinishing || !online}
+              className="min-h-11 rounded-xl bg-(--brand-500) px-4 text-sm font-bold text-white disabled:opacity-55"
+            >
+              {isFinishing ? 'Finishing…' : 'Finish and view results'}
+            </button>
+          </div>
+        </Modal>
         <Modal
           open={reportOpen}
           onClose={() => setReportOpen(false)}

@@ -1,6 +1,4 @@
 // apps/api/src/modules/user/community/application/use-cases/
-// clone-community-tracker.usecase.ts
-
 import type { ICommunityTrackerRepository } from '../../domain/repositories/community-tracker.repository.interface';
 import type { ICommunityActivityRecorder } from '../../domain/services/community-activity.interface';
 import { CommunityApplicationError } from '../community-application.error';

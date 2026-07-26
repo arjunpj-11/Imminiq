@@ -42,7 +42,7 @@ export default function FriendsCard({ friends, onOpenFriends, onOpenProfile }: F
                 type="button"
                 onClick={() => onOpenProfile(friend.username)}
                 aria-label={`Open ${friend.fullName}'s profile`}
-                className="relative shrink-0 rounded-full transition hover:ring-2 hover:ring-(--brand-500)/30"
+                className="relative inline-flex h-8.5 w-8.5 aspect-square shrink-0 items-center justify-center rounded-full p-0 leading-none transition hover:ring-2 hover:ring-(--brand-500)/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500)"
               >
                 <UserAvatar
                   name={friend.fullName}

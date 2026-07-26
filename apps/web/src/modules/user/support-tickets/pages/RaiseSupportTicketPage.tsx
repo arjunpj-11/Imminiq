@@ -1,10 +1,12 @@
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { CheckCircle2, LifeBuoy, Send } from 'lucide-react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { useCreateSupportTicket } from '../hooks/useCreateSupportTicket';
 import type { CreateSupportTicketInput } from '../types/support-tickets.types';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import PageHero from '../../../../components/layout/PageHero';
+import { safeSessionStorage } from '../../../../lib/storage/safe-storage';
+import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys';
 
 const initial: CreateSupportTicketInput = {
   subject: '',
@@ -13,8 +15,53 @@ const initial: CreateSupportTicketInput = {
   priority: 'medium',
 };
 export default function RaiseSupportTicketPage() {
-  const [form, setForm] = useState(initial);
+  const [searchParams] = useSearchParams();
+  const errorRef = useRef<HTMLParagraphElement>(null);
+  const [form, setForm] = useState<CreateSupportTicketInput>(() => {
+    let saved = initial;
+    try {
+      const parsed = JSON.parse(
+        safeSessionStorage.get(STORAGE_KEYS.supportTicketDraft) ?? 'null'
+      ) as CreateSupportTicketInput | null;
+      if (parsed) saved = parsed;
+    } catch {
+      saved = initial;
+    }
+    return {
+      ...initial,
+      ...saved,
+      subject: searchParams.get('subject')?.slice(0, 160) || saved.subject,
+      description: searchParams.get('description')?.slice(0, 3000) || saved.description,
+      category:
+        (searchParams.get('category') as CreateSupportTicketInput['category'] | null) ??
+        saved.category,
+    };
+  });
   const create = useCreateSupportTicket();
+  const isDirty = Object.entries(form).some(
+    ([key, value]) => value !== initial[key as keyof CreateSupportTicketInput]
+  );
+
+  useEffect(() => {
+    const warnBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!isDirty || create.isSuccess) return;
+      event.preventDefault();
+    };
+    window.addEventListener('beforeunload', warnBeforeUnload);
+    return () => window.removeEventListener('beforeunload', warnBeforeUnload);
+  }, [create.isSuccess, isDirty]);
+
+  useEffect(() => {
+    if (create.isSuccess || !isDirty) {
+      safeSessionStorage.remove(STORAGE_KEYS.supportTicketDraft);
+      return;
+    }
+    safeSessionStorage.set(STORAGE_KEYS.supportTicketDraft, JSON.stringify(form));
+  }, [create.isSuccess, form, isDirty]);
+
+  useEffect(() => {
+    if (create.isError) errorRef.current?.focus();
+  }, [create.isError]);
   const submit = (event: FormEvent) => {
     event.preventDefault();
     create.mutate(form, { onSuccess: () => setForm(initial) });
@@ -49,8 +96,8 @@ export default function RaiseSupportTicketPage() {
             <CheckCircle2 className="text-(--success)" />
             <h2 className="mt-3 font-bold text-(--text-primary)">Ticket submitted</h2>
             <p className="mt-1 text-sm text-(--text-secondary)">
-              Your ticket ID is {create.data.id}. The support team can now review it from the admin
-              console.
+              Your ticket ID is {create.data.id}. Keep this ID for reference; important updates will
+              appear in Notifications.
             </p>
             <button
               onClick={() => create.reset()}
@@ -106,6 +153,24 @@ export default function RaiseSupportTicketPage() {
                 </select>
               </Field>
             </div>
+            <div className="rounded-xl border border-(--border-subtle) bg-(--surface-muted) px-4 py-3 text-[12px] leading-5 text-(--text-secondary)">
+              <strong className="text-(--text-primary)">
+                {form.category === 'technical'
+                  ? 'Helpful details: '
+                  : form.category === 'billing'
+                    ? 'For billing issues: '
+                    : form.category === 'learning'
+                      ? 'For learning content: '
+                      : 'Helpful context: '}
+              </strong>
+              {form.category === 'technical'
+                ? 'include the page, what you clicked, and the exact error you saw.'
+                : form.category === 'billing'
+                  ? 'include the plan and payment date, but never share card numbers or OTPs.'
+                  : form.category === 'learning'
+                    ? 'include the tracker and lesson name, plus what seemed incorrect or unclear.'
+                    : 'describe what you expected and what happened instead.'}
+            </div>
             <Field label="What happened?">
               <textarea
                 required
@@ -118,14 +183,19 @@ export default function RaiseSupportTicketPage() {
               />
             </Field>
             {create.isError && (
-              <p className="text-sm text-(--danger)">
+              <p ref={errorRef} tabIndex={-1} className="text-sm text-(--danger)">
                 The ticket could not be submitted. Please check the details and try again.
               </p>
             )}
             <div className="flex flex-wrap items-center justify-between gap-4">
-              <Link to={ROUTES.dashboard} className="text-sm text-(--text-secondary)">
-                Cancel
-              </Link>
+              <div>
+                <Link to={ROUTES.dashboard} className="text-sm text-(--text-secondary)">
+                  Cancel
+                </Link>
+                <p className="mt-1 text-[11px] text-(--text-muted)">
+                  Draft saved for this browser session
+                </p>
+              </div>
               <button
                 disabled={create.isPending}
                 className="inline-flex items-center gap-2 rounded-lg bg-(--brand-500) px-5 py-3 text-sm font-bold text-white hover:bg-(--brand-600) disabled:opacity-50"

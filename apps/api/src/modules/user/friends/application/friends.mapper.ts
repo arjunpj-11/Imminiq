@@ -33,9 +33,7 @@ export class FriendsMapper implements IFriendsMapper {
       username: user.username,
       handle: user.username.startsWith('@') ? user.username : `@${user.username}`,
       initials: this.getInitials(user.fullName || user.username),
-      ...(user.avatarUrl !== undefined
-        ? { avatarUrl: hideAvatar ? null : user.avatarUrl }
-        : {}),
+      ...(user.avatarUrl !== undefined ? { avatarUrl: hideAvatar ? null : user.avatarUrl } : {}),
       level: user.level,
       levelLabel: `Level ${Math.max(1, user.level)}`,
       mutualCount: user.mutualCount,
@@ -63,9 +61,7 @@ export class FriendsMapper implements IFriendsMapper {
     blockedByUserIds: ReadonlySet<string> = new Set()
   ): FriendUsersPageViewDTO {
     return {
-      items: page.items.map((item) =>
-        this.toFriendUserView(item, blockedByUserIds.has(item.id))
-      ),
+      items: page.items.map((item) => this.toFriendUserView(item, blockedByUserIds.has(item.id))),
       pagination: this.toPaginationView(page),
     };
   }

@@ -1,7 +1,10 @@
+import { paginationConfig } from '../../../../config/pagination';
+
 export const mockTestKeys = {
   all: ['mock-tests'] as const,
   lists: () => [...mockTestKeys.all, 'list'] as const,
-  list: (page = 1, limit = 6) => [...mockTestKeys.lists(), { page, limit }] as const,
+  list: (page = 1, limit = paginationConfig.compactLimit) =>
+    [...mockTestKeys.lists(), { page, limit }] as const,
   details: () => [...mockTestKeys.all, 'detail'] as const,
   detail: (testId: string) => [...mockTestKeys.details(), testId] as const,
   share: (testId: string) => [...mockTestKeys.detail(testId), 'share'] as const,

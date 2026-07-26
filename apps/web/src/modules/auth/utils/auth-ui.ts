@@ -2,7 +2,7 @@ import { cn } from '../../../lib/cn';
 export { cn };
 
 export const authLabelClass =
-  'font-mono text-[9.5px] font-medium uppercase tracking-[0.1em] text-[var(--text-primary)] dark:text-[var(--text-primary)]';
+  'font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-[var(--text-primary)] dark:text-[var(--text-primary)]';
 
 export const authErrorClass =
   'mt-1.5 flex items-center gap-1.5 text-[11.5px] leading-normal text-[var(--danger)] dark:text-[var(--danger)]';

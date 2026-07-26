@@ -1,5 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { paginationConfig } from '../../../../config/pagination';
 import api from '../../../../lib/axios';
 import { MOCK_TEST_API_PATHS } from '../constants/mock-tests.constants';
 import { mockTestKeys } from './mock-tests.query-keys';
@@ -35,7 +36,7 @@ const unwrap = <T>(response: IApiResponse<T>) => {
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
-export const useMockTests = (page = 1, limit = 6) => {
+export const useMockTests = (page = 1, limit = paginationConfig.compactLimit) => {
   return useQuery({
     queryKey: mockTestKeys.list(page, limit),
 

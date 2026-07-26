@@ -122,6 +122,18 @@ describe('backend module conventions', () => {
     expect(violations).toEqual([]);
   });
 
+  it('gives each use case one execute contract and one implementation', () => {
+    const violations = collectFiles(modulesRoot)
+      .filter((path) => path.endsWith('.usecase.ts'))
+      .filter((path) => {
+        const source = readFileSync(path, 'utf8');
+        return [...source.matchAll(/^\s*(?:public\s+)?(?:async\s+)?execute\s*\(/gm)].length !== 2;
+      })
+      .map((path) => portable(relative(modulesRoot, path)));
+
+    expect(violations).toEqual([]);
+  });
+
   it('keeps exported input and output types in DTO or contract owners', () => {
     const violations = collectFiles(modulesRoot)
       .filter((path) => path.endsWith('.usecase.ts'))

@@ -1,6 +1,9 @@
+import { Link } from 'react-router';
+
 import { formatRank, formatRankTrendHint } from '../utils/leaderboard-formatters';
 import { LiveDotIcon } from './icons/LeaderboardIcons';
 import PageHero from '../../../../components/layout/PageHero';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 interface ILeaderboardHeaderProps {
   globalRank: number | null;
@@ -38,6 +41,12 @@ export default function LeaderboardHeader({
               ? 'Earn XP to enter the leaderboard'
               : formatRankTrendHint(globalRankTrend)}
           </p>
+          <Link
+            to={ROUTES.leaderboardRewards}
+            className="mt-3 inline-flex min-h-9 items-center text-[12px] font-bold text-(--brand-500) no-underline hover:underline"
+          >
+            How ranking and rewards work →
+          </Link>
         </div>
       }
     />

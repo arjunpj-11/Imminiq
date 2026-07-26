@@ -70,13 +70,12 @@ export default function AdminUsersPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
 
-  const { data, isLoading, isError, error, isFetching, isPlaceholderData, refetch } = useAdminUsers(
-    {
+  const { data, dataUpdatedAt, isLoading, isError, error, isFetching, isPlaceholderData, refetch } =
+    useAdminUsers({
       search: debouncedSearch,
       status,
       page,
-    }
-  );
+    });
 
   const exportCurrentView = () =>
     csvExport.mutate({
@@ -153,8 +152,14 @@ export default function AdminUsersPage() {
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
-        title="User Management"
+        title="Users"
         description="Manage account access, user history, privacy requests, appeals, and internal support context."
+        meta={{
+          updatedAt: dataUpdatedAt,
+          isRefreshing: isFetching && !isLoading,
+          resultCount: data?.pagination.total,
+          activeFilterCount: Number(Boolean(debouncedSearch)) + Number(status !== 'all'),
+        }}
         action={
           <>
             <button type="button" onClick={exportCurrentView} className="admin-button">

@@ -110,16 +110,10 @@ export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmi
       policy,
     });
     const [currentUserVote, currentUserBalance] = await Promise.all([
-      this._repository.findVoteBySubmissionAndUser(
-        updatedSubmission.id,
-        payload.userId
-      ),
+      this._repository.findVoteBySubmissionAndUser(updatedSubmission.id, payload.userId),
       this._repository.getUserCoinBalance(payload.userId),
     ]);
-    const currentUserRewardCoins = Math.max(
-      0,
-      Number(currentUserVote?.rewardCoins ?? 0)
-    );
+    const currentUserRewardCoins = Math.max(0, Number(currentUserVote?.rewardCoins ?? 0));
 
     const voteView = this._mapper.toVoteView(vote);
 

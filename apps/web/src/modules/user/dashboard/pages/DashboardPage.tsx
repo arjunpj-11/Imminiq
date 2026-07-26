@@ -20,6 +20,12 @@ import { useDashboardRecommendedActions } from '../hooks/useDashboardRecommended
 import { useDashboardSummary } from '../hooks/useDashboardSummary';
 import { useDashboardViewState } from '../hooks/useDashboardViewState';
 import { formatLevelLabel, getInitials } from '../utils/dashboard-formatters';
+import GettingStartedChecklist from '../components/GettingStartedChecklist';
+import {
+  FEATURE_AVAILABILITY_SAFE_FALLBACK,
+  isPathAvailable,
+} from '../../../../config/feature-availability';
+import { useFeatureAvailability } from '../../../../hooks/useFeatureAvailability';
 
 function DashboardMainContentSkeleton({ showDailyInsight }: { showDailyInsight: boolean }) {
   return (
@@ -142,6 +148,8 @@ function DashboardMainContentSkeleton({ showDailyInsight }: { showDailyInsight: 
 
 export default function DashboardPage() {
   const navigate = useNavigate();
+  const featureQuery = useFeatureAvailability();
+  const features = featureQuery.data ?? FEATURE_AVAILABILITY_SAFE_FALLBACK;
 
   const { activityMonths, setActivityMonths, dailyInsightDismissed, dismissDailyInsight } =
     useDashboardViewState();
@@ -157,7 +165,9 @@ export default function DashboardPage() {
   const currentRoadmap = roadmapQuery.data;
   const activity = activityQuery.data ?? [];
   const friends = friendsQuery.data ?? [];
-  const actions = actionsQuery.data ?? [];
+  const actions = (actionsQuery.data ?? []).filter((action) =>
+    isPathAvailable(action.link, features)
+  );
   const aiInsight = insightQuery.data?.insight;
 
   const isMainContentLoading =
@@ -167,10 +177,7 @@ export default function DashboardPage() {
     actionsQuery.isLoading;
 
   const hasMainContentError =
-    summaryQuery.isError ||
-    roadmapQuery.isError ||
-    friendsQuery.isError ||
-    actionsQuery.isError;
+    summaryQuery.isError || roadmapQuery.isError || friendsQuery.isError || actionsQuery.isError;
 
   const shouldShowMainSkeleton = isMainContentLoading || !summary;
   const shouldShowMainError = hasMainContentError && !isMainContentLoading;
@@ -196,28 +203,45 @@ export default function DashboardPage() {
         <PageContainer>
           <DashboardWelcome summary={summary} />
 
-          <RecommendedActions actions={actions} onNavigate={navigate} />
-
-          <DashboardStatsGrid summary={summary} />
-
-          <section className="grid grid-cols-[1fr_300px] gap-4 max-[900px]:grid-cols-1">
-            <CurrentRoadmapCard currentRoadmap={currentRoadmap} onNavigate={navigate} />
-
-            <FriendsCard
-              friends={friends}
-              onOpenFriends={() => navigate(ROUTES.friends)}
-              onOpenProfile={(username) => navigate(`/profile/${username}`)}
-            />
-          </section>
-
-          <ActivityHeatmap
-            activity={activity}
-            months={activityMonths}
-            onMonthsChange={setActivityMonths}
-            isLoading={activityQuery.isFetching}
+          <GettingStartedChecklist
+            trackerCount={summary.trackers.total}
+            completedSubtopics={summary.stats.totalSubtopicsCompleted}
+            onNavigate={navigate}
+            features={features}
           />
 
-          {!dailyInsightDismissed && (
+          <RecommendedActions actions={actions} onNavigate={navigate} />
+
+          <DashboardStatsGrid summary={summary} showTrackerStats={features.trackers} />
+
+          <section className="grid grid-cols-[1fr_300px] gap-4 max-[900px]:grid-cols-1">
+            {features.trackers ? (
+              <CurrentRoadmapCard
+                currentRoadmap={currentRoadmap}
+                onNavigate={navigate}
+                canCreateTracker={features.trackerCreation}
+              />
+            ) : null}
+
+            {features.social ? (
+              <FriendsCard
+                friends={friends}
+                onOpenFriends={() => navigate(ROUTES.friends)}
+                onOpenProfile={(username) => navigate(`/profile/${username}`)}
+              />
+            ) : null}
+          </section>
+
+          {features.activity ? (
+            <ActivityHeatmap
+              activity={activity}
+              months={activityMonths}
+              onMonthsChange={setActivityMonths}
+              isLoading={activityQuery.isFetching}
+            />
+          ) : null}
+
+          {!dailyInsightDismissed && features.adaptiveLearning && (
             <DailyInsightCard insight={aiInsight} onDismiss={dismissDailyInsight} />
           )}
         </PageContainer>

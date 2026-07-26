@@ -1,5 +1,3 @@
-// apps/web/src/hooks/dashboard/useDashboardAIInsights.ts
-
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
 import { DASHBOARD_API_PATHS } from '../constants/dashboard.constants';

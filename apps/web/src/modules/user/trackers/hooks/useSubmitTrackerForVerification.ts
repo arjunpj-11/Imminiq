@@ -1,5 +1,3 @@
-// apps/web/src/modules/user/trackers/hooks/useSubmitTrackerForVerification.ts
-
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import api from '../../../../lib/axios';

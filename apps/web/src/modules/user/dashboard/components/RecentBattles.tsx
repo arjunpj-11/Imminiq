@@ -47,6 +47,9 @@ export default function RecentBattles({ battles }: RecentBattlesProps) {
                   <UserAvatar
                     name={battle.opponent?.fullName ?? 'Unknown Opponent'}
                     src={battle.opponent?.avatarUrl}
+                    {...(battle.opponent?.username
+                      ? { profileUsername: battle.opponent.username }
+                      : {})}
                     sizeClassName="h-6 w-6 text-[8px]"
                     fallbackClassName="from-(--info) to-[#7aa4e8]"
                   />

@@ -1,5 +1,3 @@
-// apps/api/src/modules/user/trackers/application/use-cases/ask-lesson-question-solution-doubt.usecase.ts
-
 import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
@@ -16,9 +14,7 @@ export interface IAskLessonQuestionSolutionDoubtUseCase {
   ): Promise<LessonQuestionSolutionDoubtAnswerDTO>;
 }
 
-export class AskLessonQuestionSolutionDoubtUseCase
-  implements IAskLessonQuestionSolutionDoubtUseCase
-{
+export class AskLessonQuestionSolutionDoubtUseCase implements IAskLessonQuestionSolutionDoubtUseCase {
   constructor(
     private readonly _trackerRepository: Pick<
       ITrackerRepository,

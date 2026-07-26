@@ -6,18 +6,31 @@ import {
   TrackerQuickRevisionPage,
 } from '../config/focused-pages';
 import { ROUTES } from '../config/route-paths';
+import { FeatureAvailabilityGate } from '../guards/FeatureAvailabilityGate';
 
 export const focusedRoutes: RouteObject[] = [
   {
     path: ROUTES.mockTestAttemptPattern,
-    element: <MockTestAttemptPage />,
+    element: (
+      <FeatureAvailabilityGate feature="mockTests">
+        <MockTestAttemptPage />
+      </FeatureAvailabilityGate>
+    ),
   },
   {
     path: ROUTES.trackerLessonPattern,
-    element: <TrackerLessonPage />,
+    element: (
+      <FeatureAvailabilityGate feature="trackers">
+        <TrackerLessonPage />
+      </FeatureAvailabilityGate>
+    ),
   },
   {
     path: ROUTES.trackerRevisionPattern,
-    element: <TrackerQuickRevisionPage />,
+    element: (
+      <FeatureAvailabilityGate feature="trackers">
+        <TrackerQuickRevisionPage />
+      </FeatureAvailabilityGate>
+    ),
   },
 ];

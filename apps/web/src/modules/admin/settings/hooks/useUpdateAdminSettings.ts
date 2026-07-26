@@ -6,6 +6,7 @@ import { getUserFacingError } from '../../../../lib/user-facing-error';
 import type { AdminSettings } from '../types/admin-settings.types';
 import { ADMIN_SETTINGS_ENDPOINTS } from '../constants/admin-settings.constants';
 import { adminSettingsKeys } from './admin-settings.query-keys';
+import { featureAvailabilityQueryKey } from '../../../../hooks/useFeatureAvailability';
 
 type UpdateAdminSettingsInput = {
   settings: Omit<AdminSettings, 'updatedAt'>;
@@ -30,6 +31,7 @@ export const useUpdateAdminSettings = () => {
     }),
     onSuccess: async (settings, _input, context) => {
       client.setQueryData(adminSettingsKeys.detail(), settings);
+      client.setQueryData(featureAvailabilityQueryKey, settings.productPolicy.features);
       toast.update(context.toastId, {
         title: 'Settings saved',
         description: 'The new values are active and the change was added to the audit log.',

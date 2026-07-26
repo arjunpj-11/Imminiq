@@ -40,10 +40,7 @@ export class EndCallUseCase implements IEndCallUseCase {
       changedAt: new Date(),
       durationSeconds:
         input.outcome === 'ended' && current.acceptedAt
-          ? Math.max(
-              0,
-              Math.floor((Date.now() - current.acceptedAt.getTime()) / 1000)
-            )
+          ? Math.max(0, Math.floor((Date.now() - current.acceptedAt.getTime()) / 1000))
           : 0,
     });
     if (!changed) throw CallApplicationError.invalidState();
@@ -51,8 +48,7 @@ export class EndCallUseCase implements IEndCallUseCase {
     const bundle = await this._views.toParticipantBundle(changed);
     for (const event of bundle.views) this._realtime.updated(event.userId, bundle.realtime);
     return (
-      bundle.views.find((event) => event.userId === viewerUserId)?.call ??
-      bundle.views[0]!.call
+      bundle.views.find((event) => event.userId === viewerUserId)?.call ?? bundle.views[0]!.call
     );
   }
 }

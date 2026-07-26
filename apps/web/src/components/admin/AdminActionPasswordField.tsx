@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
+import PasswordVisibilityButton from '../input/PasswordVisibilityButton';
 
 type AdminActionPasswordFieldProps = {
   value: string;
@@ -33,14 +34,13 @@ export default function AdminActionPasswordField({
           placeholder="Enter your admin action password"
           className="pr-11"
         />
-        <button
-          type="button"
+        <PasswordVisibilityButton
+          visible={visible}
+          fieldLabel="admin action password"
+          iconSize={16}
           className="absolute inset-y-0 right-0 grid w-11 place-items-center text-[#817c75] transition hover:text-[#f2f0eb]"
-          onClick={() => setVisible((current) => !current)}
-          aria-label={visible ? 'Hide action password' : 'Show action password'}
-        >
-          {visible ? <EyeOff size={16} /> : <Eye size={16} />}
-        </button>
+          onToggle={() => setVisible((current) => !current)}
+        />
       </div>
       <small>Required to authorize this administrative change.</small>
     </label>

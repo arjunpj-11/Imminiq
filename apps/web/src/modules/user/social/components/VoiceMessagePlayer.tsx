@@ -94,8 +94,7 @@ export default function VoiceMessagePlayer({
     }
   };
 
-  const resolvedDuration =
-    duration || attachment.durationSeconds || Math.max(1, currentTime);
+  const resolvedDuration = duration || attachment.durationSeconds || Math.max(1, currentTime);
 
   return (
     <div className="flex w-[min(270px,70vw)] min-w-0 items-center gap-3 py-1 pr-3">

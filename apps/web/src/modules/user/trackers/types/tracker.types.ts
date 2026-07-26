@@ -1,5 +1,3 @@
-// apps/web/src/types/tracker.types.ts
-
 export type TrackerStatus = 'active' | 'stalled' | 'completed' | 'archived';
 
 export type TrackerStatusFilter = TrackerStatus | 'all';
@@ -38,6 +36,8 @@ export interface ITracker {
   title: string;
   description?: string;
   domain?: string;
+  category?: string;
+  tags?: string[];
   goal?: string;
   level?: TrackerLevel;
   status?: TrackerStatus;
@@ -151,18 +151,40 @@ export interface ITrackerClanMessage {
   id: string;
   trackerId: string;
   text: string;
+  kind: 'text' | 'image' | 'file' | 'voice';
+  attachment?: {
+    url: string;
+    name: string;
+    mimeType: string;
+    sizeBytes: number;
+    durationSeconds: number | null;
+  };
+  replyTo: {
+    messageId: string;
+    senderId: string;
+    text: string;
+    kind: 'text' | 'image' | 'file' | 'voice';
+  } | null;
+  reactions: Array<{
+    emoji: string;
+    count: number;
+    reactedByViewer: boolean;
+    userIds?: string[];
+  }>;
   createdAt: string;
   user: { userId: string; name: string; username: string; avatarUrl?: string | null };
+  deliveryState?: 'sending' | 'failed';
+  clientId?: string;
+}
+
+export interface ITrackerClanMessagePage {
+  items: ITrackerClanMessage[];
+  nextCursor: string | null;
+  hasMore: boolean;
 }
 
 export type TrackerClanChallengeStatus =
-  | 'open'
-  | 'pending'
-  | 'active'
-  | 'completed'
-  | 'declined'
-  | 'cancelled'
-  | 'expired';
+  'open' | 'pending' | 'active' | 'completed' | 'declined' | 'cancelled' | 'expired';
 
 export interface ITrackerClanChallenge {
   id: string;
@@ -273,6 +295,7 @@ export interface ICreateTrackerPayload {
 
 export interface IUpdateTrackerPayload extends Partial<ICreateTrackerPayload> {
   trackerId: string;
+  tags?: string[];
 }
 
 export interface ILearningVideo {
@@ -700,5 +723,4 @@ export type PublishTrackerPayload = {
   domain: string;
   difficulty: string;
   tags: string[];
-  allowClone: boolean;
 };

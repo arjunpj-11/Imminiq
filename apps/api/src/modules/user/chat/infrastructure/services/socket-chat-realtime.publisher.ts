@@ -5,10 +5,7 @@ import {
 } from '../../../../../infrastructure/realtime/socket';
 import type { ChatMessageEntity } from '../../domain/entities/chat-message.entity';
 import type { IChatRealtimePublisher } from '../../domain/services/chat-realtime-publisher.interface';
-import type {
-  ChatBlockStateEvent,
-  ChatConversationReadEvent,
-} from '../../domain/chat.types';
+import type { ChatBlockStateEvent, ChatConversationReadEvent } from '../../domain/chat.types';
 
 export class SocketChatRealtimePublisher implements IChatRealtimePublisher {
   messageCreated(userIds: string[], message: ChatMessageEntity): void {
@@ -27,9 +24,16 @@ export class SocketChatRealtimePublisher implements IChatRealtimePublisher {
             sizeBytes: message.attachment.sizeBytes,
           }
         : null,
+      sharedTracker: message.sharedTracker,
+      sharedProfile: message.sharedProfile,
+      isForwarded: Boolean(message.forwardedFromMessageId),
+      replyTo: message.replyTo,
+      reactions: [],
+      editedAt: message.editedAt,
       createdAt: message.createdAt,
       updatedAt: message.updatedAt,
       isRead: message.isReadByAnotherParticipant(),
+      isStarred: false,
     });
   }
 

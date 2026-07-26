@@ -1,11 +1,14 @@
 import {
   LoaderCircle,
   MessageCircle,
+  MoreHorizontal,
   PhoneIncoming,
   PhoneMissed,
   PhoneOutgoing,
   RotateCcw,
+  UserMinus,
 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 import UserAvatar from '../../../../components/data-display/UserAvatar';
 import { cn } from '../../../../lib/cn';
@@ -60,9 +63,7 @@ export function ConversationRow({
   onSelect: () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onSelect}
+    <div
       className={cn(
         'group relative flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition',
         selected
@@ -75,13 +76,14 @@ export function ConversationRow({
           name={conversation.participant.fullName}
           src={conversation.participant.avatarUrl}
           initials={conversation.participant.initials}
+          profileUsername={conversation.participant.username}
           sizeClassName="h-12 w-12 text-[11px]"
         />
         {conversation.participant.isOnline && (
           <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-(--surface-elevated) bg-[#36a26b]" />
         )}
       </div>
-      <div className="min-w-0 flex-1">
+      <button type="button" onClick={onSelect} className="min-w-0 flex-1 text-left">
         <div className="flex items-baseline gap-2">
           <span className="min-w-0 flex-1 truncate text-[13px] font-bold">
             {conversation.participant.fullName}
@@ -89,9 +91,7 @@ export function ConversationRow({
           <time
             className={cn(
               'shrink-0 font-mono text-[9px]',
-              conversation.unreadCount
-                ? 'font-bold text-(--brand-500)'
-                : 'text-(--text-muted)'
+              conversation.unreadCount ? 'font-bold text-(--brand-500)' : 'text-(--text-muted)'
             )}
           >
             {conversationTime(conversation.lastMessageAt)}
@@ -107,8 +107,8 @@ export function ConversationRow({
             </span>
           )}
         </div>
-      </div>
-    </button>
+      </button>
+    </div>
   );
 }
 
@@ -116,17 +116,32 @@ export function FriendRow({
   friend,
   loading,
   onMessage,
+  onRemove,
 }: {
   friend: IFriendUser;
   loading: boolean;
   onMessage: () => void;
+  onRemove: () => void;
 }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const close = (event: PointerEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    window.addEventListener('pointerdown', close);
+    return () => window.removeEventListener('pointerdown', close);
+  }, [menuOpen]);
+
   return (
     <div className="flex items-center gap-3 rounded-xl px-3 py-3 hover:bg-(--surface-muted)">
       <UserAvatar
         name={friend.fullName}
         src={friend.avatarUrl}
         initials={friend.initials}
+        profileUsername={friend.username}
         sizeClassName="h-11 w-11 text-[10px]"
       />
       <div className="min-w-0 flex-1">
@@ -148,6 +163,36 @@ export function FriendRow({
         )}
         Message
       </button>
+      <div ref={menuRef} className="relative shrink-0">
+        <button
+          type="button"
+          onClick={() => setMenuOpen((current) => !current)}
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-(--border-subtle) text-(--text-muted) hover:bg-(--surface-muted) hover:text-(--text-primary)"
+          aria-label={`Manage friendship with ${friend.fullName}`}
+          aria-expanded={menuOpen}
+        >
+          <MoreHorizontal size={16} />
+        </button>
+        {menuOpen && (
+          <div
+            role="menu"
+            className="absolute right-0 top-11 z-30 w-40 rounded-xl border border-(--border-subtle) bg-(--surface-elevated) p-1.5 shadow-(--shadow-3)"
+          >
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setMenuOpen(false);
+                onRemove();
+              }}
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[10px] font-bold text-(--danger) hover:bg-(--surface-muted)"
+            >
+              <UserMinus size={14} />
+              Unfriend
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -170,6 +215,7 @@ export function RequestRow({
           name={request.user.fullName}
           src={request.user.avatarUrl}
           initials={request.user.initials}
+          profileUsername={request.user.username}
           sizeClassName="h-11 w-11 text-[10px]"
         />
         <div className="min-w-0 flex-1">
@@ -206,13 +252,7 @@ export function RequestRow({
   );
 }
 
-export function CallHistoryRow({
-  call,
-  onCallAgain,
-}: {
-  call: ICall;
-  onCallAgain: () => void;
-}) {
+export function CallHistoryRow({ call, onCallAgain }: { call: ICall; onCallAgain: () => void }) {
   const Icon =
     call.status === 'missed' || call.status === 'declined'
       ? PhoneMissed
@@ -225,18 +265,15 @@ export function CallHistoryRow({
         name={call.otherParticipant.fullName}
         src={call.otherParticipant.avatarUrl}
         initials={call.otherParticipant.initials}
+        profileUsername={call.otherParticipant.username}
         sizeClassName="h-11 w-11 text-[10px]"
       />
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[13px] font-bold">
-          {call.otherParticipant.fullName}
-        </div>
+        <div className="truncate text-[13px] font-bold">{call.otherParticipant.fullName}</div>
         <div className="mt-1 flex items-center gap-1.5 text-[9.5px] text-(--text-muted)">
           <Icon size={11} className={call.status === 'missed' ? 'text-(--danger)' : ''} />
           <span className="capitalize">{call.status}</span>
-          {call.durationSeconds > 0 && (
-            <span>· {formatDuration(call.durationSeconds)}</span>
-          )}
+          {call.durationSeconds > 0 && <span>· {formatDuration(call.durationSeconds)}</span>}
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-2">

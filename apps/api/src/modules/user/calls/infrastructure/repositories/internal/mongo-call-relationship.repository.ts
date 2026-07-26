@@ -13,14 +13,8 @@ export class MongoCallRelationshipRepository
       'CALL_RELATIONSHIP_READ_FAILED',
       'Failed to verify call block state',
       async () => {
-        const first = MongoCallNormalizer.toObjectId(
-          firstUserId,
-          'INVALID_CALL_CALLER_ID'
-        );
-        const second = MongoCallNormalizer.toObjectId(
-          secondUserId,
-          'INVALID_CALL_CALLEE_ID'
-        );
+        const first = MongoCallNormalizer.toObjectId(firstUserId, 'INVALID_CALL_CALLER_ID');
+        const second = MongoCallNormalizer.toObjectId(secondUserId, 'INVALID_CALL_CALLEE_ID');
         return Boolean(
           await UserBlock.exists({
             $or: [
@@ -35,24 +29,22 @@ export class MongoCallRelationshipRepository
   }
 
   async areActiveFriends(firstUserId: string, secondUserId: string) {
-    return this.execute('CALL_RELATIONSHIP_READ_FAILED', 'Failed to verify friendship', async () => {
-      const first = MongoCallNormalizer.toObjectId(
-        firstUserId,
-        'INVALID_CALL_CALLER_ID'
-      );
-      const second = MongoCallNormalizer.toObjectId(
-        secondUserId,
-        'INVALID_CALL_CALLEE_ID'
-      );
-      const relationship = await Friend.exists({
+    return this.execute(
+      'CALL_RELATIONSHIP_READ_FAILED',
+      'Failed to verify friendship',
+      async () => {
+        const first = MongoCallNormalizer.toObjectId(firstUserId, 'INVALID_CALL_CALLER_ID');
+        const second = MongoCallNormalizer.toObjectId(secondUserId, 'INVALID_CALL_CALLEE_ID');
+        const relationship = await Friend.exists({
           userId: first,
           friendId: second,
           status: 'active',
           deletedAt: null,
         });
-      if (!relationship) return false;
-      return !(await this.hasBlockBetween(firstUserId, secondUserId));
-    });
+        if (!relationship) return false;
+        return !(await this.hasBlockBetween(firstUserId, secondUserId));
+      }
+    );
   }
 }
 

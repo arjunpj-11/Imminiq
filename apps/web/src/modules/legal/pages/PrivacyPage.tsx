@@ -340,9 +340,9 @@ export default function PrivacyPage() {
 
             <Section id="s4" num="04" title="Legal Basis">
               <BodyP>
-                Depending on where you live and the purpose involved, we process data to perform
-                our contract with you, comply with law, pursue legitimate interests such as
-                security and service reliability, protect users, or act on your consent.
+                Depending on where you live and the purpose involved, we process data to perform our
+                contract with you, comply with law, pursue legitimate interests such as security and
+                service reliability, protect users, or act on your consent.
               </BodyP>
 
               <HighlightCard label="Consent">
@@ -383,8 +383,8 @@ export default function PrivacyPage() {
               <BodyP>
                 Imminiq uses AI to generate roadmaps, explanations, summaries, mock tests, and
                 learning insights. Inputs may include your goals, selected domain, skill level,
-                tracker structure, answers, prompts, and learning progress. Relevant content is
-                sent to configured AI providers to produce the feature you request.
+                tracker structure, answers, prompts, and learning progress. Relevant content is sent
+                to configured AI providers to produce the feature you request.
               </BodyP>
 
               <TermsList
@@ -406,9 +406,9 @@ export default function PrivacyPage() {
             <Section id="s7" num="07" title="Cookies & Device Storage">
               <BodyP>
                 We use strictly necessary cookies for authentication, two-factor and OAuth flows,
-                and request-forgery protection. We also use browser storage for preferences,
-                drafts, recent searches, and the cookie-notice acknowledgement. We do not currently
-                use advertising, behavioural-tracking, or cross-site analytics cookies.
+                and request-forgery protection. We also use browser storage for preferences, drafts,
+                recent searches, and the cookie-notice acknowledgement. We do not currently use
+                advertising, behavioural-tracking, or cross-site analytics cookies.
               </BodyP>
 
               <div className="overflow-x-auto rounded-xl border border-(--border-subtle) dark:border-white/15">
@@ -523,8 +523,8 @@ export default function PrivacyPage() {
             <Section id="s10" num="10" title="Your Rights">
               <BodyP>
                 Depending on your location, you may have the right to access, correct, export,
-                delete, restrict, object to, or obtain a portable copy of your personal data, and
-                to complain to an appropriate regulator.
+                delete, restrict, object to, or obtain a portable copy of your personal data, and to
+                complain to an appropriate regulator.
               </BodyP>
 
               <TermsList
@@ -541,8 +541,8 @@ export default function PrivacyPage() {
               />
 
               <HighlightCard label="Response Time" variant="green">
-                We aim to acknowledge and respond within the period required by applicable law.
-                We may verify your identity and may decline or charge for manifestly unfounded or
+                We aim to acknowledge and respond within the period required by applicable law. We
+                may verify your identity and may decline or charge for manifestly unfounded or
                 excessive requests where the law permits.
               </HighlightCard>
             </Section>

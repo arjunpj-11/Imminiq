@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type RequestHandler } from 'express';
 
 import { authenticatedApiUserLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
@@ -21,7 +21,8 @@ import {
 
 export const createCommunityRoutes = (
   useCases: CommunityUseCases,
-  enforcePlanLimit: PlanLimitMiddleware
+  enforcePlanLimit: PlanLimitMiddleware,
+  requireTrackerCreation: RequestHandler
 ) => {
   const communityController = new CommunityController(useCases);
   const router = Router();
@@ -41,6 +42,7 @@ export const createCommunityRoutes = (
   router.get(COMMUNITY_ROUTE_PATHS.TRACKER_DETAIL, communityController.getPublicTrackerDetail);
   router.post(
     COMMUNITY_ROUTE_PATHS.CLONE_TRACKER,
+    requireTrackerCreation,
     enforcePlanLimit('tracker_capacity'),
     communityController.cloneTracker
   );

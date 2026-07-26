@@ -137,10 +137,25 @@ body {
 .chat-message-canvas {
   background-color: color-mix(in srgb, var(--surface-canvas) 58%, var(--surface-card));
   background-image:
-    radial-gradient(circle at 86% 8%, color-mix(in srgb, var(--brand-500) 6%, transparent), transparent 28%),
-    radial-gradient(circle at 12% 84%, color-mix(in srgb, var(--success) 4%, transparent), transparent 24%),
-    radial-gradient(circle at 18% 22%, color-mix(in srgb, var(--text-muted) 5%, transparent) 0 1px, transparent 1.4px);
-  background-size: auto, auto, 38px 38px;
+    radial-gradient(
+      circle at 86% 8%,
+      color-mix(in srgb, var(--brand-500) 6%, transparent),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 12% 84%,
+      color-mix(in srgb, var(--success) 4%, transparent),
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 18% 22%,
+      color-mix(in srgb, var(--text-muted) 5%, transparent) 0 1px,
+      transparent 1.4px
+    );
+  background-size:
+    auto,
+    auto,
+    38px 38px;
 }
 
 button,
@@ -159,11 +174,54 @@ select,
   -webkit-tap-highlight-color: transparent;
 }
 
-button:not(:disabled),
-a[href],
-label[for],
-select:not(:disabled) {
+:where(
+  button:not(:disabled),
+  a[href],
+  label[for],
+  summary,
+  select:not(:disabled),
+  input[type='button']:not(:disabled),
+  input[type='submit']:not(:disabled),
+  input[type='reset']:not(:disabled),
+  input[type='checkbox']:not(:disabled),
+  input[type='radio']:not(:disabled),
+  input[type='range']:not(:disabled),
+  input[type='color']:not(:disabled),
+  input[type='file']:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='link']:not([aria-disabled='true']),
+  [role='menuitem']:not([aria-disabled='true']),
+  [role='tab']:not([aria-disabled='true']),
+  [role='switch']:not([aria-disabled='true']),
+  [role='checkbox']:not([aria-disabled='true']),
+  [role='radio']:not([aria-disabled='true'])
+) {
   cursor: pointer;
+}
+
+:where(
+  button:disabled,
+  input:disabled,
+  textarea:disabled,
+  select:disabled,
+  [aria-disabled='true']
+) {
+  cursor: not-allowed;
+}
+
+:where(
+  input:not([type]):not(:disabled),
+  input[type='text']:not(:disabled),
+  input[type='email']:not(:disabled),
+  input[type='password']:not(:disabled),
+  input[type='search']:not(:disabled),
+  input[type='tel']:not(:disabled),
+  input[type='url']:not(:disabled),
+  input[type='number']:not(:disabled),
+  textarea:not(:disabled),
+  [contenteditable='true']
+) {
+  cursor: text;
 }
 
 ::selection {
@@ -218,6 +276,45 @@ canvas {
 
 img {
   height: auto;
+}
+
+:where(h1, h2, h3) {
+  text-wrap: balance;
+}
+
+:where(p, li) {
+  text-wrap: pretty;
+}
+
+:where([id]) {
+  scroll-margin-top: calc(var(--topbar-height) + 1.5rem);
+}
+
+.product-page-header::before {
+  position: absolute;
+  top: 1.4rem;
+  right: 2rem;
+  width: 8.5rem;
+  height: 3rem;
+  content: '';
+  opacity: 0.34;
+  background:
+    radial-gradient(circle at 0 72%, var(--brand-500) 0 3px, transparent 4px),
+    radial-gradient(circle at 52% 35%, var(--brand-500) 0 3px, transparent 4px),
+    radial-gradient(circle at 100% 0, var(--brand-500) 0 3px, transparent 4px),
+    linear-gradient(
+      157deg,
+      transparent 0 18%,
+      color-mix(in srgb, var(--brand-500) 42%, transparent) 19% 20%,
+      transparent 21% 50%,
+      color-mix(in srgb, var(--brand-500) 42%, transparent) 51% 52%,
+      transparent 53%
+    );
+  pointer-events: none;
+}
+
+html.dark .product-page-header::before {
+  opacity: 0.42;
 }
 
 /* Typography utilities used across old and new feature modules. */
@@ -539,6 +636,60 @@ img {
   html {
     scrollbar-gutter: auto;
   }
+
+  :where(button, [role='button'], input, select, textarea) {
+    min-height: 44px;
+  }
+
+  .product-page-header::before {
+    right: -2rem;
+    opacity: 0.2;
+  }
+}
+
+@media (pointer: coarse) {
+  :where(
+    button,
+    a[href],
+    summary,
+    [role='button'],
+    [role='switch'],
+    input[type='checkbox'],
+    input[type='radio'],
+    input[type='range'],
+    input[type='file']
+  ) {
+    min-height: 44px;
+  }
+
+  :where(button, a[href], [role='button'], [role='switch']) {
+    touch-action: manipulation;
+  }
+
+  a[href] {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+@supports (min-height: 100dvh) {
+  body,
+  #root {
+    min-height: 100dvh;
+  }
+}
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 3px solid CanvasText;
+  }
+
+  .surface-flat,
+  .surface-elevated,
+  .surface-spotlight,
+  .product-page-header {
+    border: 1px solid CanvasText;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -550,6 +701,29 @@ img {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+html[data-reduce-motion='true'] *,
+html[data-reduce-motion='true'] *::before,
+html[data-reduce-motion='true'] *::after {
+  scroll-behavior: auto !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+html[data-density='compact'] {
+  --content-max: 1440px;
+}
+
+html[data-density='compact'] [data-page-container] {
+  gap: 0.875rem;
+  margin-top: 0.875rem;
+}
+
+html[data-density='compact'] .surface-flat,
+html[data-density='compact'] .surface-card {
+  --density-card-padding: 0.875rem;
 }
 
 /* Browser-native rendering optimization for long card feeds. */

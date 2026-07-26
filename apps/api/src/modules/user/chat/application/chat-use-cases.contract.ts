@@ -14,4 +14,8 @@ export type ChatUseCases = {
   unblockUser: Application.IUnblockUserUseCase;
   toggleMessageStar: Application.IToggleChatMessageStarUseCase;
   clearConversation: Application.IClearChatConversationUseCase;
+  toggleMessageReaction: Application.IToggleChatMessageReactionUseCase;
+  editMessage: Application.IEditChatMessageUseCase;
+  deleteMessage: Application.IDeleteChatMessageUseCase;
+  listSavedMessages: Application.IListSavedChatMessagesUseCase;
 };

@@ -1,10 +1,12 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import { cn } from '../../../../lib/cn';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { ROUTES } from '../../../../routes/config/route-paths';
+import { safeLocalStorage } from '../../../../lib/storage/safe-storage';
+import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys';
 import {
   parseTrackerOutlineJson,
   trackerOutlineExample,
@@ -18,21 +20,48 @@ import {
 const inputClass =
   'w-full rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-3 text-sm outline-none transition focus:border-(--brand-500) focus:ring-3 focus:ring-[rgba(184,76,43,.12)]';
 
+type ManualTrackerDraft = {
+  title?: string;
+  description?: string;
+  goal?: string;
+  domain?: string;
+  level?: TrackerLevel;
+  outlineJson?: string;
+};
+
+const readDraft = (): ManualTrackerDraft => {
+  try {
+    return JSON.parse(
+      safeLocalStorage.get(STORAGE_KEYS.trackerCreationDraft) ?? '{}'
+    ) as ManualTrackerDraft;
+  } catch {
+    return {};
+  }
+};
+
 export default function ManualTrackerCreationPage() {
   const navigate = useNavigate();
   const createTracker = useCreateTracker();
   const importOutline = useImportTrackerOutline();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [goal, setGoal] = useState('');
-  const [domain, setDomain] = useState('development');
-  const [level, setLevel] = useState<TrackerLevel>('beginner');
-  const [outlineJson, setOutlineJson] = useState('');
+  const [draft] = useState(readDraft);
+  const [title, setTitle] = useState(draft.title ?? '');
+  const [description, setDescription] = useState(draft.description ?? '');
+  const [goal, setGoal] = useState(draft.goal ?? '');
+  const [domain, setDomain] = useState(draft.domain ?? 'development');
+  const [level, setLevel] = useState<TrackerLevel>(draft.level ?? 'beginner');
+  const [outlineJson, setOutlineJson] = useState(draft.outlineJson ?? '');
   const [outlineFileName, setOutlineFileName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pending = createTracker.isPending || importOutline.isPending;
   const titleError = title ? validateTrackerTitle(title) : null;
+
+  useEffect(() => {
+    safeLocalStorage.set(
+      STORAGE_KEYS.trackerCreationDraft,
+      JSON.stringify({ title, description, goal, domain, level, outlineJson })
+    );
+  }, [description, domain, goal, level, outlineJson, title]);
 
   const submit = async () => {
     const invalidTitle = validateTrackerTitle(title);
@@ -58,6 +87,7 @@ export default function ManualTrackerCreationPage() {
           topics,
           uploadAsFile: Boolean(outlineFileName),
         });
+      safeLocalStorage.remove(STORAGE_KEYS.trackerCreationDraft);
       navigate(ROUTES.trackerManage(trackerId), { replace: true });
     } catch (cause) {
       setError(
@@ -80,8 +110,8 @@ export default function ManualTrackerCreationPage() {
           ← Creation options
         </button>
         <div className="mt-5">
-          <p className="font-mono text-[9px] font-bold uppercase tracking-[.16em] text-(--brand-500)">
-            Manual builder
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[.16em] text-(--brand-500)">
+            Manual builder · draft saved locally
           </p>
           <h1 className="mt-2 font-serif text-4xl font-extrabold tracking-[-.04em] sm:text-5xl">
             Build the tracker your way

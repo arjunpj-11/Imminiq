@@ -61,7 +61,10 @@ export default function LeaderboardControls({
   }));
 
   return (
-    <FilterBar surface className="w-full flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-xl p-2.5 sm:p-3">
+    <FilterBar
+      surface
+      className="w-full flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-xl p-2.5 sm:p-3"
+    >
       <PillTabs
         value={activeSection}
         items={sectionItems}

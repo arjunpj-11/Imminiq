@@ -7,6 +7,11 @@ import {
 } from '../../lib/navigation-commands';
 import { useAppShellStore } from '../../store/useAppShellStore';
 import CommandPalette from '../overlays/CommandPalette';
+import {
+  FEATURE_AVAILABILITY_SAFE_FALLBACK,
+  isPathAvailable,
+} from '../../config/feature-availability';
+import { useFeatureAvailability } from '../../hooks/useFeatureAvailability';
 
 const isEditableTarget = (target: EventTarget | null) => {
   if (!(target instanceof HTMLElement)) return false;
@@ -28,6 +33,8 @@ export default function GlobalNavigationController() {
   const commandPaletteOpen = useAppShellStore((state) => state.commandPaletteOpen);
   const closeCommandPalette = useAppShellStore((state) => state.closeCommandPalette);
   const toggleCommandPalette = useAppShellStore((state) => state.toggleCommandPalette);
+  const featureQuery = useFeatureAvailability();
+  const features = featureQuery.data ?? FEATURE_AVAILABILITY_SAFE_FALLBACK;
   const navigationChordRef = useRef<string | null>(null);
   const navigationChordTimerRef = useRef<number | null>(null);
 
@@ -75,7 +82,7 @@ export default function GlobalNavigationController() {
       if (pendingPrefix) {
         const command = findNavigationCommandByShortcut(pendingPrefix, key);
         clearNavigationChord();
-        if (command) {
+        if (command && isPathAvailable(command.path, features)) {
           event.preventDefault();
           navigate(command.path);
         }
@@ -83,7 +90,8 @@ export default function GlobalNavigationController() {
       }
 
       const startsShortcut = NAVIGATION_COMMANDS.some(
-        (command) => command.shortcut?.[0].toLowerCase() === key
+        (command) =>
+          isPathAvailable(command.path, features) && command.shortcut?.[0].toLowerCase() === key
       );
       if (!startsShortcut) return;
 
@@ -97,7 +105,7 @@ export default function GlobalNavigationController() {
       clearNavigationChord();
       window.removeEventListener('keydown', handleShortcut);
     };
-  }, [commandPaletteOpen, navigate, toggleCommandPalette]);
+  }, [commandPaletteOpen, features, navigate, toggleCommandPalette]);
 
   return <CommandPalette open={commandPaletteOpen} onClose={closeCommandPalette} />;
 }

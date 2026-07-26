@@ -1,5 +1,3 @@
-// apps/api/src/infrastructure/database/models/lesson-code-submission.model.ts
-
 import mongoose, { Schema } from 'mongoose';
 
 const lessonCodeSubmissionSchema = new Schema(

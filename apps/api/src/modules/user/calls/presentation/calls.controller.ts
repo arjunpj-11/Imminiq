@@ -89,8 +89,7 @@ export class CallsController {
 
   private parse<T>(
     result:
-      | { success: true; data: T }
-      | { success: false; error: { issues: Array<{ message: string }> } }
+      { success: true; data: T } | { success: false; error: { issues: Array<{ message: string }> } }
   ): T {
     if (result.success) return result.data;
     throw new ApiError(

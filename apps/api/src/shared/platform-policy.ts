@@ -43,7 +43,23 @@ export type SecurityProductPolicy = {
   accountDeletionRecoveryDays: number;
 };
 
+export type FeaturePolicy = {
+  trackers: boolean;
+  trackerCreation: boolean;
+  community: boolean;
+  leaderboard: boolean;
+  mockTests: boolean;
+  adaptiveLearning: boolean;
+  social: boolean;
+  calls: boolean;
+  subscriptions: boolean;
+  supportTickets: boolean;
+  activity: boolean;
+  savedItems: boolean;
+};
+
 export type PlatformPolicy = {
+  features: FeaturePolicy;
   activity: ActivityPolicy;
   community: CommunityPolicy;
   leaderboard: LeaderboardPolicy;
@@ -54,6 +70,20 @@ export type PlatformPolicy = {
 
 /** Safe product defaults used for a new installation and as legacy-data fallbacks. */
 export const PLATFORM_POLICY_DEFAULTS: Readonly<PlatformPolicy> = {
+  features: {
+    trackers: true,
+    trackerCreation: true,
+    community: true,
+    leaderboard: true,
+    mockTests: true,
+    adaptiveLearning: true,
+    social: true,
+    calls: true,
+    subscriptions: true,
+    supportTickets: true,
+    activity: true,
+    savedItems: true,
+  },
   activity: {
     weeklyXpTarget: 5_000,
     dailyGoalRewardXp: 50,
@@ -90,6 +120,7 @@ export const PLATFORM_POLICY_DEFAULTS: Readonly<PlatformPolicy> = {
 };
 
 export const resolvePlatformPolicy = (value?: Partial<PlatformPolicy>): PlatformPolicy => ({
+  features: { ...PLATFORM_POLICY_DEFAULTS.features, ...value?.features },
   activity: { ...PLATFORM_POLICY_DEFAULTS.activity, ...value?.activity },
   community: { ...PLATFORM_POLICY_DEFAULTS.community, ...value?.community },
   leaderboard: { ...PLATFORM_POLICY_DEFAULTS.leaderboard, ...value?.leaderboard },
@@ -120,4 +151,8 @@ export interface ITrackerPolicyReader {
 
 export interface ISecurityProductPolicyReader {
   getSecurityProductPolicy(): Promise<SecurityProductPolicy>;
+}
+
+export interface IFeaturePolicyReader {
+  getFeaturePolicy(): Promise<FeaturePolicy>;
 }

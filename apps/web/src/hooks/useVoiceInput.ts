@@ -2,10 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import api from '../lib/axios';
 import { toast } from '../lib/toast';
-import {
-  explainMediaPermissionError,
-  requestMediaPermission,
-} from '../lib/media-permissions';
+import { explainMediaPermissionError, requestMediaPermission } from '../lib/media-permissions';
 import { VOICE_INPUT_ENDPOINTS } from './voice-input.constants';
 
 type VoiceTranscriptResponse = {
@@ -25,8 +22,7 @@ const selectRecordingMimeType = () => {
   return candidates.find((value) => MediaRecorder.isTypeSupported(value)) ?? '';
 };
 
-const recordingExtension = (mimeType: string) =>
-  mimeType.includes('mp4') ? 'm4a' : 'webm';
+const recordingExtension = (mimeType: string) => (mimeType.includes('mp4') ? 'm4a' : 'webm');
 
 export const useVoiceInput = (onTranscript: (text: string) => void) => {
   const [isListening, setIsListening] = useState(false);
@@ -112,11 +108,9 @@ export const useVoiceInput = (onTranscript: (text: string) => void) => {
       const form = new FormData();
       form.set(
         'audio',
-        new File(
-          [blob],
-          `voice-input-${Date.now()}.${recordingExtension(mimeType)}`,
-          { type: mimeType.split(';')[0] }
-        )
+        new File([blob], `voice-input-${Date.now()}.${recordingExtension(mimeType)}`, {
+          type: mimeType.split(';')[0],
+        })
       );
       const response = await api.post<VoiceTranscriptResponse>(
         VOICE_INPUT_ENDPOINTS.transcriptions,
@@ -176,15 +170,17 @@ export const useVoiceInput = (onTranscript: (text: string) => void) => {
           reject(new Error('MICROPHONE_REQUEST_TIMEOUT'));
         }, MICROPHONE_REQUEST_TIMEOUT_MS);
       });
-      void mediaRequest.then((lateStream) => {
-        if (
-          requestTimedOut ||
-          !mountedRef.current ||
-          requestSequence !== requestSequenceRef.current
-        ) {
-          lateStream.getTracks().forEach((track) => track.stop());
-        }
-      }).catch(() => undefined);
+      void mediaRequest
+        .then((lateStream) => {
+          if (
+            requestTimedOut ||
+            !mountedRef.current ||
+            requestSequence !== requestSequenceRef.current
+          ) {
+            lateStream.getTracks().forEach((track) => track.stop());
+          }
+        })
+        .catch(() => undefined);
       const stream = await Promise.race([mediaRequest, requestTimeout]);
       if (!mountedRef.current || requestSequence !== requestSequenceRef.current) {
         stream.getTracks().forEach((track) => track.stop());

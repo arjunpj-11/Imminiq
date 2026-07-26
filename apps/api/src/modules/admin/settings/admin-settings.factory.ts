@@ -3,6 +3,7 @@ import { GetAdminSettingsUseCase } from './application/use-cases/get-admin-setti
 import { UpdateAdminSettingsUseCase } from './application/use-cases/update-admin-settings.usecase';
 import { mongoAdminSettingsRepository } from './infrastructure/repositories/mongo-admin-settings.repository';
 import { AdminSettingsMapper } from './application/admin-settings.mapper';
+import { emitFeatureAvailabilityChanged } from '../../../infrastructure/realtime/socket';
 export type AdminSettingsComposition = { useCases: AdminSettingsUseCases };
 
 export const createAdminSettingsComposition = (): AdminSettingsComposition => {
@@ -10,7 +11,11 @@ export const createAdminSettingsComposition = (): AdminSettingsComposition => {
   return {
     useCases: {
       get: new GetAdminSettingsUseCase(mongoAdminSettingsRepository, mapper),
-      update: new UpdateAdminSettingsUseCase(mongoAdminSettingsRepository, mapper),
+      update: new UpdateAdminSettingsUseCase(
+        mongoAdminSettingsRepository,
+        mapper,
+        emitFeatureAvailabilityChanged
+      ),
     },
   };
 };

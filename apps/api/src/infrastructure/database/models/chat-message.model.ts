@@ -45,6 +45,28 @@ const sharedProfileSchema = new Schema(
   { _id: false }
 );
 
+const chatReplySchema = new Schema(
+  {
+    messageId: { type: Schema.Types.ObjectId, ref: 'ChatMessage', required: true },
+    senderId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    kind: {
+      type: String,
+      enum: ['text', 'code', 'image', 'file', 'voice', 'tracker', 'profile'],
+      required: true,
+    },
+    text: { type: String, trim: true, maxlength: 240, default: '' },
+  },
+  { _id: false }
+);
+
+const chatReactionSchema = new Schema(
+  {
+    emoji: { type: String, required: true, maxlength: 8 },
+    userIds: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
+  },
+  { _id: false }
+);
+
 const chatMessageSchema = new Schema(
   {
     conversationId: {
@@ -94,6 +116,9 @@ const chatMessageSchema = new Schema(
       ref: 'ChatMessage',
       default: null,
     },
+    replyTo: { type: chatReplySchema, default: null },
+    reactions: { type: [chatReactionSchema], default: [] },
+    editedAt: { type: Date, default: null },
     readBy: {
       type: [Schema.Types.ObjectId],
       ref: 'User',

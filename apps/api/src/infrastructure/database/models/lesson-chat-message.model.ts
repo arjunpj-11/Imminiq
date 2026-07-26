@@ -1,5 +1,3 @@
-// apps/api/src/infrastructure/database/models/lesson-chat-message.model.ts
-
 import mongoose, { Schema } from 'mongoose';
 
 const lessonChatMessageSchema = new Schema(

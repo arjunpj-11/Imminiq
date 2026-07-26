@@ -20,7 +20,7 @@ export default function PageHeader({
   return (
     <header
       className={cn(
-        'relative flex flex-wrap items-end justify-between gap-x-6 gap-y-4 overflow-hidden rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) sm:p-6 max-[640px]:items-start',
+        'product-page-header relative flex flex-wrap items-end justify-between gap-x-6 gap-y-4 overflow-hidden rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) sm:p-6 max-[640px]:items-start',
         className
       )}
     >

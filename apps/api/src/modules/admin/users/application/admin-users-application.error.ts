@@ -2,10 +2,7 @@ import type { ErrorKind } from '../../../../shared/errors/error-kind';
 import { AdminUsersDomainError } from '../domain/admin-users-domain.error';
 
 export type AdminUsersApplicationErrorCode =
-  | 'USER_NOT_FOUND'
-  | 'SELF_STATUS_CHANGE'
-  | 'PROTECTED_ADMIN'
-  | 'APPEAL_CONFLICT';
+  'USER_NOT_FOUND' | 'SELF_STATUS_CHANGE' | 'PROTECTED_ADMIN' | 'APPEAL_CONFLICT';
 
 export class AdminUsersApplicationError extends AdminUsersDomainError {
   readonly kind: ErrorKind;

@@ -131,7 +131,32 @@
 
 .admin-page-header {
   position: relative;
+  isolation: isolate;
   padding-bottom: 0.25rem;
+}
+
+.admin-page-header::after {
+  position: absolute;
+  z-index: -1;
+  top: 0.45rem;
+  right: 0;
+  width: 10rem;
+  height: 3.25rem;
+  content: '';
+  opacity: 0.28;
+  background:
+    radial-gradient(circle at 0 76%, var(--admin-accent) 0 3px, transparent 4px),
+    radial-gradient(circle at 54% 38%, var(--admin-accent) 0 3px, transparent 4px),
+    radial-gradient(circle at 100% 0, var(--admin-accent) 0 3px, transparent 4px),
+    linear-gradient(
+      157deg,
+      transparent 0 18%,
+      rgba(232, 129, 106, 0.48) 19% 20%,
+      transparent 21% 50%,
+      rgba(232, 129, 106, 0.48) 51% 52%,
+      transparent 53%
+    );
+  pointer-events: none;
 }
 
 .admin-page-title {
@@ -549,6 +574,11 @@
 
   .admin-page-header {
     align-items: stretch !important;
+  }
+
+  .admin-page-header::after {
+    right: -2rem;
+    opacity: 0.16;
   }
 
   .admin-page-header > :last-child:not(:first-child) {

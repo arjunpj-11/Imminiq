@@ -42,7 +42,8 @@ export default function StickyFeatureCards() {
                     {card.number}
                   </span>
                   <span className="rounded-full border border-[#b84c2b]/30 bg-[#b84c2b]/10 px-3 py-1 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-[0.14em] text-[#b84c2b] dark:border-[#e8816a]/30 dark:bg-[#e8816a]/10 dark:text-[#e8816a]">
-                    Step {String(index + 1).padStart(2, '0')} / {String(featureCards.length).padStart(2, '0')}
+                    Step {String(index + 1).padStart(2, '0')} /{' '}
+                    {String(featureCards.length).padStart(2, '0')}
                   </span>
                 </div>
                 <h3 className="max-w-42 text-right text-[22px] font-bold tracking-[-0.04em] md:text-left">

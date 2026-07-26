@@ -1,5 +1,6 @@
 import { MockTestQuestionModel } from '../../../../../../infrastructure/database/models/mock-test-question.model';
 import { MockTestModel } from '../../../../../../infrastructure/database/models/mock-test.model';
+import { paginationConfig } from '../../../../../../config/pagination';
 import type {
   CreateMockTestInput,
   FindMockTestsByOwnerInput,
@@ -52,7 +53,7 @@ export class MongoMockTestsTestRepository extends MongoMockTestsBaseRepository {
 
   async findTestsByOwner(input: FindMockTestsByOwnerInput) {
     return this.execute('MOCK_TEST_READ_FAILED', 'Failed to read owner mock tests', async () => {
-      const { ownerId, page = 1, limit = 6 } = input;
+      const { ownerId, page = 1, limit = paginationConfig.profileLimit } = input;
       const safeOwnerId = MongoMockTestsObjectId.toObjectId(ownerId);
 
       if (!safeOwnerId) {

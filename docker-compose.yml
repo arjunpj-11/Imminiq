@@ -3,13 +3,13 @@ services:
     image: redis:7-alpine
     container_name: imminiq_redis
     restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes"]
+    command: ['redis-server', '--appendonly', 'yes']
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 2s
       timeout: 2s
       retries: 15
@@ -20,7 +20,7 @@ services:
     restart: always
     privileged: true
     ports:
-      - "2000:2000"
+      - '2000:2000'
     tmpfs:
       - /tmp:exec
 

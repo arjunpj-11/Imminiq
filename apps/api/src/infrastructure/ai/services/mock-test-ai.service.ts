@@ -14,12 +14,7 @@ import { buildMockTestQuestionsPrompt } from '../prompts/mock-test-questions.pro
 export type MockTestAIQuestionType = 'mcq' | 'short_answer' | 'coding';
 export type MockTestAIDifficulty = 'easy' | 'medium' | 'hard';
 export type MockTestAICodingLanguage =
-  | 'javascript'
-  | 'typescript'
-  | 'python'
-  | 'java'
-  | 'cpp'
-  | 'c';
+  'javascript' | 'typescript' | 'python' | 'java' | 'cpp' | 'c';
 
 export type GenerateMockTestQuestionsAIInput = {
   topic: string;

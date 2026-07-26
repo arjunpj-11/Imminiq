@@ -120,7 +120,7 @@ export const adminRoutes: RouteObject[] = [
       },
       {
         path: ADMIN_ROUTES.questionBank,
-        element: roleGuard(<AdminQuestionBankPage />, ADMIN_ROUTE_ROLES.users),
+        element: roleGuard(<AdminQuestionBankPage />, ADMIN_ROUTE_ROLES.mockTests),
       },
       {
         path: ADMIN_ROUTES.mockTestDetailPattern,

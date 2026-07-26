@@ -2,11 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 
 export type DataPrivacyRequestType = 'access' | 'export' | 'delete' | 'correction';
 export type DataPrivacyRequestStatus =
-  | 'pending'
-  | 'in_progress'
-  | 'completed'
-  | 'rejected'
-  | 'cancelled';
+  'pending' | 'in_progress' | 'completed' | 'rejected' | 'cancelled';
 
 export interface IDataPrivacyRequestDocument {
   _id: mongoose.Types.ObjectId;

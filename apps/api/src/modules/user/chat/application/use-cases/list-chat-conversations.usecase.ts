@@ -19,10 +19,7 @@ export class ListChatConversationsUseCase implements IListChatConversationsUseCa
     private readonly _conversationQueryRepository: IChatConversationQueryRepository,
     private readonly _messageQueryRepository: IChatMessageQueryRepository,
     private readonly _participantRepository: IChatParticipantRepository,
-    private readonly _blockRepository: Pick<
-      IChatBlockRepository,
-      'listBlockedByUserIds'
-    >,
+    private readonly _blockRepository: Pick<IChatBlockRepository, 'listBlockedByUserIds'>,
     private readonly _chatMapper: IChatMapper
   ) {}
 
@@ -47,9 +44,7 @@ export class ListChatConversationsUseCase implements IListChatConversationsUseCa
       ),
       this._blockRepository.listBlockedByUserIds(viewerUserId),
     ]);
-    const messageMap = new Map(
-      messages.map((message) => [message.conversationId, message])
-    );
+    const messageMap = new Map(messages.map((message) => [message.conversationId, message]));
     const summaries = page.items.map((conversation) => {
       const participantId = conversation.otherParticipantId(viewerUserId);
       const participant = participantId ? participants.get(participantId) : undefined;

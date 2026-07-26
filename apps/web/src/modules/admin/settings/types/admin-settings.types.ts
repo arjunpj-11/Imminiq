@@ -3,6 +3,20 @@ export type AdminSettings = {
   aiMonthlyTokenBudget: number;
   aiBudgetWarningPercent: number;
   productPolicy: {
+    features: {
+      trackers: boolean;
+      trackerCreation: boolean;
+      community: boolean;
+      leaderboard: boolean;
+      mockTests: boolean;
+      adaptiveLearning: boolean;
+      social: boolean;
+      calls: boolean;
+      subscriptions: boolean;
+      supportTickets: boolean;
+      activity: boolean;
+      savedItems: boolean;
+    };
     activity: {
       weeklyXpTarget: number;
       dailyGoalRewardXp: number;

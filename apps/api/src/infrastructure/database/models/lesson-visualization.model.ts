@@ -1,5 +1,3 @@
-// apps/api/src/infrastructure/database/models/lesson-visualization.model.ts
-
 import mongoose, { Schema } from 'mongoose';
 
 const lessonVisualizationSchema = new Schema(

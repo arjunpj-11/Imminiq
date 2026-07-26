@@ -1,4 +1,3 @@
-// infrastructure/database/models/question-bank-counter.model.ts
 import mongoose, { Schema } from 'mongoose';
 
 const questionBankCounterSchema = new Schema({

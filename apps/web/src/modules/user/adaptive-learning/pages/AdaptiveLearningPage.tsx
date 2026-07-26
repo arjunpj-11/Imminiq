@@ -3,10 +3,7 @@ import { useNavigate } from 'react-router';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import PageHero from '../../../../components/layout/PageHero';
-import {
-  MicButton,
-  VoiceInputStatus,
-} from '../../../../components/input/VoiceInputButton';
+import { MicButton, VoiceInputStatus } from '../../../../components/input/VoiceInputButton';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import { useVoiceInput } from '../../../../hooks/useVoiceInput';
 import { ROUTES } from '../../../../routes/config/route-paths';
@@ -21,9 +18,13 @@ import {
   useAdaptiveLearningDashboard,
   useGenerateAdaptiveAssessment,
 } from '../hooks/useAdaptiveLearning';
+import { FEATURE_AVAILABILITY_SAFE_FALLBACK } from '../../../../config/feature-availability';
+import { useFeatureAvailability } from '../../../../hooks/useFeatureAvailability';
 
 export default function AdaptiveLearningPage() {
   const navigate = useNavigate();
+  const featureQuery = useFeatureAvailability();
+  const features = featureQuery.data ?? FEATURE_AVAILABILITY_SAFE_FALLBACK;
   const dashboard = useAdaptiveLearningDashboard();
   const chat = useAdaptiveAdvisorChat();
   const clearChat = useClearAdaptiveAdvisorChat();
@@ -44,6 +45,13 @@ export default function AdaptiveLearningPage() {
   );
   const messagesContainer = useRef<HTMLDivElement>(null);
   const data = dashboard.data;
+  const advisorActionAvailable =
+    !advisorAction ||
+    (advisorAction.type === 'create_tracker'
+      ? features.trackers && features.trackerCreation
+      : advisorAction.type === 'browse_community_trackers'
+        ? features.community
+        : features.mockTests);
 
   useEffect(() => {
     const container = messagesContainer.current;
@@ -175,7 +183,7 @@ export default function AdaptiveLearningPage() {
               <div>
                 <h2 className="font-ui text-[18px] font-black text-(--text-primary)">Ask Immi</h2>
                 <p className="mt-1 text-[12px] text-(--text-secondary)">
-                  The agent can inspect your learning profile through read-only tools.
+                  Recommendations use your trackers, recent test performance, mastery, and streak.
                 </p>
               </div>
               <button
@@ -191,8 +199,24 @@ export default function AdaptiveLearningPage() {
             <div ref={messagesContainer} className="min-h-0 flex-1 space-y-3 overflow-y-auto p-5">
               {!data?.messages.length ? (
                 <div className="rounded-2xl bg-[rgba(184,76,43,0.08)] p-4 text-[13px] leading-6 text-(--text-secondary)">
-                  Try: “What should I study next?”, “Which tracker should I continue?”, or “What
-                  mock test should I take today?”
+                  <p>Choose a starting point or ask in your own words.</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {[
+                      'What should I study next?',
+                      'Which tracker should I continue?',
+                      'What should I revise today?',
+                      'Which mock test would expose my gaps?',
+                    ].map((prompt) => (
+                      <button
+                        key={prompt}
+                        type="button"
+                        onClick={() => setQuestion(prompt)}
+                        className="min-h-10 rounded-full border border-[rgba(184,76,43,0.22)] bg-(--surface-card) px-3 text-[12px] font-bold text-(--brand-500) transition hover:border-(--brand-500)"
+                      >
+                        {prompt}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               ) : null}
               {data?.messages.map((message) => (
@@ -227,12 +251,18 @@ export default function AdaptiveLearningPage() {
                   <button
                     type="button"
                     onClick={() => void executeAdvisorAction()}
-                    disabled={generateRoadmap.isPending || generateMockTest.isPending}
+                    disabled={
+                      !advisorActionAvailable ||
+                      generateRoadmap.isPending ||
+                      generateMockTest.isPending
+                    }
                     className="mt-3 rounded-xl bg-(--brand-500) px-4 py-2.5 text-[12px] font-bold text-white disabled:opacity-60"
                   >
-                    {generateRoadmap.isPending || generateMockTest.isPending
-                      ? 'Starting generation…'
-                      : advisorAction.label}
+                    {!advisorActionAvailable
+                      ? 'Temporarily unavailable'
+                      : generateRoadmap.isPending || generateMockTest.isPending
+                        ? 'Starting generation…'
+                        : advisorAction.label}
                   </button>
                   {actionError ? (
                     <p className="mt-2 text-[11px] font-semibold text-red-600">{actionError}</p>
@@ -287,6 +317,9 @@ export default function AdaptiveLearningPage() {
                     Predicted score: {data.latestAssessment.predictedScore}% ·{' '}
                     {data.latestAssessment.difficulty}
                   </p>
+                  <p className="mt-2 rounded-xl border border-(--border-subtle) bg-(--surface-card)/60 p-3 text-[11.5px] leading-5 text-(--text-secondary)">
+                    Why this test: {data.latestAssessment.rationale}
+                  </p>
                   <button
                     type="button"
                     onClick={() => navigate(`/mock-tests/${data.latestAssessment?.testId}`)}
@@ -340,6 +373,22 @@ export default function AdaptiveLearningPage() {
                   </li>
                 ))}
               </ul>
+              {data && (
+                <details className="mt-4 rounded-xl border border-(--border-subtle) bg-(--surface-elevated) p-3">
+                  <summary className="cursor-pointer text-[12px] font-bold text-(--text-primary)">
+                    What Immi used
+                  </summary>
+                  <p className="mt-2 text-[11.5px] leading-5 text-(--text-secondary)">
+                    {data.learnerSummary.trackerCount} trackers,{' '}
+                    {data.learnerSummary.recentTestCount} recent tests,{' '}
+                    {data.learnerSummary.averageScore === null
+                      ? 'no recent average score'
+                      : `${data.learnerSummary.averageScore}% average score`}
+                    , and a {data.learnerSummary.streakCount}-day streak. Immi does not change your
+                    trackers or start tests until you press an action button.
+                  </p>
+                </details>
+              )}
             </div>
           </aside>
         </div>

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { isAxiosError } from 'axios';
+import { paginationConfig } from '../../../../config/pagination';
 import { ROUTES } from '../../../../routes/config/route-paths';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
@@ -88,12 +89,15 @@ export default function ProfilePage() {
 
   const profileQuery = useProfile({ enabled: isOwnView });
   const statsQuery = useProfileStats({ enabled: isOwnView });
-  const trackersQuery = usePublishedTrackers({ page: 1, limit: 3 }, { enabled: isOwnView });
+  const trackersQuery = usePublishedTrackers(
+    { page: 1, limit: paginationConfig.profileHighlightLimit },
+    { enabled: isOwnView }
+  );
   const streakQuery = useStreak(selectedHeatmapYear, { enabled: isOwnView });
 
   const publicProfileQuery = usePublicProfile(
     username ?? '',
-    { page: 1, limit: 3, sort: 'publishedAt' },
+    { page: 1, limit: paginationConfig.profileHighlightLimit, sort: 'publishedAt' },
     { enabled: isPublicView && authReady }
   );
 
@@ -154,9 +158,7 @@ export default function ProfilePage() {
       shareProfile({
         username: shareUsername,
         name:
-          activeProfileData.profile.fullName ||
-          activeProfileData.user.fullName ||
-          shareUsername,
+          activeProfileData.profile.fullName || activeProfileData.user.fullName || shareUsername,
         url: profileShareUrl,
         avatarUrl: activeProfileData.user.avatarUrl || null,
       });

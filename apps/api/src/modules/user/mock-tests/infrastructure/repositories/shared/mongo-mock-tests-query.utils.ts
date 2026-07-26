@@ -1,4 +1,5 @@
 import type { DifficultyLevel } from '../../../domain/value-objects/difficulty-level.vo';
+import { paginationConfig } from '../../../../../../config/pagination';
 
 const ALLOWED_DIFFICULTIES = ['easy', 'medium', 'hard'] as const;
 const SAFE_TAG_PATTERN = /^[a-zA-Z0-9 _-]{1,40}$/;
@@ -27,6 +28,8 @@ export class MongoMockTestsQueryUtils {
   }
 
   static sanitizeLimit(limit: number): number {
-    return Number.isInteger(limit) && limit > 0 && limit <= 50 ? limit : 20;
+    return Number.isInteger(limit) && limit > 0 && limit <= paginationConfig.maxStandardLimit
+      ? limit
+      : paginationConfig.defaultLimit;
   }
 }

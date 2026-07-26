@@ -62,11 +62,8 @@ export default function AdminMockTestsPage() {
     setSelected([]); // eslint-disable-line react-hooks/set-state-in-effect
   }, [debouncedSearch, status, page]);
 
-  const { data, isLoading, isPlaceholderData, isError, error, refetch } = useAdminMockTests({
-    search: debouncedSearch,
-    status,
-    page,
-  });
+  const { data, dataUpdatedAt, isLoading, isFetching, isPlaceholderData, isError, error, refetch } =
+    useAdminMockTests({ search: debouncedSearch, status, page });
 
   const exportCurrentView = () =>
     csvExport.mutate({
@@ -139,8 +136,14 @@ export default function AdminMockTestsPage() {
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
-        title="Mock Test Management"
+        title="Mock Tests"
         description="Inspect assessment contents, questions, correct answers, and test configuration."
+        meta={{
+          updatedAt: dataUpdatedAt,
+          isRefreshing: isFetching && !isLoading,
+          resultCount: data?.pagination.total,
+          activeFilterCount: Number(Boolean(debouncedSearch)) + Number(status !== 'all'),
+        }}
         action={
           <>
             <Link to={ADMIN_MOCK_TESTS_ROUTES.questionBank} className="admin-button">

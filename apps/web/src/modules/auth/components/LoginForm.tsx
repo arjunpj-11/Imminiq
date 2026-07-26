@@ -8,11 +8,11 @@ import AuthLayout from './AuthLayout';
 import AuthIdentifierField from './AuthIdentifierField';
 import AuthSocialButtons from './AuthSocialButtons';
 import { ApiErrorBanner, FieldError } from './AuthError';
-import { EyeIcon } from './icons/AuthIcons';
 import { authInputClass, authLabelClass, cn } from '../utils/auth-ui';
 import { validateIdentifier } from '../utils/auth-validation';
 import { ROUTES } from '../../../routes/config/route-paths';
 import ImminiqWordmark from '../../../components/ui/ImminiqWordmark';
+import PasswordVisibilityButton from '../../../components/input/PasswordVisibilityButton';
 import { getOAuthErrorMessage } from '../utils/oauth-error';
 
 interface IFormState {
@@ -128,7 +128,7 @@ export default function LoginForm() {
             <span className={authLabelClass}>Password</span>
             <Link
               to={ROUTES.forgotPassword}
-              className="font-mono text-[9.5px] uppercase tracking-widest text-(--brand-500) hover:opacity-70 dark:text-(--brand-500)"
+              className="font-mono text-[11px] uppercase tracking-widest text-(--brand-500) hover:opacity-70 dark:text-(--brand-500)"
             >
               Forgot?
             </Link>
@@ -147,15 +147,12 @@ export default function LoginForm() {
               placeholder="Enter password"
               autoComplete="current-password"
             />
-            <button
-              type="button"
+            <PasswordVisibilityButton
+              visible={showPw}
+              fieldLabel="password"
               className="absolute right-1 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-md text-(--text-secondary) transition hover:bg-(--surface-muted) hover:text-(--brand-500) focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
-              onClick={() => setShowPw((value) => !value)}
-              aria-label={showPw ? 'Hide password' : 'Show password'}
-              title={showPw ? 'Hide password' : 'Show password'}
-            >
-              <EyeIcon open={showPw} />
-            </button>
+              onToggle={() => setShowPw((value) => !value)}
+            />
           </div>
           <FieldError message={errors.password} />
         </label>
@@ -171,7 +168,7 @@ export default function LoginForm() {
 
       <div className="my-5 flex items-center gap-3">
         <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/15" />
-        <span className="font-mono text-[9px] font-medium uppercase tracking-[0.12em] text-(--text-secondary) dark:text-(--text-secondary)">
+        <span className="font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-(--text-secondary) dark:text-(--text-secondary)">
           Or continue with
         </span>
         <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/15" />

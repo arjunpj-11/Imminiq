@@ -1,6 +1,4 @@
 import type { LessonCodeExecutionDTO, RunLessonCodePayloadDTO } from '../tracker.dto';
-// apps/api/src/modules/user/trackers/application/use-cases/run-lesson-code.usecase.ts
-
 import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';

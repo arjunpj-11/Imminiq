@@ -1,5 +1,7 @@
 import type {
   ChatMessageKind,
+  ChatReaction,
+  ChatReplyPreview,
   SharedProfile,
   SharedTracker,
   StoredChatFile,
@@ -16,6 +18,9 @@ export type ChatMessageEntityProps = {
   sharedTracker?: SharedTracker | null;
   sharedProfile?: SharedProfile | null;
   forwardedFromMessageId?: string | null;
+  replyTo?: ChatReplyPreview | null;
+  reactions?: ChatReaction[];
+  editedAt?: Date | null;
   readBy: string[];
   starredBy?: string[];
   clearedFor?: string[];
@@ -35,6 +40,9 @@ export class ChatMessageEntity {
   readonly sharedTracker: SharedTracker | null;
   readonly sharedProfile: SharedProfile | null;
   readonly forwardedFromMessageId: string | null;
+  readonly replyTo: ChatReplyPreview | null;
+  readonly reactions: ChatReaction[];
+  readonly editedAt: Date | null;
   readonly readBy: string[];
   readonly starredBy: string[];
   readonly clearedFor: string[];
@@ -53,6 +61,12 @@ export class ChatMessageEntity {
     this.sharedTracker = props.sharedTracker ?? null;
     this.sharedProfile = props.sharedProfile ?? null;
     this.forwardedFromMessageId = props.forwardedFromMessageId ?? null;
+    this.replyTo = props.replyTo ?? null;
+    this.reactions = (props.reactions ?? []).map((reaction) => ({
+      emoji: reaction.emoji,
+      userIds: [...reaction.userIds],
+    }));
+    this.editedAt = props.editedAt ?? null;
     this.readBy = [...props.readBy];
     this.starredBy = [...(props.starredBy ?? [])];
     this.clearedFor = [...(props.clearedFor ?? [])];

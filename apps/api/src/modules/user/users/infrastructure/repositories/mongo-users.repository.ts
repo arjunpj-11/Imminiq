@@ -151,10 +151,7 @@ export class MongoUsersRepository implements IUsersRepository {
   }
 
   hasBlockBetween(firstUserId: UserIdInput, secondUserId: UserIdInput) {
-    return this._relationshipRepository.hasBlockBetween(
-      String(firstUserId),
-      String(secondUserId)
-    );
+    return this._relationshipRepository.hasBlockBetween(String(firstUserId), String(secondUserId));
   }
 }
 

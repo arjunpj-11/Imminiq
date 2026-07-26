@@ -1,4 +1,6 @@
 import { Link } from 'react-router';
+import { useEffect, useRef, useState } from 'react';
+import { UserMinus } from 'lucide-react';
 import type { IFriendUser } from '../../types/friends.types';
 import { formatMutualFriends } from '../../utils/friends-formatters';
 import FriendsAvatar from '../shared/FriendsAvatar';
@@ -11,6 +13,18 @@ interface IFriendCardProps {
 }
 
 export default function FriendCard({ friend, removing, onRemove }: IFriendCardProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const close = (event: PointerEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    window.addEventListener('pointerdown', close);
+    return () => window.removeEventListener('pointerdown', close);
+  }, [menuOpen]);
+
   return (
     <article className="render-lazy flex min-w-0 items-center gap-3.5 rounded-lg border border-[#e8ddd6] bg-white/55 p-4 transition hover:border-[rgba(184,76,43,0.24)] hover:bg-white/75 dark:border-white/8 dark:bg-white/3 dark:hover:border-white/15 dark:hover:bg-white/5">
       <Link
@@ -41,16 +55,36 @@ export default function FriendCard({ friend, removing, onRemove }: IFriendCardPr
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={() => onRemove(friend)}
-        disabled={removing}
-        aria-label={`Remove ${friend.fullName} from friends`}
-        title="Remove friend"
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border-[1.5px] border-(--border-subtle) text-[#9b9a92] transition hover:border-[rgba(184,76,43,0.25)] hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle) dark:hover:text-(--brand-500)"
-      >
-        {removing ? <SpinnerIcon className="animate-spin" /> : <MoreIcon />}
-      </button>
+      <div ref={menuRef} className="relative shrink-0">
+        <button
+          type="button"
+          onClick={() => setMenuOpen((current) => !current)}
+          disabled={removing}
+          aria-label={`Manage friendship with ${friend.fullName}`}
+          className="flex h-9 w-9 items-center justify-center rounded-md border-[1.5px] border-(--border-subtle) text-[#9b9a92] transition hover:border-[rgba(184,76,43,0.25)] hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle) dark:hover:text-(--brand-500)"
+        >
+          {removing ? <SpinnerIcon className="animate-spin" /> : <MoreIcon />}
+        </button>
+        {menuOpen && (
+          <div
+            role="menu"
+            className="absolute right-0 top-11 z-30 w-40 rounded-xl border border-(--border-subtle) bg-(--surface-elevated) p-1.5 shadow-(--shadow-3)"
+          >
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setMenuOpen(false);
+                onRemove(friend);
+              }}
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[10px] font-bold text-(--danger) hover:bg-(--surface-muted)"
+            >
+              <UserMinus size={14} />
+              Unfriend
+            </button>
+          </div>
+        )}
+      </div>
     </article>
   );
 }

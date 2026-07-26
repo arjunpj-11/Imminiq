@@ -1,3 +1,4 @@
+import { paginationConfig } from '../../config/pagination';
 import api from '../axios';
 import type { ApiEnvelope } from '../api.types';
 
@@ -22,7 +23,7 @@ export async function fetchAllAdminItems<TData, TItem>({
   params,
   selectItems,
   selectPageCount,
-  pageSize = 50,
+  pageSize = paginationConfig.batchLimit,
   maxPages = 500,
 }: FetchAllAdminItemsOptions<TData, TItem>): Promise<TItem[]> {
   const items: TItem[] = [];

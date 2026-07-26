@@ -21,6 +21,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   UPLOAD_ERROR: 'The selected file could not be uploaded. Check the file and try again.',
   DUPLICATE_RESOURCE: 'That information is already in use.',
   SERVICE_UNAVAILABLE: 'This service is temporarily unavailable. Please try again shortly.',
+  FEATURE_TEMPORARILY_UNAVAILABLE:
+    'This area is temporarily paused for maintenance. Your existing information is safe.',
 };
 
 const STATUS_MESSAGES: Partial<Record<number, string>> = {

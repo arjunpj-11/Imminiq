@@ -11,10 +11,7 @@ export const createVoiceInputComposition = (): VoiceInputComposition => {
   const mapper = new VoiceInputMapper();
   return {
     useCases: {
-      transcribe: new TranscribeVoiceInputUseCase(
-        groqVoiceTranscriptionGateway,
-        mapper
-      ),
+      transcribe: new TranscribeVoiceInputUseCase(groqVoiceTranscriptionGateway, mapper),
     },
   };
 };

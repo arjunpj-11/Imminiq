@@ -2,6 +2,7 @@ import { Component, type ErrorInfo, type ReactNode } from 'react';
 
 import Button from '../ui/Button';
 import ImminiqLogo from '../ui/ImminiqLogo';
+import { reportClientError } from '../../lib/telemetry/client-error-reporter';
 
 interface IAppErrorBoundaryProps {
   children: ReactNode;
@@ -23,7 +24,7 @@ export default class AppErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('Imminiq render error', error, info);
+    reportClientError(error, { source: 'render', componentStack: info.componentStack });
   }
 
   componentDidUpdate(previousProps: IAppErrorBoundaryProps) {

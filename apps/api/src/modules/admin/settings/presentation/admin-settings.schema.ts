@@ -4,6 +4,20 @@ export const adminSettingsSchema = z.object({
   aiMonthlyTokenBudget: z.number().int().min(1).max(10_000_000_000),
   aiBudgetWarningPercent: z.number().int().min(1).max(100),
   productPolicy: z.object({
+    features: z.object({
+      trackers: z.boolean(),
+      trackerCreation: z.boolean(),
+      community: z.boolean(),
+      leaderboard: z.boolean(),
+      mockTests: z.boolean(),
+      adaptiveLearning: z.boolean(),
+      social: z.boolean(),
+      calls: z.boolean(),
+      subscriptions: z.boolean(),
+      supportTickets: z.boolean(),
+      activity: z.boolean(),
+      savedItems: z.boolean(),
+    }),
     activity: z.object({
       weeklyXpTarget: z.number().int().min(1).max(1_000_000),
       dailyGoalRewardXp: z.number().int().min(0).max(100_000),

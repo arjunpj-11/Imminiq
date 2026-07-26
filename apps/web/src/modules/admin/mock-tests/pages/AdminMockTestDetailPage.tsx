@@ -1,13 +1,4 @@
-import {
-  ArrowLeft,
-  Braces,
-  CheckCircle2,
-  Eye,
-  EyeOff,
-  RotateCcw,
-  ShieldAlert,
-  Trash2,
-} from 'lucide-react';
+import { Braces, CheckCircle2, Eye, EyeOff, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 import {
@@ -82,13 +73,6 @@ export default function AdminMockTestDetailPage() {
   if (isError || !data) return <AdminError error={error} onRetry={() => void refetch()} />;
   return (
     <main className="mx-auto max-w-262.5 px-5 py-8 sm:px-8">
-      <Link
-        to={ADMIN_MOCK_TESTS_ROUTES.list}
-        className="mb-5 inline-flex items-center gap-2 text-sm text-[#aaa59d] hover:text-[#e8816a]"
-      >
-        <ArrowLeft size={16} />
-        Back to mock tests
-      </Link>
       <AdminPageHeader
         title={data.title}
         description={data.description || 'No test description provided.'}

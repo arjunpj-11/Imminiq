@@ -10,6 +10,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useNotifications } from '../../modules/notifications';
 import { useReceivedFriendRequests } from '../../modules/user/friends';
 import { useChatConversations } from '../../modules/user/social';
+import { useFeatureAvailability } from '../../hooks/useFeatureAvailability';
 import AppNoiseOverlay from './AppNoiseOverlay';
 import {
   AppShellContext,
@@ -55,13 +56,20 @@ export function AppShell({
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const accessToken = useAuthStore((state) => state.accessToken);
   const location = useLocation();
+  const featureQuery = useFeatureAvailability(!isGuest && isAuthenticated);
 
   const streakQuery = useStreak(undefined, {
-    enabled: !isGuest && isAuthenticated,
+    enabled: !isGuest && isAuthenticated && featureQuery.data?.activity === true,
   });
   const notificationsQuery = useNotifications(1, !isGuest && isAuthenticated);
-  const friendRequestsQuery = useReceivedFriendRequests({ limit: 1 }, !isGuest && isAuthenticated);
-  const chatQuery = useChatConversations(30, !isGuest && isAuthenticated);
+  const friendRequestsQuery = useReceivedFriendRequests(
+    { limit: 1 },
+    !isGuest && isAuthenticated && featureQuery.data?.social === true
+  );
+  const chatQuery = useChatConversations(
+    30,
+    !isGuest && isAuthenticated && featureQuery.data?.social === true
+  );
   useRealtimeAppEvents(accessToken, !isGuest && isAuthenticated);
 
   const [pageViewer, setPageViewer] = useState<IAppShellViewer | null>(initialViewer ?? null);

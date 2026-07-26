@@ -8,9 +8,7 @@ export interface IGetLessonQuestionSolutionDoubtsUseCase {
   execute(input: LessonQuestionPayloadDTO): Promise<LessonQuestionSolutionDoubtsDTO>;
 }
 
-export class GetLessonQuestionSolutionDoubtsUseCase
-  implements IGetLessonQuestionSolutionDoubtsUseCase
-{
+export class GetLessonQuestionSolutionDoubtsUseCase implements IGetLessonQuestionSolutionDoubtsUseCase {
   constructor(
     private readonly _trackerRepository: Pick<
       ITrackerRepository,

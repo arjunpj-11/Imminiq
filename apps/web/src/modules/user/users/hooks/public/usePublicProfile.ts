@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
+import { paginationConfig } from '../../../../../config/pagination';
 import api from '../../../../../lib/axios';
 import { PROFILE_API_PATHS } from '../../constants/profile-api.constants';
 import type {
@@ -23,7 +24,7 @@ interface IUsePublicProfileOptions {
 
 export const usePublicProfile = (
   username: string,
-  params: IPublicProfileQuery = { page: 1, limit: 10 },
+  params: IPublicProfileQuery = { page: 1, limit: paginationConfig.profileLimit },
   options: IUsePublicProfileOptions = {}
 ) => {
   const normalizedParams = {

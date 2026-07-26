@@ -10,9 +10,7 @@ export interface IBulkUpdateAdminMockTestLifecycleUseCase {
   ): Promise<AdminBulkActionResult>;
 }
 
-export class BulkUpdateAdminMockTestLifecycleUseCase
-  implements IBulkUpdateAdminMockTestLifecycleUseCase
-{
+export class BulkUpdateAdminMockTestLifecycleUseCase implements IBulkUpdateAdminMockTestLifecycleUseCase {
   constructor(
     private readonly _repository: Pick<IAdminMockTestsRepository, 'getDetail'>,
     private readonly _updateLifecycle: IUpdateAdminMockTestLifecycleUseCase

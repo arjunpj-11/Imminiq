@@ -19,7 +19,7 @@ export default function AdminSettingsPage() {
   return (
     <main className="mx-auto max-w-225 px-5 py-8 sm:px-8">
       <AdminPageHeader
-        title="Console Settings"
+        title="Settings"
         description="Global operational controls for the Imminiq administration environment."
       />
       {isLoading ? (
@@ -130,6 +130,188 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
               max={100}
               onChange={(aiBudgetWarningPercent) =>
                 setForm((x) => ({ ...x, aiBudgetWarningPercent }))
+              }
+            />
+          </PolicySection>
+          <PolicySection title="User feature availability">
+            <FeatureToggle
+              label="Trackers"
+              description="Learning roadmaps, lessons, progress, and guilds."
+              checked={form.productPolicy.features.trackers}
+              onChange={(value) =>
+                setForm((x) => ({
+                  ...x,
+                  productPolicy: {
+                    ...x.productPolicy,
+                    features: {
+                      ...x.productPolicy.features,
+                      trackers: value,
+                      ...(!value ? { trackerCreation: false } : {}),
+                    },
+                  },
+                }))
+              }
+            />
+            <FeatureToggle
+              label="Tracker creation"
+              description="Manual, AI-generated, imported, and cloned trackers."
+              checked={form.productPolicy.features.trackerCreation}
+              disabled={!form.productPolicy.features.trackers}
+              dependencyLabel="Requires Trackers"
+              onChange={(value) =>
+                setForm((x) => ({
+                  ...x,
+                  productPolicy: {
+                    ...x.productPolicy,
+                    features: { ...x.productPolicy.features, trackerCreation: value },
+                  },
+                }))
+              }
+            />
+            <FeatureToggle
+              label="Community"
+              description="Published tracker discovery, reviews, and verification."
+              checked={form.productPolicy.features.community}
+              onChange={(value) =>
+                setForm((x) => ({
+                  ...x,
+                  productPolicy: {
+                    ...x.productPolicy,
+                    features: { ...x.productPolicy.features, community: value },
+                  },
+                }))
+              }
+            />
+            <FeatureToggle
+              label="Leaderboard"
+              description="Student and trainer rankings and rewards."
+              checked={form.productPolicy.features.leaderboard}
+              onChange={(value) =>
+                setForm((x) => ({
+                  ...x,
+                  productPolicy: {
+                    ...x.productPolicy,
+                    features: { ...x.productPolicy.features, leaderboard: value },
+                  },
+                }))
+              }
+            />
+            <FeatureToggle
+              label="Mock tests"
+              description="Test generation, attempts, results, and reports."
+              checked={form.productPolicy.features.mockTests}
+              onChange={(value) =>
+                setForm((x) => ({
+                  ...x,
+                  productPolicy: {
+                    ...x.productPolicy,
+                    features: { ...x.productPolicy.features, mockTests: value },
+                  },
+                }))
+              }
+            />
+            <FeatureToggle
+              label="Ask Immi"
+              description="Ask Immi, assessments, and voice input."
+              checked={form.productPolicy.features.adaptiveLearning}
+              onChange={(value) =>
+                setForm((x) => ({
+                  ...x,
+                  productPolicy: {
+                    ...x.productPolicy,
+                    features: { ...x.productPolicy.features, adaptiveLearning: value },
+                  },
+                }))
+              }
+            />
+            <FeatureToggle
+              label="Social"
+              description="Friends, conversations, blocks, and sharing."
+              checked={form.productPolicy.features.social}
+              onChange={(value) =>
+                setForm((x) => ({
+                  ...x,
+                  productPolicy: {
+                    ...x.productPolicy,
+                    features: {
+                      ...x.productPolicy.features,
+                      social: value,
+                      ...(!value ? { calls: false } : {}),
+                    },
+                  },
+                }))
+              }
+            />
+            <FeatureToggle
+              label="Calls"
+              description="Voice and video calls inside Social."
+              checked={form.productPolicy.features.calls}
+              disabled={!form.productPolicy.features.social}
+              dependencyLabel="Requires Social"
+              onChange={(value) =>
+                setForm((x) => ({
+                  ...x,
+                  productPolicy: {
+                    ...x.productPolicy,
+                    features: { ...x.productPolicy.features, calls: value },
+                  },
+                }))
+              }
+            />
+            <FeatureToggle
+              label="Subscriptions"
+              description="Plan discovery, checkout, and payment verification."
+              checked={form.productPolicy.features.subscriptions}
+              onChange={(value) =>
+                setForm((x) => ({
+                  ...x,
+                  productPolicy: {
+                    ...x.productPolicy,
+                    features: { ...x.productPolicy.features, subscriptions: value },
+                  },
+                }))
+              }
+            />
+            <FeatureToggle
+              label="Support tickets"
+              description="New user support requests; existing tickets remain manageable."
+              checked={form.productPolicy.features.supportTickets}
+              onChange={(value) =>
+                setForm((x) => ({
+                  ...x,
+                  productPolicy: {
+                    ...x.productPolicy,
+                    features: { ...x.productPolicy.features, supportTickets: value },
+                  },
+                }))
+              }
+            />
+            <FeatureToggle
+              label="Activity"
+              description="Learning history, streak details, goals, and activity insights."
+              checked={form.productPolicy.features.activity}
+              onChange={(value) =>
+                setForm((x) => ({
+                  ...x,
+                  productPolicy: {
+                    ...x.productPolicy,
+                    features: { ...x.productPolicy.features, activity: value },
+                  },
+                }))
+              }
+            />
+            <FeatureToggle
+              label="Saved items"
+              description="The learner library for bookmarked trackers and lessons."
+              checked={form.productPolicy.features.savedItems}
+              onChange={(value) =>
+                setForm((x) => ({
+                  ...x,
+                  productPolicy: {
+                    ...x.productPolicy,
+                    features: { ...x.productPolicy.features, savedItems: value },
+                  },
+                }))
               }
             />
           </PolicySection>
@@ -731,6 +913,62 @@ function PolicyTextField({
         maxLength={80}
         value={value}
         onChange={(event) => onChange(event.target.value)}
+      />
+    </label>
+  );
+}
+
+function FeatureToggle({
+  label,
+  description,
+  checked,
+  onChange,
+  disabled = false,
+  dependencyLabel,
+}: {
+  label: string;
+  description: string;
+  checked: boolean;
+  onChange: (value: boolean) => void;
+  disabled?: boolean;
+  dependencyLabel?: string;
+}) {
+  return (
+    <label
+      className={`flex items-center justify-between gap-4 rounded-lg border p-4 transition ${
+        disabled
+          ? 'cursor-not-allowed border-white/6 bg-black/5 opacity-60'
+          : 'cursor-pointer border-white/10 bg-black/10 hover:border-white/16'
+      }`}
+    >
+      <span>
+        <span className="flex flex-wrap items-center gap-2">
+          <span className="block text-sm font-semibold">{label}</span>
+          <span
+            className={`rounded-full border px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.08em] ${
+              disabled
+                ? 'border-white/10 text-[#817c75]'
+                : checked
+                  ? 'border-[#52c58c]/25 bg-[#52c58c]/10 text-[#52c58c]'
+                  : 'border-[#f0a842]/25 bg-[#f0a842]/10 text-[#f0a842]'
+            }`}
+          >
+            {disabled ? 'Dependent' : checked ? 'Available' : 'Paused'}
+          </span>
+        </span>
+        <span className="mt-1 block text-xs leading-5 text-[#aaa59d]">{description}</span>
+        {disabled && dependencyLabel ? (
+          <span className="mt-1 block text-xs font-semibold text-[#f0a842]">{dependencyLabel}</span>
+        ) : null}
+      </span>
+      <input
+        type="checkbox"
+        role="switch"
+        aria-label={`${label} availability`}
+        checked={checked}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.checked)}
+        className="h-5 w-5 shrink-0 accent-[#e8816a] disabled:cursor-not-allowed"
       />
     </label>
   );

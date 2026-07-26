@@ -20,21 +20,14 @@ export type CallParticipantViewBundle = {
 export class CallViewService implements ICallViewService {
   constructor(
     private readonly _participants: ICallParticipantRepository,
-    private readonly _relationships: Pick<
-      ICallRelationshipRepository,
-      'hasBlockBetween'
-    >,
+    private readonly _relationships: Pick<ICallRelationshipRepository, 'hasBlockBetween'>,
     private readonly _mapper: ICallMapper
   ) {}
 
   async toView(call: CallEntity, viewerUserId: string) {
     const bundle = await this.toParticipantBundle(call);
-    const otherParticipantId =
-      call.callerId === viewerUserId ? call.calleeId : call.callerId;
-    const blocked = await this._relationships.hasBlockBetween(
-      viewerUserId,
-      otherParticipantId
-    );
+    const otherParticipantId = call.callerId === viewerUserId ? call.calleeId : call.callerId;
+    const blocked = await this._relationships.hasBlockBetween(viewerUserId, otherParticipantId);
     return this._mapper.toView(
       call,
       bundle.realtime.caller,
@@ -53,21 +46,11 @@ export class CallViewService implements ICallViewService {
       realtime: { call, caller, callee },
       views: await Promise.all(
         call.participantIds().map(async (userId) => {
-          const otherParticipantId =
-            call.callerId === userId ? call.calleeId : call.callerId;
-          const blocked = await this._relationships.hasBlockBetween(
-            userId,
-            otherParticipantId
-          );
+          const otherParticipantId = call.callerId === userId ? call.calleeId : call.callerId;
+          const blocked = await this._relationships.hasBlockBetween(userId, otherParticipantId);
           return {
             userId,
-            call: this._mapper.toView(
-              call,
-              caller,
-              callee,
-              userId,
-              blocked
-            ),
+            call: this._mapper.toView(call, caller, callee, userId, blocked),
           };
         })
       ),

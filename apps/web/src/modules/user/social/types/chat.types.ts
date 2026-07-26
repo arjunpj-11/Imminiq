@@ -1,12 +1,5 @@
-export type ChatMessageKind =
-  | 'text'
-  | 'code'
-  | 'image'
-  | 'file'
-  | 'voice'
-  | 'tracker'
-  | 'profile';
-export type ChatSection = 'chats' | 'friends' | 'requests' | 'calls';
+export type ChatMessageKind = 'text' | 'code' | 'image' | 'file' | 'voice' | 'tracker' | 'profile';
+export type ChatSection = 'chats' | 'friends' | 'requests' | 'calls' | 'saved';
 
 export interface IChatParticipant {
   id: string;
@@ -55,10 +48,32 @@ export interface IChatMessage {
   sharedTracker: ISharedTracker | null;
   sharedProfile: ISharedProfile | null;
   isForwarded: boolean;
+  replyTo: {
+    messageId: string;
+    senderId: string;
+    kind: ChatMessageKind;
+    text: string;
+  } | null;
+  reactions: Array<{
+    emoji: string;
+    count: number;
+    reactedByViewer: boolean;
+  }>;
+  editedAt: string | null;
   createdAt: string;
   updatedAt: string;
   isRead: boolean;
   isStarred: boolean;
+  deliveryState?: 'sending' | 'failed';
+  clientId?: string;
+  retryPayload?: {
+    text: string;
+    kind: 'text' | 'code' | 'voice';
+    codeLanguage?: string;
+    file?: File;
+    durationSeconds?: number;
+    replyToMessageId?: string;
+  };
 }
 
 export interface IChatConversation {
@@ -74,6 +89,7 @@ export interface IChatPagination {
   limit: number;
   total: number;
   hasMore: boolean;
+  nextCursor?: string | null;
 }
 
 export interface IChatPage<T> {

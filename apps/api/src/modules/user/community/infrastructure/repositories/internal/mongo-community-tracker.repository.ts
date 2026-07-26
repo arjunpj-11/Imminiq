@@ -82,14 +82,26 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
 
   private async findPersonalizedSuggestions(query: FindCommunityTrackersQuery) {
     const userObjectId = MongoCommunityObjectId.toObjectId(query.userId);
-    const ownedTrackers = (await CommunityTrackerModel.find({
-      ownerId: userObjectId,
-      deletedAt: null,
-    })
-      .select('title category field goal tags')
-      .sort({ lastActiveAt: -1, updatedAt: -1 })
-      .limit(50)
-      .lean<MongoCommunityTrackerRecord[]>()) as MongoCommunityTrackerRecord[];
+    const [ownedTrackers, clonedSourceIds, dashboardProgressRows] = (await Promise.all([
+      CommunityTrackerModel.find({
+        ownerId: userObjectId,
+        deletedAt: null,
+      })
+        .select('title category field goal tags sourceTrackerId')
+        .sort({ lastActiveAt: -1, updatedAt: -1 })
+        .limit(50)
+        .lean<MongoCommunityTrackerRecord[]>(),
+      CommunityTrackerModel.distinct('sourceTrackerId', {
+        ownerId: userObjectId,
+        sourceTrackerId: { $exists: true, $ne: null },
+        deletedAt: null,
+      }),
+      CommunityTrackerProgressModel.find({
+        userId: userObjectId,
+      })
+        .select('trackerId')
+        .lean<MongoTrackerProgressRecord[]>(),
+    ])) as [MongoCommunityTrackerRecord[], MongoIdLike[], MongoTrackerProgressRecord[]];
 
     const recentSearches = (query.recentSearches ?? [])
       .map((value) => MongoCommunityNormalizer.search(value))
@@ -113,17 +125,30 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
     );
     const interestTerms = new Set(
       [...ownedTrackers.map((tracker) => tracker.title), ...recentSearches]
-        .flatMap((value) => String(value ?? '').toLowerCase().split(/[^\p{L}\p{N}+#.]+/u))
+        .flatMap((value) =>
+          String(value ?? '')
+            .toLowerCase()
+            .split(/[^\p{L}\p{N}+#.]+/u)
+        )
         .map((value) => value.trim())
         .filter((value) => value.length >= 2)
         .slice(0, 60)
     );
 
-    const candidates = (await CommunityTrackerModel.find({
+    const dashboardTrackerIds = [
+      ...clonedSourceIds,
+      ...dashboardProgressRows.map((progress) => progress.trackerId),
+    ];
+    const candidateQuery: TrackerQuery = {
       ...MongoCommunityQueryUtils.publicTrackerVisibilityQuery(),
-      allowClone: true,
       ownerId: { $ne: userObjectId },
-    })
+    };
+
+    if (dashboardTrackerIds.length) {
+      candidateQuery._id = { $nin: dashboardTrackerIds };
+    }
+
+    const candidates = (await CommunityTrackerModel.find(candidateQuery)
       .sort({ ratingAverage: -1, cloneCount: -1, createdAt: -1 })
       .limit(200)
       .lean<MongoCommunityTrackerRecord[]>()) as MongoCommunityTrackerRecord[];
@@ -163,8 +188,7 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
       .sort(
         (left, right) =>
           right.score - left.score ||
-          Number(right.tracker.ratingAverage ?? 0) -
-            Number(left.tracker.ratingAverage ?? 0) ||
+          Number(right.tracker.ratingAverage ?? 0) - Number(left.tracker.ratingAverage ?? 0) ||
           Number(right.tracker.cloneCount ?? 0) - Number(left.tracker.cloneCount ?? 0)
       )
       .slice(0, Math.min(query.limit, 15))
@@ -211,7 +235,7 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
   async cloneTrackerForUser(
     trackerId: string,
     userId: string,
-    options?: { bypassClonePermission?: boolean }
+    _options?: { bypassClonePermission?: boolean }
   ) {
     return this.execute(
       'COMMUNITY_TRACKER_CLONE_FAILED',
@@ -226,7 +250,6 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
 
         const source = await CommunityTrackerModel.findOne({
           _id: trackerObjectId,
-          ...(options?.bypassClonePermission ? {} : { allowClone: true }),
           ...MongoCommunityQueryUtils.publicTrackerVisibilityQuery(),
         }).lean<MongoCommunityTrackerRecord>();
 
@@ -396,7 +419,6 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
     const search = MongoCommunityNormalizer.search(query.search);
     const filters: TrackerQuery = {
       ...MongoCommunityQueryUtils.publicTrackerVisibilityQuery(),
-      allowClone: true,
     };
 
     if (search) {

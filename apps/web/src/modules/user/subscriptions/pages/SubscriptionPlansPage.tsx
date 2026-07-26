@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Check, Crown, ShieldCheck, Sparkles } from 'lucide-react';
+import { ROUTES } from '../../../../routes/config/route-paths';
 import { toast } from '../../../../lib/toast';
 import { useAuthStore } from '../../../../store/useAuthStore';
 import PageHero from '../../../../components/layout/PageHero';
 import SkeletonBlock from '../../../../components/feedback/SkeletonBlock';
+import ErrorState from '../../../../components/feedback/ErrorState';
 import {
   useCreateSubscriptionOrder,
   useCurrentSubscription,
@@ -200,16 +202,11 @@ export default function SubscriptionPlansPage() {
           </div>
         )}
         {plans.isError && (
-          <div className="mt-10 rounded-2xl border border-red-400/30 bg-red-500/5 p-8 text-center">
-            <div className="font-bold text-red-600">Subscription plans could not be loaded.</div>
-            <button
-              type="button"
-              onClick={() => void plans.refetch()}
-              className="mt-4 rounded-lg border border-(--border-subtle) bg-(--surface-card) px-4 py-2 text-sm font-bold"
-            >
-              Try again
-            </button>
-          </div>
+          <ErrorState
+            title="Plans are unavailable"
+            error={plans.error}
+            onRetry={() => void plans.refetch()}
+          />
         )}
 
         <div className={plans.isLoading ? 'hidden' : 'mt-10 grid gap-5 lg:grid-cols-3'}>
@@ -237,6 +234,11 @@ export default function SubscriptionPlansPage() {
                       {' '}
                       / {billingCycle === 'annual' ? 'year' : 'month'}
                     </span>
+                  )}
+                  {amount > 0 && billingCycle === 'annual' && (
+                    <div className="mt-1 text-[12px] font-semibold text-(--text-secondary)">
+                      {formatPrice(Math.round(amount / 12))}/month equivalent · billed once yearly
+                    </div>
                   )}
                 </div>
                 <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
@@ -272,6 +274,15 @@ export default function SubscriptionPlansPage() {
             );
           })}
         </div>
+        <div className="mt-8 rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 text-[13px] leading-6 text-(--text-secondary)">
+          <strong className="text-(--text-primary)">Clear billing, no surprises.</strong> Your
+          selected price and billing cycle are shown again in checkout. Plan access continues until
+          the displayed end date. For cancellation, payment, or renewal help, contact{' '}
+          <a href={ROUTES.support} className="font-bold text-(--brand-500)">
+            Imminiq support
+          </a>
+          .
+        </div>
       </section>
     </main>
   );
@@ -281,7 +292,7 @@ function Limit({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-lg bg-(--surface-muted) p-2">
       <div className="font-bold">{value === 0 ? 'Unlimited' : value.toLocaleString()}</div>
-      <div className="mt-0.5 text-[10px] text-(--text-secondary)">{label}</div>
+      <div className="mt-0.5 text-[11px] text-(--text-secondary)">{label}</div>
     </div>
   );
 }

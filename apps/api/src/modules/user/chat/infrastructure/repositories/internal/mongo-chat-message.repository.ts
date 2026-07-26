@@ -28,32 +28,54 @@ export class MongoChatMessageRepository
         input.conversationId,
         'INVALID_CHAT_CONVERSATION_ID'
       );
-      const viewerId = MongoChatNormalizer.toObjectId(
-        input.viewerUserId,
-        'INVALID_CHAT_VIEWER_ID'
-      );
+      const viewerId = MongoChatNormalizer.toObjectId(input.viewerUserId, 'INVALID_CHAT_VIEWER_ID');
+      const search = input.search?.trim();
+      const beforeId = input.before
+        ? MongoChatNormalizer.toObjectId(input.before, 'INVALID_CHAT_MESSAGE_ID')
+        : null;
       const filter = {
         conversationId,
         clearedFor: { $ne: viewerId },
         deletedAt: null,
+        ...(beforeId ? { _id: { $lt: beforeId } } : {}),
+        ...(search
+          ? {
+              $or: [
+                { text: { $regex: search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' } },
+                {
+                  codeLanguage: {
+                    $regex: search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+                    $options: 'i',
+                  },
+                },
+                {
+                  'attachment.name': {
+                    $regex: search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+                    $options: 'i',
+                  },
+                },
+              ],
+            }
+          : {}),
       };
-      const skip = (input.page - 1) * input.limit;
+      const skip = beforeId ? 0 : (input.page - 1) * input.limit;
       const [records, total] = await Promise.all([
         ChatMessage.find(filter)
           .sort({ createdAt: -1 })
           .skip(skip)
-          .limit(input.limit)
+          .limit(input.limit + (beforeId ? 1 : 0))
           .lean<MongoChatMessageRecord[]>(),
         ChatMessage.countDocuments(filter),
       ]);
+      const pageRecords = beforeId ? records.slice(0, input.limit) : records;
+      const hasMore = beforeId ? records.length > input.limit : skip + records.length < total;
       return {
-        items: records
-          .map((record) => this._mapper.toMessageEntity(record))
-          .reverse(),
+        items: pageRecords.map((record) => this._mapper.toMessageEntity(record)).reverse(),
         page: input.page,
         limit: input.limit,
         total,
-        hasMore: skip + records.length < total,
+        hasMore,
+        nextCursor: hasMore && pageRecords.length ? String(pageRecords.at(-1)?._id ?? '') : null,
       };
     });
   }
@@ -76,10 +98,7 @@ export class MongoChatMessageRepository
   async findLatestVisibleMessages(conversationIds: string[], viewerUserId: string) {
     if (conversationIds.length === 0) return [];
     return this.execute('CHAT_MESSAGE_READ_FAILED', 'Failed to load messages', async () => {
-      const viewerId = MongoChatNormalizer.toObjectId(
-        viewerUserId,
-        'INVALID_CHAT_VIEWER_ID'
-      );
+      const viewerId = MongoChatNormalizer.toObjectId(viewerUserId, 'INVALID_CHAT_VIEWER_ID');
       const records = await ChatMessage.aggregate<MongoChatMessageRecord>([
         {
           $match: {
@@ -124,6 +143,33 @@ export class MongoChatMessageRepository
     });
   }
 
+  async listStarredMessages(viewerUserId: string, page: number, limit: number) {
+    return this.execute('CHAT_MESSAGE_LIST_FAILED', 'Failed to load saved messages', async () => {
+      const viewerId = MongoChatNormalizer.toObjectId(viewerUserId, 'INVALID_CHAT_VIEWER_ID');
+      const filter = {
+        starredBy: viewerId,
+        clearedFor: { $ne: viewerId },
+        deletedAt: null,
+      };
+      const skip = (page - 1) * limit;
+      const [records, total] = await Promise.all([
+        ChatMessage.find(filter)
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean<MongoChatMessageRecord[]>(),
+        ChatMessage.countDocuments(filter),
+      ]);
+      return {
+        items: records.map((record) => this._mapper.toMessageEntity(record)),
+        page,
+        limit,
+        total,
+        hasMore: skip + records.length < total,
+      };
+    });
+  }
+
   async createMessage(input: CreateChatMessageCommandInput) {
     return this.execute('CHAT_MESSAGE_WRITE_FAILED', 'Failed to send message', async () => {
       const created = await ChatMessage.create({
@@ -160,9 +206,22 @@ export class MongoChatMessageRepository
               'INVALID_FORWARDED_MESSAGE_ID'
             )
           : null,
-        readBy: [
-          MongoChatNormalizer.toObjectId(input.senderId, 'INVALID_CHAT_SENDER_ID'),
-        ],
+        replyTo: input.replyTo
+          ? {
+              ...input.replyTo,
+              messageId: MongoChatNormalizer.toObjectId(
+                input.replyTo.messageId,
+                'INVALID_CHAT_MESSAGE_ID'
+              ),
+              senderId: MongoChatNormalizer.toObjectId(
+                input.replyTo.senderId,
+                'INVALID_CHAT_SENDER_ID'
+              ),
+            }
+          : null,
+        reactions: [],
+        editedAt: null,
+        readBy: [MongoChatNormalizer.toObjectId(input.senderId, 'INVALID_CHAT_SENDER_ID')],
         starredBy: [],
         clearedFor: [],
         deletedAt: null,
@@ -171,9 +230,7 @@ export class MongoChatMessageRepository
         { _id: input.conversationId, deletedAt: null },
         { $set: { lastMessageId: created._id, lastMessageAt: created.createdAt } }
       );
-      return this._mapper.toMessageEntity(
-        created.toObject() as unknown as MongoChatMessageRecord
-      );
+      return this._mapper.toMessageEntity(created.toObject() as unknown as MongoChatMessageRecord);
     });
   }
 
@@ -183,10 +240,7 @@ export class MongoChatMessageRepository
         conversationId,
         'INVALID_CHAT_CONVERSATION_ID'
       );
-      const viewerObjectId = MongoChatNormalizer.toObjectId(
-        viewerUserId,
-        'INVALID_CHAT_VIEWER_ID'
-      );
+      const viewerObjectId = MongoChatNormalizer.toObjectId(viewerUserId, 'INVALID_CHAT_VIEWER_ID');
       const result = await ChatMessage.updateMany(
         {
           conversationId: conversationObjectId,
@@ -203,14 +257,8 @@ export class MongoChatMessageRepository
 
   async toggleMessageStar(messageId: string, viewerUserId: string) {
     return this.execute('CHAT_MESSAGE_WRITE_FAILED', 'Failed to update message star', async () => {
-      const messageObjectId = MongoChatNormalizer.toObjectId(
-        messageId,
-        'INVALID_CHAT_MESSAGE_ID'
-      );
-      const viewerObjectId = MongoChatNormalizer.toObjectId(
-        viewerUserId,
-        'INVALID_CHAT_VIEWER_ID'
-      );
+      const messageObjectId = MongoChatNormalizer.toObjectId(messageId, 'INVALID_CHAT_MESSAGE_ID');
+      const viewerObjectId = MongoChatNormalizer.toObjectId(viewerUserId, 'INVALID_CHAT_VIEWER_ID');
       const current = await ChatMessage.findOne({
         _id: messageObjectId,
         clearedFor: { $ne: viewerObjectId },
@@ -219,9 +267,7 @@ export class MongoChatMessageRepository
         .select('starredBy')
         .lean<{ starredBy?: unknown[] } | null>();
       if (!current) return null;
-      const isStarred = (current.starredBy ?? []).some(
-        (userId) => String(userId) === viewerUserId
-      );
+      const isStarred = (current.starredBy ?? []).some((userId) => String(userId) === viewerUserId);
       const updated = await ChatMessage.findOneAndUpdate(
         { _id: messageObjectId, clearedFor: { $ne: viewerObjectId }, deletedAt: null },
         isStarred
@@ -233,16 +279,76 @@ export class MongoChatMessageRepository
     });
   }
 
+  async toggleMessageReaction(messageId: string, viewerUserId: string, emoji: string) {
+    return this.execute('CHAT_MESSAGE_WRITE_FAILED', 'Failed to update reaction', async () => {
+      const messageObjectId = MongoChatNormalizer.toObjectId(messageId, 'INVALID_CHAT_MESSAGE_ID');
+      const viewerObjectId = MongoChatNormalizer.toObjectId(viewerUserId, 'INVALID_CHAT_VIEWER_ID');
+      const current = await ChatMessage.findOne({
+        _id: messageObjectId,
+        clearedFor: { $ne: viewerObjectId },
+        deletedAt: null,
+      }).lean<MongoChatMessageRecord | null>();
+      if (!current) return null;
+      const reactions = (current.reactions ?? []).map((reaction) => ({
+        emoji: reaction.emoji,
+        userIds: reaction.userIds.filter((userId) => String(userId) !== viewerUserId),
+      }));
+      const previouslySelected = (current.reactions ?? []).some(
+        (reaction) =>
+          reaction.emoji === emoji &&
+          reaction.userIds.some((userId) => String(userId) === viewerUserId)
+      );
+      if (!previouslySelected) {
+        const existing = reactions.find((reaction) => reaction.emoji === emoji);
+        if (existing) existing.userIds.push(viewerObjectId);
+        else reactions.push({ emoji, userIds: [viewerObjectId] });
+      }
+      const updated = await ChatMessage.findByIdAndUpdate(
+        messageObjectId,
+        { $set: { reactions: reactions.filter((reaction) => reaction.userIds.length > 0) } },
+        { returnDocument: 'after' }
+      ).lean<MongoChatMessageRecord | null>();
+      return updated ? this._mapper.toMessageEntity(updated) : null;
+    });
+  }
+
+  async editMessageText(messageId: string, viewerUserId: string, text: string) {
+    return this.execute('CHAT_MESSAGE_WRITE_FAILED', 'Failed to edit message', async () => {
+      const updated = await ChatMessage.findOneAndUpdate(
+        {
+          _id: MongoChatNormalizer.toObjectId(messageId, 'INVALID_CHAT_MESSAGE_ID'),
+          senderId: MongoChatNormalizer.toObjectId(viewerUserId, 'INVALID_CHAT_VIEWER_ID'),
+          kind: { $in: ['text', 'code'] },
+          deletedAt: null,
+        },
+        { $set: { text, editedAt: new Date() } },
+        { returnDocument: 'after' }
+      ).lean<MongoChatMessageRecord | null>();
+      return updated ? this._mapper.toMessageEntity(updated) : null;
+    });
+  }
+
+  async deleteMessage(messageId: string, viewerUserId: string) {
+    return this.execute('CHAT_MESSAGE_WRITE_FAILED', 'Failed to delete message', async () => {
+      const result = await ChatMessage.updateOne(
+        {
+          _id: MongoChatNormalizer.toObjectId(messageId, 'INVALID_CHAT_MESSAGE_ID'),
+          senderId: MongoChatNormalizer.toObjectId(viewerUserId, 'INVALID_CHAT_VIEWER_ID'),
+          deletedAt: null,
+        },
+        { $set: { deletedAt: new Date() } }
+      );
+      return result.modifiedCount > 0;
+    });
+  }
+
   async clearConversationMessages(conversationId: string, viewerUserId: string) {
     return this.execute('CHAT_MESSAGE_WRITE_FAILED', 'Failed to clear conversation', async () => {
       const conversationObjectId = MongoChatNormalizer.toObjectId(
         conversationId,
         'INVALID_CHAT_CONVERSATION_ID'
       );
-      const viewerObjectId = MongoChatNormalizer.toObjectId(
-        viewerUserId,
-        'INVALID_CHAT_VIEWER_ID'
-      );
+      const viewerObjectId = MongoChatNormalizer.toObjectId(viewerUserId, 'INVALID_CHAT_VIEWER_ID');
       const result = await ChatMessage.updateMany(
         {
           conversationId: conversationObjectId,

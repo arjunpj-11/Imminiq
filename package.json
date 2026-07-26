@@ -15,9 +15,11 @@
     "dev:web": "turbo run dev --filter=@imminiq/web",
     "dev:api": "npm run services:up && REDIS_URL=redis://127.0.0.1:6379 turbo run dev --filter=@imminiq/api --env-mode=loose",
     "build": "turbo run build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "check": "npm run lint && npm run test && npm run build",
+    "check": "npm run format:check && npm run lint && npm run test && npm run build",
     "smoke:production": "node scripts/smoke-production.mjs"
   },
   "devDependencies": {
@@ -28,6 +30,7 @@
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.7.0",
     "postcss": "^8.5.23",
+    "prettier": "3.9.6",
     "tsc-alias": "^1.9.1",
     "turbo": "latest",
     "typescript-eslint": "^8.62.0"

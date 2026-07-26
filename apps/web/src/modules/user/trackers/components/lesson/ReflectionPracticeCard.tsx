@@ -17,10 +17,7 @@ import type { IGeneratedLesson, VerifyLessonAnswerResponse } from '../../types/t
 import { cn } from '../../utils/tracker-ui';
 import MathText from './MathText';
 import ConfirmDialog from '../ConfirmDialog';
-import {
-  MicButton,
-  VoiceInputStatus,
-} from '../../../../../components/input/VoiceInputButton';
+import { MicButton, VoiceInputStatus } from '../../../../../components/input/VoiceInputButton';
 import { useVoiceInput } from '../../../../../hooks/useVoiceInput';
 import {
   formatDateTime,
@@ -490,9 +487,7 @@ export default function ReflectionPracticeCard({
                 type="button"
                 onClick={verifyAnswer}
                 disabled={
-                  verifyAnswerMutation.isPending ||
-                  answerVoice.phase !== 'idle' ||
-                  !answer.trim()
+                  verifyAnswerMutation.isPending || answerVoice.phase !== 'idle' || !answer.trim()
                 }
                 className="rounded-md bg-(--brand-500) px-3 py-2 text-[11px] font-bold text-[#fdf8f5] transition hover:bg-(--brand-600) disabled:cursor-wait disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
               >
@@ -704,9 +699,7 @@ export default function ReflectionPracticeCard({
                     value={doubt}
                     onChange={(event) => setDoubt(event.target.value)}
                     placeholder="Example: I did not understand the second point..."
-                    disabled={
-                      clearSolutionDoubtsMutation.isPending || doubtVoice.phase !== 'idle'
-                    }
+                    disabled={clearSolutionDoubtsMutation.isPending || doubtVoice.phase !== 'idle'}
                     className="min-h-28 w-full resize-none rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-3 pr-16 text-[13px] text-(--text-primary) outline-none transition focus:border-(--brand-500) disabled:cursor-not-allowed disabled:opacity-60 dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-primary)"
                   />
 

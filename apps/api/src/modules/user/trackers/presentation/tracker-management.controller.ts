@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
+import { paginationConfig } from '../../../../config/pagination';
 
 import { HttpStatusCode } from '../../../../shared/constants/http-status-code.enum';
 import { ApiResponse } from '../../../../shared/utils/api-response';
@@ -42,7 +43,7 @@ export class TrackerManagementController {
         search: query.search || '',
         sortBy: query.sortBy || 'lastActive',
         page: query.page || 1,
-        limit: query.limit || 12,
+        limit: query.limit || paginationConfig.gridLimit,
       });
 
       res.json(new ApiResponse('Trackers fetched successfully', result));
@@ -148,7 +149,7 @@ export class TrackerManagementController {
 
   publishTracker = async (req: Request<TrackerParams>, res: Response, next: NextFunction) => {
     try {
-      const { name, description, domain, difficulty, tags, allowClone } = req.body;
+      const { name, description, domain, difficulty, tags } = req.body;
 
       const result = await this._useCases.publishTracker.execute({
         trackerId: req.params.trackerId,
@@ -158,7 +159,6 @@ export class TrackerManagementController {
         domain,
         difficulty,
         tags,
-        allowClone,
       });
 
       res.json(new ApiResponse('Tracker published successfully', result));

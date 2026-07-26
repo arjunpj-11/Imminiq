@@ -10,6 +10,11 @@ import { ROUTES } from '../../routes/config/route-paths';
 import UserAvatar from '../data-display/UserAvatar';
 import { useActiveTrackerClanChallenge } from '../../modules/user/trackers';
 import { useLogout } from '../../modules/auth';
+import {
+  FEATURE_AVAILABILITY_SAFE_FALLBACK,
+  isPathAvailable,
+} from '../../config/feature-availability';
+import { useFeatureAvailability } from '../../hooks/useFeatureAvailability';
 
 interface ITopBarProps {
   onMenuClick?: () => void;
@@ -37,7 +42,7 @@ const routeLabels: Array<[RegExp, string]> = [
   [beginsWith(ROUTES.mockTests, '/attempts/.+/analysis'), 'Test analysis'],
   [beginsWith(ROUTES.mockTests, '/attempts/.+/result'), 'Test result'],
   [beginsWith(ROUTES.mockTests), 'Mock tests'],
-  [beginsWith(ROUTES.learningAgent), 'Learning agent'],
+  [beginsWith(ROUTES.learningAgent), 'Immi'],
   [beginsWith(ROUTES.community), 'Community'],
   [beginsWith(ROUTES.leaderboard), 'Leaderboard'],
   [beginsWith(ROUTES.activity), 'Activity'],
@@ -45,6 +50,7 @@ const routeLabels: Array<[RegExp, string]> = [
   [beginsWith(ROUTES.friendsSearch), 'Find people'],
   [beginsWith(ROUTES.friends), 'Friends'],
   [beginsWith(ROUTES.settingsRoot), 'Settings'],
+  [beginsWith(ROUTES.saved), 'Saved'],
   [beginsWith(ROUTES.profile), 'Profile'],
 ];
 
@@ -119,7 +125,9 @@ export default function TopBar({
 }: ITopBarProps) {
   const location = useLocation();
   const logout = useLogout();
-  const activeBattleQuery = useActiveTrackerClanChallenge(!isGuest);
+  const featureQuery = useFeatureAvailability(!isGuest);
+  const features = featureQuery.data ?? FEATURE_AVAILABILITY_SAFE_FALLBACK;
+  const activeBattleQuery = useActiveTrackerClanChallenge(!isGuest && features.trackers);
   const activeBattle = activeBattleQuery.data;
   const [profileOpen, setProfileOpen] = useState(false);
   const [streakOpen, setStreakOpen] = useState(false);
@@ -218,7 +226,7 @@ export default function TopBar({
               <span className="hidden h-5 w-px bg-(--border-subtle) sm:block" aria-hidden="true" />
               <span className="grid shrink-0 text-[13px] font-[660] text-(--text-primary) max-[640px]:hidden">
                 <span className="invisible col-start-1 row-start-1" aria-hidden="true">
-                  Learning agent
+                  Manage tracker
                 </span>
                 <span className="col-start-1 row-start-1 truncate">{pageLabel}</span>
               </span>
@@ -271,66 +279,70 @@ export default function TopBar({
             </>
           ) : (
             <>
-              <div className="relative hidden md:block" ref={streakRef}>
-                <button
-                  type="button"
-                  onClick={() => setStreakOpen((open) => !open)}
-                  aria-expanded={streakOpen}
-                  aria-haspopup="dialog"
-                  className="flex h-9 items-center gap-1.5 rounded-md border border-[color-mix(in_srgb,var(--brand-500)_22%,var(--border-subtle))] bg-[color-mix(in_srgb,var(--brand-500)_8%,var(--surface-elevated))] px-2.5 font-mono text-[10px] font-bold text-(--brand-500) transition hover:bg-[color-mix(in_srgb,var(--brand-500)_13%,var(--surface-elevated))]"
-                >
-                  <span aria-hidden="true">🔥</span>
-                  <span>{streakDays}</span>
-                  <span className="hidden sm:inline">day</span>
-                </button>
-                {streakOpen && (
-                  <div
-                    role="dialog"
-                    aria-label="Streak details"
-                    className="route-enter absolute right-0 top-[calc(100%+10px)] z-50 w-72 rounded-lg border border-(--border-subtle) bg-(--surface-elevated) p-4 shadow-(--shadow-2)"
+              {features.activity ? (
+                <div className="relative hidden md:block" ref={streakRef}>
+                  <button
+                    type="button"
+                    onClick={() => setStreakOpen((open) => !open)}
+                    aria-expanded={streakOpen}
+                    aria-haspopup="dialog"
+                    className="flex h-9 items-center gap-1.5 rounded-md border border-[color-mix(in_srgb,var(--brand-500)_22%,var(--border-subtle))] bg-[color-mix(in_srgb,var(--brand-500)_8%,var(--surface-elevated))] px-2.5 font-mono text-[10px] font-bold text-(--brand-500) transition hover:bg-[color-mix(in_srgb,var(--brand-500)_13%,var(--surface-elevated))]"
                   >
-                    <div className="type-label-sm text-(--brand-500)">Current streak</div>
-                    <div className="mt-2 flex items-end gap-2">
-                      <span className="type-metric-xl">{streakDays}</span>
-                      <span className="pb-1 text-[12px] text-(--text-secondary)">
-                        days in a row
-                      </span>
-                    </div>
-                    <div className="mt-4 flex items-center justify-between text-[11px] text-(--text-secondary)">
-                      <span>Next milestone</span>
-                      <span className="font-mono font-semibold text-(--text-primary)">
-                        {nextMilestone} days
-                      </span>
-                    </div>
-                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-(--surface-muted)">
-                      <div
-                        className="h-full rounded-full bg-(--brand-500) transition-[width] duration-500"
-                        style={{ width: `${milestoneProgress}%` }}
-                      />
-                    </div>
-                    <Link
-                      to={ROUTES.activity}
-                      onClick={() => setStreakOpen(false)}
-                      className="mt-4 block text-[12px] font-semibold text-(--brand-500) no-underline hover:underline"
+                    <span aria-hidden="true">🔥</span>
+                    <span>{streakDays}</span>
+                    <span className="hidden sm:inline">day</span>
+                  </button>
+                  {streakOpen && (
+                    <div
+                      role="dialog"
+                      aria-label="Streak details"
+                      className="route-enter absolute right-0 top-[calc(100%+10px)] z-50 w-72 rounded-lg border border-(--border-subtle) bg-(--surface-elevated) p-4 shadow-(--shadow-2)"
                     >
-                      View activity history →
-                    </Link>
-                  </div>
-                )}
-              </div>
+                      <div className="type-label-sm text-(--brand-500)">Current streak</div>
+                      <div className="mt-2 flex items-end gap-2">
+                        <span className="type-metric-xl">{streakDays}</span>
+                        <span className="pb-1 text-[12px] text-(--text-secondary)">
+                          days in a row
+                        </span>
+                      </div>
+                      <div className="mt-4 flex items-center justify-between text-[11px] text-(--text-secondary)">
+                        <span>Next milestone</span>
+                        <span className="font-mono font-semibold text-(--text-primary)">
+                          {nextMilestone} days
+                        </span>
+                      </div>
+                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-(--surface-muted)">
+                        <div
+                          className="h-full rounded-full bg-(--brand-500) transition-[width] duration-500"
+                          style={{ width: `${milestoneProgress}%` }}
+                        />
+                      </div>
+                      <Link
+                        to={ROUTES.activity}
+                        onClick={() => setStreakOpen(false)}
+                        className="mt-4 block text-[12px] font-semibold text-(--brand-500) no-underline hover:underline"
+                      >
+                        View activity history →
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              ) : null}
 
-              <Link
-                to={ROUTES.chat}
-                className={iconClass}
-                aria-label={
-                  messageCount || friendRequestCount
-                    ? `${messageCount} unread messages and ${friendRequestCount} pending friend requests`
-                    : 'Open chats'
-                }
-              >
-                <ChatIcon />
-                <CountBadge count={messageCount + friendRequestCount} />
-              </Link>
+              {features.social && (
+                <Link
+                  to={ROUTES.chat}
+                  className={iconClass}
+                  aria-label={
+                    messageCount || friendRequestCount
+                      ? `${messageCount} unread messages and ${friendRequestCount} pending friend requests`
+                      : 'Open chats'
+                  }
+                >
+                  <ChatIcon />
+                  <CountBadge count={messageCount + friendRequestCount} />
+                </Link>
+              )}
               <Link
                 to={ROUTES.notifications}
                 className={iconClass}
@@ -382,21 +394,21 @@ export default function TopBar({
                     <div className="p-1.5">
                       {[
                         [ROUTES.profile, 'Profile'],
-                        [ROUTES.activity, 'Activity'],
-                        [ROUTES.settingsPreferences, 'Preferences'],
-                        [ROUTES.settingsSecurity, 'Account security'],
+                        [ROUTES.saved, 'Saved'],
                         [ROUTES.support, 'Raise a support ticket'],
-                      ].map(([to, label]) => (
-                        <Link
-                          key={to}
-                          to={to}
-                          role="menuitem"
-                          onClick={() => setProfileOpen(false)}
-                          className="block rounded-sm px-3 py-2.5 text-[12px] font-medium text-(--text-secondary) no-underline transition hover:bg-(--surface-muted) hover:text-(--text-primary)"
-                        >
-                          {label}
-                        </Link>
-                      ))}
+                      ]
+                        .filter(([to]) => isPathAvailable(to, features))
+                        .map(([to, label]) => (
+                          <Link
+                            key={to}
+                            to={to}
+                            role="menuitem"
+                            onClick={() => setProfileOpen(false)}
+                            className="block rounded-sm px-3 py-2.5 text-[12px] font-medium text-(--text-secondary) no-underline transition hover:bg-(--surface-muted) hover:text-(--text-primary)"
+                          >
+                            {label}
+                          </Link>
+                        ))}
                       <div className="my-1 h-px bg-(--border-subtle)" />
                       <button
                         type="button"

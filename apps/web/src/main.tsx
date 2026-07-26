@@ -6,6 +6,9 @@ import { BrowserRouter } from 'react-router';
 import App from './App';
 import { queryClient } from './lib/queryClient';
 import './index.css';
+import { installGlobalErrorReporting } from './lib/telemetry/client-error-reporter';
+
+installGlobalErrorReporting();
 
 const ReactQueryDevtools = import.meta.env.DEV
   ? lazy(() =>

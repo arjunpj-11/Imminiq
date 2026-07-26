@@ -51,8 +51,7 @@ export const useInitiateCall = () => {
       const response = await api.post<ICallApiResponse<ICall>>(CALL_ENDPOINTS.root, input);
       return response.data.data;
     },
-    onSuccess: (call) =>
-      client.setQueryData(socialQueryKeys.calls.active(), call),
+    onSuccess: (call) => client.setQueryData(socialQueryKeys.calls.active(), call),
   });
 };
 
@@ -64,14 +63,12 @@ export const useRespondCall = () => {
     { callId: string; response: 'accept' | 'decline' }
   >({
     mutationFn: async ({ callId, response: callResponse }) => {
-      const response = await api.patch<ICallApiResponse<ICall>>(
-        CALL_ENDPOINTS.respond(callId),
-        { response: callResponse }
-      );
+      const response = await api.patch<ICallApiResponse<ICall>>(CALL_ENDPOINTS.respond(callId), {
+        response: callResponse,
+      });
       return response.data.data;
     },
-    onSuccess: (call) =>
-      client.setQueryData(socialQueryKeys.calls.active(), call),
+    onSuccess: (call) => client.setQueryData(socialQueryKeys.calls.active(), call),
   });
 };
 
@@ -88,7 +85,6 @@ export const useEndCall = () => {
       });
       return response.data.data;
     },
-    onSuccess: (call) =>
-      client.setQueryData(socialQueryKeys.calls.active(), call),
+    onSuccess: (call) => client.setQueryData(socialQueryKeys.calls.active(), call),
   });
 };

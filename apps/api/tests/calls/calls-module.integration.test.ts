@@ -107,10 +107,7 @@ describe('calls module', () => {
       createUser('Bob Learner', 'bob'),
       createUser('Charlie Learner', 'charlie'),
     ]);
-    await Promise.all([
-      connectFriends(alice.id, bob.id),
-      connectFriends(alice.id, charlie.id),
-    ]);
+    await Promise.all([connectFriends(alice.id, bob.id), connectFriends(alice.id, charlie.id)]);
     const { useCases } = createCallsComposition();
 
     const call = await useCases.initiateCall.execute(alice.id, {
@@ -132,10 +129,7 @@ describe('calls module', () => {
     });
     expect(accepted.status).toBe('accepted');
     expect(accepted.acceptedAt).toBeInstanceOf(Date);
-    await Call.updateOne(
-      { _id: call.id },
-      { $set: { acceptedAt: new Date(Date.now() - 65_000) } }
-    );
+    await Call.updateOne({ _id: call.id }, { $set: { acceptedAt: new Date(Date.now() - 65_000) } });
 
     const ended = await useCases.endCall.execute(alice.id, call.id, {
       outcome: 'ended',
