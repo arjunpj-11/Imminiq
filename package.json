@@ -33,7 +33,7 @@
     "prettier": "3.9.6",
     "tsc-alias": "^1.9.1",
     "turbo": "latest",
-    "typescript-eslint": "^8.62.0"
+    "typescript-eslint": "^8.65.0"
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",
