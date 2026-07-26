@@ -17,9 +17,7 @@ const selectMimeType = () =>
     MediaRecorder.isTypeSupported(type)
   ) ?? '';
 
-export const useVoiceMessageRecorder = (
-  onRecorded: (recording: RecordedVoiceMessage) => void
-) => {
+export const useVoiceMessageRecorder = (onRecorded: (recording: RecordedVoiceMessage) => void) => {
   const [isRecording, setIsRecording] = useState(false);
   const [durationSeconds, setDurationSeconds] = useState(0);
   const [error, setError] = useState<string>();
@@ -107,9 +105,13 @@ export const useVoiceMessageRecorder = (
         if (discardRef.current || chunks.length === 0) return;
         const extension = resolvedMimeType.includes('mp4') ? 'm4a' : 'webm';
         recordedHandlerRef.current({
-          file: new File([new Blob(chunks, { type: resolvedMimeType })], `voice-${Date.now()}.${extension}`, {
-            type: resolvedMimeType.split(';')[0],
-          }),
+          file: new File(
+            [new Blob(chunks, { type: resolvedMimeType })],
+            `voice-${Date.now()}.${extension}`,
+            {
+              type: resolvedMimeType.split(';')[0],
+            }
+          ),
           durationSeconds: duration,
         });
       };

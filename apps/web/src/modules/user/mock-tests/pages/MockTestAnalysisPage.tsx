@@ -4,14 +4,16 @@ import { cn } from '../../../../lib/cn';
 // MockTestAnalysisPage.tsx — aligned with Trackers design
 // ============================================================
 
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 
 import { useMockTestAttemptAnalysis } from '../hooks/useMockTests';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 export default function MockTestAnalysisPage() {
   const { attemptId = '' } = useParams();
+  const navigate = useNavigate();
 
   const query = useMockTestAttemptAnalysis(attemptId);
   const data = query.data;
@@ -119,6 +121,29 @@ export default function MockTestAnalysisPage() {
                     {data.weakTopics.length ? data.weakTopics.join(', ') : 'No weak area found'}
                   </p>
                 </div>
+              </div>
+              <div className="mt-5 flex flex-wrap gap-3 border-t border-(--border-subtle) pt-5">
+                <button
+                  type="button"
+                  onClick={() => navigate(ROUTES.learningAgent)}
+                  className="min-h-11 rounded-xl bg-(--brand-500) px-5 text-[13px] font-extrabold text-white transition hover:bg-(--brand-600) dark:text-[#141412]"
+                >
+                  Ask Immi what to study next
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate(ROUTES.trackers)}
+                  className="min-h-11 rounded-xl border border-(--border-subtle) px-5 text-[13px] font-bold text-(--text-primary) transition hover:border-(--brand-500) hover:text-(--brand-500)"
+                >
+                  Review lessons
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate(ROUTES.mockTests)}
+                  className="min-h-11 rounded-xl px-4 text-[13px] font-bold text-(--text-secondary) transition hover:bg-(--surface-muted)"
+                >
+                  Return to tests
+                </button>
               </div>
             </section>
 

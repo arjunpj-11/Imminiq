@@ -7,6 +7,8 @@ import { friendsQueryKeys } from '../modules/user/friends';
 import { socialQueryKeys } from '../modules/user/social';
 import { profileQueryKeys } from '../modules/user/users';
 import { trackerKeys } from '../modules/user/trackers/hooks/trackers.query-keys';
+import { featureAvailabilityQueryKey } from './useFeatureAvailability';
+import type { FeatureAvailability } from '../config/feature-availability';
 
 const FRIEND_NOTIFICATION_TYPES = new Set(['friend_request_received', 'friend_request_accepted']);
 const TRACKER_CHANGE_NOTIFICATION_TYPES = new Set(['tracker_topic_contribution_approved']);
@@ -45,6 +47,10 @@ export const useRealtimeAppEvents = (accessToken: string | null, enabled: boolea
     const refreshAfterReconnect = () => {
       refreshNotifications();
       refreshChat();
+      void queryClient.invalidateQueries({ queryKey: featureAvailabilityQueryKey });
+    };
+    const syncFeatureAvailability = (features: FeatureAvailability) => {
+      queryClient.setQueryData(featureAvailabilityQueryKey, features);
     };
     let active = true;
     let realtimeSocket: Socket | undefined;
@@ -57,6 +63,7 @@ export const useRealtimeAppEvents = (accessToken: string | null, enabled: boolea
       socket.on('chat:message', refreshChat);
       socket.on('chat:read', refreshChat);
       socket.on('chat:block-updated', refreshSocialBlocks);
+      socket.on('feature-availability:changed', syncFeatureAvailability);
       socket.on('connect', refreshAfterReconnect);
       if (!socket.connected) socket.connect();
     });
@@ -67,6 +74,7 @@ export const useRealtimeAppEvents = (accessToken: string | null, enabled: boolea
       realtimeSocket?.off('chat:message', refreshChat);
       realtimeSocket?.off('chat:read', refreshChat);
       realtimeSocket?.off('chat:block-updated', refreshSocialBlocks);
+      realtimeSocket?.off('feature-availability:changed', syncFeatureAvailability);
       realtimeSocket?.off('connect', refreshAfterReconnect);
       realtimeSocket?.disconnect();
     };

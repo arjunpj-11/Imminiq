@@ -1,10 +1,7 @@
 const sanitizeFileName = (value: string) =>
   value.replace(/[\\/:*?"<>|]+/g, '-').trim() || 'chat-download';
 
-export const loadChatMediaBlob = async (
-  url: string,
-  expectedMimeType?: string
-) => {
+export const loadChatMediaBlob = async (url: string, expectedMimeType?: string) => {
   const response = await fetch(url, { credentials: 'omit' });
   if (!response.ok) {
     throw new Error(`Media request failed with status ${response.status}`);

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { paginationConfig } from '../../../../config/pagination';
 
 export const callIdParamsSchema = z.object({
   callId: z.string().regex(/^[a-f\d]{24}$/i, 'Call identifier is invalid'),
@@ -6,7 +7,12 @@ export const callIdParamsSchema = z.object({
 
 export const listCallsSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(50).default(20),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(paginationConfig.maxStandardLimit)
+    .default(paginationConfig.defaultLimit),
 });
 
 export const initiateCallSchema = z.object({

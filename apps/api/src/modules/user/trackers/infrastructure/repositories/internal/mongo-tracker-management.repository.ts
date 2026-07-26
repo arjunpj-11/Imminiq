@@ -486,7 +486,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
         }
 
         if (data.domain !== undefined) {
-          update.domain = data.domain;
+          update.category = data.domain;
         }
 
         if (data.goal !== undefined) {
@@ -495,6 +495,10 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
 
         if (data.level !== undefined) {
           update.level = data.level;
+        }
+
+        if (data.tags !== undefined) {
+          update.tags = data.tags.map((tag) => tag.trim().toLowerCase()).filter(Boolean);
         }
 
         const tracker = await Tracker.findOneAndUpdate(
@@ -660,6 +664,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
         const update: MongoUpdate = {
           visibility: 'public',
           publishedAt: new Date(),
+          allowClone: true,
         };
 
         if (typeof data.name === 'string' && data.name.trim()) {
@@ -685,10 +690,6 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
 
         if (Array.isArray(data.tags)) {
           update.tags = data.tags.map((tag) => String(tag).trim().toLowerCase()).filter(Boolean);
-        }
-
-        if (typeof data.allowClone === 'boolean') {
-          update.allowClone = data.allowClone;
         }
 
         const tracker = await Tracker.findOneAndUpdate(

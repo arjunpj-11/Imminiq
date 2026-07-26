@@ -124,19 +124,17 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
   async resolve(id: string, status: string, actor: AdminActor) {
     const session = await mongoose.startSession();
     try {
-      let result:
-        | {
-            id: string;
-            status: string;
-            rewardContext: {
-              submissionId: string;
-              consensusChoice: 'pass' | 'fail';
-              trackerId: string;
-              ownerId: string;
-              trackerTitle: string;
-            };
-          }
-        | null = null;
+      let result: {
+        id: string;
+        status: string;
+        rewardContext: {
+          submissionId: string;
+          consensusChoice: 'pass' | 'fail';
+          trackerId: string;
+          ownerId: string;
+          trackerTitle: string;
+        };
+      } | null = null;
       await session.withTransaction(async () => {
         const review = await CommunityVerificationSubmission.findOne({
           _id: id,

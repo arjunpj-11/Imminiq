@@ -8,9 +8,7 @@ export interface IListAdminMockTestQuestionIssuesUseCase {
   execute(query: AdminListQuery): Promise<AdminPage<AdminMockTestQuestionIssueDTO>>;
 }
 
-export class ListAdminMockTestQuestionIssuesUseCase
-  implements IListAdminMockTestQuestionIssuesUseCase
-{
+export class ListAdminMockTestQuestionIssuesUseCase implements IListAdminMockTestQuestionIssuesUseCase {
   constructor(
     private readonly _repository: Pick<IAdminMockTestsRepository, 'listQuestionIssues'>,
     private readonly _mapper: IAdminMockTestsMapper

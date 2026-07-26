@@ -162,7 +162,10 @@ export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean
         </div>
       </div>
 
-      <div className="absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.24em] text-[#6b5f58] dark:text-white/42 md:block">
+      <div
+        aria-hidden="true"
+        className="absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.24em] text-[#6b5f58] dark:text-white/42 md:block"
+      >
         move your mouse inside hero · scroll vertically
       </div>
     </section>

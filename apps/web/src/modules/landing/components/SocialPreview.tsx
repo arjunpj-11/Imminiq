@@ -16,9 +16,19 @@ import { ROUTES } from '../../../routes/config/route-paths';
 import { socialCapabilities } from '../constants/landing.constants';
 
 const conversations = [
-  { initials: 'AK', name: 'Aarav K.', preview: 'That roadmap is exactly what I needed.', tone: '#6b9fe8' },
+  {
+    initials: 'AK',
+    name: 'Aarav K.',
+    preview: 'That roadmap is exactly what I needed.',
+    tone: '#6b9fe8',
+  },
   { initials: 'MS', name: 'Maya S.', preview: 'Voice message · 0:18', tone: '#e8816a' },
-  { initials: 'JG', name: 'JavaScript Guild', preview: '3 new tracker contributions', tone: '#84a98c' },
+  {
+    initials: 'JG',
+    name: 'JavaScript Guild',
+    preview: '3 new tracker contributions',
+    tone: '#84a98c',
+  },
 ];
 
 export default function SocialPreview() {
@@ -192,15 +202,13 @@ export default function SocialPreview() {
                     <Play aria-hidden="true" className="ml-0.5" fill="currentColor" size={14} />
                   </div>
                   <div className="flex flex-1 items-center gap-1">
-                    {[8, 14, 20, 11, 25, 17, 9, 21, 14, 7, 18, 12, 22, 9].map(
-                      (height, index) => (
-                        <span
-                          key={index}
-                          className="w-1 flex-1 rounded-full bg-[#141412]/55"
-                          style={{ height }}
-                        />
-                      )
-                    )}
+                    {[8, 14, 20, 11, 25, 17, 9, 21, 14, 7, 18, 12, 22, 9].map((height, index) => (
+                      <span
+                        key={index}
+                        className="w-1 flex-1 rounded-full bg-[#141412]/55"
+                        style={{ height }}
+                      />
+                    ))}
                   </div>
                   <span className="font-['DM_Mono',monospace] text-[9px] font-bold">0:18</span>
                 </div>

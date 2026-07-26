@@ -31,10 +31,14 @@ export default function FloatingStudioNav() {
       >
         <Link
           to={ROUTES.home}
-          className="flex min-w-0 items-center gap-3 no-underline"
+          className="flex min-h-11 min-w-0 items-center gap-3 no-underline"
           aria-label="Imminiq home"
         >
-          <ImminiqLogo size={scrolled ? 30 : 34} className="rounded-[10px] transition-all duration-300" decorative />
+          <ImminiqLogo
+            size={scrolled ? 30 : 34}
+            className="rounded-[10px] transition-all duration-300"
+            decorative
+          />
 
           <ImminiqWordmark
             className="truncate text-[14px] font-extrabold tracking-[-0.02em]"
@@ -50,14 +54,14 @@ export default function FloatingStudioNav() {
         <div className="flex shrink-0 items-center gap-2">
           <Link
             to={ROUTES.login}
-            className="rounded-xl border border-[#e0d0c5] px-3 py-1.5 text-[12px] font-bold text-[#1a1714] no-underline transition hover:-translate-y-px hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-black/10 dark:text-[#141412]"
+            className="inline-flex min-h-11 items-center rounded-xl border border-[#e0d0c5] px-3 text-[12px] font-bold text-[#1a1714] no-underline transition hover:-translate-y-px hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-black/10 dark:text-[#141412]"
           >
             Login
           </Link>
 
           <Link
             to={ROUTES.register}
-            className="rounded-xl bg-[#e8816a] px-3 py-1.5 text-[12px] font-bold text-[#141412] no-underline transition hover:-translate-y-px hover:bg-[#f07058]"
+            className="inline-flex min-h-11 items-center rounded-xl bg-[#e8816a] px-3 text-[12px] font-bold text-[#141412] no-underline transition hover:-translate-y-px hover:bg-[#f07058]"
           >
             Sign up
           </Link>

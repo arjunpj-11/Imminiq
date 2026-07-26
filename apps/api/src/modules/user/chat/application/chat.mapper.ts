@@ -65,10 +65,16 @@ export class ChatMapper implements IChatMapper {
       sharedTracker: message.sharedTracker,
       sharedProfile: message.sharedProfile,
       isForwarded: Boolean(message.forwardedFromMessageId),
+      replyTo: message.replyTo,
+      reactions: message.reactions.map((reaction) => ({
+        emoji: reaction.emoji,
+        count: reaction.userIds.length,
+        reactedByViewer: reaction.userIds.includes(viewerUserId),
+      })),
+      editedAt: message.editedAt,
       createdAt: message.createdAt,
       updatedAt: message.updatedAt,
-      isRead:
-        message.senderId !== viewerUserId || message.isReadByAnotherParticipant(),
+      isRead: message.senderId !== viewerUserId || message.isReadByAnotherParticipant(),
       isStarred: message.isStarredBy(viewerUserId),
     };
   }
@@ -83,16 +89,14 @@ export class ChatMapper implements IChatMapper {
       username: participant.username,
       handle: `@${participant.username}`,
       initials: getInitials(participant.fullName || participant.username),
-      avatarUrl: hidePrivateDetails ? null : participant.avatarUrl ?? null,
+      avatarUrl: hidePrivateDetails ? null : (participant.avatarUrl ?? null),
       level: participant.level,
       isOnline:
         !hidePrivateDetails &&
         participant.presenceVisible &&
         this._presenceProvider.isOnline(participant.id),
       lastActiveAt:
-        !hidePrivateDetails && participant.presenceVisible
-          ? participant.lastActiveAt
-          : null,
+        !hidePrivateDetails && participant.presenceVisible ? participant.lastActiveAt : null,
       presenceVisible: hidePrivateDetails ? false : participant.presenceVisible,
     };
   }
@@ -104,10 +108,7 @@ export class ChatMapper implements IChatMapper {
   ): ChatConversationDTO {
     return {
       id: summary.conversation.id,
-      participant: this.toParticipantView(
-        summary.participant,
-        participantBlockedViewer
-      ),
+      participant: this.toParticipantView(summary.participant, participantBlockedViewer),
       lastMessage: summary.lastMessage
         ? this.toMessageView(summary.lastMessage, viewerUserId)
         : null,
@@ -123,11 +124,7 @@ export class ChatMapper implements IChatMapper {
   ): ChatPageDTO<ChatConversationDTO> {
     return {
       items: page.items.map((summary) =>
-        this.toConversationView(
-          summary,
-          viewerUserId,
-          blockedByUserIds.has(summary.participant.id)
-        )
+        this.toConversationView(summary, viewerUserId, blockedByUserIds.has(summary.participant.id))
       ),
       pagination: this.toPaginationView(page),
     };
@@ -149,6 +146,7 @@ export class ChatMapper implements IChatMapper {
       limit: page.limit,
       total: page.total,
       hasMore: page.hasMore,
+      nextCursor: page.nextCursor ?? null,
     };
   }
 }

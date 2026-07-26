@@ -1,10 +1,10 @@
 import {
   AlertTriangle,
-  ArrowLeft,
   Ban,
   BookOpenCheck,
   CheckCircle2,
   Coins,
+  ExternalLink,
   FileText,
   Flame,
   MessageCircle,
@@ -20,7 +20,6 @@ import { Link, useParams } from 'react-router';
 import { AdminError } from '../../../../components/admin';
 import { useState } from 'react';
 import { useAdminUserDetail } from '../hooks/useAdminUserDetail';
-import { ADMIN_USERS_ROUTES } from '../constants/admin-users.constants';
 import AdminUserStatusDialog from '../components/AdminUserStatusDialog';
 import AdminUserMessageDialog from '../components/AdminUserMessageDialog';
 import AdminUserSessionDialog from '../components/AdminUserSessionDialog';
@@ -30,6 +29,8 @@ import { useAuthStore } from '../../../../store/useAuthStore';
 import AdminUserNotesPanel from '../components/AdminUserNotesPanel';
 import AdminActionPasswordDialog from '../components/AdminActionPasswordDialog';
 import UserAvatar from '../../../../components/data-display/UserAvatar';
+import { ROUTES } from '../../../../routes/config/route-paths';
+import { formatProductLabel } from '../../../../config/product-language';
 
 type UserStatusAction = 'suspend' | 'block' | 'restore';
 
@@ -92,9 +93,6 @@ export default function AdminUserDetailPage() {
     return (
       <div className="p-10">
         <AdminError error={error} onRetry={() => void refetch()} />
-        <Link className="mt-4 inline-block text-sm text-[#e8816a]" to={ADMIN_USERS_ROUTES.list}>
-          Return to users
-        </Link>
       </div>
     );
   const { user, stats } = data;
@@ -112,13 +110,6 @@ export default function AdminUserDetailPage() {
 
   return (
     <main className="mx-auto max-w-310 px-5 py-7 sm:px-8">
-      <Link
-        to={ADMIN_USERS_ROUTES.list}
-        className="mb-6 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#aaa59d]"
-      >
-        <ArrowLeft size={15} />
-        User management
-      </Link>
       <section className="flex flex-wrap items-start justify-between gap-6">
         <div className="flex min-w-0 items-center gap-5">
           <UserAvatar
@@ -134,7 +125,7 @@ export default function AdminUserDetailPage() {
               <span
                 className={`rounded-full px-3 py-1 text-xs ${blocked ? 'bg-[rgba(226,103,103,0.15)] text-[#e26767]' : paused ? 'bg-[rgba(240,168,66,0.15)] text-[#f0a842]' : 'bg-[rgba(82,197,140,0.15)] text-[#52c58c]'}`}
               >
-                {user.status}
+                {formatProductLabel(user.status)}
               </span>
               <span className="rounded-full bg-[#2a2723] px-3 py-1 text-xs">Role: {user.role}</span>
             </div>
@@ -154,6 +145,15 @@ export default function AdminUserDetailPage() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Link
+            to={ROUTES.publicProfileFor(user.username)}
+            target="_blank"
+            rel="noreferrer"
+            className="admin-button inline-flex items-center gap-2"
+          >
+            <ExternalLink size={17} aria-hidden="true" />
+            View public profile
+          </Link>
           {currentUserRole === 'superadmin' &&
             currentUserId !== user._id &&
             ['admin', 'moderator'].includes(user.role) && (

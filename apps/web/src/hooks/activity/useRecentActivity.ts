@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
+import { paginationConfig } from '../../config/pagination';
 import api from '../../lib/axios';
 import type { IActivityFeedItem, IApiErrorResponse, IApiResponse } from '../../modules/user/users';
 import { activityQueryKeys } from './activity.query-keys';
@@ -13,7 +14,10 @@ interface IUseRecentActivityOptions {
   enabled?: boolean;
 }
 
-export const useRecentActivity = (limit = 10, options: IUseRecentActivityOptions = {}) => {
+export const useRecentActivity = (
+  limit = paginationConfig.profileLimit,
+  options: IUseRecentActivityOptions = {}
+) => {
   return useQuery<
     IApiResponse<IRecentActivityResponse>,
     AxiosError<IApiErrorResponse>,

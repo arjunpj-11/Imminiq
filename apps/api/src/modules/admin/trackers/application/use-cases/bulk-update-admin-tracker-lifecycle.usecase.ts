@@ -10,9 +10,7 @@ export interface IBulkUpdateAdminTrackerLifecycleUseCase {
   ): Promise<AdminBulkActionResult>;
 }
 
-export class BulkUpdateAdminTrackerLifecycleUseCase
-  implements IBulkUpdateAdminTrackerLifecycleUseCase
-{
+export class BulkUpdateAdminTrackerLifecycleUseCase implements IBulkUpdateAdminTrackerLifecycleUseCase {
   constructor(
     private readonly _repository: Pick<IAdminTrackersRepository, 'getDetail'>,
     private readonly _updateLifecycle: IUpdateAdminTrackerLifecycleUseCase

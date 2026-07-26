@@ -2,6 +2,8 @@ import type { ICommunityTracker } from '../../types/community.types';
 import { cn } from '../../utils/community-ui';
 import { formatCompactNumber } from '../../utils/community-formatters';
 import { CheckIcon, CopyIcon, StarIcon, VerifiedIcon } from '../icons/CommunityIcons';
+import { Bookmark } from 'lucide-react';
+import { useSavedItemsStore } from '../../../../../store/useSavedItemsStore';
 
 interface ICommunityTrackerCardProps {
   tracker: ICommunityTracker;
@@ -16,6 +18,10 @@ export default function CommunityTrackerCard({
   onClone,
   onOpen,
 }: ICommunityTrackerCardProps) {
+  const saved = useSavedItemsStore((state) =>
+    state.trackers.some((item) => item.id === tracker._id)
+  );
+  const toggleTracker = useSavedItemsStore((state) => state.toggleTracker);
   const handleOpen = () => {
     onOpen(tracker._id);
   };
@@ -36,7 +42,7 @@ export default function CommunityTrackerCard({
         )}
       />
       <div className="flex flex-1 flex-col p-5">
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-3 flex items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[rgba(184,76,43,0.09)] font-ui text-[13px] font-extrabold text-(--brand-500)">
               {tracker.topic.slice(0, 1).toUpperCase()}
@@ -56,6 +62,21 @@ export default function CommunityTrackerCard({
               </span>
             )}
           </div>
+          <button
+            type="button"
+            onClick={() =>
+              toggleTracker({
+                id: tracker._id,
+                title: tracker.title,
+                description: tracker.description,
+              })
+            }
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-subtle) text-(--brand-500) transition hover:bg-(--surface-muted)"
+            aria-label={saved ? 'Remove tracker from saved items' : 'Save tracker'}
+            aria-pressed={saved}
+          >
+            <Bookmark size={17} fill={saved ? 'currentColor' : 'none'} />
+          </button>
         </div>
 
         <h3 className="mb-2 font-ui text-[18px] font-extrabold leading-tight text-(--text-primary) dark:text-(--text-primary)">

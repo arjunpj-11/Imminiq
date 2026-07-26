@@ -140,7 +140,7 @@ function Metric({ label, value }: { label: string; value: number }) {
   return (
     <div className="min-w-0 rounded-lg border border-(--border-subtle) bg-(--surface-card) px-3 py-2.5 dark:bg-white/3">
       <div className="text-[15px] font-extrabold leading-none text-(--text-primary)">{value}</div>
-      <div className="mt-1 text-[10.5px] font-semibold text-(--text-secondary)">{label}</div>
+      <div className="mt-1 text-[11.5px] font-semibold text-(--text-secondary)">{label}</div>
     </div>
   );
 }
@@ -182,8 +182,7 @@ export default function TrackerCard({
   const tone = getTone(tracker.status);
 
   const isPublished = tracker.visibility === 'public' || Boolean(tracker.publishedAt);
-  const isPubliclyPublished =
-    tracker.visibility === 'public' && Boolean(tracker.publishedAt);
+  const isPubliclyPublished = tracker.visibility === 'public' && Boolean(tracker.publishedAt);
   const isUnavailable = Boolean(tracker.moderationStatus && tracker.moderationStatus !== 'active');
   const isArchived = tracker.status === 'archived';
   const cloneSource = tracker.clonedFrom;
@@ -371,12 +370,12 @@ export default function TrackerCard({
                 onClick={() => navigate(ROUTES.trackerClan(cloneSource?.trackerId ?? tracker._id))}
                 className="relative inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#d6ad47]/35 bg-[#f4c95d]/10 px-2.5 text-[10.5px] font-bold text-[#8a6509] transition hover:-translate-y-px hover:bg-[#f4c95d]/18 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d6ad47]/25 dark:text-[#f4c95d]"
                 aria-label={
-                  cloneSource && !hasClanMembership ? 'Join tracker clan' : 'Open tracker clan'
+                  cloneSource && !hasClanMembership ? 'Join tracker guild' : 'Open tracker guild'
                 }
               >
                 <UsersIcon className="h-4 w-4" />
                 <span className="max-[380px]:hidden">
-                  {cloneSource && !hasClanMembership ? 'Join' : 'Clan'}
+                  {cloneSource && !hasClanMembership ? 'Join' : 'Guild'}
                 </span>
                 {Boolean(tracker.clanNotificationsCount) && (
                   <span className="absolute -right-1.5 -top-1.5 grid min-h-4 min-w-4 place-items-center rounded-full bg-(--brand-500) px-1 text-[8px] text-white shadow-sm dark:text-[#141412]">
@@ -407,9 +406,7 @@ export default function TrackerCard({
                         trackerId: tracker._id,
                         title: tracker.title,
                         description:
-                          tracker.description ??
-                          tracker.goal ??
-                          'A focused learning roadmap.',
+                          tracker.description ?? tracker.goal ?? 'A focused learning roadmap.',
                       })
                   : undefined
               }
@@ -454,7 +451,7 @@ export default function TrackerCard({
               <div className="font-ui text-[28px] font-extrabold leading-none tracking-[-0.8px] text-(--text-primary)">
                 {progress}%
               </div>
-              <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-(--text-secondary)">
+              <div className="mt-1 text-[11px] font-bold uppercase tracking-widest text-(--text-secondary)">
                 complete
               </div>
             </div>
@@ -504,7 +501,7 @@ export default function TrackerCard({
                 <span aria-hidden="true">✦</span>
                 {analyzeClone.isPending ? 'Starting analysis…' : 'Analyze new topics (one time)'}
               </button>
-              <p className="mt-1.5 text-center text-[10.5px] leading-4 text-(--text-secondary)">
+              <p className="mt-1.5 text-center text-[11.5px] leading-4 text-(--text-secondary)">
                 Check for credible topics added since the original was published.
               </p>
             </div>

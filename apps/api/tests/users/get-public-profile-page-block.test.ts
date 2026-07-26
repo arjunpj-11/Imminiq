@@ -28,11 +28,7 @@ describe('GetPublicProfilePageUseCase block privacy', () => {
       findByUsername: vi.fn().mockResolvedValue(target),
       hasBlockBetween: vi.fn().mockResolvedValue(true),
     };
-    const useCase = new GetPublicProfilePageUseCase(
-      repository as never,
-      {} as never,
-      {} as never
-    );
+    const useCase = new GetPublicProfilePageUseCase(repository as never, {} as never, {} as never);
 
     await expect(
       useCase.execute('blocked-user', '507f191e810c19729de860ea', {
@@ -42,9 +38,6 @@ describe('GetPublicProfilePageUseCase block privacy', () => {
     ).rejects.toMatchObject({
       code: 'PUBLIC_PROFILE_NOT_AVAILABLE',
     });
-    expect(repository.hasBlockBetween).toHaveBeenCalledWith(
-      '507f191e810c19729de860ea',
-      target.id
-    );
+    expect(repository.hasBlockBetween).toHaveBeenCalledWith('507f191e810c19729de860ea', target.id);
   });
 });

@@ -1,10 +1,15 @@
 import { z } from 'zod';
+import { paginationConfig } from '../../config/pagination';
 
 export const mongoIdSchema = z.string().regex(/^[a-f\d]{24}$/i, 'Invalid ID');
 
 export const paginationSchema = z.object({
   page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(20),
+  limit: z.coerce
+    .number()
+    .min(1)
+    .max(paginationConfig.maxLimit)
+    .default(paginationConfig.defaultLimit),
 });
 
 export const dateRangeSchema = z.object({

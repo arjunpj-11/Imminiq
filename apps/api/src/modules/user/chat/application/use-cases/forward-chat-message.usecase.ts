@@ -2,16 +2,14 @@ import type { IChatBlockRepository } from '../../domain/repositories/chat-block.
 import type { IChatConversationQueryRepository } from '../../domain/repositories/chat-conversation-query.repository.interface';
 import type { IChatMessageCommandRepository } from '../../domain/repositories/chat-message-command.repository.interface';
 import type { IChatMessageQueryRepository } from '../../domain/repositories/chat-message-query.repository.interface';
+import type { IChatRelationshipRepository } from '../../domain/repositories/chat-relationship.repository.interface';
 import type { IChatRealtimePublisher } from '../../domain/services/chat-realtime-publisher.interface';
 import type { ChatMessageDTO, ForwardChatMessageInputDTO } from '../chat.dto';
 import { ChatApplicationError } from '../chat-application.error';
 import type { IChatMapper } from '../chat.mapper';
 
 export interface IForwardChatMessageUseCase {
-  execute(
-    viewerUserId: string,
-    input: ForwardChatMessageInputDTO
-  ): Promise<ChatMessageDTO>;
+  execute(viewerUserId: string, input: ForwardChatMessageInputDTO): Promise<ChatMessageDTO>;
 }
 
 export class ForwardChatMessageUseCase implements IForwardChatMessageUseCase {
@@ -20,11 +18,9 @@ export class ForwardChatMessageUseCase implements IForwardChatMessageUseCase {
       IChatConversationQueryRepository,
       'findConversationForParticipant'
     >,
-    private readonly _messageQueries: Pick<
-      IChatMessageQueryRepository,
-      'findMessagesByIds'
-    >,
+    private readonly _messageQueries: Pick<IChatMessageQueryRepository, 'findMessagesByIds'>,
     private readonly _messageCommands: Pick<IChatMessageCommandRepository, 'createMessage'>,
+    private readonly _relationships: IChatRelationshipRepository,
     private readonly _blocks: Pick<IChatBlockRepository, 'hasBlockBetween'>,
     private readonly _realtime: IChatRealtimePublisher,
     private readonly _mapper: IChatMapper
@@ -35,14 +31,8 @@ export class ForwardChatMessageUseCase implements IForwardChatMessageUseCase {
     const source = messages[0];
     if (!source) throw ChatApplicationError.messageNotFound();
     const [sourceConversation, targetConversation] = await Promise.all([
-      this._conversations.findConversationForParticipant(
-        source.conversationId,
-        viewerUserId
-      ),
-      this._conversations.findConversationForParticipant(
-        input.targetConversationId,
-        viewerUserId
-      ),
+      this._conversations.findConversationForParticipant(source.conversationId, viewerUserId),
+      this._conversations.findConversationForParticipant(input.targetConversationId, viewerUserId),
     ]);
     if (!sourceConversation || !targetConversation) {
       throw ChatApplicationError.conversationNotFound();
@@ -51,6 +41,9 @@ export class ForwardChatMessageUseCase implements IForwardChatMessageUseCase {
     if (!recipientId) throw ChatApplicationError.invalidParticipant();
     if (await this._blocks.hasBlockBetween(viewerUserId, recipientId)) {
       throw ChatApplicationError.userBlocked();
+    }
+    if (!(await this._relationships.areActiveFriends(viewerUserId, recipientId))) {
+      throw ChatApplicationError.friendsOnly();
     }
 
     const forwarded = await this._messageCommands.createMessage({

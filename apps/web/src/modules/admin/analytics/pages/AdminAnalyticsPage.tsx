@@ -82,7 +82,7 @@ export default function AdminAnalyticsPage() {
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
-        title="Platform Activity"
+        title="Activity"
         description="Live adoption and engagement signals calculated for the selected date range."
         action={
           <div className="flex flex-wrap gap-2">

@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
+import { paginationConfig } from '../../../../config/pagination';
 import api from '../../../../lib/axios';
 import type { ApiEnvelope } from '../../../../lib/api.types';
 import { ADMIN_SUBSCRIPTIONS_ENDPOINTS } from '../constants/admin-subscriptions.constants';
@@ -26,7 +27,7 @@ export const useExportAdminSubscriptions = () =>
               search: search || undefined,
               status,
               page: nextPage,
-              limit: 50,
+              limit: paginationConfig.batchLimit,
             },
           }
         );

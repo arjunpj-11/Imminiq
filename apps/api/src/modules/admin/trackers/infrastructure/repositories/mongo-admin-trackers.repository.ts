@@ -259,9 +259,7 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
       visibility: tracker.visibility,
       status: tracker.status,
       moderationStatus: (tracker.moderationStatus ?? 'active') as
-        | 'active'
-        | 'suspended'
-        | 'deleted',
+        'active' | 'suspended' | 'deleted',
       ...(tracker.moderationReason ? { moderationReason: tracker.moderationReason } : {}),
       verificationStatus: tracker.verificationStatus ?? null,
       topicsCount: tracker.topicsCount,
@@ -411,8 +409,7 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
         : Promise.resolve(null),
     ]);
     const owner = tracker?.ownerId as unknown as
-      | { fullName?: string; username?: string }
-      | undefined;
+      { fullName?: string; username?: string } | undefined;
     return {
       id: String(report._id),
       trackerId: String(report.trackerId),

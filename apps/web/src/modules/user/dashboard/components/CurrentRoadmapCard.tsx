@@ -1,8 +1,9 @@
-// CurrentRoadmapCard.tsx
 import EmptyCard from './EmptyCard';
 import { formatRelativeTime } from '../utils/dashboard-formatters';
 import type { ReactElement } from 'react';
 import { ROUTES } from '../../../../routes/config/route-paths';
+import { safeLocalStorage } from '../../../../lib/storage/safe-storage';
+import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys';
 
 type CurrentRoadmap = {
   _id: string;
@@ -18,6 +19,7 @@ type CurrentRoadmap = {
 type CurrentRoadmapCardProps = {
   currentRoadmap?: CurrentRoadmap | null;
   onNavigate: (link: string) => void;
+  canCreateTracker?: boolean;
 };
 
 const BeginnerIcon = () => (
@@ -105,11 +107,27 @@ function getMilestones(progress: number) {
 export default function CurrentRoadmapCard({
   currentRoadmap,
   onNavigate,
+  canCreateTracker = true,
 }: CurrentRoadmapCardProps) {
   const progress = currentRoadmap?.completionPercentage ?? 0;
   const levelKey = currentRoadmap?.level?.toLowerCase() ?? 'beginner';
   const levelCfg = LEVEL_CONFIG[levelKey] ?? LEVEL_CONFIG.beginner;
   const milestones = getMilestones(progress);
+  const recentLesson = (() => {
+    try {
+      return JSON.parse(safeLocalStorage.get(STORAGE_KEYS.recentLesson) ?? 'null') as {
+        trackerId?: string;
+        subtopicId?: string;
+        lessonTitle?: string;
+      } | null;
+    } catch {
+      return null;
+    }
+  })();
+  const resumeLesson =
+    recentLesson?.trackerId === currentRoadmap?._id && recentLesson?.subtopicId
+      ? recentLesson
+      : null;
 
   return (
     <div className="relative overflow-hidden self-start rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-6 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) max-[640px]:p-4">
@@ -125,8 +143,8 @@ export default function CurrentRoadmapCard({
           {/* ── Header row ── */}
           <div className="relative flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
-              <div className="mb-1 font-mono text-[8px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-55 dark:text-(--text-secondary)">
-                Current Roadmap
+              <div className="mb-1 font-mono text-[10px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-70 dark:text-(--text-secondary)">
+                Continue learning
               </div>
               <h2 className="font-ui text-[22px] font-extrabold leading-tight tracking-[-0.4px] text-(--text-primary) dark:text-(--text-primary)">
                 {currentRoadmap.title}
@@ -152,15 +170,32 @@ export default function CurrentRoadmapCard({
 
             <button
               type="button"
-              onClick={() => onNavigate(`/trackers/${currentRoadmap._id}/roadmap`)}
+              onClick={() =>
+                onNavigate(
+                  resumeLesson
+                    ? ROUTES.trackerLesson(currentRoadmap._id, resumeLesson.subtopicId!)
+                    : ROUTES.trackerRoadmap(currentRoadmap._id)
+                )
+              }
               className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
             >
-              Continue →
+              {resumeLesson ? 'Resume lesson →' : 'Continue →'}
             </button>
           </div>
 
           {/* ── Divider ── */}
           <div className="my-5 border-t border-[rgba(26,23,20,0.07)] dark:border-white/7" />
+
+          {resumeLesson?.lessonTitle && (
+            <div className="mb-4 rounded-lg border border-(--border-subtle) bg-(--surface-elevated) px-3.5 py-3">
+              <div className="font-mono text-[10px] uppercase tracking-wider text-(--text-muted)">
+                Pick up where you stopped
+              </div>
+              <div className="mt-1 truncate text-[13px] font-bold text-(--text-primary)">
+                {resumeLesson.lessonTitle}
+              </div>
+            </div>
+          )}
 
           {/* ── Progress section ── */}
           <div>
@@ -215,6 +250,15 @@ export default function CurrentRoadmapCard({
                 </span>
               ))}
             </div>
+            <details className="mt-3 rounded-lg border border-(--border-subtle) bg-(--surface-elevated) px-3 py-2">
+              <summary className="cursor-pointer text-[12px] font-bold text-(--text-secondary)">
+                How is progress calculated?
+              </summary>
+              <p className="mt-2 text-[12px] leading-5 text-(--text-muted)">
+                Completion is based on finished roadmap lessons and topics. Marking the current
+                lesson complete updates this percentage and your remaining-topic count.
+              </p>
+            </details>
           </div>
 
           {/* ── Mini stat pills ── */}
@@ -228,13 +272,13 @@ export default function CurrentRoadmapCard({
                 key={label}
                 className="rounded-xl border border-(--border-subtle) bg-[rgba(26,23,20,0.02)] px-3 py-2.5 dark:border-white/8 dark:bg-white/3"
               >
-                <div className="font-mono text-[8px] uppercase tracking-widest text-(--text-secondary)/60 dark:text-(--text-secondary)/60">
+                <div className="font-mono text-[10px] uppercase tracking-widest text-(--text-secondary)/70 dark:text-(--text-secondary)/70">
                   {label}
                 </div>
                 <div className="mt-0.5 font-ui text-[18px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                   {value}
                 </div>
-                <div className="text-[10px] text-(--text-secondary)/50 dark:text-(--text-secondary)/50">
+                <div className="text-[11px] text-(--text-secondary)/70 dark:text-(--text-secondary)/70">
                   {sub}
                 </div>
               </div>
@@ -243,8 +287,8 @@ export default function CurrentRoadmapCard({
         </>
       ) : (
         <>
-          <div className="mb-1 font-mono text-[8px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-55 dark:text-(--text-secondary)">
-            Current Roadmap
+          <div className="mb-1 font-mono text-[10px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-70 dark:text-(--text-secondary)">
+            Continue learning
           </div>
           <h2 className="font-ui text-[22px] font-extrabold tracking-[-0.4px] text-(--text-primary) dark:text-(--text-primary)">
             No active roadmap
@@ -258,13 +302,15 @@ export default function CurrentRoadmapCard({
               description="Generate your first roadmap to unlock active progress, study heatmaps, and recommendations."
             />
           </div>
-          <button
-            type="button"
-            onClick={() => onNavigate(ROUTES.trackerCreate)}
-            className="mt-4 inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-(--brand-600) dark:bg-(--brand-500) dark:text-[#141412]"
-          >
-            Create Tracker
-          </button>
+          {canCreateTracker ? (
+            <button
+              type="button"
+              onClick={() => onNavigate(ROUTES.trackerCreate)}
+              className="mt-4 inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-(--brand-600) dark:bg-(--brand-500) dark:text-[#141412]"
+            >
+              Create Tracker
+            </button>
+          ) : null}
         </>
       )}
     </div>

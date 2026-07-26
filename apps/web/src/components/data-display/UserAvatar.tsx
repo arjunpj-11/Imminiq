@@ -1,8 +1,9 @@
 import { useState, type CSSProperties } from 'react';
+import { Link } from 'react-router';
 
 import { cn } from '../../lib/cn';
 
-interface IUserAvatarProps {
+export interface IUserAvatarProps {
   name: string;
   src?: string | null;
   initials?: string;
@@ -14,6 +15,8 @@ interface IUserAvatarProps {
   fallbackStyle?: CSSProperties;
   imageLoading?: 'eager' | 'lazy';
   roundedClassName?: string;
+  profileUsername?: string;
+  linkClassName?: string;
 }
 
 const sizeClasses = {
@@ -46,6 +49,8 @@ export default function UserAvatar({
   fallbackStyle,
   imageLoading = size === 'xl' ? 'eager' : 'lazy',
   roundedClassName = 'rounded-full',
+  profileUsername,
+  linkClassName,
 }: IUserAvatarProps) {
   const [failedSource, setFailedSource] = useState<string | null>(null);
 
@@ -57,7 +62,7 @@ export default function UserAvatar({
     }
   };
 
-  return (
+  const avatar = (
     <span
       className={cn(
         'inline-flex aspect-square shrink-0 items-center justify-center overflow-hidden font-bold leading-none [clip-path:circle(50%)]',
@@ -69,6 +74,7 @@ export default function UserAvatar({
       )}
       style={!showImage ? fallbackStyle : undefined}
       aria-label={`${name}'s avatar`}
+      aria-hidden={profileUsername ? true : undefined}
     >
       {showImage ? (
         <img
@@ -87,5 +93,22 @@ export default function UserAvatar({
         initials || initialsFor(name)
       )}
     </span>
+  );
+
+  if (!profileUsername) {
+    return avatar;
+  }
+
+  return (
+    <Link
+      to={`/profile/${profileUsername}`}
+      aria-label={`Open ${name}'s profile`}
+      className={cn(
+        'inline-flex h-fit w-fit aspect-square shrink-0 self-start items-center justify-center rounded-full p-0 leading-none transition hover:ring-2 hover:ring-(--brand-500)/30 hover:ring-offset-2 hover:ring-offset-(--surface-card) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500) focus-visible:ring-offset-2 focus-visible:ring-offset-(--surface-card)',
+        linkClassName
+      )}
+    >
+      {avatar}
+    </Link>
   );
 }

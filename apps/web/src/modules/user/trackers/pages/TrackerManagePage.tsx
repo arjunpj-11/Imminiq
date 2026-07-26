@@ -72,7 +72,7 @@ export default function TrackerManagePage() {
   const trackerDetailsQuery = useTrackerDetails(trackerId);
   const trackerIsModerated = Boolean(
     trackerDetailsQuery.data?.moderationStatus &&
-      trackerDetailsQuery.data.moderationStatus !== 'active'
+    trackerDetailsQuery.data.moderationStatus !== 'active'
   );
   const roadmapQuery = useTrackerRoadmap(
     trackerId,
@@ -162,8 +162,8 @@ export default function TrackerManagePage() {
   );
   const canEditActiveTopic = Boolean(
     canManageTracker &&
-      activeTopic &&
-      (!isClonedTracker || activeTopic.isCloneAddition || !activeTopic.sourceTopicId)
+    activeTopic &&
+    (!isClonedTracker || activeTopic.isCloneAddition || !activeTopic.sourceTopicId)
   );
 
   const activeSubtopics = useMemo(() => getChildren(activeTopic), [activeTopic]);
@@ -196,13 +196,13 @@ export default function TrackerManagePage() {
 
   const hasUnsavedDrafts = Boolean(
     (trackerTitleDraft !== null && trackerTitleDraft.trim() !== (tracker?.title ?? '').trim()) ||
-      newTopicTitle.trim() ||
-      newTopicDescription.trim() ||
-      newSubtopicTitle.trim() ||
-      newSubtopicDescription.trim() ||
-      importJson.trim() ||
-      newSubtopicParentId ||
-      newSubtopicDifficulty !== 'beginner'
+    newTopicTitle.trim() ||
+    newTopicDescription.trim() ||
+    newSubtopicTitle.trim() ||
+    newSubtopicDescription.trim() ||
+    importJson.trim() ||
+    newSubtopicParentId ||
+    newSubtopicDifficulty !== 'beginner'
   );
 
   const unsavedChangesGuard = useUnsavedChangesGuard({

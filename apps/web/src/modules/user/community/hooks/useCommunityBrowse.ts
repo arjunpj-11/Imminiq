@@ -1,5 +1,3 @@
-// apps/web/src/modules/user/community/hooks/useCommunityBrowse.ts
-
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 

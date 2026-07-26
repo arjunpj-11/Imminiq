@@ -53,7 +53,6 @@ export type PublishTrackerInput = {
   domain?: string;
   difficulty?: TrackerLevel;
   tags?: string[];
-  allowClone?: boolean;
 };
 
 export type UpdateTrackerInput = {
@@ -64,6 +63,7 @@ export type UpdateTrackerInput = {
   domain?: string;
   goal?: string;
   level?: TrackerLevel;
+  tags?: string[];
 };
 
 export type CreateTrackerTopicInput = {

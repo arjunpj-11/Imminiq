@@ -73,7 +73,7 @@ export default function AdminBroadcastPage() {
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
-        title="Broadcast Centre"
+        title="Broadcast"
         description="Send in-app announcements to registered users who have platform announcements enabled."
       />
       <AdminMetricGrid

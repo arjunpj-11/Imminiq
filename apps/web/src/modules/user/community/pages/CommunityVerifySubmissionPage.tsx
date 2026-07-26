@@ -50,6 +50,7 @@ export default function CommunityVerifySubmissionPage() {
   const reviewTracker = submission?.reviewTracker ?? null;
 
   const topicIds = reviewTracker?.topics.map((t) => t.id) ?? [];
+  const estimatedReviewMinutes = Math.max(2, Math.ceil(topicIds.length * 0.75));
   const allTopicsChecked = topicIds.length > 0 && topicIds.every((id) => checkedTopics.has(id));
 
   const toggleTopicChecked = (id: string) => {
@@ -164,6 +165,9 @@ export default function CommunityVerifySubmissionPage() {
                 <p className="mt-4 max-w-3xl text-[14px] italic leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
                   &quot;{submission.excerpt}…&quot;
                 </p>
+                <p className="mt-3 text-[12px] font-bold text-(--text-muted)">
+                  Estimated review time: about {estimatedReviewMinutes} min
+                </p>
 
                 <div className="mt-6 grid grid-cols-3 divide-x divide-[#e8ddd6] overflow-hidden rounded-md border border-[#e8ddd6] dark:divide-white/8 dark:border-white/8 max-[560px]:grid-cols-1 max-[560px]:divide-x-0 max-[560px]:divide-y">
                   <div className="px-4 py-4">
@@ -198,11 +202,10 @@ export default function CommunityVerifySubmissionPage() {
                     Review checklist
                   </div>
                   <ul className="space-y-2 text-[13px] leading-normal text-(--text-secondary) dark:text-(--text-secondary)">
-                    <li>
-                      • Check if the tracker title, topic, and excerpt are academically accurate.
-                    </li>
-                    <li>• Vote pass only when the submission is useful enough for learners.</li>
-                    <li>• Vote fail when the content is misleading, incomplete, or low-quality.</li>
+                    <li>• Accuracy: concepts and claims are correct.</li>
+                    <li>• Ordering: prerequisites appear before advanced material.</li>
+                    <li>• Completeness: the path does not omit an essential learning step.</li>
+                    <li>• Usefulness: titles and descriptions help a learner act.</li>
                   </ul>
                 </div>
 
@@ -418,6 +421,7 @@ export default function CommunityVerifySubmissionPage() {
                   rewardMessage={rewardMessage}
                   allTopicsChecked={allTopicsChecked}
                   onVote={handleVote}
+                  onSkip={() => navigate(ROUTES.verifyAndEarn)}
                 />
               </aside>
             </div>

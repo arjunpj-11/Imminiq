@@ -1,5 +1,3 @@
-// apps/web/src/hooks/auth/useAuthSync.ts
-
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { resetClientState } from '../../store/reset-client-state';

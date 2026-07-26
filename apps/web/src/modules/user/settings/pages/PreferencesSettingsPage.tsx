@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import SettingsContentLoading from '../components/SettingsContentLoading';
-import { SaveBar, SettingsCard } from '../components/SettingsUi';
+import { PillButton, SaveBar, SettingsCard, ToggleRow } from '../components/SettingsUi';
 import { useAppearanceSettings, useResetSettings, useUpdateAppearance } from '../hooks/useSettings';
 import { useSettingsToast } from '../hooks/useSettingsToast';
 import { useThemeStore } from '../../../../store/useThemeStore';
+import { useAppShellStore } from '../../../../store/useAppShellStore';
 import type { ThemeType } from '../types/settings.types';
 
 export default function PreferencesSettingsPage() {
@@ -22,6 +23,10 @@ function AppearanceForm({ initial }: { initial: ThemeType }) {
   const setThemeMode = useThemeStore((state) => state.setMode);
   const previewThemeMode = useThemeStore((state) => state.previewThemeMode);
   const clearThemePreview = useThemeStore((state) => state.clearThemePreview);
+  const contentDensity = useAppShellStore((state) => state.contentDensity);
+  const reduceMotion = useAppShellStore((state) => state.reduceMotion);
+  const setContentDensity = useAppShellStore((state) => state.setContentDensity);
+  const setReduceMotion = useAppShellStore((state) => state.setReduceMotion);
   const save = async () => {
     try {
       await update.mutateAsync({ theme });
@@ -90,6 +95,37 @@ function AppearanceForm({ initial }: { initial: ThemeType }) {
             );
           })}
         </div>
+      </SettingsCard>
+      <SettingsCard
+        title="Reading comfort"
+        description="These device preferences apply immediately and do not require saving."
+        icon="Aa"
+      >
+        <div className="mb-4">
+          <div className="mb-2 text-[13px] font-semibold text-(--text-primary)">
+            Content density
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <PillButton
+              active={contentDensity === 'comfortable'}
+              onClick={() => setContentDensity('comfortable')}
+            >
+              Comfortable
+            </PillButton>
+            <PillButton
+              active={contentDensity === 'compact'}
+              onClick={() => setContentDensity('compact')}
+            >
+              Compact
+            </PillButton>
+          </div>
+        </div>
+        <ToggleRow
+          title="Reduce motion"
+          description="Minimizes animated transitions, progress movement, and smooth scrolling."
+          checked={reduceMotion}
+          onChange={setReduceMotion}
+        />
       </SettingsCard>
       <SaveBar
         isSaving={update.isPending}

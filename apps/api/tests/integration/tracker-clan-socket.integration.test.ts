@@ -127,7 +127,7 @@ describe('tracker guild Socket.IO chat', () => {
     const broadcast = new Promise<{ text: string; user: { username: string } }>((resolve) =>
       client!.once('tracker-clan:message', resolve)
     );
-    const acknowledged = await new Promise<{ ok: boolean }>((resolve) =>
+    const acknowledged = await new Promise<{ ok: boolean; message?: { id: string } }>((resolve) =>
       client!.emit(
         'tracker-clan:message',
         { trackerId: tracker._id.toString(), text: 'Realtime hello' },
@@ -135,6 +135,7 @@ describe('tracker guild Socket.IO chat', () => {
       )
     );
     expect(acknowledged.ok).toBe(true);
+    expect(acknowledged.message?.id).toEqual(expect.any(String));
     await expect(broadcast).resolves.toMatchObject({
       text: 'Realtime hello',
       user: { username: 'socket-member' },
@@ -142,5 +143,56 @@ describe('tracker guild Socket.IO chat', () => {
     await expect(
       TrackerClanMessage.countDocuments({ trackerId: tracker._id, text: 'Realtime hello' })
     ).resolves.toBe(1);
+
+    await new Promise((resolve) => setTimeout(resolve, 510));
+    const reply = await new Promise<{ ok: boolean; message?: { replyTo?: { messageId: string } } }>(
+      (resolve) =>
+        client!.emit(
+          'tracker-clan:message',
+          {
+            trackerId: tracker._id.toString(),
+            text: 'A reply',
+            replyToMessageId: acknowledged.message!.id,
+          },
+          resolve
+        )
+    );
+    expect(reply.message?.replyTo?.messageId).toBe(acknowledged.message!.id);
+
+    const react = (emoji: string) =>
+      new Promise<{ ok: boolean }>((resolve) =>
+        client!.emit(
+          'tracker-clan:reaction',
+          { trackerId: tracker._id.toString(), messageId: acknowledged.message!.id, emoji },
+          resolve
+        )
+      );
+    await expect(react('👍')).resolves.toMatchObject({ ok: true });
+    await expect(react('❤️')).resolves.toMatchObject({ ok: true });
+    const reactedMessage = await TrackerClanMessage.findById(acknowledged.message!.id).lean<{
+      reactions: Array<{ emoji: string; userIds: mongoose.Types.ObjectId[] }>;
+    } | null>();
+    expect(reactedMessage?.reactions).toHaveLength(1);
+    expect(reactedMessage?.reactions[0]?.emoji).toBe('❤️');
+    expect(reactedMessage?.reactions[0]?.userIds.map(String)).toEqual([member._id.toString()]);
+
+    const deletedEvent = new Promise<{ messageId: string }>((resolve) =>
+      client!.once('tracker-clan:message-deleted', resolve)
+    );
+    await expect(
+      new Promise<{ ok: boolean }>((resolve) =>
+        client!.emit(
+          'tracker-clan:delete-message',
+          { trackerId: tracker._id.toString(), messageId: acknowledged.message!.id },
+          resolve
+        )
+      )
+    ).resolves.toMatchObject({ ok: true });
+    await expect(deletedEvent).resolves.toMatchObject({
+      messageId: acknowledged.message!.id,
+    });
+    await expect(
+      TrackerClanMessage.exists({ _id: acknowledged.message!.id, deletedAt: null })
+    ).resolves.toBeNull();
   });
 });

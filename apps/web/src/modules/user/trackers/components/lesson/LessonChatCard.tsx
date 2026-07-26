@@ -20,10 +20,7 @@ type LocalLessonChatMessage = {
   content: string;
 };
 
-import {
-  MicButton,
-  VoiceInputStatus,
-} from '../../../../../components/input/VoiceInputButton';
+import { MicButton, VoiceInputStatus } from '../../../../../components/input/VoiceInputButton';
 
 // ─── Component ───────────────────────────────────────────────────────────────
 

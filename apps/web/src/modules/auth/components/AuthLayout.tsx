@@ -22,7 +22,11 @@ export default function AuthLayout({ badge, title, subtitle, children }: IAuthLa
       )}
     >
       <div className="flex shrink-0 items-center justify-between px-4 pt-5 sm:px-8 sm:pt-7 lg:hidden">
-        <Link to={ROUTES.home} className="inline-flex items-center gap-2.5 leading-none">
+        <Link
+          to={ROUTES.home}
+          aria-label="Imminiq home"
+          className="inline-flex items-center gap-2.5 leading-none"
+        >
           <LogoIcon className="h-9 w-9 rounded-md sm:h-10 sm:w-10" />
           <ImminiqWordmark
             lowercase
@@ -36,13 +40,11 @@ export default function AuthLayout({ badge, title, subtitle, children }: IAuthLa
       </div>
 
       <div className="flex flex-1 flex-col lg:flex-row lg:overflow-hidden">
-        <aside
-          className="relative hidden w-1/2 min-w-0 flex-1 overflow-hidden px-14 py-12 lg:flex lg:flex-col lg:justify-between xl:px-18 xl:py-13"
-          aria-hidden="true"
-        >
+        <aside className="relative hidden w-1/2 min-w-0 flex-1 overflow-hidden px-14 py-12 lg:flex lg:flex-col lg:justify-between xl:px-18 xl:py-13">
           <div className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.09)_0%,transparent_70%)] dark:bg-[radial-gradient(circle,rgba(232,129,106,0.13)_0%,transparent_70%)]" />
           <Link
             to={ROUTES.home}
+            aria-label="Imminiq home"
             className="relative z-1 inline-flex items-center gap-3 leading-none"
           >
             <LogoIcon className="h-11 w-11" />
@@ -56,7 +58,7 @@ export default function AuthLayout({ badge, title, subtitle, children }: IAuthLa
               Build knowledge that holds up in practice.
             </h2>
             <p className="mt-5 max-w-md text-[15px] leading-[1.8] text-(--text-secondary) dark:text-(--text-secondary)">
-              Continue your adaptive roadmap, learn with Scribe AI, collaborate in guilds, and
+              Continue your adaptive roadmap, learn with Ask Immi, collaborate in guilds, and
               measure mastery with focused practice.
             </p>
           </div>

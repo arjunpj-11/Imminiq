@@ -11,5 +11,9 @@ export const CHAT_RESPONSE_MESSAGES = {
   USER_BLOCKED: 'User blocked',
   USER_UNBLOCKED: 'User unblocked',
   MESSAGE_STAR_UPDATED: 'Message star updated',
+  MESSAGE_REACTION_UPDATED: 'Message reaction updated',
+  MESSAGE_EDITED: 'Message edited',
+  MESSAGE_DELETED: 'Message deleted',
+  SAVED_MESSAGES_LISTED: 'Saved messages loaded',
   CONVERSATION_CLEARED: 'Unstarred messages cleared',
 } as const;

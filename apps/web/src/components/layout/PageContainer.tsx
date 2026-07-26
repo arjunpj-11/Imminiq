@@ -17,6 +17,7 @@ export default function PageContainer({
 }: IPageContainerProps) {
   return (
     <Component
+      data-page-container
       className={cn(
         'mx-auto flex w-[min(var(--content-max),calc(100%-48px))] max-w-full min-w-0 flex-col pb-12 max-lg:pb-[calc(80px+env(safe-area-inset-bottom,0)+18px)] max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:w-[calc(100%-20px)]',
         density === 'comfortable'

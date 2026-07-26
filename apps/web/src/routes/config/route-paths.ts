@@ -42,6 +42,7 @@ export const ROUTES = {
   leaderboard: '/leaderboard',
   leaderboardRewards: '/leaderboard/rewards',
   activity: '/activity',
+  saved: '/saved',
   pricing: '/pricing',
   support: '/support',
   chat: '/chat',

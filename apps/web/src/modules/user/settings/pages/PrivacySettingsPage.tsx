@@ -77,6 +77,56 @@ function PrivacyForm({ initial }: { initial: IPrivacySettings }) {
             }
           />
         </SettingsCard>
+        <SettingsCard
+          title="Public-view preview"
+          description="This is what another learner can discover with your current choices."
+          icon="👁️"
+        >
+          <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-elevated) p-4">
+            {form.showProfile ? (
+              <>
+                <div className="flex items-center gap-3">
+                  <span className="grid h-11 w-11 place-items-center rounded-full bg-(--brand-500) font-bold text-white">
+                    Y
+                  </span>
+                  <div>
+                    <div className="text-[14px] font-extrabold text-(--text-primary)">
+                      Your public profile
+                    </div>
+                    <div className="text-[12px] text-(--text-secondary)">
+                      Visible to other learners
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                  {[
+                    ['Learning statistics', form.showStats],
+                    ['Recent activity', form.showActivity],
+                    ['Online presence', form.showOnlineStatus],
+                  ].map(([label, visible]) => (
+                    <div
+                      key={String(label)}
+                      className="rounded-xl border border-(--border-subtle) px-3 py-2.5"
+                    >
+                      <div className="text-[12px] font-bold text-(--text-primary)">{label}</div>
+                      <div
+                        className={`mt-1 text-[11px] font-semibold ${
+                          visible ? 'text-(--success)' : 'text-(--text-muted)'
+                        }`}
+                      >
+                        {visible ? 'Visible' : 'Hidden'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="text-[13px] font-semibold text-(--text-secondary)">
+                Your profile is private. Other learners see an unavailable-profile message.
+              </p>
+            )}
+          </div>
+        </SettingsCard>
         <SaveBar
           isSaving={update.isPending}
           isDirty={dirty}

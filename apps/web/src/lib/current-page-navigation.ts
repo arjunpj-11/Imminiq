@@ -40,7 +40,7 @@ const nestedRoute = (route: string, suffix = '') => new RegExp(`^${escapeRegExp(
 
 const routeLabels: Array<[RegExp, string]> = [
   [nestedRoute(ADMIN_ROUTES.users, '/[^/]+'), 'User details'],
-  [nestedRoute(ADMIN_ROUTES.trackerReviews), 'Community reviews'],
+  [nestedRoute(ADMIN_ROUTES.trackerReviews), 'Verification queue'],
   [nestedRoute(ADMIN_ROUTES.publishedTrackers), 'Published trackers'],
   [nestedRoute(ADMIN_ROUTES.trackers, '/[^/]+'), 'Tracker details'],
   [nestedRoute(ADMIN_ROUTES.mockTests, '/[^/]+'), 'Mock test details'],

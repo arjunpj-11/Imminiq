@@ -61,10 +61,7 @@ import { createCommunityComposition, createCommunityRoutes } from '../modules/us
 import { createDashboardComposition, createDashboardRoutes } from '../modules/user/dashboard';
 import { createChatComposition, createChatRoutes } from '../modules/user/chat';
 import { createCallsComposition, createCallsRoutes } from '../modules/user/calls';
-import {
-  createVoiceInputComposition,
-  createVoiceInputRoutes,
-} from '../modules/user/voice-input';
+import { createVoiceInputComposition, createVoiceInputRoutes } from '../modules/user/voice-input';
 import { createFriendsComposition, createFriendsRoutes } from '../modules/user/friends';
 import { createLeaderboardComposition, createLeaderboardRoutes } from '../modules/user/leaderboard';
 import { createMockTestsComposition, createMockTestsRoutes } from '../modules/user/mock-tests';
@@ -94,9 +91,28 @@ import {
   requireStaffTwoFactor,
 } from '../shared/middlewares/admin.middleware';
 import { authenticate } from '../shared/middlewares/auth.middleware';
+import { createRequireEnabledFeature } from '../shared/middlewares/feature-availability.middleware';
+import { mongoPlatformPolicyReader } from '../infrastructure/mongo-platform-policy.reader';
+import { ApiResponse } from '../shared/utils/api-response';
+import { z } from 'zod';
+
+const clientErrorSchema = z
+  .object({
+    source: z.enum(['render', 'widget', 'window', 'unhandled-rejection', 'invariant']),
+    message: z.string().trim().min(1).max(500),
+    stack: z.string().max(3_000).optional(),
+    componentStack: z.string().max(2_000).optional(),
+    path: z.string().startsWith('/').max(500),
+    occurredAt: z.string().datetime(),
+  })
+  .strict();
 
 export const createApiRouter = () => {
   const router = Router();
+  const requireFeature = (
+    feature: Parameters<typeof createRequireEnabledFeature>[1],
+    label: string
+  ) => createRequireEnabledFeature(mongoPlatformPolicyReader, feature, label);
 
   // 🔹 Core compositions
   const authComposition = createAuthComposition();
@@ -160,25 +176,62 @@ export const createApiRouter = () => {
 
   // 🔹 Routers
   router.use(API_ROUTE_PATHS.auth, createAuthRoutes(authComposition.useCases));
+  router.post(API_ROUTE_PATHS.clientErrors, (req, res, next) => {
+    try {
+      const event = clientErrorSchema.parse(req.body);
+      console.error(
+        JSON.stringify({
+          level: 'error',
+          event: 'client_error',
+          ...event,
+        })
+      );
+      res.status(202).end();
+    } catch (error) {
+      next(error);
+    }
+  });
+  router.get(API_ROUTE_PATHS.featureAvailability, authenticate, async (_req, res, next) => {
+    try {
+      const features = await mongoPlatformPolicyReader.getFeaturePolicy();
+      res.setHeader('Cache-Control', 'private, no-store');
+      res.json(new ApiResponse('Feature availability fetched', features));
+    } catch (error) {
+      next(error);
+    }
+  });
   const trackerCreationRoutes = createTrackerCreationRoutes(
     trackerCreationComposition.useCases,
     enforcePlanLimit
   );
-  router.use(`${API_ROUTE_PATHS.trackers}/create`, trackerCreationRoutes);
+  router.use(
+    `${API_ROUTE_PATHS.trackers}/create`,
+    requireFeature('trackers', 'Trackers'),
+    requireFeature('trackerCreation', 'Tracker creation'),
+    trackerCreationRoutes
+  );
   // Compatibility for already released clients. The feature now belongs to trackers.
   router.use(
     API_ROUTE_PATHS.legacyOnboarding,
+    requireFeature('trackers', 'Trackers'),
+    requireFeature('trackerCreation', 'Tracker creation'),
     createTrackerCreationRoutes(trackerCreationComposition.useCases, enforcePlanLimit)
   );
   router.use(
     API_ROUTE_PATHS.trackers,
-    createTrackerRoutes(trackerComposition.useCases, enforcePlanLimit)
+    requireFeature('trackers', 'Trackers'),
+    createTrackerRoutes(
+      trackerComposition.useCases,
+      enforcePlanLimit,
+      requireFeature('trackerCreation', 'Tracker creation')
+    )
   );
   router.use(API_ROUTE_PATHS.users, createUsersRoutes(usersComposition.useCases));
   router.use(API_ROUTE_PATHS.uploads, createUploadsRoutes(uploadsComposition.useCases));
   router.use(API_ROUTE_PATHS.settings, createSettingsRoutes(settingsComposition.useCases));
   router.use(
     API_ROUTE_PATHS.subscriptions,
+    requireFeature('subscriptions', 'Subscriptions'),
     createSubscriptionsRoutes(subscriptionsComposition.useCases)
   );
   router.use(API_ROUTE_PATHS.dashboard, createDashboardRoutes(dashboardComposition.useCases));
@@ -237,32 +290,62 @@ export const createApiRouter = () => {
   // 🔹 User feature routes
   router.use(
     API_ROUTE_PATHS.supportTickets,
+    requireFeature('supportTickets', 'Support tickets'),
     createSupportTicketsRoutes(supportTicketsComposition.useCases)
   );
   router.use(API_ROUTE_PATHS.security, createSecurityRoutes(securityComposition.useCases));
   router.use(
     API_ROUTE_PATHS.mockTests,
+    requireFeature('mockTests', 'Mock tests'),
     createMockTestsRoutes(mockTestsComposition.useCases, enforcePlanLimit)
   );
   router.use(
     API_ROUTE_PATHS.adaptiveLearning,
+    requireFeature('adaptiveLearning', 'Adaptive learning'),
     createAdaptiveLearningRoutes(adaptiveLearningComposition.useCases)
   );
   router.use(
     API_ROUTE_PATHS.community,
-    createCommunityRoutes(communityComposition.useCases, enforcePlanLimit)
+    requireFeature('community', 'Community'),
+    createCommunityRoutes(
+      communityComposition.useCases,
+      enforcePlanLimit,
+      requireFeature('trackerCreation', 'Tracker creation')
+    )
   );
   router.use(
     API_ROUTE_PATHS.moderationAppeals,
     createModerationAppealRoutes(moderationAppealComposition.useCases)
   );
-  router.use(API_ROUTE_PATHS.leaderboard, createLeaderboardRoutes(leaderboardComposition.useCases));
-  router.use(API_ROUTE_PATHS.activity, createActivityRoutes(activityComposition.useCases));
-  router.use(API_ROUTE_PATHS.friends, createFriendsRoutes(friendsComposition.useCases));
-  router.use(API_ROUTE_PATHS.chat, createChatRoutes(chatComposition.useCases));
-  router.use(API_ROUTE_PATHS.calls, createCallsRoutes(callsComposition.useCases));
+  router.use(
+    API_ROUTE_PATHS.leaderboard,
+    requireFeature('leaderboard', 'Leaderboard'),
+    createLeaderboardRoutes(leaderboardComposition.useCases)
+  );
+  router.use(
+    API_ROUTE_PATHS.activity,
+    requireFeature('activity', 'Activity'),
+    createActivityRoutes(activityComposition.useCases)
+  );
+  router.use(
+    API_ROUTE_PATHS.friends,
+    requireFeature('social', 'Social features'),
+    createFriendsRoutes(friendsComposition.useCases)
+  );
+  router.use(
+    API_ROUTE_PATHS.chat,
+    requireFeature('social', 'Social features'),
+    createChatRoutes(chatComposition.useCases)
+  );
+  router.use(
+    API_ROUTE_PATHS.calls,
+    requireFeature('social', 'Social features'),
+    requireFeature('calls', 'Voice and video calls'),
+    createCallsRoutes(callsComposition.useCases)
+  );
   router.use(
     API_ROUTE_PATHS.voiceInput,
+    requireFeature('adaptiveLearning', 'Adaptive learning'),
     createVoiceInputRoutes(voiceInputComposition.useCases)
   );
   router.use(

@@ -28,7 +28,10 @@ export default function TrackerCreationChoicePage() {
             <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(184,76,43,.12)] text-2xl">
               ✍
             </span>
-            <h2 className="mt-8 font-serif text-3xl font-bold">Create manually</h2>
+            <span className="mt-5 inline-flex rounded-full border border-(--border-subtle) px-2.5 py-1 text-[11px] font-bold text-(--text-secondary)">
+              Most control · 5–15 min
+            </span>
+            <h2 className="mt-4 font-serif text-3xl font-bold">Create manually</h2>
             <p className="mt-3 text-sm leading-6 text-(--text-secondary)">
               Create the tracker yourself, paste a full JSON outline if you have one, then add
               topics and nested subtopics at any depth.
@@ -46,13 +49,16 @@ export default function TrackerCreationChoicePage() {
             <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10 text-2xl">
               ✦
             </span>
-            <h2 className="mt-8 font-serif text-3xl font-bold">Create using AI</h2>
+            <span className="mt-5 inline-flex rounded-full border border-[#f4c95d]/30 bg-[#f4c95d]/10 px-2.5 py-1 text-[11px] font-bold text-[#f4c95d]">
+              Recommended · about 2 min
+            </span>
+            <h2 className="mt-4 font-serif text-3xl font-bold">Create with Immi</h2>
             <p className="mt-3 text-sm leading-6 text-white/65">
-              Tell the learning agent your goal and level. It will research, structure, and prepare
-              the roadmap for your review.
+              Tell Immi your goal and level. It will research, structure, and prepare the roadmap
+              for your review.
             </p>
             <span className="mt-7 inline-flex font-mono text-[10px] font-bold uppercase tracking-[.16em] text-[#f4c95d]">
-              Start with AI →
+              Start with Immi →
             </span>
           </button>
         </div>

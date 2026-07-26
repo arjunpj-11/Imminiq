@@ -58,6 +58,19 @@ export class MongoChatMapper {
           }
         : null,
       forwardedFromMessageId: record.forwardedFromMessageId?.toString() ?? null,
+      replyTo: record.replyTo
+        ? {
+            messageId: record.replyTo.messageId.toString(),
+            senderId: record.replyTo.senderId.toString(),
+            kind: record.replyTo.kind,
+            text: record.replyTo.text ?? '',
+          }
+        : null,
+      reactions: (record.reactions ?? []).map((reaction) => ({
+        emoji: reaction.emoji,
+        userIds: reaction.userIds.map(String),
+      })),
+      editedAt: record.editedAt ?? null,
       readBy: (record.readBy ?? []).map(String),
       starredBy: (record.starredBy ?? []).map(String),
       clearedFor: (record.clearedFor ?? []).map(String),

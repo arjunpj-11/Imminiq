@@ -1,5 +1,3 @@
-// apps/api/src/modules/user/community/infrastructure/repositories/mongo-community.mapper.ts
-
 import { CommunityPublicTrackerDetailEntity } from '../../../domain/entities/community-public-tracker-detail.entity';
 import type {
   CommunityRatingSummaryEntity,
@@ -180,7 +178,7 @@ export class MongoCommunityMapper {
       verified: tracker.verificationStatus === 'verified',
       visibility: this.toString(tracker.visibility, 'public'),
       status: this.toString(tracker.status, 'active'),
-      allowClone: Boolean(tracker.allowClone),
+      allowClone: true,
       inDashboard: tracker.ownerId.toString() === userId || Boolean(clone?._id),
       clones: this.toNumber(tracker.cloneCount, 0),
       likes: this.toNumber(tracker.likeCount, 0),

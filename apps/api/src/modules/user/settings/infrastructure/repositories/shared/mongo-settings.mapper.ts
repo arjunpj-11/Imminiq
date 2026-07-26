@@ -15,12 +15,7 @@ import type {
   UpdatableValue,
 } from './mongo-settings.types';
 
-const PRIVACY_KEYS = [
-  'showProfile',
-  'showStats',
-  'showActivity',
-  'showOnlineStatus',
-] as const;
+const PRIVACY_KEYS = ['showProfile', 'showStats', 'showActivity', 'showOnlineStatus'] as const;
 
 export class MongoSettingsMapper {
   toPlainRecord<T>(document: MongooseObjectLike<T>): T {

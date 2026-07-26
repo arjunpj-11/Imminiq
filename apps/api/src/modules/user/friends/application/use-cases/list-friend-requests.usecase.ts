@@ -39,19 +39,13 @@ export class ListFriendRequestsUseCase implements IListFriendRequestsUseCase {
     return {
       received: {
         items: received.items.map((item) =>
-          this._friendsMapper.toFriendRequestView(
-            item,
-            blockedBy.has(item.user.id)
-          )
+          this._friendsMapper.toFriendRequestView(item, blockedBy.has(item.user.id))
         ),
         pagination: this._friendsMapper.toPaginationView(received),
       },
       sent: {
         items: sent.items.map((item) =>
-          this._friendsMapper.toFriendRequestView(
-            item,
-            blockedBy.has(item.user.id)
-          )
+          this._friendsMapper.toFriendRequestView(item, blockedBy.has(item.user.id))
         ),
         pagination: this._friendsMapper.toPaginationView(sent),
       },

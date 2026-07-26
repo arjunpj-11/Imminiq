@@ -58,9 +58,9 @@ describe('MeteredCallIceServerProvider', () => {
     expect(JSON.parse(String(request.mock.calls[0]?.[1]?.body))).toMatchObject({
       expiryInSeconds: 14_400,
     });
-    expect(
-      JSON.parse(String(request.mock.calls[0]?.[1]?.body)).label
-    ).toMatch(/^imminiq-[a-f0-9]{12}-/);
+    expect(JSON.parse(String(request.mock.calls[0]?.[1]?.body)).label).toMatch(
+      /^imminiq-[a-f0-9]{12}-/
+    );
 
     const loadUrl = new URL(String(request.mock.calls[1]?.[0]));
     expect(loadUrl.pathname).toBe('/api/v1/turn/credentials');
@@ -95,12 +95,14 @@ describe('MeteredCallIceServerProvider', () => {
 
   it('falls back to direct calling when Metered rejects dynamic credentials', async () => {
     const primary = {
-      getIceServers: vi.fn().mockRejectedValue(
-        ServiceError.dependencyUnavailable(
-          'METERED_TURN_UNAVAILABLE',
-          'Metered rejected dynamic credentials'
-        )
-      ),
+      getIceServers: vi
+        .fn()
+        .mockRejectedValue(
+          ServiceError.dependencyUnavailable(
+            'METERED_TURN_UNAVAILABLE',
+            'Metered rejected dynamic credentials'
+          )
+        ),
     };
     const fallback = {
       getIceServers: vi.fn().mockResolvedValue([]),
@@ -115,9 +117,7 @@ describe('MeteredCallIceServerProvider', () => {
     const request = vi
       .fn<typeof fetch>()
       .mockResolvedValueOnce(jsonResponse({ apiKey: 'credential-api-key' }))
-      .mockResolvedValueOnce(
-        jsonResponse([{ urls: 'turn:standard.relay.metered.ca:80' }])
-      );
+      .mockResolvedValueOnce(jsonResponse([{ urls: 'turn:standard.relay.metered.ca:80' }]));
     const provider = new MeteredCallIceServerProvider({
       apiBaseUrl: 'https://imminiq.metered.live',
       secretKey: 'server-only-secret',

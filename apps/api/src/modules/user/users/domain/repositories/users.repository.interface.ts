@@ -7,7 +7,8 @@ import type { IUserTrackerRepository } from './user-tracker.repository.interface
 import type { IUserRepository } from './user.repository.interface';
 
 export interface IUsersRepository
-  extends IUserRepository,
+  extends
+    IUserRepository,
     IUserProfileRepository,
     IUserActivityRepository,
     IUserBadgeRepository,

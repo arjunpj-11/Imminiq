@@ -205,11 +205,7 @@ export interface IActivityFeedItem {
 }
 
 export type ProfileRelationshipState =
-  | 'self'
-  | 'not_connected'
-  | 'friends'
-  | 'request_sent'
-  | 'request_received';
+  'self' | 'not_connected' | 'friends' | 'request_sent' | 'request_received';
 
 export interface IPublicProfilePageData {
   user: IProfileUser;

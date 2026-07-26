@@ -11,16 +11,18 @@ export interface IMarkChatConversationReadUseCase {
 export class MarkChatConversationReadUseCase implements IMarkChatConversationReadUseCase {
   constructor(
     private readonly _conversationQueryRepository: IChatConversationQueryRepository,
-    private readonly _messageCommandRepository: IChatMessageCommandRepository,
+    private readonly _messageCommandRepository: Pick<
+      IChatMessageCommandRepository,
+      'markConversationRead'
+    >,
     private readonly _realtimePublisher: IChatRealtimePublisher
   ) {}
 
   async execute(viewerUserId: string, conversationId: string) {
-    const conversation =
-      await this._conversationQueryRepository.findConversationForParticipant(
-        conversationId,
-        viewerUserId
-      );
+    const conversation = await this._conversationQueryRepository.findConversationForParticipant(
+      conversationId,
+      viewerUserId
+    );
     if (!conversation) throw ChatApplicationError.conversationNotFound();
     const updatedCount = await this._messageCommandRepository.markConversationRead(
       conversationId,

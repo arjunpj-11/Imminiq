@@ -14,6 +14,7 @@ import {
   AdminStatusBadge,
 } from '../../../../components/admin';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
+import { paginationConfig } from '../../../../config/pagination';
 import { toast } from '../../../../lib/toast';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 import {
@@ -56,7 +57,7 @@ export default function AdminAuditLogsPage() {
     search: filteredSearch,
     ...dateRange.range,
     page,
-    limit: 25,
+    limit: paginationConfig.adminLimit,
   });
   const downloadAuditReport = async (format: 'csv' | 'pdf') => {
     try {

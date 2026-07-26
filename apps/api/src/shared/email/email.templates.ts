@@ -1,5 +1,3 @@
-// apps/api/src/shared/email/email.templates.ts
-
 type OtpEmailTemplateParams = {
   fullName?: string;
   otp: string;

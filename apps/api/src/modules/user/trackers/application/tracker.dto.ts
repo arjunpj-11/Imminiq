@@ -272,6 +272,7 @@ export interface DeleteClanSubtopicPayloadDTO extends TrackerAccessPayloadDTO {
 
 export interface ListClanMessagesPayloadDTO extends TrackerAccessPayloadDTO {
   limit?: number;
+  before?: string;
 }
 
 export interface TrackerClanChallengeAccessPayloadDTO extends TrackerAccessPayloadDTO {
@@ -293,8 +294,7 @@ export interface SubmitTrackerClanChallengePayloadDTO extends TrackerClanChallen
   answers: TrackerClanChallengeAnswerDTO[];
 }
 
-export interface ChooseTrackerClanCheckpointPayloadDTO
-  extends TrackerClanChallengeAccessPayloadDTO {
+export interface ChooseTrackerClanCheckpointPayloadDTO extends TrackerClanChallengeAccessPayloadDTO {
   decision: 'attempt' | 'skip';
 }
 

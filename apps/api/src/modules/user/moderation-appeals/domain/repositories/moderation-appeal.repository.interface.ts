@@ -2,7 +2,6 @@ import type { IModerationAppealCommandRepository } from './moderation-appeal-com
 import type { IModerationAppealQueryRepository } from './moderation-appeal-query.repository.interface';
 
 export interface IModerationAppealRepository
-  extends IModerationAppealQueryRepository,
-    IModerationAppealCommandRepository {}
+  extends IModerationAppealQueryRepository, IModerationAppealCommandRepository {}
 
 export type { CreateModerationAppealInput } from './moderation-appeal-command.repository.interface';

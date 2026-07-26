@@ -1,17 +1,28 @@
 import { z } from 'zod';
+import { paginationConfig } from '../../../../config/pagination';
 
-export const reportTrackerSchema = z.object({
-  reason: z.enum([
-    'incorrect_or_misleading',
-    'unsafe_or_offensive',
-    'spam_or_low_quality',
-    'copyright_or_plagiarism',
-    'broken_learning_path',
-    'privacy_concern',
-    'other',
-  ]),
-  details: z.string().trim().max(1500).optional().default(''),
-});
+export const reportTrackerSchema = z
+  .object({
+    reason: z.enum([
+      'incorrect_or_misleading',
+      'unsafe_or_offensive',
+      'spam_or_low_quality',
+      'copyright_or_plagiarism',
+      'broken_learning_path',
+      'privacy_concern',
+      'other',
+    ]),
+    details: z.string().trim().max(1500).optional().default(''),
+  })
+  .superRefine((report, context) => {
+    if (report.reason === 'other' && !report.details) {
+      context.addIssue({
+        code: 'custom',
+        path: ['details'],
+        message: 'Please describe the reason for this report',
+      });
+    }
+  });
 
 const optionalTrimmedStringSchema = (maxLength: number, maxMessage: string) =>
   z.preprocess((value) => {
@@ -48,14 +59,10 @@ export const trackerTitleSchema = z
   .min(2, 'Tracker title must be at least 2 characters')
   .max(120, 'Tracker title must be 120 characters or fewer')
   .refine(
-    (title) =>
-      !unsafeTrackerTitleCharacterPattern.test(title) && !hasControlCharacter(title),
+    (title) => !unsafeTrackerTitleCharacterPattern.test(title) && !hasControlCharacter(title),
     'Tracker title contains unsupported or unsafe characters'
   )
-  .refine(
-    (title) => /[\p{L}\p{N}]{2}/u.test(title),
-    'Enter a meaningful tracker title'
-  )
+  .refine((title) => /[\p{L}\p{N}]{2}/u.test(title), 'Enter a meaningful tracker title')
   .refine(
     (title) => !placeholderTrackerTitlePattern.test(title),
     'Enter a specific learning topic instead of a placeholder title'
@@ -71,8 +78,7 @@ const outlineNodeTitleSchema = z
   .min(2, 'Outline item title must be at least 2 characters')
   .max(120, 'Outline item title must be 120 characters or fewer')
   .refine(
-    (title) =>
-      !unsafeTrackerTitleCharacterPattern.test(title) && !hasControlCharacter(title),
+    (title) => !unsafeTrackerTitleCharacterPattern.test(title) && !hasControlCharacter(title),
     'Outline item title contains unsupported or unsafe characters'
   );
 
@@ -126,7 +132,11 @@ export const createTrackerSchema = z
   })
   .strict();
 
-export const updateTrackerSchema = createTrackerSchema.partial();
+const trackerTagsSchema = z.array(z.string().trim().min(1).max(40)).max(10);
+
+export const updateTrackerSchema = createTrackerSchema.partial().extend({
+  tags: trackerTagsSchema.optional(),
+});
 
 export const publishTrackerSchema = z.object({
   name: optionalTrimmedStringSchema(120, 'Published name is too long'),
@@ -138,8 +148,7 @@ export const publishTrackerSchema = z.object({
     .max(80, 'Domain must be 80 characters or fewer')
     .optional(),
   difficulty: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
-  tags: z.array(z.string().trim().min(1).max(40)).max(10).optional(),
-  allowClone: z.boolean().optional(),
+  tags: trackerTagsSchema.optional(),
 });
 
 export const trackerDomainsQuerySchema = z.object({
@@ -233,7 +242,18 @@ export const respondClanRoleInvitationSchema = z.object({
 });
 
 export const clanMessagesQuerySchema = z.object({
-  limit: z.coerce.number().int().min(1).max(100).optional().default(60),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(paginationConfig.maxLimit)
+    .optional()
+    .default(paginationConfig.messageLimit),
+  before: z
+    .string()
+    .trim()
+    .regex(/^[a-f\d]{24}$/i)
+    .optional(),
 });
 
 export const createClanChallengeSchema = z.object({

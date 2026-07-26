@@ -14,9 +14,7 @@ export interface IUpdateAdminMockTestQuestionIssueUseCase {
   ): Promise<AdminMockTestQuestionIssueDTO>;
 }
 
-export class UpdateAdminMockTestQuestionIssueUseCase
-  implements IUpdateAdminMockTestQuestionIssueUseCase
-{
+export class UpdateAdminMockTestQuestionIssueUseCase implements IUpdateAdminMockTestQuestionIssueUseCase {
   constructor(
     private readonly _repository: Pick<IAdminMockTestsRepository, 'updateQuestionIssue'>,
     private readonly _mapper: IAdminMockTestsMapper,

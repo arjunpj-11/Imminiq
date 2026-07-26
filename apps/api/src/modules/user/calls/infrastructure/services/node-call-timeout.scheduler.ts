@@ -7,10 +7,13 @@ export class NodeCallTimeoutScheduler implements ICallTimeoutScheduler {
 
   schedule(callId: string, expiresAt: Date): void {
     this.cancel(callId);
-    const timer = setTimeout(() => {
-      this._timers.delete(callId);
-      void this._onExpire(callId).catch(() => undefined);
-    }, Math.max(0, expiresAt.getTime() - Date.now()));
+    const timer = setTimeout(
+      () => {
+        this._timers.delete(callId);
+        void this._onExpire(callId).catch(() => undefined);
+      },
+      Math.max(0, expiresAt.getTime() - Date.now())
+    );
     timer.unref?.();
     this._timers.set(callId, timer);
   }

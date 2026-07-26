@@ -1,5 +1,3 @@
-// apps/web/src/modules/user/community/pages/CommunityBrowsePage.tsx
-
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../../../routes/config/route-paths';
@@ -73,14 +71,9 @@ export default function CommunityBrowsePage() {
       setRecentSearches((current) => {
         const next = [
           normalized,
-          ...current.filter(
-            (value) => value.toLowerCase() !== normalized.toLowerCase()
-          ),
+          ...current.filter((value) => value.toLowerCase() !== normalized.toLowerCase()),
         ].slice(0, 8);
-        window.localStorage.setItem(
-          'imminiq.community.recent-searches',
-          JSON.stringify(next)
-        );
+        window.localStorage.setItem('imminiq.community.recent-searches', JSON.stringify(next));
         return next;
       });
     }, 0);
@@ -285,8 +278,7 @@ export default function CommunityBrowsePage() {
                 </h2>
               </div>
               <span className="font-mono text-[11px] uppercase tracking-widest text-(--text-muted)">
-                {browse.data.pagination.total}{' '}
-                {hasDiscoveryFilters ? 'result' : 'suggestion'}
+                {browse.data.pagination.total} {hasDiscoveryFilters ? 'result' : 'suggestion'}
                 {browse.data.pagination.total !== 1 ? 's' : ''}
               </span>
             </div>

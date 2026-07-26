@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Eye, Heart, Star } from 'lucide-react';
+import { Eye, Heart, Star } from 'lucide-react';
 import { Link } from 'react-router';
 import {
   AdminCardSkeleton,
@@ -33,12 +33,6 @@ export default function AdminPublishedTrackersPage() {
   const rate = useRateAdminPublishedTracker();
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
-      <Link
-        to={ADMIN_TRACKERS_ROUTES.list}
-        className="mb-5 inline-flex items-center gap-2 text-sm text-[#aaa59d] hover:text-[#e8816a]"
-      >
-        <ArrowLeft size={16} /> Back to tracker management
-      </Link>
       <AdminPageHeader
         title="Published Trackers"
         description="Review every public tracker and its canonical likes, ratings, clones, and learning structure."

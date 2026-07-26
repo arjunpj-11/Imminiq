@@ -13,9 +13,7 @@ export interface IAddAdminTrackerReviewConsensusUseCase {
   ): Promise<AdminTrackerReviewConsensusResultDTO>;
 }
 
-export class AddAdminTrackerReviewConsensusUseCase
-  implements IAddAdminTrackerReviewConsensusUseCase
-{
+export class AddAdminTrackerReviewConsensusUseCase implements IAddAdminTrackerReviewConsensusUseCase {
   constructor(
     private readonly _repository: IAdminTrackerReviewsRepository,
     private readonly _mapper: IAdminTrackersMapper

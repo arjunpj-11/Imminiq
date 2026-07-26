@@ -25,9 +25,6 @@ export class ListFriendsUseCase implements IListFriendsUseCase {
       this._friendBlockRepository.listBlockedByUserIds(viewerUserId),
     ]);
 
-    return this._friendsMapper.toFriendUsersPageView(
-      page,
-      new Set(blockedByUserIds)
-    );
+    return this._friendsMapper.toFriendUsersPageView(page, new Set(blockedByUserIds));
   }
 }

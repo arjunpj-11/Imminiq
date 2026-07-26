@@ -8,9 +8,11 @@ import { CHAT_RESPONSE_MESSAGES } from '../application/chat.constants';
 import type { ChatUseCases } from '../application/chat-use-cases.contract';
 import {
   blockUserSchema,
+  chatReactionSchema,
   conversationParamsSchema,
   createConversationSchema,
   forwardChatMessageSchema,
+  editChatMessageSchema,
   listChatSchema,
   messageParamsSchema,
   sendChatMessageSchema,
@@ -25,10 +27,7 @@ export class ChatController {
   listConversations = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const query = this.parse(listChatSchema.safeParse(req.query));
-      const result = await this._useCases.listConversations.execute(
-        getAuthUser(req).userId,
-        query
-      );
+      const result = await this._useCases.listConversations.execute(getAuthUser(req).userId, query);
       res.json(new ApiResponse(CHAT_RESPONSE_MESSAGES.CONVERSATIONS_LISTED, result));
     } catch (error) {
       next(error);
@@ -38,15 +37,10 @@ export class ChatController {
   createConversation = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const input = this.parse(createConversationSchema.safeParse(req.body));
-      const result = await this._useCases.startConversation.execute(
-        getAuthUser(req).userId,
-        input
-      );
+      const result = await this._useCases.startConversation.execute(getAuthUser(req).userId, input);
       res
         .status(result.created ? HttpStatusCode.CREATED : HttpStatusCode.OK)
-        .json(
-          new ApiResponse(CHAT_RESPONSE_MESSAGES.CONVERSATION_READY, result.conversation)
-        );
+        .json(new ApiResponse(CHAT_RESPONSE_MESSAGES.CONVERSATION_READY, result.conversation));
     } catch (error) {
       next(error);
     }
@@ -76,9 +70,8 @@ export class ChatController {
         kind: body.kind,
         ...(body.text !== undefined ? { text: body.text } : {}),
         ...(body.codeLanguage !== undefined ? { codeLanguage: body.codeLanguage } : {}),
-        ...(body.durationSeconds !== undefined
-          ? { durationSeconds: body.durationSeconds }
-          : {}),
+        ...(body.durationSeconds !== undefined ? { durationSeconds: body.durationSeconds } : {}),
+        ...(body.replyToMessageId !== undefined ? { replyToMessageId: body.replyToMessageId } : {}),
         ...(req.file
           ? {
               file: {
@@ -115,13 +108,10 @@ export class ChatController {
     try {
       const params = this.parse(messageParamsSchema.safeParse(req.params));
       const body = this.parse(forwardChatMessageSchema.safeParse(req.body));
-      const result = await this._useCases.forwardMessage.execute(
-        getAuthUser(req).userId,
-        {
-          messageId: params.messageId,
-          targetConversationId: body.targetConversationId,
-        }
-      );
+      const result = await this._useCases.forwardMessage.execute(getAuthUser(req).userId, {
+        messageId: params.messageId,
+        targetConversationId: body.targetConversationId,
+      });
       res
         .status(HttpStatusCode.CREATED)
         .json(new ApiResponse(CHAT_RESPONSE_MESSAGES.MESSAGE_FORWARDED, result));
@@ -143,6 +133,58 @@ export class ChatController {
     }
   };
 
+  toggleMessageReaction = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const params = this.parse(messageParamsSchema.safeParse(req.params));
+      const body = this.parse(chatReactionSchema.safeParse(req.body));
+      const result = await this._useCases.toggleMessageReaction.execute(getAuthUser(req).userId, {
+        messageId: params.messageId,
+        emoji: body.emoji,
+      });
+      res.json(new ApiResponse(CHAT_RESPONSE_MESSAGES.MESSAGE_REACTION_UPDATED, result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  editMessage = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const params = this.parse(messageParamsSchema.safeParse(req.params));
+      const body = this.parse(editChatMessageSchema.safeParse(req.body));
+      const result = await this._useCases.editMessage.execute(getAuthUser(req).userId, {
+        messageId: params.messageId,
+        text: body.text,
+      });
+      res.json(new ApiResponse(CHAT_RESPONSE_MESSAGES.MESSAGE_EDITED, result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deleteMessage = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const params = this.parse(messageParamsSchema.safeParse(req.params));
+      await this._useCases.deleteMessage.execute(getAuthUser(req).userId, params.messageId);
+      res.json(
+        new ApiResponse(CHAT_RESPONSE_MESSAGES.MESSAGE_DELETED, {
+          messageId: params.messageId,
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  listSavedMessages = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const query = this.parse(listChatSchema.safeParse(req.query));
+      const result = await this._useCases.listSavedMessages.execute(getAuthUser(req).userId, query);
+      res.json(new ApiResponse(CHAT_RESPONSE_MESSAGES.SAVED_MESSAGES_LISTED, result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
   clearConversation = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const params = this.parse(conversationParamsSchema.safeParse(req.params));
@@ -159,10 +201,7 @@ export class ChatController {
   shareTracker = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const body = this.parse(shareTrackerSchema.safeParse(req.body));
-      const result = await this._useCases.shareTracker.execute(
-        getAuthUser(req).userId,
-        body
-      );
+      const result = await this._useCases.shareTracker.execute(getAuthUser(req).userId, body);
       res
         .status(HttpStatusCode.CREATED)
         .json(new ApiResponse(CHAT_RESPONSE_MESSAGES.TRACKER_SHARED, result));
@@ -174,10 +213,7 @@ export class ChatController {
   shareProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const body = this.parse(shareProfileSchema.safeParse(req.body));
-      const result = await this._useCases.shareProfile.execute(
-        getAuthUser(req).userId,
-        body
-      );
+      const result = await this._useCases.shareProfile.execute(getAuthUser(req).userId, body);
       res
         .status(HttpStatusCode.CREATED)
         .json(new ApiResponse(CHAT_RESPONSE_MESSAGES.PROFILE_SHARED, result));
@@ -188,9 +224,7 @@ export class ChatController {
 
   listBlockedUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this._useCases.listBlockedUsers.execute(
-        getAuthUser(req).userId
-      );
+      const result = await this._useCases.listBlockedUsers.execute(getAuthUser(req).userId);
       res.json(new ApiResponse(CHAT_RESPONSE_MESSAGES.BLOCKS_LISTED, result));
     } catch (error) {
       next(error);
@@ -200,10 +234,7 @@ export class ChatController {
   blockUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const body = this.parse(blockUserSchema.safeParse(req.body));
-      const result = await this._useCases.blockUser.execute(
-        getAuthUser(req).userId,
-        body
-      );
+      const result = await this._useCases.blockUser.execute(getAuthUser(req).userId, body);
       res.json(new ApiResponse(CHAT_RESPONSE_MESSAGES.USER_BLOCKED, result));
     } catch (error) {
       next(error);
@@ -213,10 +244,7 @@ export class ChatController {
   unblockUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const params = this.parse(userBlockParamsSchema.safeParse(req.params));
-      const result = await this._useCases.unblockUser.execute(
-        getAuthUser(req).userId,
-        params
-      );
+      const result = await this._useCases.unblockUser.execute(getAuthUser(req).userId, params);
       res.json(new ApiResponse(CHAT_RESPONSE_MESSAGES.USER_UNBLOCKED, result));
     } catch (error) {
       next(error);
@@ -225,8 +253,7 @@ export class ChatController {
 
   private parse<T>(
     result:
-      | { success: true; data: T }
-      | { success: false; error: { issues: Array<{ message: string }> } }
+      { success: true; data: T } | { success: false; error: { issues: Array<{ message: string }> } }
   ): T {
     if (result.success) return result.data;
     throw new ApiError(

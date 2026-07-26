@@ -1,5 +1,3 @@
-// apps/api/src/modules/user/trackers/roadmap-evaluation.model.ts
-
 import type { Document } from 'mongoose';
 import mongoose, { Schema } from 'mongoose';
 

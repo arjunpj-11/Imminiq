@@ -1,4 +1,8 @@
-import type { TrackerClanMessage, TrackerClanOverview, TrackerCloneSyncResult } from '../domain';
+import type {
+  TrackerClanMessagePage,
+  TrackerClanOverview,
+  TrackerCloneSyncResult,
+} from '../domain';
 import type {
   DeleteClanSubtopicPayloadDTO,
   DeleteClanTopicPayloadDTO,
@@ -27,5 +31,5 @@ export interface ITrackerClanServiceContract {
   updateTopic(input: UpdateClanTopicPayloadDTO): Promise<void>;
   deleteTopic(input: DeleteClanTopicPayloadDTO): Promise<void>;
   deleteSubtopic(input: DeleteClanSubtopicPayloadDTO): Promise<void>;
-  listMessages(input: ListClanMessagesPayloadDTO): Promise<TrackerClanMessage[]>;
+  listMessages(input: ListClanMessagesPayloadDTO): Promise<TrackerClanMessagePage>;
 }

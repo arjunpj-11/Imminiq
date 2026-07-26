@@ -11,9 +11,10 @@ import type {
 } from '../types/friends.types';
 import { friendsQueryKeys } from './friends.query-keys';
 
-export const useFriends = (input: IFriendsListQueryInput) =>
+export const useFriends = (input: IFriendsListQueryInput, enabled = true) =>
   useInfiniteQuery<IFriendUsersPage, AxiosError<IFriendsApiErrorResponse>>({
     queryKey: friendsQueryKeys.list(input),
+    enabled,
     queryFn: async ({ pageParam }) => {
       const page = typeof pageParam === 'number' ? pageParam : 1;
       const response = await api.get<IFriendsApiResponse<IFriendUsersPage>>(

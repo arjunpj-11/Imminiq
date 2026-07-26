@@ -10,22 +10,13 @@ import type {
   ListChatConversationsInput,
   ListChatMessagesInput,
 } from '../../domain/chat.types';
-import {
-  mongoChatConversationRepository,
-} from './internal/mongo-chat-conversation.repository';
-import {
-  mongoChatMessageRepository,
-} from './internal/mongo-chat-message.repository';
-import {
-  mongoChatParticipantRepository,
-} from './internal/mongo-chat-participant.repository';
-import {
-  mongoChatRelationshipRepository,
-} from './internal/mongo-chat-relationship.repository';
+import { mongoChatConversationRepository } from './internal/mongo-chat-conversation.repository';
+import { mongoChatMessageRepository } from './internal/mongo-chat-message.repository';
+import { mongoChatParticipantRepository } from './internal/mongo-chat-participant.repository';
+import { mongoChatRelationshipRepository } from './internal/mongo-chat-relationship.repository';
 
 type MongoChatRepositoryDependencies = {
-  conversationRepository: IChatConversationQueryRepository &
-    IChatConversationCommandRepository;
+  conversationRepository: IChatConversationQueryRepository & IChatConversationCommandRepository;
   messageRepository: IChatMessageQueryRepository & IChatMessageCommandRepository;
   participantRepository: IChatParticipantRepository;
   relationshipRepository: IChatRelationshipRepository;
@@ -75,10 +66,11 @@ export class MongoChatRepository implements IChatRepository {
   }
 
   findUnreadCounts(conversationIds: string[], viewerUserId: string) {
-    return this._dependencies.messageRepository.findUnreadCounts(
-      conversationIds,
-      viewerUserId
-    );
+    return this._dependencies.messageRepository.findUnreadCounts(conversationIds, viewerUserId);
+  }
+
+  listStarredMessages(viewerUserId: string, page: number, limit: number) {
+    return this._dependencies.messageRepository.listStarredMessages(viewerUserId, page, limit);
   }
 
   createMessage(input: CreateChatMessageCommandInput) {
@@ -86,17 +78,27 @@ export class MongoChatRepository implements IChatRepository {
   }
 
   markConversationRead(conversationId: string, viewerUserId: string) {
-    return this._dependencies.messageRepository.markConversationRead(
-      conversationId,
-      viewerUserId
-    );
+    return this._dependencies.messageRepository.markConversationRead(conversationId, viewerUserId);
   }
 
   toggleMessageStar(messageId: string, viewerUserId: string) {
-    return this._dependencies.messageRepository.toggleMessageStar(
+    return this._dependencies.messageRepository.toggleMessageStar(messageId, viewerUserId);
+  }
+
+  toggleMessageReaction(messageId: string, viewerUserId: string, emoji: string) {
+    return this._dependencies.messageRepository.toggleMessageReaction(
       messageId,
-      viewerUserId
+      viewerUserId,
+      emoji
     );
+  }
+
+  editMessageText(messageId: string, viewerUserId: string, text: string) {
+    return this._dependencies.messageRepository.editMessageText(messageId, viewerUserId, text);
+  }
+
+  deleteMessage(messageId: string, viewerUserId: string) {
+    return this._dependencies.messageRepository.deleteMessage(messageId, viewerUserId);
   }
 
   clearConversationMessages(conversationId: string, viewerUserId: string) {
@@ -111,10 +113,7 @@ export class MongoChatRepository implements IChatRepository {
   }
 
   areActiveFriends(firstUserId: string, secondUserId: string) {
-    return this._dependencies.relationshipRepository.areActiveFriends(
-      firstUserId,
-      secondUserId
-    );
+    return this._dependencies.relationshipRepository.areActiveFriends(firstUserId, secondUserId);
   }
 }
 

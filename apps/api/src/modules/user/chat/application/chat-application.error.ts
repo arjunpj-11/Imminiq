@@ -13,6 +13,7 @@ export type ChatApplicationErrorCode =
   | 'CHAT_USER_BLOCKED'
   | 'CHAT_BLOCK_FAILED'
   | 'CHAT_MESSAGE_NOT_FOUND'
+  | 'CHAT_MESSAGE_NOT_EDITABLE'
   | 'CHAT_TRACKER_NOT_SHAREABLE'
   | 'CHAT_PROFILE_NOT_SHAREABLE';
 
@@ -110,6 +111,14 @@ export class ChatApplicationError extends ChatDomainError {
       'missing-resource',
       'CHAT_MESSAGE_NOT_FOUND',
       'The message could not be found'
+    );
+  }
+
+  static messageNotEditable() {
+    return new ChatApplicationError(
+      'forbidden',
+      'CHAT_MESSAGE_NOT_EDITABLE',
+      'Only your text and code messages can be edited or deleted'
     );
   }
 

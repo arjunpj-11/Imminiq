@@ -408,8 +408,7 @@ export function AppPageSkeleton({
       'Immi is arranging your topics, progress, and next learning step. Your roadmap will open automatically.',
     workflow:
       'Immi is building your personalised content. You can keep this page open while each stage completes.',
-    attempt:
-      'We are preparing your questions and restoring your test progress.',
+    attempt: 'We are preparing your questions and restoring your test progress.',
   };
   return (
     <SkeletonStatus

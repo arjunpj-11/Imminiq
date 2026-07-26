@@ -1,5 +1,3 @@
-// apps/api/src/infrastructure/database/models/tracker-topic.model.ts
-
 import type { Document } from 'mongoose';
 import mongoose, { Schema } from 'mongoose';
 

@@ -12,9 +12,7 @@ const requestFor = (userId: string, ip: string) =>
 describe('authenticated API rate-limit key', () => {
   it('isolates counters by authenticated user rather than a shared IP address', () => {
     const firstUser = getAuthenticatedApiRateLimitKey(requestFor('user-1', '127.0.0.1'));
-    const sameUserElsewhere = getAuthenticatedApiRateLimitKey(
-      requestFor('user-1', '203.0.113.20')
-    );
+    const sameUserElsewhere = getAuthenticatedApiRateLimitKey(requestFor('user-1', '203.0.113.20'));
     const secondUser = getAuthenticatedApiRateLimitKey(requestFor('user-2', '127.0.0.1'));
 
     expect(firstUser).toBe('user:user-1');

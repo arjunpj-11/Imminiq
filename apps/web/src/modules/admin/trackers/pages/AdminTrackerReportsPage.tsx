@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Eye, ShieldAlert } from 'lucide-react';
+import { Eye, ShieldAlert } from 'lucide-react';
 import { Link } from 'react-router';
 import Modal from '../../../../components/admin/AdminModal';
 import {
@@ -30,21 +30,19 @@ export default function AdminTrackerReportsPage() {
   const [status, setStatus] = useState('open');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<AdminTrackerReport | null>(null);
-  const { data, isLoading, isPlaceholderData, isError, error, refetch } = useAdminTrackerReports({
-    status,
-    page,
-  });
+  const { data, dataUpdatedAt, isLoading, isFetching, isPlaceholderData, isError, error, refetch } =
+    useAdminTrackerReports({ status, page });
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
-      <Link
-        to={ADMIN_TRACKERS_ROUTES.list}
-        className="mb-5 inline-flex items-center gap-2 text-sm text-[#aaa59d] hover:text-[#e8816a]"
-      >
-        <ArrowLeft size={16} /> Back to trackers
-      </Link>
       <AdminPageHeader
         title="Tracker Report Queue"
         description="Review community flags, document decisions, and keep reporters and tracker owners informed."
+        meta={{
+          updatedAt: dataUpdatedAt,
+          isRefreshing: isFetching && !isLoading,
+          resultCount: data?.pagination.total,
+          activeFilterCount: Number(status !== 'all'),
+        }}
       />
       {isLoading ? (
         <div className="mt-7">

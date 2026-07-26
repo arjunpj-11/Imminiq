@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { paginationConfig } from '../../../../config/pagination';
 import { ADMIN_PLAN_LIMIT_FIELDS } from '../domain/entities/admin-subscription.entity';
 
 export const adminSubscriptionsQuerySchema = z.object({
@@ -7,7 +8,12 @@ export const adminSubscriptionsQuerySchema = z.object({
     .enum(['all', 'pending', 'active', 'canceled', 'expired', 'replaced', 'failed'])
     .default('all'),
   page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(paginationConfig.maxLimit)
+    .default(paginationConfig.defaultLimit),
 });
 
 export const adminPlanIdSchema = z.enum(['free', 'pro', 'premium']);

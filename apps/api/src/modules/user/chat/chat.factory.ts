@@ -14,6 +14,10 @@ import { StartChatConversationUseCase } from './application/use-cases/start-chat
 import { UnblockUserUseCase } from './application/use-cases/unblock-user.usecase';
 import { ToggleChatMessageStarUseCase } from './application/use-cases/toggle-chat-message-star.usecase';
 import { ClearChatConversationUseCase } from './application/use-cases/clear-chat-conversation.usecase';
+import { DeleteChatMessageUseCase } from './application/use-cases/delete-chat-message.usecase';
+import { EditChatMessageUseCase } from './application/use-cases/edit-chat-message.usecase';
+import { ToggleChatMessageReactionUseCase } from './application/use-cases/toggle-chat-message-reaction.usecase';
+import { ListSavedChatMessagesUseCase } from './application/use-cases/list-saved-chat-messages.usecase';
 import { cloudinaryChatFileStorageGateway } from './infrastructure/gateways/cloudinary-chat-file-storage.gateway';
 import { mongoChatBlockRepository } from './infrastructure/repositories/internal/mongo-chat-block.repository';
 import { mongoSharedTrackerRepository } from './infrastructure/repositories/internal/mongo-shared-tracker.repository';
@@ -47,12 +51,10 @@ export const createChatComposition = (): ChatComposition => {
         participantPolicy,
         mapper
       ),
-      listMessages: new ListChatMessagesUseCase(
-        mongoChatRepository,
-        mongoChatRepository,
-        mapper
-      ),
+      listMessages: new ListChatMessagesUseCase(mongoChatRepository, mongoChatRepository, mapper),
       sendMessage: new SendChatMessageUseCase(
+        mongoChatRepository,
+        mongoChatRepository,
         mongoChatRepository,
         mongoChatRepository,
         mongoChatBlockRepository,
@@ -69,6 +71,7 @@ export const createChatComposition = (): ChatComposition => {
         mongoChatRepository,
         mongoChatRepository,
         mongoChatRepository,
+        mongoChatRepository,
         mongoChatBlockRepository,
         socketChatRealtimePublisher,
         mapper
@@ -77,6 +80,7 @@ export const createChatComposition = (): ChatComposition => {
         mongoChatRepository,
         mongoChatRepository,
         mongoSharedTrackerRepository,
+        mongoChatRepository,
         mongoChatBlockRepository,
         socketChatRealtimePublisher,
         mapper
@@ -85,6 +89,7 @@ export const createChatComposition = (): ChatComposition => {
         mongoChatRepository,
         mongoChatRepository,
         mongoSharedProfileRepository,
+        mongoChatRepository,
         mongoChatBlockRepository,
         socketChatRealtimePublisher,
         mapper
@@ -95,20 +100,32 @@ export const createChatComposition = (): ChatComposition => {
         participantPolicy,
         socketChatRealtimePublisher
       ),
-      unblockUser: new UnblockUserUseCase(
-        mongoChatBlockRepository,
-        socketChatRealtimePublisher
-      ),
+      unblockUser: new UnblockUserUseCase(mongoChatBlockRepository, socketChatRealtimePublisher),
       toggleMessageStar: new ToggleChatMessageStarUseCase(
         mongoChatRepository,
         mongoChatRepository,
         mongoChatRepository,
         mapper
       ),
-      clearConversation: new ClearChatConversationUseCase(
+      clearConversation: new ClearChatConversationUseCase(mongoChatRepository, mongoChatRepository),
+      toggleMessageReaction: new ToggleChatMessageReactionUseCase(
+        mongoChatRepository,
+        mongoChatRepository,
+        mongoChatRepository,
+        mapper
+      ),
+      editMessage: new EditChatMessageUseCase(
+        mongoChatRepository,
+        mongoChatRepository,
+        mongoChatRepository,
+        mapper
+      ),
+      deleteMessage: new DeleteChatMessageUseCase(
+        mongoChatRepository,
         mongoChatRepository,
         mongoChatRepository
       ),
+      listSavedMessages: new ListSavedChatMessagesUseCase(mongoChatRepository, mapper),
     },
   };
 };

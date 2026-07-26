@@ -5,6 +5,8 @@ export const API_ROUTE_PATHS = {
   users: '/api/users',
   uploads: '/api/uploads',
   settings: '/api/settings',
+  featureAvailability: '/api/feature-availability',
+  clientErrors: '/api/client-errors',
   subscriptions: '/api/subscriptions',
   dashboard: '/api/dashboard',
   supportTickets: '/api/support-tickets',

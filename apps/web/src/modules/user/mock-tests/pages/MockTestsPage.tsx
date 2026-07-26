@@ -334,7 +334,7 @@ export default function MockTestsPage() {
             ) : testsQuery.isError ? (
               <ErrorState
                 title="Failed to load mock tests"
-                description="Your mock tests could not be loaded. Please try again."
+                error={testsQuery.error}
                 onRetry={() => void testsQuery.refetch()}
               />
             ) : tests.length ? (

@@ -18,9 +18,20 @@ describe('admin-managed platform policy', () => {
       dailyGoalRewardXp: PLATFORM_POLICY_DEFAULTS.activity.dailyGoalRewardXp,
     });
     expect(resolved.community).toEqual(PLATFORM_POLICY_DEFAULTS.community);
+    expect(resolved.features).toEqual(PLATFORM_POLICY_DEFAULTS.features);
 
     resolved.community.reviewRewardCoins = 999;
     expect(PLATFORM_POLICY_DEFAULTS.community.reviewRewardCoins).toBe(50);
+  });
+
+  it('merges legacy feature settings with safe enabled defaults', () => {
+    const resolved = resolvePlatformPolicy({
+      features: { community: false },
+    } as Partial<PlatformPolicy>);
+
+    expect(resolved.features.community).toBe(false);
+    expect(resolved.features.trackers).toBe(true);
+    expect(resolved.features.supportTickets).toBe(true);
   });
 
   it('rejects unsafe policy values at the admin boundary', () => {

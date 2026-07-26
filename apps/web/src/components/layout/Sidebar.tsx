@@ -8,6 +8,11 @@ import { refreshCurrentRoute } from '../../lib/refresh-current-route';
 import { ROUTES } from '../../routes/config/route-paths';
 import ImminiqLogo from '../ui/ImminiqLogo';
 import ImminiqWordmark from '../ui/ImminiqWordmark';
+import {
+  FEATURE_AVAILABILITY_SAFE_FALLBACK,
+  isPathAvailable,
+} from '../../config/feature-availability';
+import { useFeatureAvailability } from '../../hooks/useFeatureAvailability';
 
 interface ISidebarProps {
   mobileOpen: boolean;
@@ -113,7 +118,7 @@ const discoverItems = [
 
 const intelligenceItems = [
   {
-    label: 'Adaptive Learning',
+    label: 'Ask Immi',
     to: ROUTES.learningAgent,
     icon: (
       <svg
@@ -176,6 +181,8 @@ export default function Sidebar({
   onToggleCollapsed,
 }: ISidebarProps) {
   const location = useLocation();
+  const featureQuery = useFeatureAvailability();
+  const features = featureQuery.data ?? FEATURE_AVAILABILITY_SAFE_FALLBACK;
 
   const isInsideSettings =
     location.pathname === ROUTES.settingsRoot ||
@@ -187,7 +194,7 @@ export default function Sidebar({
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
-      'mb-px flex items-center justify-between rounded-[var(--radius-sm)] px-2.5 py-[9px] font-ui text-[13px] font-medium tracking-normal no-underline transition',
+      'mb-px flex min-h-10 items-center justify-between rounded-[var(--radius-sm)] px-2.5 py-[9px] font-ui text-[14px] font-medium tracking-normal no-underline transition',
       isActive
         ? 'bg-[rgba(184,76,43,0.10)] text-[var(--brand-500)] dark:bg-[rgba(232,129,106,0.12)] dark:text-[var(--brand-500)]'
         : 'text-[var(--text-secondary)] hover:bg-[rgba(184,76,43,0.06)] hover:text-[var(--brand-500)] dark:text-[var(--text-secondary)] dark:hover:bg-[rgba(232,129,106,0.08)] dark:hover:text-[var(--brand-500)]'
@@ -224,117 +231,125 @@ export default function Sidebar({
         </Link>
 
         <nav className="flex-1 overflow-y-auto px-2.5 py-3.5">
-          <div className="px-2.5 pb-1.25 pt-2.5 font-mono text-[8.5px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-45 dark:text-(--text-secondary)">
+          <div className="px-2.5 pb-1.25 pt-2.5 font-mono text-[10px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-60 dark:text-(--text-secondary)">
             Main
           </div>
 
-          {mainItems.map((item) => (
-            <NavLink
-              key={item.label}
-              to={item.to}
-              onClick={onCloseMobile}
-              onDoubleClick={refreshCurrentRoute}
-              onMouseEnter={() => prefetchRoute(item.to)}
-              onFocus={() => prefetchRoute(item.to)}
-              className={navLinkClass}
-            >
-              {({ isActive }) => (
-                <>
-                  <span className="flex items-center gap-2.5">
-                    {item.icon}
-                    {item.label}
-                  </span>
+          {mainItems
+            .filter((item) => isPathAvailable(item.to, features))
+            .map((item) => (
+              <NavLink
+                key={item.label}
+                to={item.to}
+                onClick={onCloseMobile}
+                onDoubleClick={refreshCurrentRoute}
+                onMouseEnter={() => prefetchRoute(item.to)}
+                onFocus={() => prefetchRoute(item.to)}
+                className={navLinkClass}
+              >
+                {({ isActive }) => (
+                  <>
+                    <span className="flex items-center gap-2.5">
+                      {item.icon}
+                      {item.label}
+                    </span>
 
-                  {'kbd' in item && item.kbd ? (
-                    <span
-                      className={cn(
-                        'rounded px-1.25 py-0.5 font-mono text-[9px]',
-                        isActive
-                          ? 'bg-[rgba(184,76,43,0.14)] text-(--brand-500) dark:bg-[rgba(232,129,106,0.16)] dark:text-(--brand-500)'
-                          : 'bg-[rgba(26,23,20,0.09)] text-(--text-secondary) opacity-60 dark:bg-[rgba(242,240,235,0.09)] dark:text-(--text-secondary)'
-                      )}
-                    ></span>
-                  ) : null}
-                </>
-              )}
-            </NavLink>
-          ))}
+                    {'kbd' in item && item.kbd ? (
+                      <span
+                        className={cn(
+                          'rounded px-1.25 py-0.5 font-mono text-[9px]',
+                          isActive
+                            ? 'bg-[rgba(184,76,43,0.14)] text-(--brand-500) dark:bg-[rgba(232,129,106,0.16)] dark:text-(--brand-500)'
+                            : 'bg-[rgba(26,23,20,0.09)] text-(--text-secondary) opacity-60 dark:bg-[rgba(242,240,235,0.09)] dark:text-(--text-secondary)'
+                        )}
+                      ></span>
+                    ) : null}
+                  </>
+                )}
+              </NavLink>
+            ))}
 
-          <div className="px-2.5 pb-1.25 pt-4.5 font-mono text-[8.5px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-45 dark:text-(--text-secondary)">
+          <div className="px-2.5 pb-1.25 pt-4.5 font-mono text-[10px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-60 dark:text-(--text-secondary)">
             Intelligence
           </div>
 
-          {intelligenceItems.map((item) => (
-            <NavLink
-              key={item.label}
-              to={item.to}
-              onClick={onCloseMobile}
-              onDoubleClick={refreshCurrentRoute}
-              onMouseEnter={() => prefetchRoute(item.to)}
-              onFocus={() => prefetchRoute(item.to)}
-              className={navLinkClass}
-            >
-              <span className="flex items-center gap-2.5">
-                {item.icon}
-                {item.label}
-              </span>
-            </NavLink>
-          ))}
-
-          <div className="px-2.5 pb-1.25 pt-4.5 font-mono text-[8.5px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-45 dark:text-(--text-secondary)">
-            Discover
-          </div>
-
-          {discoverItems.map((item) => (
-            <NavLink
-              key={item.label}
-              to={item.to}
-              onClick={onCloseMobile}
-              onDoubleClick={refreshCurrentRoute}
-              onMouseEnter={() => prefetchRoute(item.to)}
-              onFocus={() => prefetchRoute(item.to)}
-              className={navLinkClass}
-            >
-              <span className="flex items-center gap-2.5">
-                {item.icon}
-                {item.label}
-              </span>
-            </NavLink>
-          ))}
-
-          <div className="px-2.5 pb-1.25 pt-4.5 font-mono text-[8.5px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-45 dark:text-(--text-secondary)">
-            Personal
-          </div>
-
-          {personalItems.map((item) => {
-            const isSettingsItem = item.label === 'Settings';
-
-            const target =
-              isSettingsItem && isInsideSettings ? currentPathWithSearchAndHash : item.to;
-
-            return (
+          {intelligenceItems
+            .filter((item) => isPathAvailable(item.to, features))
+            .map((item) => (
               <NavLink
                 key={item.label}
-                to={target}
+                to={item.to}
                 onClick={onCloseMobile}
                 onDoubleClick={refreshCurrentRoute}
-                onMouseEnter={() => prefetchRoute(target)}
-                onFocus={() => prefetchRoute(target)}
-                className={({ isActive }) =>
-                  navLinkClass({
-                    isActive: isSettingsItem ? isInsideSettings : isActive,
-                  })
-                }
+                onMouseEnter={() => prefetchRoute(item.to)}
+                onFocus={() => prefetchRoute(item.to)}
+                className={navLinkClass}
               >
                 <span className="flex items-center gap-2.5">
                   {item.icon}
                   {item.label}
                 </span>
               </NavLink>
-            );
-          })}
+            ))}
 
-          {temporaryItem && (
+          <div className="px-2.5 pb-1.25 pt-4.5 font-mono text-[10px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-60 dark:text-(--text-secondary)">
+            Discover
+          </div>
+
+          {discoverItems
+            .filter((item) => isPathAvailable(item.to, features))
+            .map((item) => (
+              <NavLink
+                key={item.label}
+                to={item.to}
+                onClick={onCloseMobile}
+                onDoubleClick={refreshCurrentRoute}
+                onMouseEnter={() => prefetchRoute(item.to)}
+                onFocus={() => prefetchRoute(item.to)}
+                className={navLinkClass}
+              >
+                <span className="flex items-center gap-2.5">
+                  {item.icon}
+                  {item.label}
+                </span>
+              </NavLink>
+            ))}
+
+          <div className="px-2.5 pb-1.25 pt-4.5 font-mono text-[10px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-60 dark:text-(--text-secondary)">
+            Personal
+          </div>
+
+          {personalItems
+            .filter((item) => isPathAvailable(item.to, features))
+            .map((item) => {
+              const isSettingsItem = item.label === 'Settings';
+
+              const target =
+                isSettingsItem && isInsideSettings ? currentPathWithSearchAndHash : item.to;
+
+              return (
+                <NavLink
+                  key={item.label}
+                  to={target}
+                  onClick={onCloseMobile}
+                  onDoubleClick={refreshCurrentRoute}
+                  onMouseEnter={() => prefetchRoute(target)}
+                  onFocus={() => prefetchRoute(target)}
+                  className={({ isActive }) =>
+                    navLinkClass({
+                      isActive: isSettingsItem ? isInsideSettings : isActive,
+                    })
+                  }
+                >
+                  <span className="flex items-center gap-2.5">
+                    {item.icon}
+                    {item.label}
+                  </span>
+                </NavLink>
+              );
+            })}
+
+          {temporaryItem && isPathAvailable(temporaryItem.to, features) && (
             <NavLink
               to={temporaryItem.to}
               end
@@ -362,25 +377,27 @@ export default function Sidebar({
           )}
         </nav>
 
-        <div className="relative mx-2.5 mb-4 overflow-hidden rounded-md border border-[rgba(184,76,43,0.14)] bg-[rgba(184,76,43,0.07)] p-3.5 dark:border-[rgba(232,129,106,0.16)] dark:bg-[rgba(232,129,106,0.07)]">
-          <span className="pointer-events-none absolute -right-5 -top-5 h-20 w-20 rounded-full bg-(--brand-500) opacity-[0.06] dark:bg-(--brand-500)" />
+        {features.subscriptions && (
+          <div className="relative mx-2.5 mb-4 overflow-hidden rounded-md border border-[rgba(184,76,43,0.14)] bg-[rgba(184,76,43,0.07)] p-3.5 dark:border-[rgba(232,129,106,0.16)] dark:bg-[rgba(232,129,106,0.07)]">
+            <span className="pointer-events-none absolute -right-5 -top-5 h-20 w-20 rounded-full bg-(--brand-500) opacity-[0.06] dark:bg-(--brand-500)" />
 
-          <div className="relative z-1 mb-0.75 text-[12px] font-bold tracking-normal text-(--brand-500) dark:text-(--brand-500)">
-            Upgrade to Pro
+            <div className="relative z-1 mb-0.75 text-[12px] font-bold tracking-normal text-(--brand-500) dark:text-(--brand-500)">
+              Upgrade to Pro
+            </div>
+
+            <p className="relative z-1 mb-2.5 text-[11px] leading-[1.45] tracking-normal text-(--text-secondary) dark:text-(--text-secondary)">
+              Unlock advanced insights, AI evaluations, and unlimited tracker sharing.
+            </p>
+
+            <Link
+              to={ROUTES.pricing}
+              onClick={onCloseMobile}
+              className="relative z-1 block w-full rounded-lg border-none bg-(--brand-500) p-2.25 text-center font-ui text-[12px] font-bold tracking-normal text-[#fdf8f5] no-underline transition hover:bg-(--brand-600) dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
+            >
+              Upgrade
+            </Link>
           </div>
-
-          <p className="relative z-1 mb-2.5 text-[11px] leading-[1.45] tracking-normal text-(--text-secondary) dark:text-(--text-secondary)">
-            Unlock advanced insights, AI evaluations, and unlimited tracker sharing.
-          </p>
-
-          <Link
-            to={ROUTES.pricing}
-            onClick={onCloseMobile}
-            className="relative z-1 block w-full rounded-lg border-none bg-(--brand-500) p-2.25 text-center font-ui text-[12px] font-bold tracking-normal text-[#fdf8f5] no-underline transition hover:bg-(--brand-600) dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
-          >
-            Upgrade
-          </Link>
-        </div>
+        )}
       </aside>
 
       <button

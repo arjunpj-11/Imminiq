@@ -1,5 +1,3 @@
-// apps/api/src/infrastructure/database/models/lesson-question-solution-doubt.model.ts
-
 import mongoose, { Schema } from 'mongoose';
 
 const lessonQuestionSolutionDoubtSchema = new Schema(

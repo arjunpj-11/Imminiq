@@ -13,14 +13,35 @@ import { formatNotificationDate, isFailureNotification } from '../utils/notifica
 
 export default function NotificationsPage() {
   const navigate = useNavigate();
+  const [view, setView] = useState<'all' | 'unread'>('all');
   const query = useNotifications();
   const markRead = useMarkNotificationRead();
   const markAll = useMarkAllNotificationsRead();
 
   return (
     <PageContainer>
-      <PageHeader title="Notifications" description="Background jobs and important updates." />
-      <div className="mb-4 flex justify-end">
+      <PageHeader
+        title="Notifications"
+        description="Track learning updates, background jobs, and actions that need your attention."
+      />
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="inline-flex rounded-xl border border-(--border-subtle) bg-(--surface-card) p-1">
+          {(['all', 'unread'] as const).map((value) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setView(value)}
+              aria-pressed={view === value}
+              className={cn(
+                'min-h-10 rounded-lg px-3 text-[12px] font-bold capitalize',
+                view === value ? 'bg-(--brand-500) text-white' : 'text-(--text-secondary)'
+              )}
+            >
+              {value}
+              {value === 'unread' && query.data?.unreadCount ? ` (${query.data.unreadCount})` : ''}
+            </button>
+          ))}
+        </div>
         <button
           type="button"
           disabled={!query.data?.unreadCount || markAll.isPending}
@@ -53,82 +74,92 @@ export default function NotificationsPage() {
         {query.isError && (
           <p className="p-8 text-center text-sm text-(--danger)">Unable to load notifications.</p>
         )}
-        {query.data?.notifications.length === 0 && (
+        {(query.data?.notifications.filter((notification) => view === 'all' || !notification.isRead)
+          .length ?? 0) === 0 && (
           <div className="p-12 text-center">
             <Bell className="mx-auto mb-3 text-(--text-secondary)" />
-            <p className="font-bold">You’re all caught up</p>
+            <p className="font-bold">
+              {view === 'unread' ? 'No unread notifications' : 'You’re all caught up'}
+            </p>
           </div>
         )}
-        {query.data?.notifications.map((notification) => {
-          const failed = isFailureNotification(notification.type);
-          return (
-            <div
-              key={notification.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => {
-                if (!notification.isRead) markRead.mutate(notification.id);
-                if (notification.deepLink) navigate(notification.deepLink);
-              }}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
+        {query.data?.notifications
+          .filter((notification) => view === 'all' || !notification.isRead)
+          .map((notification) => {
+            const failed = isFailureNotification(notification.type);
+            return (
+              <div
+                key={notification.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => {
                   if (!notification.isRead) markRead.mutate(notification.id);
                   if (notification.deepLink) navigate(notification.deepLink);
-                }
-              }}
-              className={cn(
-                'flex w-full items-start gap-4 border-b border-(--border-subtle) p-5 text-left last:border-b-0 hover:bg-(--surface-canvas)',
-                !notification.isRead && 'bg-[rgba(184,76,43,0.05)]'
-              )}
-            >
-              <span
-                className={cn(
-                  'mt-0.5 rounded-xl p-2',
-                  failed
-                    ? 'bg-red-500/10 text-red-500'
-                    : 'bg-[rgba(184,76,43,0.10)] text-(--brand-500)'
-                )}
-              >
-                {failed ? <CircleAlert size={18} /> : <Sparkles size={18} />}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-(--text-primary)">
-                  {notification.message}
-                </span>
-                <span className="mt-1 block text-[11px] text-(--text-secondary)">
-                  {formatNotificationDate(notification.createdAt)}
-                </span>
-                {isBroadcastPoll(notification.metadata) && (
-                  <PollVoteControls
-                    notificationId={notification.id}
-                    poll={notification.metadata.poll}
-                  />
-                )}
-              </span>
-              <button
-                type="button"
-                disabled={notification.isRead || markRead.isPending}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  if (!notification.isRead) markRead.mutate(notification.id);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    if (!notification.isRead) markRead.mutate(notification.id);
+                    if (notification.deepLink) navigate(notification.deepLink);
+                  }
                 }}
                 className={cn(
-                  'mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition',
-                  notification.isRead
-                    ? 'border-transparent text-(--success)'
-                    : 'border-(--border-subtle) text-(--text-muted) hover:border-(--brand-500) hover:text-(--brand-500)'
+                  'group flex w-full cursor-pointer items-start gap-4 border-b border-(--border-subtle) p-5 text-left last:border-b-0 hover:bg-(--surface-canvas)',
+                  !notification.isRead && 'bg-[rgba(184,76,43,0.05)]'
                 )}
-                aria-label={
-                  notification.isRead ? 'Notification read' : 'Mark notification as read'
-                }
-                title={notification.isRead ? 'Read' : 'Mark as read'}
               >
-                <Check size={15} strokeWidth={notification.isRead ? 2.5 : 2} />
-              </button>
-            </div>
-          );
-        })}
+                <span
+                  className={cn(
+                    'mt-0.5 rounded-xl p-2',
+                    failed
+                      ? 'bg-red-500/10 text-red-500'
+                      : 'bg-[rgba(184,76,43,0.10)] text-(--brand-500)'
+                  )}
+                >
+                  {failed ? <CircleAlert size={18} /> : <Sparkles size={18} />}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold text-(--text-primary)">
+                    {notification.message}
+                  </span>
+                  <span className="mt-1 block text-[12px] text-(--text-secondary)">
+                    {formatNotificationDate(notification.createdAt)}
+                  </span>
+                  {notification.deepLink && (
+                    <span className="mt-2 inline-flex text-[12px] font-bold text-(--brand-500) transition-transform group-hover:translate-x-0.5">
+                      Open update →
+                    </span>
+                  )}
+                  {isBroadcastPoll(notification.metadata) && (
+                    <PollVoteControls
+                      notificationId={notification.id}
+                      poll={notification.metadata.poll}
+                    />
+                  )}
+                </span>
+                <button
+                  type="button"
+                  disabled={notification.isRead || markRead.isPending}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    if (!notification.isRead) markRead.mutate(notification.id);
+                  }}
+                  className={cn(
+                    'mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition',
+                    notification.isRead
+                      ? 'border-transparent text-(--success)'
+                      : 'border-(--border-subtle) text-(--text-muted) hover:border-(--brand-500) hover:text-(--brand-500)'
+                  )}
+                  aria-label={
+                    notification.isRead ? 'Notification read' : 'Mark notification as read'
+                  }
+                  title={notification.isRead ? 'Read' : 'Mark as read'}
+                >
+                  <Check size={15} strokeWidth={notification.isRead ? 2.5 : 2} />
+                </button>
+              </div>
+            );
+          })}
       </section>
     </PageContainer>
   );

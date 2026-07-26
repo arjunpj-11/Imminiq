@@ -1,5 +1,3 @@
-// apps/web/src/types/dashboard.types.ts
-
 export interface IDashboardUser {
   _id: string;
   fullName: string;

@@ -1,7 +1,7 @@
-import { AlertTriangle, Download, FileText, LoaderCircle, X } from 'lucide-react';
+import { AlertTriangle, Download, ExternalLink, FileText, LoaderCircle, X } from 'lucide-react';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import type { UseQueryResult } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import {
   AdminEmpty,
   AdminError,
@@ -35,6 +35,7 @@ import type {
 } from '../types/admin-subscriptions.types';
 import AdminActionPasswordField from '../../../../components/admin/AdminActionPasswordField';
 import { isAdminActionPasswordReady } from '../../../../lib/admin/admin-action-password';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 const number = new Intl.NumberFormat('en-IN');
 const money = new Intl.NumberFormat('en-IN', {
@@ -78,8 +79,20 @@ export default function AdminSubscriptionsPage() {
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
-        title="Premium & Limits"
+        title="Subscriptions"
         description="Track purchases and manage every customer-visible plan, price, feature, and allowance."
+        meta={{
+          updatedAt: subscriptions.dataUpdatedAt,
+          isRefreshing: subscriptions.isFetching && !subscriptions.isLoading,
+          resultCount: subscriptions.data?.subscriptions.pagination.total,
+          activeFilterCount: Number(Boolean(debouncedSearch)) + Number(status !== 'all'),
+        }}
+        action={
+          <Link to={ROUTES.pricing} target="_blank" rel="noreferrer" className="admin-button">
+            <ExternalLink size={15} aria-hidden="true" />
+            View customer plans
+          </Link>
+        }
       />
       <SubscriptionView
         query={subscriptions}
@@ -900,7 +913,7 @@ function PlanEditor({
 
         <div className="mt-6 flex flex-wrap justify-end gap-2">
           <button type="button" className="admin-button" onClick={() => setReviewOpen(false)}>
-            Back to edit
+            Continue editing
           </button>
           <button
             type="button"

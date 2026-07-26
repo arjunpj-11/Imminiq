@@ -20,17 +20,18 @@ export class ListChatMessagesUseCase implements IListChatMessagesUseCase {
   ) {}
 
   async execute(viewerUserId: string, conversationId: string, payload: ListChatInputDTO) {
-    const conversation =
-      await this._conversationQueryRepository.findConversationForParticipant(
-        conversationId,
-        viewerUserId
-      );
+    const conversation = await this._conversationQueryRepository.findConversationForParticipant(
+      conversationId,
+      viewerUserId
+    );
     if (!conversation) throw ChatApplicationError.conversationNotFound();
     const page = await this._messageQueryRepository.listMessages({
       conversationId,
       viewerUserId,
       page: payload.page,
       limit: payload.limit,
+      search: payload.search,
+      before: payload.before,
     });
     return this._chatMapper.toMessagePageView(page, viewerUserId);
   }

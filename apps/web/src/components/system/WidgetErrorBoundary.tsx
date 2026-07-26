@@ -1,6 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 
 import Button from '../ui/Button';
+import { reportClientError } from '../../lib/telemetry/client-error-reporter';
 
 interface IWidgetErrorBoundaryProps {
   children: ReactNode;
@@ -22,7 +23,7 @@ export default class WidgetErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('Imminiq widget error', error, info);
+    reportClientError(error, { source: 'widget', componentStack: info.componentStack });
   }
 
   render() {

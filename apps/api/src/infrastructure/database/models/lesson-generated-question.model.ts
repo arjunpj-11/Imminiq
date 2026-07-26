@@ -1,5 +1,3 @@
-// apps/api/src/infrastructure/database/models/lesson-generated-question.model.ts
-
 import mongoose, { Schema } from 'mongoose';
 
 const lessonGeneratedQuestionSchema = new Schema(

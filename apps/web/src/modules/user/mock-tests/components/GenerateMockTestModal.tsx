@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router';
+import { paginationConfig } from '../../../../config/pagination';
 import { useBodyScrollLock } from '../../../../hooks/useBodyScrollLock';
 import { boundedInteger } from '../../../../lib/bounded-number';
 
@@ -63,7 +64,7 @@ export function GenerateMockTestModal({
     Record<string, Map<string, string>>
   >({});
 
-  const trackersQuery = useTrackers({ limit: 50 });
+  const trackersQuery = useTrackers({ limit: paginationConfig.batchLimit });
 
   const trackers = useMemo(
     () => trackersQuery.data?.trackers ?? [],

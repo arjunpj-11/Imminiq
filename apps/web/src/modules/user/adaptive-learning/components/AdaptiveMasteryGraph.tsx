@@ -57,12 +57,12 @@ export default function AdaptiveMasteryGraph({ history }: IAdaptiveMasteryGraphP
           points.length - 1
         )},${paddingTop + chartHeight}`
       : points.length === 1
-      ? `${paddingLeft},${paddingTop + chartHeight} ${paddingLeft},${yFor(
-          points[0].masteryScore
-        )} ${width - paddingRight},${yFor(points[0].masteryScore)} ${
-          width - paddingRight
-        },${paddingTop + chartHeight}`
-      : '';
+        ? `${paddingLeft},${paddingTop + chartHeight} ${paddingLeft},${yFor(
+            points[0].masteryScore
+          )} ${width - paddingRight},${yFor(points[0].masteryScore)} ${
+            width - paddingRight
+          },${paddingTop + chartHeight}`
+        : '';
 
   const latestPoint = points.at(-1);
   const firstPoint = points[0];
@@ -208,8 +208,8 @@ export default function AdaptiveMasteryGraph({ history }: IAdaptiveMasteryGraphP
                       point.change < 0
                         ? '#dc5b55'
                         : point.change > 0
-                        ? 'var(--brand-500)'
-                        : '#c49a2c'
+                          ? 'var(--brand-500)'
+                          : '#c49a2c'
                     }
                     stroke="var(--surface-card)"
                     strokeWidth="2.5"
@@ -245,9 +245,7 @@ export default function AdaptiveMasteryGraph({ history }: IAdaptiveMasteryGraphP
               {hoveredPoint.change !== 0 && (
                 <span
                   className={`font-mono text-[10px] font-bold ${
-                    hoveredPoint.change > 0
-                      ? 'text-(--brand-500)'
-                      : 'text-(--danger)'
+                    hoveredPoint.change > 0 ? 'text-(--brand-500)' : 'text-(--danger)'
                   }`}
                 >
                   {hoveredPoint.change > 0 ? `+${hoveredPoint.change}%` : `${hoveredPoint.change}%`}

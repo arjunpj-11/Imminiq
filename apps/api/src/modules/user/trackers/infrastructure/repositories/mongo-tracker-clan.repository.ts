@@ -765,30 +765,51 @@ export class MongoTrackerClanRepository
     return deleted;
   }
 
-  async listMessages(input: { trackerId: string; userId: string; limit: number }) {
+  async listMessages(input: { trackerId: string; userId: string; limit: number; before?: string }) {
     const role = await this.getRole({ trackerId: input.trackerId, userId: input.userId });
     if (!role || role === 'outsider') return null;
     const trackerId = objectId(input.trackerId);
     if (!trackerId) return null;
     const chatWindowStart = new Date(Date.now() - TRACKER_CLAN_MESSAGE_RETENTION_SECONDS * 1000);
+    const beforeId = input.before ? objectId(input.before) : null;
+    if (input.before && !beforeId) return null;
     const messages = await TrackerClanMessage.find({
       trackerId,
       deletedAt: null,
       createdAt: { $gte: chatWindowStart },
+      ...(beforeId ? { _id: { $lt: beforeId } } : {}),
     })
-      .sort({ createdAt: -1 })
-      .limit(input.limit)
+      .sort({ _id: -1 })
+      .limit(input.limit + 1)
       .populate('userId', 'fullName username avatarUrl')
       .lean<
         Array<{
           _id: unknown;
           trackerId: unknown;
           text: string;
+          kind?: 'text' | 'image' | 'file' | 'voice';
+          attachment?: {
+            url?: string;
+            name?: string;
+            mimeType?: string;
+            sizeBytes?: number;
+            durationSeconds?: number;
+          };
+          replyTo?: {
+            messageId: unknown;
+            senderId: unknown;
+            text?: string;
+            kind: 'text' | 'image' | 'file' | 'voice';
+          } | null;
+          reactions?: Array<{ emoji: string; userIds: unknown[] }>;
           createdAt: Date;
           userId: UserLean | null;
         }>
       >();
-    return messages.reverse().map((message) => {
+    const hasMore = messages.length > input.limit;
+    const pageRecords = messages.slice(0, input.limit);
+    const nextCursor = hasMore && pageRecords.length ? String(pageRecords.at(-1)?._id ?? '') : null;
+    const items = pageRecords.reverse().map((message) => {
       const user = message.userId;
       const userId = user ? String(user._id) : '';
       const username = user?.username ?? `user-${userId.slice(-6)}`;
@@ -796,6 +817,31 @@ export class MongoTrackerClanRepository
         id: String(message._id),
         trackerId: String(message.trackerId),
         text: message.text,
+        kind: message.kind ?? 'text',
+        ...(message.attachment?.url
+          ? {
+              attachment: {
+                url: message.attachment.url,
+                name: message.attachment.name ?? 'attachment',
+                mimeType: message.attachment.mimeType ?? 'application/octet-stream',
+                sizeBytes: message.attachment.sizeBytes ?? 0,
+                durationSeconds: message.attachment.durationSeconds ?? null,
+              },
+            }
+          : {}),
+        replyTo: message.replyTo
+          ? {
+              messageId: String(message.replyTo.messageId),
+              senderId: String(message.replyTo.senderId),
+              text: message.replyTo.text ?? '',
+              kind: message.replyTo.kind,
+            }
+          : null,
+        reactions: (message.reactions ?? []).map((reaction) => ({
+          emoji: reaction.emoji,
+          count: reaction.userIds.length,
+          reactedByViewer: reaction.userIds.some((userId) => String(userId) === input.userId),
+        })),
         createdAt: message.createdAt,
         user: {
           userId,
@@ -805,6 +851,11 @@ export class MongoTrackerClanRepository
         },
       } satisfies TrackerClanMessageRecord;
     });
+    return {
+      items,
+      nextCursor,
+      hasMore,
+    };
   }
 
   async listChallenges(input: { trackerId: string; userId: string }) {
@@ -1617,9 +1668,9 @@ export class MongoTrackerClanRepository
         !viewerProgress.resolvedCheckpoints.includes(currentNode);
       const checkpointDecisionRequired = Boolean(
         challenge.status === 'active' &&
-          isCheckpoint &&
-          !viewerProgress.attemptedCheckpoints.includes(currentNode) &&
-          currentQuestion
+        isCheckpoint &&
+        !viewerProgress.attemptedCheckpoints.includes(currentNode) &&
+        currentQuestion
       );
       const canAccept =
         ['open', 'pending'].includes(challenge.status) &&

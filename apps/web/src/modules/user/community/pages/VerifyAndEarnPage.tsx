@@ -10,11 +10,7 @@ import VerificationCard from '../components/verification/VerificationCard';
 import VerificationHowItWorks from '../components/verification/VerificationHowItWorks';
 import VerificationLeaderboard from '../components/verification/VerificationLeaderboard';
 import VerificationTipCard from '../components/verification/VerificationTipCard';
-import {
-  ArrowLeftIcon,
-  // ArrowRightIcon,
-  // CoinsIcon,
-} from '../components/icons/CommunityIcons';
+import { ArrowLeftIcon } from '../components/icons/CommunityIcons';
 import {
   COMMUNITY_VERIFY_PAGE_LIMIT,
   COMMUNITY_VERIFY_STAT_ACCENTS,
@@ -118,14 +114,6 @@ export default function VerifyAndEarnPage() {
                 value={dashboard.data.stats.coinBalance}
                 helper="Available to redeem"
                 accent={COMMUNITY_VERIFY_STAT_ACCENTS.purple}
-                // action={
-                //   <button
-                //     type="button"
-                //     className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border-[1.5px] border-[rgba(107,70,193,0.28)] bg-[rgba(107,70,193,0.07)] px-3 py-1.5 font-mono text-[9px] font-bold uppercase tracking-[0.08em] text-[#6b46c1] transition hover:border-[rgba(107,70,193,0.45)] hover:bg-[rgba(107,70,193,0.13)] dark:border-[rgba(167,139,250,0.3)] dark:bg-[rgba(167,139,250,0.08)] dark:text-[#a78bfa] dark:hover:bg-[rgba(167,139,250,0.15)]"
-                //   >
-                //     <CoinsIcon /> Redeem store <ArrowRightIcon />
-                //   </button>
-                // }
               />
             </div>
 

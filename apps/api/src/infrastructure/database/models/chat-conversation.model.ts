@@ -47,6 +47,5 @@ chatConversationSchema.index({ participantIds: 1, deletedAt: 1, lastMessageAt: -
 export type ChatConversationDocument = InferSchemaType<typeof chatConversationSchema>;
 
 export const ChatConversation: mongoose.Model<ChatConversationDocument> =
-  (mongoose.models.ChatConversation as
-    | mongoose.Model<ChatConversationDocument>
-    | undefined) ?? model<ChatConversationDocument>('ChatConversation', chatConversationSchema);
+  (mongoose.models.ChatConversation as mongoose.Model<ChatConversationDocument> | undefined) ??
+  model<ChatConversationDocument>('ChatConversation', chatConversationSchema);

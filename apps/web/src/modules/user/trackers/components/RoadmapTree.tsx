@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import type { IRoadmapSubtopic, IRoadmapTopic } from '../types/tracker.types';
 import { cn } from '../utils/tracker-ui';
+import EmbeddedLearningVideo from './EmbeddedLearningVideo';
 
 interface IRoadmapTreeProps {
   trackerId: string;
@@ -38,8 +39,8 @@ function SubtopicNode({
         locked
           ? 'border-(--border-subtle) bg-[rgba(26,23,20,0.035)] opacity-75 dark:border-(--border-subtle) dark:bg-white/[0.035]'
           : isInProgress
-          ? 'border-(--brand-500) bg-(--surface-card) shadow-[0_0_20px_rgba(184,76,43,0.15)] ring-2 ring-(--brand-500)/20 hover:-translate-y-1 dark:shadow-[0_0_20px_rgba(232,129,106,0.2)]'
-          : 'border-(--border-subtle) bg-(--surface-card) hover:-translate-y-1 hover:border-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-card)'
+            ? 'border-(--brand-500) bg-(--surface-card) shadow-[0_0_20px_rgba(184,76,43,0.15)] ring-2 ring-(--brand-500)/20 hover:-translate-y-1 dark:shadow-[0_0_20px_rgba(232,129,106,0.2)]'
+            : 'border-(--border-subtle) bg-(--surface-card) hover:-translate-y-1 hover:border-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-card)'
       )}
     >
       <div className="flex items-start gap-3">
@@ -49,10 +50,10 @@ function SubtopicNode({
             locked
               ? 'border border-(--border-subtle) bg-black/5 dark:bg-white/5'
               : isInProgress
-              ? 'border border-(--brand-500) bg-(--brand-500) text-white shadow-md'
-              : isCompleted
-              ? 'border border-[rgba(45,106,71,0.25)] bg-[rgba(45,106,71,0.12)] text-(--success)'
-              : 'border border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.08)] text-(--brand-500)'
+                ? 'border border-(--brand-500) bg-(--brand-500) text-white shadow-md'
+                : isCompleted
+                  ? 'border border-[rgba(45,106,71,0.25)] bg-[rgba(45,106,71,0.12)] text-(--success)'
+                  : 'border border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.08)] text-(--brand-500)'
           )}
         >
           {locked ? '🔒' : isCompleted ? '✓' : index + 1}
@@ -91,8 +92,8 @@ function SubtopicNode({
           isCompleted
             ? 'bg-(--success)'
             : isInProgress
-            ? 'bg-(--brand-500)'
-            : 'bg-[rgba(184,76,43,0.18)] dark:bg-[rgba(232,129,106,0.20)]'
+              ? 'bg-(--brand-500)'
+              : 'bg-[rgba(184,76,43,0.18)] dark:bg-[rgba(232,129,106,0.20)]'
         )}
       />
       {locked ? content : <Link to={`/trackers/${trackerId}/lessons/${item._id}`}>{content}</Link>}
@@ -127,34 +128,7 @@ export default function RoadmapTree({ trackerId, roadmap }: IRoadmapTreeProps) {
                 {topic.description}
               </p>
               {topic.learningVideo ? (
-                <a
-                  href={topic.learningVideo.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 flex max-w-xl items-center gap-3 rounded-lg border border-[rgba(220,38,38,0.22)] bg-[rgba(220,38,38,0.06)] p-2.5 transition hover:-translate-y-0.5 hover:border-[rgba(220,38,38,0.42)] hover:bg-[rgba(220,38,38,0.10)] dark:border-[rgba(248,113,113,0.24)] dark:bg-[rgba(248,113,113,0.08)]"
-                  aria-label={`Watch ${topic.learningVideo.title} on YouTube`}
-                >
-                  {topic.learningVideo.thumbnailUrl ? (
-                    <img
-                      src={topic.learningVideo.thumbnailUrl}
-                      alt=""
-                      className="h-14 w-24 shrink-0 rounded-md object-cover"
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : null}
-                  <span className="min-w-0">
-                    <span className="block font-mono text-[8px] font-bold uppercase tracking-[0.14em] text-red-600 dark:text-red-400">
-                      ▶ Watch on YouTube
-                    </span>
-                    <span className="mt-1 line-clamp-2 block text-[12px] font-bold text-(--text-primary)">
-                      {topic.learningVideo.title}
-                    </span>
-                    <span className="mt-0.5 block text-[10px] text-(--text-secondary)">
-                      {topic.learningVideo.channelTitle}
-                    </span>
-                  </span>
-                </a>
+                <EmbeddedLearningVideo video={topic.learningVideo} className="max-w-xl" />
               ) : null}
             </div>
             <div className="rounded-2xl border border-(--border-subtle) bg-white/55 px-4 py-3 text-center dark:border-(--border-subtle) dark:bg-(--surface-elevated)/60">

@@ -26,7 +26,10 @@ export default function HorizontalFlow() {
           </p>
         </div>
 
-        <div ref={trackRef} className="relative grid w-full gap-5 max-md:before:absolute max-md:before:left-6 max-md:before:top-4 max-md:before:bottom-4 max-md:before:w-0.5 max-md:before:bg-[#b84c2b]/30 dark:max-md:before:bg-[#e8816a]/30 md:flex md:w-max md:will-change-transform">
+        <div
+          ref={trackRef}
+          className="relative grid w-full gap-5 max-md:before:absolute max-md:before:left-6 max-md:before:top-4 max-md:before:bottom-4 max-md:before:w-0.5 max-md:before:bg-[#b84c2b]/30 dark:max-md:before:bg-[#e8816a]/30 md:flex md:w-max md:will-change-transform"
+        >
           {horizontalFlowCards.map((card, index) => (
             <article
               key={card.title}

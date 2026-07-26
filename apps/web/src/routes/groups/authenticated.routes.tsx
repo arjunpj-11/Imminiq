@@ -1,9 +1,11 @@
+import type { ReactNode } from 'react';
 import { Navigate, type RouteObject } from 'react-router';
 
 import {
   AdaptiveLearningPage,
   AccountSecuritySettingsPage,
   ActivityPage,
+  SavedItemsPage,
   CommunityBrowsePage,
   CommunityPublicTrackerPage,
   CommunityVerifySubmissionPage,
@@ -34,6 +36,12 @@ import {
 } from '../config/authenticated-pages';
 import { ROUTES } from '../config/route-paths';
 import { SettingsShell } from '../../modules/user/settings';
+import type { FeatureKey } from '../../config/feature-availability';
+import { FeatureAvailabilityGate } from '../guards/FeatureAvailabilityGate';
+
+const gate = (feature: FeatureKey | readonly FeatureKey[], element: ReactNode) => (
+  <FeatureAvailabilityGate feature={feature}>{element}</FeatureAvailabilityGate>
+);
 
 export const authenticatedRoutes: RouteObject[] = [
   {
@@ -46,7 +54,7 @@ export const authenticatedRoutes: RouteObject[] = [
   },
   {
     path: ROUTES.learningAgent,
-    element: <AdaptiveLearningPage />,
+    element: gate('adaptiveLearning', <AdaptiveLearningPage />),
   },
 
   {
@@ -81,99 +89,103 @@ export const authenticatedRoutes: RouteObject[] = [
   },
   {
     path: ROUTES.trackers,
-    element: <MyTrackersPage />,
+    element: gate('trackers', <MyTrackersPage />),
   },
   {
     path: ROUTES.publishedTrackers,
-    element: <MyPublishedTrackersPage />,
+    element: gate('trackers', <MyPublishedTrackersPage />),
   },
   {
     path: ROUTES.trackerManagePattern,
-    element: <TrackerManagePage />,
+    element: gate('trackers', <TrackerManagePage />),
   },
   {
     path: ROUTES.trackerRoadmapPattern,
-    element: <TrackerRoadmapPage />,
+    element: gate('trackers', <TrackerRoadmapPage />),
   },
   {
     path: ROUTES.trackerClanPattern,
-    element: <TrackerClanPage />,
+    element: gate('trackers', <TrackerClanPage />),
   },
   {
     path: ROUTES.trackerClanBattlePattern,
-    element: <TrackerClanBattlePage />,
+    element: gate('trackers', <TrackerClanBattlePage />),
   },
 
   {
     path: ROUTES.community,
-    element: <CommunityBrowsePage />,
+    element: gate('community', <CommunityBrowsePage />),
   },
   {
     path: ROUTES.communityTrackerPattern,
-    element: <CommunityPublicTrackerPage />,
+    element: gate('community', <CommunityPublicTrackerPage />),
   },
   {
     path: ROUTES.communityVerificationPattern,
-    element: <CommunityVerifySubmissionPage />,
+    element: gate('community', <CommunityVerifySubmissionPage />),
   },
   {
     path: ROUTES.verifyAndEarn,
-    element: <VerifyAndEarnPage />,
+    element: gate('community', <VerifyAndEarnPage />),
   },
 
   {
     path: ROUTES.leaderboard,
-    element: <LeaderboardPage />,
+    element: gate('leaderboard', <LeaderboardPage />),
   },
   {
     path: ROUTES.leaderboardRewards,
-    element: <LeaderboardRewardsPage />,
+    element: gate('leaderboard', <LeaderboardRewardsPage />),
   },
 
   {
     path: ROUTES.activity,
-    element: <ActivityPage />,
+    element: gate('activity', <ActivityPage />),
+  },
+  {
+    path: ROUTES.saved,
+    element: gate('savedItems', <SavedItemsPage />),
   },
   {
     path: ROUTES.pricing,
-    element: <SubscriptionPlansPage />,
+    element: gate('subscriptions', <SubscriptionPlansPage />),
   },
   {
     path: ROUTES.support,
-    element: <RaiseSupportTicketPage />,
+    element: gate('supportTickets', <RaiseSupportTicketPage />),
   },
 
   {
     path: ROUTES.chat,
-    element: <SocialPage />,
+    element: gate('social', <SocialPage />),
   },
   {
     path: ROUTES.friends,
-    element: <Navigate to={`${ROUTES.chat}?view=friends`} replace />,
+    element: gate('social', <Navigate to={`${ROUTES.chat}?view=friends`} replace />),
   },
   {
     path: ROUTES.friendsSearch,
-    element: <FriendsSearchPage />,
+    element: gate('social', <FriendsSearchPage />),
   },
 
   {
     path: ROUTES.mockTests,
-    element: <MockTestsPage />,
+    element: gate('mockTests', <MockTestsPage />),
   },
   {
     path: ROUTES.mockTestGeneratingPattern,
-    element: <MockTestGeneratingPage />,
+    element: gate('mockTests', <MockTestGeneratingPage />),
   },
   {
     path: ROUTES.mockTestResultPattern,
-    element: <MockTestResultPage />,
+    element: gate('mockTests', <MockTestResultPage />),
   },
   {
     path: ROUTES.mockTestAnalysisPattern,
-    element: <MockTestAnalysisPage />,
+    element: gate('mockTests', <MockTestAnalysisPage />),
   },
   {
     path: ROUTES.mockTestDetailPattern,
-    element: <MockTestDetailsPage />,
+    element: gate('mockTests', <MockTestDetailsPage />),
   },
 ];

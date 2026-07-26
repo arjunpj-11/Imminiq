@@ -13,6 +13,7 @@ import { ADMIN_ROUTES, ROUTES } from '../../../routes/config/route-paths';
 import { AUTH_API_PATHS } from '../constants/auth.constants';
 import { isStaffRole } from '../../../lib/auth-roles';
 import { resetClientState } from '../../../store/reset-client-state';
+import { reportClientError } from '../../../lib/telemetry/client-error-reporter';
 
 interface ILoginPayload {
   identifier: string;
@@ -20,9 +21,7 @@ interface ILoginPayload {
 }
 
 type LoginRedirectPath =
-  | typeof ROUTES.dashboard
-  | typeof ROUTES.trackerCreate
-  | typeof ADMIN_ROUTES.dashboard;
+  typeof ROUTES.dashboard | typeof ROUTES.trackerCreate | typeof ADMIN_ROUTES.dashboard;
 
 interface IStandardLoginData {
   accessToken?: string;
@@ -97,12 +96,12 @@ export const useLogin = () => {
         : data?.redirectPath || ROUTES.dashboard;
 
       if (!user) {
-        console.error('Login succeeded, but user was not returned from backend.');
+        reportClientError('Login succeeded without a user payload.', { source: 'invariant' });
         return;
       }
 
       if (!accessToken) {
-        console.error('Login succeeded, but access token was not returned from backend.');
+        reportClientError('Login succeeded without an access token.', { source: 'invariant' });
         return;
       }
 
@@ -137,8 +136,6 @@ export const useLogin = () => {
 
         return;
       }
-
-      console.error(error.response?.data?.message || 'Login failed. Please try again.');
     },
   });
 };

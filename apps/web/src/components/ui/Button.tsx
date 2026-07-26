@@ -20,9 +20,9 @@ const variantClasses: Record<ButtonVariant, string> = {
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: 'min-h-8 rounded-[var(--radius-sm)] px-3 py-1.5 text-[11px]',
-  md: 'min-h-10 rounded-[var(--radius-md)] px-4 py-2.5 text-[12px]',
-  lg: 'min-h-12 rounded-[var(--radius-md)] px-5 py-3 text-[13px]',
+  sm: 'min-h-9 rounded-[var(--radius-sm)] px-3 py-1.5 text-[12px]',
+  md: 'min-h-11 rounded-[var(--radius-md)] px-4 py-2.5 text-[13px]',
+  lg: 'min-h-12 rounded-[var(--radius-md)] px-5 py-3 text-[14px]',
 };
 
 export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

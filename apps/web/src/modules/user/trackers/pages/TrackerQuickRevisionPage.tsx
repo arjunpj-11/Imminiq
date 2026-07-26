@@ -1,5 +1,3 @@
-// apps/web/src/modules/user/trackers/pages/TrackerQuickRevisionPage.tsx
-
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ROUTES } from '../../../../routes/config/route-paths';
@@ -317,7 +315,7 @@ export default function TrackerQuickRevisionPage() {
   const trackerDetailsQuery = useTrackerDetails(trackerId);
   const trackerIsModerated = Boolean(
     trackerDetailsQuery.data?.moderationStatus &&
-      trackerDetailsQuery.data.moderationStatus !== 'active'
+    trackerDetailsQuery.data.moderationStatus !== 'active'
   );
   const roadmapQuery = useTrackerRoadmap(
     trackerId || '',

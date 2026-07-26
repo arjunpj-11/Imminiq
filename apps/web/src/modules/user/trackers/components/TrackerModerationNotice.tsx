@@ -17,8 +17,8 @@ export default function TrackerModerationNotice({ tracker }: { tracker: ITracker
         <h1 className="mt-4 font-ui text-2xl font-black text-(--text-primary)">{tracker.title}</h1>
         <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-(--text-secondary)">
           {wasRemoved
-            ? 'An administrator removed this tracker. Its roadmap, lessons, clan, and editing tools are unavailable.'
-            : 'This tracker is temporarily suspended while it is reviewed. Its roadmap, lessons, clan, and editing tools are unavailable.'}
+            ? 'An administrator removed this tracker. Its roadmap, lessons, guild, and editing tools are unavailable.'
+            : 'This tracker is temporarily suspended while it is reviewed. Its roadmap, lessons, guild, and editing tools are unavailable.'}
         </p>
         {tracker.moderationReason ? (
           <p className="mx-auto mt-3 max-w-lg rounded-xl bg-amber-500/8 px-4 py-3 text-sm font-semibold leading-6 text-amber-900 dark:text-amber-100">

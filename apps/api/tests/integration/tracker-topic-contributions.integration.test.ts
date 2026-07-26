@@ -47,6 +47,7 @@ describe('tracker topic contributions', () => {
       visibility: 'private',
       status: 'active',
       publishedAt: null,
+      allowClone: false,
     });
     const clans = new MongoTrackerClanRepository({ ensureClone: async () => true });
     const management = new MongoTrackerManagementRepository();
@@ -56,6 +57,25 @@ describe('tracker topic contributions', () => {
     await expect(TrackerClan.countDocuments({ trackerId: tracker._id })).resolves.toBe(0);
 
     await management.publishOwnedTracker(access);
+    await expect(Tracker.findById(tracker._id).lean()).resolves.toMatchObject({
+      visibility: 'public',
+      allowClone: true,
+    });
+    await management.updateOwnedTracker({
+      ...access,
+      title: 'Updated Systems Roadmap',
+      description: 'Updated public description',
+      domain: 'Distributed Systems',
+      level: 'advanced',
+      tags: ['Architecture', 'Scaling'],
+    });
+    await expect(Tracker.findById(tracker._id).lean()).resolves.toMatchObject({
+      title: 'Updated Systems Roadmap',
+      description: 'Updated public description',
+      category: 'Distributed Systems',
+      level: 'advanced',
+      tags: ['architecture', 'scaling'],
+    });
     await expect(clans.getOverview(access)).resolves.toMatchObject({ role: 'owner' });
     await expect(TrackerClan.countDocuments({ trackerId: tracker._id })).resolves.toBe(1);
 
@@ -546,12 +566,18 @@ describe('tracker topic contributions', () => {
         userId: member._id.toString(),
         limit: 20,
       })
-    ).resolves.toEqual([
+    ).resolves.toEqual(
       expect.objectContaining({
-        text: 'Hello guild!',
-        user: expect.objectContaining({ username: 'clan-member' }),
-      }),
-    ]);
+        hasMore: false,
+        nextCursor: null,
+        items: [
+          expect.objectContaining({
+            text: 'Hello guild!',
+            user: expect.objectContaining({ username: 'clan-member' }),
+          }),
+        ],
+      })
+    );
 
     const pending = await TrackerTopicContribution.create({
       sourceTrackerId: tracker._id,

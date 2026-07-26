@@ -40,6 +40,14 @@ export type MongoChatMessageRecord = {
     avatarUrl?: string | null;
   } | null;
   forwardedFromMessageId?: Types.ObjectId | null;
+  replyTo?: {
+    messageId: Types.ObjectId;
+    senderId: Types.ObjectId;
+    kind: ChatMessageKind;
+    text?: string;
+  } | null;
+  reactions?: Array<{ emoji: string; userIds: Types.ObjectId[] }>;
+  editedAt?: Date | null;
   readBy?: Types.ObjectId[];
   starredBy?: Types.ObjectId[];
   clearedFor?: Types.ObjectId[];

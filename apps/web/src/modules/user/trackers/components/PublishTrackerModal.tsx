@@ -36,7 +36,6 @@ export type PublishFormData = {
   domain: string;
   difficulty: string;
   tags: string;
-  allowClone: boolean;
 };
 
 type PublishModalProps = {
@@ -46,59 +45,6 @@ type PublishModalProps = {
   onClose: () => void;
   onConfirm: (trackerId: string, data: PublishFormData) => Promise<void> | void;
 };
-
-type ToggleSwitchProps = {
-  checked: boolean;
-  disabled?: boolean;
-  onChange: (checked: boolean) => void;
-  id?: string;
-};
-
-function ToggleSwitch({ checked, disabled = false, onChange, id }: ToggleSwitchProps) {
-  return (
-    <button
-      type="button"
-      id={id}
-      role="switch"
-      aria-checked={checked}
-      disabled={disabled}
-      onClick={() => {
-        if (!disabled) onChange(!checked);
-      }}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        flexShrink: 0,
-        width: '44px',
-        height: '24px',
-        borderRadius: '9999px',
-        border: 'none',
-        padding: '0',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.6 : 1,
-        outline: 'none',
-        transition: 'background-color 0.2s ease',
-        backgroundColor: checked ? 'var(--brand-500)' : 'rgba(26,23,20,0.15)',
-        boxShadow: checked ? '0 0 0 3px rgba(184,76,43,0.18)' : '0 0 0 0px transparent',
-        position: 'relative',
-      }}
-    >
-      <span
-        style={{
-          display: 'block',
-          width: '18px',
-          height: '18px',
-          borderRadius: '9999px',
-          backgroundColor: '#ffffff',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.20)',
-          transform: checked ? 'translateX(23px)' : 'translateX(3px)',
-          transition: 'transform 0.2s ease',
-          pointerEvents: 'none',
-        }}
-      />
-    </button>
-  );
-}
 
 const fieldLabel =
   'mb-1.5 block text-[11px] font-extrabold text-[var(--text-primary)] dark:text-[var(--text-primary)]';
@@ -325,10 +271,9 @@ export default function PublishTrackerModal({
   const [form, setForm] = useState<PublishFormData>({
     name: tracker.title ?? '',
     description: tracker.description ?? tracker.goal ?? '',
-    domain: tracker.domain ?? '',
+    domain: tracker.domain ?? tracker.category ?? '',
     difficulty: tracker.level ?? 'intermediate',
     tags: '',
-    allowClone: true,
   });
 
   const setField =
@@ -486,39 +431,6 @@ export default function PublishTrackerModal({
               className={fieldInput}
             />
           </div>
-        </div>
-
-        <div className="mb-1 flex items-center gap-2">
-          <span className="text-[10.5px] font-extrabold uppercase tracking-[0.11em] text-(--brand-500) dark:text-(--brand-500)">
-            03
-          </span>
-          <span className="text-[10.5px] font-extrabold uppercase tracking-[0.11em] text-(--text-secondary) dark:text-(--text-secondary)">
-            Visibility
-          </span>
-          <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/9" />
-        </div>
-
-        <div className="mt-3 mb-4 rounded-xl border-[1.5px] border-(--border-subtle) bg-white/60 p-4 dark:border-(--border-subtle) dark:bg-white/3">
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <p className="text-[13.5px] font-bold leading-tight text-(--text-primary) dark:text-(--text-primary)">
-                Allow others to clone
-              </p>
-              <p className="mt-1 text-[12px] leading-[1.5] text-(--text-secondary) dark:text-(--text-secondary)">
-                Learners can copy this tracker to their own account and customise it.
-              </p>
-            </div>
-            <ToggleSwitch
-              checked={form.allowClone}
-              disabled={isPublishing}
-              onChange={(v) => setForm((prev) => ({ ...prev, allowClone: v }))}
-            />
-          </div>
-          {!form.allowClone && (
-            <p className="mt-3 rounded-lg border border-[rgba(138,98,0,0.22)] bg-[rgba(138,98,0,0.06)] px-3 py-2 text-[11px] leading-normal text-[#8a6200] dark:border-[rgba(240,168,66,0.20)] dark:bg-[rgba(240,168,66,0.06)] dark:text-(--warning)">
-              Your tracker will be public but read-only — learners can view it but not clone it.
-            </p>
-          )}
         </div>
 
         {publishError && (

@@ -85,6 +85,23 @@ const isKindedError = (error: unknown): error is IKindedError => {
   );
 };
 
+const logServerError = (req: Request, error: unknown, statusCode: number, code: string) => {
+  const record = errorRecord(error);
+  console.error(
+    JSON.stringify({
+      level: 'error',
+      event: 'api_error',
+      method: req.method,
+      path: (req.originalUrl || req.url || 'unknown').split('?')[0],
+      statusCode,
+      code,
+      errorName: record.name ?? (error instanceof Error ? error.name : 'UnknownError'),
+      message: error instanceof Error ? error.message : 'Unknown server error',
+      ...(error instanceof Error && error.stack ? { stack: error.stack } : {}),
+    })
+  );
+};
+
 const malformedJsonResponse = (): ErrorResponse => ({
   success: false,
   message: 'The request contains malformed JSON. Check the request body and try again.',
@@ -219,7 +236,7 @@ export const apiNotFoundHandler: RequestHandler = (_req, _res, next) => {
 
 export const errorHandler: ErrorRequestHandler = (
   error: unknown,
-  _req: Request,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -251,7 +268,7 @@ export const errorHandler: ErrorRequestHandler = (
 
   if (isKindedError(error)) {
     const statusCode = ERROR_KIND_STATUS[error.kind];
-    if (statusCode >= 500) console.error(error);
+    if (statusCode >= 500) logServerError(req, error, statusCode, error.code);
     res.status(statusCode).json({
       success: false,
       message: error.publicMessage ?? safeOperationalMessage(statusCode, error.message),
@@ -274,7 +291,9 @@ export const errorHandler: ErrorRequestHandler = (
 
   const httpError = httpStatusErrorResponse(error);
   if (httpError) {
-    if (httpError.statusCode >= 500) console.error(error);
+    if (httpError.statusCode >= 500) {
+      logServerError(req, error, httpError.statusCode, httpError.body.code);
+    }
     res.status(httpError.statusCode).json(httpError.body);
     return;
   }
@@ -285,7 +304,7 @@ export const errorHandler: ErrorRequestHandler = (
     return;
   }
 
-  console.error(error);
+  logServerError(req, error, 500, 'INTERNAL_ERROR');
   res.status(500).json({
     success: false,
     message: 'Something went wrong on our side. Please try again.',

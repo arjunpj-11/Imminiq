@@ -11,9 +11,7 @@ export interface IGetActiveModerationAppealStatusUseCase {
   ): Promise<GetActiveModerationAppealStatusResultDTO>;
 }
 
-export class GetActiveModerationAppealStatusUseCase
-  implements IGetActiveModerationAppealStatusUseCase
-{
+export class GetActiveModerationAppealStatusUseCase implements IGetActiveModerationAppealStatusUseCase {
   constructor(
     private readonly _moderationAppealRepository: IModerationAppealQueryRepository,
     private readonly _moderationAppealMapper: IModerationAppealMapper

@@ -4,10 +4,7 @@ import type { ClearChatConversationViewDTO } from '../chat.dto';
 import { ChatApplicationError } from '../chat-application.error';
 
 export interface IClearChatConversationUseCase {
-  execute(
-    viewerUserId: string,
-    conversationId: string
-  ): Promise<ClearChatConversationViewDTO>;
+  execute(viewerUserId: string, conversationId: string): Promise<ClearChatConversationViewDTO>;
 }
 
 export class ClearChatConversationUseCase implements IClearChatConversationUseCase {
@@ -16,10 +13,7 @@ export class ClearChatConversationUseCase implements IClearChatConversationUseCa
       IChatConversationQueryRepository,
       'findConversationForParticipant'
     >,
-    private readonly _messages: Pick<
-      IChatMessageCommandRepository,
-      'clearConversationMessages'
-    >
+    private readonly _messages: Pick<IChatMessageCommandRepository, 'clearConversationMessages'>
   ) {}
 
   async execute(viewerUserId: string, conversationId: string) {

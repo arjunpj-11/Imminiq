@@ -74,4 +74,15 @@ describe('production environment policy', () => {
       )
     ).not.toThrow();
   });
+
+  it('rejects pagination defaults that exceed the configured safety limits', () => {
+    expect(() =>
+      parseApiEnvironment(
+        productionEnvironment({
+          PAGINATION_DEFAULT_LIMIT: '75',
+          PAGINATION_MAX_STANDARD_LIMIT: '50',
+        })
+      )
+    ).toThrow('Pagination limits must satisfy');
+  });
 });

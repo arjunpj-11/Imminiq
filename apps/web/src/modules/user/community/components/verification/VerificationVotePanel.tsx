@@ -16,6 +16,7 @@ interface IVerificationVotePanelProps {
   rewardMessage?: string;
   allTopicsChecked?: boolean;
   onVote: (vote: VerificationVoteChoice, reason: string) => void;
+  onSkip?: () => void;
 }
 
 export default function VerificationVotePanel({
@@ -25,6 +26,7 @@ export default function VerificationVotePanel({
   rewardMessage,
   allTopicsChecked = false,
   onVote,
+  onSkip,
 }: IVerificationVotePanelProps) {
   const [vote, setVote] = useState<VerificationVoteChoice>('pass');
   const [reason, setReason] = useState('');
@@ -56,7 +58,8 @@ export default function VerificationVotePanel({
             Cast your review
           </h2>
           <p className="mt-1 text-[12px] leading-normal text-(--text-secondary) dark:text-(--text-secondary)">
-            Vote carefully. Rewards are released when your vote matches the majority consensus.
+            Review accuracy, ordering, completeness, and usefulness. Rewards are released when
+            consensus closes.
           </p>
         </div>
         <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[rgba(196,154,44,0.24)] bg-[rgba(196,154,44,0.08)] px-3 py-1 font-mono text-[9px] uppercase tracking-widest text-[#c49a2c]">
@@ -125,7 +128,7 @@ export default function VerificationVotePanel({
           <div className="mt-4">
             <label
               htmlFor="community-review-reason"
-              className="mb-2 block font-mono text-[9px] uppercase tracking-[0.12em] text-[#9b9a92]"
+              className="mb-2 block font-mono text-[10px] uppercase tracking-[0.12em] text-[#9b9a92]"
             >
               Reason optional
             </label>
@@ -151,7 +154,7 @@ export default function VerificationVotePanel({
           </div>
 
           {!allTopicsChecked && (
-            <p className="mt-3 rounded-xl border border-(--border-subtle) px-4 py-2.5 font-mono text-[9px] uppercase tracking-widest text-[#9b9a92] dark:border-(--border-subtle)">
+            <p className="mt-3 rounded-xl border border-(--border-subtle) px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-[#9b9a92] dark:border-(--border-subtle)">
               Review all topics above to unlock voting
             </p>
           )}
@@ -163,6 +166,16 @@ export default function VerificationVotePanel({
           >
             {pending ? 'Submitting review…' : `Submit ${vote} vote`}
           </button>
+          {onSkip && (
+            <button
+              type="button"
+              onClick={onSkip}
+              disabled={pending}
+              className="mt-2 min-h-11 w-full rounded-xl text-[12px] font-bold text-(--text-secondary) transition hover:bg-(--surface-muted) hover:text-(--text-primary)"
+            >
+              Skip for now
+            </button>
+          )}
         </>
       )}
     </form>

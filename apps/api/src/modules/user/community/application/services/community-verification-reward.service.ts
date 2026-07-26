@@ -18,9 +18,7 @@ export interface ICommunityVerificationRewardService {
   settle(input: SettleCommunityVerificationRewardsInput): Promise<void>;
 }
 
-export class CommunityVerificationRewardService
-  implements ICommunityVerificationRewardService
-{
+export class CommunityVerificationRewardService implements ICommunityVerificationRewardService {
   constructor(
     private readonly _repository: Pick<
       ICommunityVerificationRepository,

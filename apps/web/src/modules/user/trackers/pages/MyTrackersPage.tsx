@@ -5,7 +5,10 @@ import SkeletonBlock from '../../../../components/feedback/SkeletonBlock';
 import PageHero from '../../../../components/layout/PageHero';
 import Pagination from '../../../../components/navigation/Pagination';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
+import { useFeatureEnabled } from '../../../../hooks/useFeatureAvailability';
+import { paginationConfig } from '../../../../config/pagination';
 import { ROUTES } from '../../../../routes/config/route-paths';
+import { toast } from '../../../../lib/toast';
 import TrackerCard, { type PublishFormData } from '../components/TrackerCard';
 import TrackerFilterBar from '../components/TrackerFilterBar';
 import TrackerShell from '../components/TrackerShell';
@@ -123,6 +126,7 @@ function MyTrackersPageSkeleton() {
 
 export default function MyTrackersPage() {
   const navigate = useNavigate();
+  const trackerCreation = useFeatureEnabled('trackerCreation');
   const { status, search, page, setStatus, setSearch, setPage } = useTrackerFilters();
   const debouncedSearch = useDebouncedValue(search.trim(), 350);
   const summaryQuery = useTrackerSummary();
@@ -132,7 +136,7 @@ export default function MyTrackersPage() {
     search: debouncedSearch,
     sortBy: 'lastActive',
     page,
-    limit: 12,
+    limit: paginationConfig.gridLimit,
   });
 
   const archiveTrackerMutation = useArchiveTracker();
@@ -177,8 +181,23 @@ export default function MyTrackersPage() {
   }
 
   const handleArchiveToggle = (trackerId: string, trackerStatus?: string) => {
-    if (trackerStatus === 'archived') restoreTrackerMutation.mutate(trackerId);
-    else archiveTrackerMutation.mutate(trackerId);
+    if (trackerStatus === 'archived') {
+      restoreTrackerMutation.mutate(trackerId, {
+        onSuccess: () => toast.success('Tracker restored'),
+      });
+      return;
+    }
+    archiveTrackerMutation.mutate(trackerId, {
+      onSuccess: () =>
+        toast.show({
+          title: 'Tracker archived',
+          description: 'It remains available from the Archived filter.',
+          tone: 'success',
+          duration: 7000,
+          actionLabel: 'Undo',
+          onAction: () => restoreTrackerMutation.mutate(trackerId),
+        }),
+    });
   };
 
   const handlePublish = async (trackerId: string, data: PublishFormData) => {
@@ -192,7 +211,6 @@ export default function MyTrackersPage() {
         .split(',')
         .map((tag) => tag.trim())
         .filter(Boolean),
-      allowClone: data.allowClone,
     });
   };
 
@@ -214,10 +232,9 @@ export default function MyTrackersPage() {
     : status === 'all'
       ? 'Create your first tracker'
       : `No ${status} trackers`;
-  const emptyDescription =
-    debouncedSearch
-      ? 'Try a different title or description, or clear the search to see all learning paths.'
-      : status === 'all'
+  const emptyDescription = debouncedSearch
+    ? 'Try a different title or description, or clear the search to see all learning paths.'
+    : status === 'all'
       ? 'Turn a learning goal into a structured roadmap, then continue from exactly where you stopped.'
       : 'There are no trackers in this view. Choose another status or create a new learning path.';
 
@@ -236,13 +253,15 @@ export default function MyTrackersPage() {
         description="Manage personalized roadmaps, continue exactly where you stopped, and turn every completed topic into visible mastery."
         actions={
           <>
-            <button
-              type="button"
-              onClick={() => navigate(ROUTES.trackerCreate)}
-              className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-(--brand-500) px-5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-0.5 hover:bg-(--brand-600) dark:text-[#141412]"
-            >
-              <PlusIcon /> Create tracker
-            </button>
+            {trackerCreation.enabled ? (
+              <button
+                type="button"
+                onClick={() => navigate(ROUTES.trackerCreate)}
+                className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-(--brand-500) px-5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-0.5 hover:bg-(--brand-600) dark:text-[#141412]"
+              >
+                <PlusIcon /> Create tracker
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={() => navigate(ROUTES.publishedTrackers)}
@@ -338,7 +357,16 @@ export default function MyTrackersPage() {
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-(--brand-500) px-5 py-3 font-ui text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-0.5 hover:bg-(--brand-600) active:scale-[0.98] dark:text-[#141412]"
             >
               <span>Resume Roadmap</span>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </button>
@@ -407,13 +435,15 @@ export default function MyTrackersPage() {
                 View all trackers
               </button>
             )}
-            <button
-              type="button"
-              onClick={() => navigate(ROUTES.trackerCreate)}
-              className="inline-flex items-center gap-2 rounded-xl bg-(--brand-500) px-5 py-2.5 text-[13px] font-extrabold text-[#fdf8f5] transition hover:bg-(--brand-600) dark:text-[#141412]"
-            >
-              <PlusIcon /> Create tracker
-            </button>
+            {trackerCreation.enabled ? (
+              <button
+                type="button"
+                onClick={() => navigate(ROUTES.trackerCreate)}
+                className="inline-flex items-center gap-2 rounded-xl bg-(--brand-500) px-5 py-2.5 text-[13px] font-extrabold text-[#fdf8f5] transition hover:bg-(--brand-600) dark:text-[#141412]"
+              >
+                <PlusIcon /> Create tracker
+              </button>
+            ) : null}
           </div>
         </section>
       )}

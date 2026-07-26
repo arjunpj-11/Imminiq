@@ -1,6 +1,7 @@
 import { cn } from '../../../../../lib/cn';
 import type { RoadmapNode } from '../../utils/roadmap.types';
 import { getNodeState } from '../../utils/roadmap.utils';
+import EmbeddedLearningVideo from '../EmbeddedLearningVideo';
 
 const LockIcon = () => (
   <svg
@@ -625,6 +626,12 @@ export function RoadmapFlowNode({
           type="button"
           disabled={locked}
           onClick={onClick}
+          aria-label={
+            locked
+              ? `${node.title}. Locked until the previous topic is completed.`
+              : `${node.title}. ${hasChildren ? 'Open topic.' : 'Open lesson.'}`
+          }
+          title={locked ? 'Complete the previous topic to unlock this step.' : undefined}
           className={cn(
             'group relative w-full overflow-hidden rounded-lg border-[1.5px] bg-(--surface-card) p-4.5 text-left shadow-[0_4px_24px_rgba(26,23,20,0.08),0_1px_4px_rgba(26,23,20,0.05)] transition dark:bg-(--surface-card) dark:shadow-[0_4px_24px_rgba(0,0,0,0.30),0_1px_4px_rgba(0,0,0,0.20)]',
             locked &&
@@ -660,7 +667,7 @@ export function RoadmapFlowNode({
             </div>
 
             <div className="min-w-0 flex-1">
-              <div className="mb-1 font-mono text-[7.5px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-55 dark:text-(--text-secondary)">
+              <div className="mb-1 font-mono text-[10px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-70 dark:text-(--text-secondary)">
                 {node.nodeType === 'topic' ? `Topic ${node.order}` : `Level ${node.order}`}
               </div>
 
@@ -678,7 +685,7 @@ export function RoadmapFlowNode({
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <span
                   className={cn(
-                    'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.08em]',
+                    'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.08em]',
                     locked &&
                       'border-(--border-subtle) bg-[rgba(26,23,20,0.04)] text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/6 dark:text-(--text-secondary)',
                     active &&
@@ -690,7 +697,7 @@ export function RoadmapFlowNode({
                   )}
                 >
                   {locked
-                    ? 'Locked'
+                    ? 'Complete previous topic'
                     : completed
                       ? 'Completed'
                       : active
@@ -713,7 +720,7 @@ export function RoadmapFlowNode({
                         style={{ width: `${completed ? 100 : progress}%` }}
                       />
                     </div>
-                    <span className="font-mono text-[8px] text-(--text-secondary) dark:text-(--text-secondary)">
+                    <span className="font-mono text-[10px] text-(--text-secondary) dark:text-(--text-secondary)">
                       {completed ? 100 : progress}%
                     </span>
                   </>
@@ -737,40 +744,7 @@ export function RoadmapFlowNode({
         </button>
 
         {node.learningVideo && (
-          <a
-            href={node.learningVideo.url}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-2.5 flex w-full items-center gap-3 overflow-hidden rounded-lg border border-red-500/20 bg-(--surface-card) p-2.5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-red-500/40 hover:shadow-md dark:bg-(--surface-card)"
-            aria-label={`Watch ${node.learningVideo.title} on YouTube`}
-          >
-            <div className="relative h-14 w-24 shrink-0 overflow-hidden rounded-md bg-black/10">
-              {node.learningVideo.thumbnailUrl ? (
-                <img
-                  src={node.learningVideo.thumbnailUrl}
-                  alt=""
-                  loading="lazy"
-                  className="h-full w-full object-cover"
-                />
-              ) : null}
-              <span className="absolute inset-0 flex items-center justify-center">
-                <span className="flex h-7 w-9 items-center justify-center rounded-md bg-red-600 text-[11px] text-white shadow-sm">
-                  ▶
-                </span>
-              </span>
-            </div>
-            <span className="min-w-0 flex-1">
-              <span className="mb-0.5 block font-mono text-[8px] font-semibold uppercase tracking-[0.1em] text-red-600 dark:text-red-400">
-                Watch on YouTube
-              </span>
-              <span className="line-clamp-2 block text-[12px] font-semibold leading-snug text-(--text-primary)">
-                {node.learningVideo.title}
-              </span>
-              <span className="mt-0.5 block truncate text-[10px] text-(--text-secondary)">
-                {node.learningVideo.channelTitle}
-              </span>
-            </span>
-          </a>
+          <EmbeddedLearningVideo video={node.learningVideo} className="mt-2.5" />
         )}
       </div>
     </div>

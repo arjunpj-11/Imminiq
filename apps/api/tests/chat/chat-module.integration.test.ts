@@ -83,6 +83,15 @@ describe('chat module', () => {
       text: 'Ready to study?',
     });
     expect(sent.text).toBe('Ready to study?');
+    await useCases.toggleMessageReaction.execute(bob.id, {
+      messageId: sent.id,
+      emoji: '👍',
+    });
+    const replacedReaction = await useCases.toggleMessageReaction.execute(bob.id, {
+      messageId: sent.id,
+      emoji: '❤️',
+    });
+    expect(replacedReaction.reactions).toEqual([{ emoji: '❤️', count: 1, reactedByViewer: true }]);
 
     const conversations = await useCases.listConversations.execute(bob.id, {
       page: 1,
@@ -92,17 +101,13 @@ describe('chat module', () => {
     expect(conversations.items[0]?.unreadCount).toBe(1);
     expect(conversations.items[0]?.lastMessage?.text).toBe('Ready to study?');
 
-    const messages = await useCases.listMessages.execute(
-      bob.id,
-      first.conversation.id,
-      { page: 1, limit: 30 }
-    );
+    const messages = await useCases.listMessages.execute(bob.id, first.conversation.id, {
+      page: 1,
+      limit: 30,
+    });
     expect(messages.items.map((message) => message.text)).toEqual(['Ready to study?']);
 
-    const read = await useCases.markConversationRead.execute(
-      bob.id,
-      first.conversation.id
-    );
+    const read = await useCases.markConversationRead.execute(bob.id, first.conversation.id);
     expect(read.updatedCount).toBe(1);
 
     const refreshed = await useCases.listConversations.execute(bob.id, {
@@ -143,18 +148,18 @@ describe('chat module', () => {
       text: 'Remove this too',
     });
 
-    await expect(
-      useCases.toggleMessageStar.execute(alice.id, starred.id)
-    ).resolves.toMatchObject({ id: starred.id, isStarred: true });
+    await expect(useCases.toggleMessageStar.execute(alice.id, starred.id)).resolves.toMatchObject({
+      id: starred.id,
+      isStarred: true,
+    });
     await expect(
       useCases.clearConversation.execute(alice.id, conversation.id)
     ).resolves.toMatchObject({ clearedCount: 2, preservedStarredMessages: true });
 
-    const aliceMessages = await useCases.listMessages.execute(
-      alice.id,
-      conversation.id,
-      { page: 1, limit: 30 }
-    );
+    const aliceMessages = await useCases.listMessages.execute(alice.id, conversation.id, {
+      page: 1,
+      limit: 30,
+    });
     expect(aliceMessages.items).toEqual([
       expect.objectContaining({
         id: starred.id,
@@ -168,11 +173,10 @@ describe('chat module', () => {
     });
     expect(aliceConversations.items[0]?.lastMessage?.id).toBe(starred.id);
 
-    const bobMessages = await useCases.listMessages.execute(
-      bob.id,
-      conversation.id,
-      { page: 1, limit: 30 }
-    );
+    const bobMessages = await useCases.listMessages.execute(bob.id, conversation.id, {
+      page: 1,
+      limit: 30,
+    });
     expect(bobMessages.items.map((message) => message.id)).toEqual([
       first.id,
       starred.id,
@@ -236,7 +240,7 @@ describe('chat module', () => {
     chatPresenceProvider.disconnect(bob.id, 'bob-test-connection');
   });
 
-  it('blocks new messages until the blocker explicitly unblocks the friend', async () => {
+  it('removes friendship when blocked and requires a new invite after unblocking', async () => {
     const [alice, bob] = await Promise.all([
       createUser('Alice Learner', 'alice'),
       createUser('Bob Learner', 'bob'),
@@ -257,9 +261,7 @@ describe('chat module', () => {
     );
     chatPresenceProvider.connect(alice.id, 'alice-block-test');
 
-    await expect(
-      useCases.blockUser.execute(alice.id, { userId: bob.id })
-    ).resolves.toEqual({
+    await expect(useCases.blockUser.execute(alice.id, { userId: bob.id })).resolves.toEqual({
       blockedUserIds: [bob.id],
       blockedByUserIds: [],
     });
@@ -286,16 +288,27 @@ describe('chat module', () => {
       })
     ).rejects.toMatchObject({ code: 'CHAT_USER_BLOCKED' });
 
-    await expect(
-      useCases.unblockUser.execute(alice.id, { userId: bob.id })
-    ).resolves.toEqual({ blockedUserIds: [], blockedByUserIds: [] });
+    await expect(useCases.unblockUser.execute(alice.id, { userId: bob.id })).resolves.toEqual({
+      blockedUserIds: [],
+      blockedByUserIds: [],
+    });
     await expect(
       useCases.sendMessage.execute(bob.id, {
         conversationId: conversation.id,
         kind: 'text',
         text: 'Welcome back',
       })
-    ).resolves.toMatchObject({ text: 'Welcome back' });
+    ).rejects.toMatchObject({ code: 'CHAT_NOT_FRIENDS' });
+    await expect(
+      Friend.countDocuments({
+        $or: [
+          { userId: alice._id, friendId: bob._id },
+          { userId: bob._id, friendId: alice._id },
+        ],
+        status: 'active',
+        deletedAt: null,
+      })
+    ).resolves.toBe(0);
     chatPresenceProvider.disconnect(alice.id, 'alice-block-test');
   });
 

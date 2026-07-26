@@ -3,6 +3,32 @@ import { PLATFORM_POLICY_DEFAULTS } from '../../../shared/platform-policy';
 
 const productPolicySchema = new Schema(
   {
+    features: {
+      trackers: { type: Boolean, default: PLATFORM_POLICY_DEFAULTS.features.trackers },
+      trackerCreation: {
+        type: Boolean,
+        default: PLATFORM_POLICY_DEFAULTS.features.trackerCreation,
+      },
+      community: { type: Boolean, default: PLATFORM_POLICY_DEFAULTS.features.community },
+      leaderboard: { type: Boolean, default: PLATFORM_POLICY_DEFAULTS.features.leaderboard },
+      mockTests: { type: Boolean, default: PLATFORM_POLICY_DEFAULTS.features.mockTests },
+      adaptiveLearning: {
+        type: Boolean,
+        default: PLATFORM_POLICY_DEFAULTS.features.adaptiveLearning,
+      },
+      social: { type: Boolean, default: PLATFORM_POLICY_DEFAULTS.features.social },
+      calls: { type: Boolean, default: PLATFORM_POLICY_DEFAULTS.features.calls },
+      subscriptions: {
+        type: Boolean,
+        default: PLATFORM_POLICY_DEFAULTS.features.subscriptions,
+      },
+      supportTickets: {
+        type: Boolean,
+        default: PLATFORM_POLICY_DEFAULTS.features.supportTickets,
+      },
+      activity: { type: Boolean, default: PLATFORM_POLICY_DEFAULTS.features.activity },
+      savedItems: { type: Boolean, default: PLATFORM_POLICY_DEFAULTS.features.savedItems },
+    },
     activity: {
       weeklyXpTarget: {
         type: Number,

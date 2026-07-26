@@ -48,9 +48,7 @@ type RequesterRecord = {
 const toObjectId = (value: string) =>
   Types.ObjectId.isValid(value) ? new Types.ObjectId(value) : null;
 
-export class MongoTrackerTopicContributionRepository
-  implements ITrackerTopicContributionRepository
-{
+export class MongoTrackerTopicContributionRepository implements ITrackerTopicContributionRepository {
   async create(input: { cloneTrackerId: string; cloneTopicId: string; requesterId: string }) {
     const cloneTrackerId = toObjectId(input.cloneTrackerId);
     const cloneTopicId = toObjectId(input.cloneTopicId);

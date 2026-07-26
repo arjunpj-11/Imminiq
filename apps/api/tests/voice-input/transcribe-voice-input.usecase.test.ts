@@ -21,10 +21,7 @@ describe('TranscribeVoiceInputUseCase', () => {
       })
     );
     const gateway: IVoiceTranscriptionGateway = { transcribe };
-    const useCase = new TranscribeVoiceInputUseCase(
-      gateway,
-      new VoiceInputMapper()
-    );
+    const useCase = new TranscribeVoiceInputUseCase(gateway, new VoiceInputMapper());
 
     await expect(useCase.execute({ audio })).resolves.toEqual({
       text: 'Build a revision plan',
@@ -37,10 +34,7 @@ describe('TranscribeVoiceInputUseCase', () => {
     const gateway: IVoiceTranscriptionGateway = {
       transcribe: vi.fn().mockRejectedValue(new Error('provider unavailable')),
     };
-    const useCase = new TranscribeVoiceInputUseCase(
-      gateway,
-      new VoiceInputMapper()
-    );
+    const useCase = new TranscribeVoiceInputUseCase(gateway, new VoiceInputMapper());
 
     await expect(useCase.execute({ audio })).rejects.toMatchObject({
       code: 'VOICE_TRANSCRIPTION_FAILED',

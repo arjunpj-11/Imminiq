@@ -12,53 +12,62 @@ import {
 } from '../config/tracker-creation-pages';
 import { ROUTES } from '../config/route-paths';
 import LegacyTrackerCreationRedirect from '../components/LegacyTrackerCreationRedirect';
+import { FeatureAvailabilityGate } from '../guards/FeatureAvailabilityGate';
 
 const legacyRedirect = (element: ReactNode, path: string): RouteObject => ({ path, element });
+const gateTrackerCreation = (element: ReactNode) => (
+  <FeatureAvailabilityGate feature={['trackers', 'trackerCreation']}>
+    {element}
+  </FeatureAvailabilityGate>
+);
 
 export const trackerCreationRoutes: RouteObject[] = [
   {
     path: ROUTES.trackerCreate,
-    element: <TrackerCreationChoicePage />,
+    element: gateTrackerCreation(<TrackerCreationChoicePage />),
   },
   {
     path: ROUTES.trackerCreateAi,
-    element: <OnboardingStepOnePage />,
+    element: gateTrackerCreation(<OnboardingStepOnePage />),
   },
   {
     path: ROUTES.trackerCreateManual,
-    element: <ManualTrackerCreationPage />,
+    element: gateTrackerCreation(<ManualTrackerCreationPage />),
   },
   {
     path: ROUTES.trackerCreateGeneratingPattern,
-    element: <OnboardingGeneratingPage />,
+    element: gateTrackerCreation(<OnboardingGeneratingPage />),
   },
   {
     path: ROUTES.trackerCreateReadyPattern,
-    element: <OnboardingRoadmapReadyPage />,
+    element: gateTrackerCreation(<OnboardingRoadmapReadyPage />),
   },
   {
     path: ROUTES.trackerCreateEvaluationPattern,
-    element: <OnboardingRoadmapEvaluationLoadingPage />,
+    element: gateTrackerCreation(<OnboardingRoadmapEvaluationLoadingPage />),
   },
   {
     path: ROUTES.trackerCreateEvaluationScorePattern,
-    element: <OnboardingRoadmapEvaluationScorePage />,
+    element: gateTrackerCreation(<OnboardingRoadmapEvaluationScorePage />),
   },
-  legacyRedirect(<Navigate replace to={ROUTES.trackerCreate} />, '/onboarding/step-1'),
   legacyRedirect(
-    <LegacyTrackerCreationRedirect to={ROUTES.trackerCreateGenerating} />,
+    gateTrackerCreation(<Navigate replace to={ROUTES.trackerCreate} />),
+    '/onboarding/step-1'
+  ),
+  legacyRedirect(
+    gateTrackerCreation(<LegacyTrackerCreationRedirect to={ROUTES.trackerCreateGenerating} />),
     '/onboarding/generating/:jobId'
   ),
   legacyRedirect(
-    <LegacyTrackerCreationRedirect to={ROUTES.trackerCreateReady} />,
+    gateTrackerCreation(<LegacyTrackerCreationRedirect to={ROUTES.trackerCreateReady} />),
     '/onboarding/roadmap-ready/:jobId'
   ),
   legacyRedirect(
-    <LegacyTrackerCreationRedirect to={ROUTES.trackerCreateEvaluation} />,
+    gateTrackerCreation(<LegacyTrackerCreationRedirect to={ROUTES.trackerCreateEvaluation} />),
     '/onboarding/roadmap-evaluation/:jobId'
   ),
   legacyRedirect(
-    <LegacyTrackerCreationRedirect to={ROUTES.trackerCreateEvaluationScore} />,
+    gateTrackerCreation(<LegacyTrackerCreationRedirect to={ROUTES.trackerCreateEvaluationScore} />),
     '/onboarding/roadmap-evaluation/:jobId/score'
   ),
 ];

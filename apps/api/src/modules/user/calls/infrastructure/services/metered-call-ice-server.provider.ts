@@ -61,13 +61,11 @@ export class MeteredCallIceServerProvider implements ICallIceServerProvider {
     if (cached && cached.expiresAt > this._now()) return cached.value;
 
     try {
-      const apiKey =
-        this._options.apiKey ?? (await this.createCredential(userId)).apiKey;
+      const apiKey = this._options.apiKey ?? (await this.createCredential(userId)).apiKey;
       const iceServers = await this.loadIceServers(apiKey);
       const cacheSafetySeconds = Math.min(300, this._options.credentialTtlSeconds / 4);
       this._cache.set(userId, {
-        expiresAt:
-          this._now() + (this._options.credentialTtlSeconds - cacheSafetySeconds) * 1_000,
+        expiresAt: this._now() + (this._options.credentialTtlSeconds - cacheSafetySeconds) * 1_000,
         value: iceServers,
       });
       return iceServers;
@@ -93,7 +91,8 @@ export class MeteredCallIceServerProvider implements ICallIceServerProvider {
       }),
       signal: AbortSignal.timeout(this._options.requestTimeoutMs),
     });
-    if (!response.ok) throw this.providerFailure(new Error(`Credential request failed: ${response.status}`));
+    if (!response.ok)
+      throw this.providerFailure(new Error(`Credential request failed: ${response.status}`));
     const parsed = credentialSchema.safeParse(await response.json());
     if (!parsed.success) throw this.providerFailure(parsed.error);
     return parsed.data;
@@ -105,7 +104,8 @@ export class MeteredCallIceServerProvider implements ICallIceServerProvider {
     const response = await this._request(url, {
       signal: AbortSignal.timeout(this._options.requestTimeoutMs),
     });
-    if (!response.ok) throw this.providerFailure(new Error(`ICE request failed: ${response.status}`));
+    if (!response.ok)
+      throw this.providerFailure(new Error(`ICE request failed: ${response.status}`));
     const parsed = iceServersSchema.safeParse(await response.json());
     if (!parsed.success) throw this.providerFailure(parsed.error);
     return parsed.data;

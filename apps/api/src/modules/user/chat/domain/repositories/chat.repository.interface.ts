@@ -6,7 +6,8 @@ import type { IChatParticipantRepository } from './chat-participant.repository.i
 import type { IChatRelationshipRepository } from './chat-relationship.repository.interface';
 
 export interface IChatRepository
-  extends IChatConversationQueryRepository,
+  extends
+    IChatConversationQueryRepository,
     IChatConversationCommandRepository,
     IChatMessageQueryRepository,
     IChatMessageCommandRepository,

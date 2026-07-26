@@ -70,11 +70,8 @@ export default function AdminTrackersPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
 
-  const { data, isLoading, isPlaceholderData, isError, error, refetch } = useAdminTrackers({
-    search: debouncedSearch,
-    status,
-    page,
-  });
+  const { data, dataUpdatedAt, isLoading, isFetching, isPlaceholderData, isError, error, refetch } =
+    useAdminTrackers({ search: debouncedSearch, status, page });
 
   const exportCurrentView = () =>
     csvExport.mutate({
@@ -152,8 +149,14 @@ export default function AdminTrackersPage() {
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
-        title="Tracker Management"
+        title="Trackers"
         description="Inspect original learning trackers, review community reports, and manage tracker access. Personal clone records are excluded."
+        meta={{
+          updatedAt: dataUpdatedAt,
+          isRefreshing: isFetching && !isLoading,
+          resultCount: data?.pagination.total,
+          activeFilterCount: Number(Boolean(debouncedSearch)) + Number(status !== 'all'),
+        }}
         action={
           <>
             <button type="button" onClick={exportCurrentView} className="admin-button">
@@ -172,7 +175,7 @@ export default function AdminTrackersPage() {
               <Flag size={16} aria-hidden="true" /> Tracker reports
             </Link>
             <Link to={ADMIN_TRACKERS_ROUTES.reviews} className="admin-button">
-              <FileBarChart size={16} aria-hidden="true" /> Community reviews
+              <FileBarChart size={16} aria-hidden="true" /> Verification queue
             </Link>
             <Link to={ADMIN_TRACKERS_ROUTES.published} className="admin-primary-button">
               <Globe2 size={16} aria-hidden="true" /> Published trackers

@@ -185,6 +185,7 @@ export class TrackerClanService implements ITrackerClanServiceContract {
       trackerId: input.trackerId,
       userId: input.userId,
       limit: Math.min(100, Math.max(1, input.limit ?? 60)),
+      before: input.before,
     });
     if (!messages) throw TrackerApplicationError.forbidden('Join this guild to read its chat');
     return messages;

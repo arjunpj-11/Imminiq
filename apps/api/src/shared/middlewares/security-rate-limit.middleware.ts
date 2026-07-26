@@ -20,9 +20,7 @@ const createSensitiveLimiter = (config: {
     standardHeaders: 'draft-8',
     legacyHeaders: false,
     ...(config.keyGenerator ? { keyGenerator: config.keyGenerator } : {}),
-    ...(config.skipInDevelopment
-      ? { skip: () => env.NODE_ENV === 'development' }
-      : {}),
+    ...(config.skipInDevelopment ? { skip: () => env.NODE_ENV === 'development' } : {}),
     handler: (_req, _res, next) => {
       next(new ApiError(429, config.message, config.code));
     },
@@ -30,9 +28,7 @@ const createSensitiveLimiter = (config: {
 };
 
 export const getAuthenticatedApiRateLimitKey = (request: Request) =>
-  request.user?.userId
-    ? `user:${request.user.userId}`
-    : `ip:${ipKeyGenerator(request.ip ?? '')}`;
+  request.user?.userId ? `user:${request.user.userId}` : `ip:${ipKeyGenerator(request.ip ?? '')}`;
 
 export const authenticatedApiUserLimiter = createSensitiveLimiter({
   windowMs: env.RATE_LIMIT_AUTHENTICATED_API_WINDOW_MS,

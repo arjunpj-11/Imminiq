@@ -24,7 +24,7 @@ export default function LessonNavigationPreview({
             Jump to the previous or next lesson quickly.
           </p>
         </div>
-        <span className="rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.08em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
+        <span className="rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
           Quick Jump
         </span>
       </div>
@@ -58,7 +58,7 @@ export default function LessonNavigationPreview({
             onClick={() => onOpenLesson(previousLesson._id)}
             className="group w-full rounded-md border-[1.5px] border-(--border-subtle) bg-white p-4 text-left transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.05)] dark:border-(--border-subtle) dark:bg-(--surface-elevated) dark:hover:border-[rgba(232,129,106,0.25)] dark:hover:bg-[rgba(232,129,106,0.08)]"
           >
-            <div className="mb-1 font-mono text-[8px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-60 dark:text-(--text-secondary)">
+            <div className="mb-1 font-mono text-[10px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-70 dark:text-(--text-secondary)">
               Previous
             </div>
             <div className="flex items-center justify-between gap-3">
@@ -83,7 +83,7 @@ export default function LessonNavigationPreview({
             onClick={() => onOpenLesson(nextLesson._id)}
             className="group w-full rounded-md border-[1.5px] border-(--border-subtle) bg-white p-4 text-left transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.05)] dark:border-(--border-subtle) dark:bg-(--surface-elevated) dark:hover:border-[rgba(232,129,106,0.25)] dark:hover:bg-[rgba(232,129,106,0.08)]"
           >
-            <div className="mb-1 font-mono text-[8px] uppercase tracking-[0.14em] text-(--brand-500) dark:text-(--brand-500)">
+            <div className="mb-1 font-mono text-[10px] uppercase tracking-[0.14em] text-(--brand-500) dark:text-(--brand-500)">
               Up Next
             </div>
             <div className="flex items-center justify-between gap-3">

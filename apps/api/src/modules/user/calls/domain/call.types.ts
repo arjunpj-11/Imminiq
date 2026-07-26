@@ -1,15 +1,6 @@
 export type CallType = 'audio' | 'video';
-export type CallStatus =
-  | 'ringing'
-  | 'accepted'
-  | 'declined'
-  | 'ended'
-  | 'missed'
-  | 'cancelled';
-export type TerminalCallStatus = Extract<
-  CallStatus,
-  'declined' | 'ended' | 'missed' | 'cancelled'
->;
+export type CallStatus = 'ringing' | 'accepted' | 'declined' | 'ended' | 'missed' | 'cancelled';
+export type TerminalCallStatus = Extract<CallStatus, 'declined' | 'ended' | 'missed' | 'cancelled'>;
 
 export type ListCallsInput = {
   viewerUserId: string;

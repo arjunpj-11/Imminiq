@@ -1,4 +1,6 @@
-export const paginate = (page = 1, limit = 20) => ({
+import { paginationConfig } from '../../config/pagination';
+
+export const paginate = (page = 1, limit = paginationConfig.defaultLimit) => ({
   skip: (page - 1) * limit,
   limit,
 });

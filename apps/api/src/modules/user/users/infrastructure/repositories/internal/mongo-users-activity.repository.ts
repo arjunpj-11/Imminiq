@@ -1,4 +1,5 @@
 import { ActivityLog } from '../../../../../../infrastructure/database/models/activity-log.model';
+import { paginationConfig } from '../../../../../../config/pagination';
 import type { UserActivityEntity } from '../../../domain/entities/user-activity.entity';
 import type {
   FindRecentUserActivityInput,
@@ -22,7 +23,7 @@ export class MongoUsersActivityRepository extends MongoUsersBaseRepository {
       'USER_ACTIVITY_READ_FAILED',
       'Failed to read user activity feed',
       async () => {
-        const { userId, page = 1, limit = 10 } = input;
+        const { userId, page = 1, limit = paginationConfig.profileLimit } = input;
         const skip = (page - 1) * limit;
 
         const filter = {
@@ -55,7 +56,7 @@ export class MongoUsersActivityRepository extends MongoUsersBaseRepository {
       'USER_ACTIVITY_READ_FAILED',
       'Failed to read recent user activity',
       async () => {
-        const { userId, limit = 10 } = input;
+        const { userId, limit = paginationConfig.profileLimit } = input;
 
         const items = await ActivityLog.find({
           userId: MongoUsersObjectId.from(userId),

@@ -11,13 +11,13 @@ import AppRoutes from './routes/AppRoutes';
 import AuthSessionBridge from './routes/session/AuthSessionBridge';
 import { useAuthStore } from './store/useAuthStore';
 import { useThemeStore } from './store/useThemeStore';
+import { useAppShellStore } from './store/useAppShellStore';
+import { useFeatureAvailability } from './hooks/useFeatureAvailability';
 
 const GlobalNavigationController = lazy(
   () => import('./components/navigation/GlobalNavigationController')
 );
-const CallManager = lazy(
-  () => import('./modules/user/social/components/CallManager')
-);
+const CallManager = lazy(() => import('./modules/user/social/components/CallManager'));
 const ShareTrackerDialog = lazy(
   () => import('./modules/user/social/components/ShareTrackerDialog')
 );
@@ -26,10 +26,19 @@ export default function App() {
   const initTheme = useThemeStore((state) => state.initTheme);
   const location = useLocation();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const contentDensity = useAppShellStore((state) => state.contentDensity);
+  const reduceMotion = useAppShellStore((state) => state.reduceMotion);
+  const featureQuery = useFeatureAvailability(isAuthenticated);
+  const features = featureQuery.data;
 
   useLayoutEffect(() => {
     initTheme();
   }, [initTheme]);
+
+  useLayoutEffect(() => {
+    document.documentElement.dataset.density = contentDensity;
+    document.documentElement.dataset.reduceMotion = String(reduceMotion);
+  }, [contentDensity, reduceMotion]);
 
   return (
     <AppErrorBoundary resetKey={location.pathname}>
@@ -45,8 +54,8 @@ export default function App() {
       {isAuthenticated && (
         <Suspense fallback={null}>
           <GlobalNavigationController />
-          <CallManager />
-          <ShareTrackerDialog />
+          {features?.social && features.calls ? <CallManager /> : null}
+          {features?.social && features.trackers ? <ShareTrackerDialog /> : null}
         </Suspense>
       )}
       <AppRoutes />

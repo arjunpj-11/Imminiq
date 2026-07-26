@@ -1,5 +1,5 @@
 import type {
-  TrackerClanMessage,
+  TrackerClanMessagePage,
   TrackerClanOverview,
   TrackerClanRole,
   TrackerCloneSyncResult,
@@ -59,5 +59,6 @@ export interface ITrackerClanRepository {
     trackerId: string;
     userId: string;
     limit: number;
-  }): Promise<TrackerClanMessage[] | null>;
+    before?: string;
+  }): Promise<TrackerClanMessagePage | null>;
 }

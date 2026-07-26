@@ -2,10 +2,7 @@ import { Readable } from 'node:stream';
 
 import { cloudinary } from '../../../../../infrastructure/storage/cloudinary.client';
 import { ChatDomainError } from '../../domain/chat-domain.error';
-import type {
-  StoredChatFile,
-  UploadedChatFile,
-} from '../../domain/chat.types';
+import type { StoredChatFile, UploadedChatFile } from '../../domain/chat.types';
 import type { IChatFileStorage } from '../../domain/services/chat-file-storage.interface';
 
 export class CloudinaryChatFileStorageGateway implements IChatFileStorage {
@@ -13,7 +10,7 @@ export class CloudinaryChatFileStorageGateway implements IChatFileStorage {
     return new Promise((resolve, reject) => {
       const resourceType = file.mimetype.startsWith('image/')
         ? 'image'
-        : file.mimetype.startsWith('audio/')
+        : file.mimetype.startsWith('audio/') || file.mimetype.startsWith('video/')
           ? 'video'
           : 'raw';
       const stream = cloudinary.uploader.upload_stream(
@@ -26,7 +23,9 @@ export class CloudinaryChatFileStorageGateway implements IChatFileStorage {
         },
         (error, result) => {
           if (error || !result) {
-            reject(new ChatDomainError('CHAT_UPLOAD_FAILED', 'The attachment could not be uploaded'));
+            reject(
+              new ChatDomainError('CHAT_UPLOAD_FAILED', 'The attachment could not be uploaded')
+            );
             return;
           }
           resolve({

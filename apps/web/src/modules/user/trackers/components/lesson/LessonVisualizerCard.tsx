@@ -1,5 +1,3 @@
-// apps/web/src/modules/user/trackers/components/lesson/LessonVisualizerCard.tsx
-
 import { useEffect, useRef, useState } from 'react';
 import { getUserFacingError } from '../../../../../lib/user-facing-error';
 import { useGenerateLessonVisualization } from '../../hooks/useTrackers';

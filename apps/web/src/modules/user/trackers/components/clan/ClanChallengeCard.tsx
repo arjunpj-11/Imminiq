@@ -66,18 +66,14 @@ export default function ClanChallengeCard({
   const mine = challenge.challenger.userId === currentUserId;
 
   return (
-    <div className={cn('flex gap-3', mine && 'flex-row-reverse')}>
-      <button
-        type="button"
-        onClick={() => onProfile?.(challenge.challenger.username)}
-        className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-[#171512] text-[10px] font-bold text-white"
-      >
-        <UserAvatar
-          name={challenge.challenger.name}
-          src={challenge.challenger.avatarUrl}
-          sizeClassName="h-9 w-9 text-[10px]"
-        />
-      </button>
+    <div className={cn('flex items-start gap-3', mine && 'flex-row-reverse')}>
+      <UserAvatar
+        name={challenge.challenger.name}
+        src={challenge.challenger.avatarUrl}
+        profileUsername={challenge.challenger.username}
+        sizeClassName="h-9 w-9 text-[10px]"
+        fallbackClassName="bg-none bg-[#171512] text-white"
+      />
       <article
         className={cn(
           'max-w-[82%] rounded-xl border border-[#d6ad47]/35 bg-[linear-gradient(135deg,rgba(244,201,93,.12),rgba(184,76,43,.06))] p-4',

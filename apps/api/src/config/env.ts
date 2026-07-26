@@ -367,10 +367,7 @@ const envSchema = z
     GROQ_DEFAULT_MODEL: z.string().min(1).default(RUNTIME_DEFAULTS.GROQ_DEFAULT_MODEL),
     GROQ_FAST_MODEL: z.string().min(1).default(RUNTIME_DEFAULTS.GROQ_FAST_MODEL),
     GROQ_MAX_TOKENS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.GROQ_MAX_TOKENS),
-    GROQ_TRANSCRIPTION_MODEL: z
-      .string()
-      .min(1)
-      .default(RUNTIME_DEFAULTS.GROQ_TRANSCRIPTION_MODEL),
+    GROQ_TRANSCRIPTION_MODEL: z.string().min(1).default(RUNTIME_DEFAULTS.GROQ_TRANSCRIPTION_MODEL),
     GEMINI_DEFAULT_MODEL: z.string().min(1).default(RUNTIME_DEFAULTS.GEMINI_DEFAULT_MODEL),
     GEMINI_FAST_MODEL: z.string().min(1).default(RUNTIME_DEFAULTS.GEMINI_FAST_MODEL),
     GEMINI_NEXT_MODEL: z.string().min(1).default(RUNTIME_DEFAULTS.GEMINI_NEXT_MODEL),
@@ -402,6 +399,54 @@ const envSchema = z
       .int()
       .positive()
       .default(RUNTIME_DEFAULTS.DASHBOARD_ONLINE_WINDOW_MS),
+    PAGINATION_DEFAULT_LIMIT: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(100)
+      .default(RUNTIME_DEFAULTS.PAGINATION_DEFAULT_LIMIT),
+    PAGINATION_PROFILE_LIMIT: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(50)
+      .default(RUNTIME_DEFAULTS.PAGINATION_PROFILE_LIMIT),
+    PAGINATION_GRID_LIMIT: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(50)
+      .default(RUNTIME_DEFAULTS.PAGINATION_GRID_LIMIT),
+    PAGINATION_ADMIN_LIMIT: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(100)
+      .default(RUNTIME_DEFAULTS.PAGINATION_ADMIN_LIMIT),
+    PAGINATION_BATCH_LIMIT: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(100)
+      .default(RUNTIME_DEFAULTS.PAGINATION_BATCH_LIMIT),
+    PAGINATION_MESSAGE_LIMIT: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(100)
+      .default(RUNTIME_DEFAULTS.PAGINATION_MESSAGE_LIMIT),
+    PAGINATION_MAX_STANDARD_LIMIT: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(100)
+      .default(RUNTIME_DEFAULTS.PAGINATION_MAX_STANDARD_LIMIT),
+    PAGINATION_MAX_LIMIT: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(250)
+      .default(RUNTIME_DEFAULTS.PAGINATION_MAX_LIMIT),
   })
   .refine((value) => value.JWT_SECRET !== value.JWT_REFRESH_SECRET, {
     message: 'JWT secrets must be different',
@@ -417,6 +462,17 @@ const envSchema = z
     }
   )
   .superRefine((value, context) => {
+    if (
+      value.PAGINATION_DEFAULT_LIMIT > value.PAGINATION_MAX_STANDARD_LIMIT ||
+      value.PAGINATION_MAX_STANDARD_LIMIT > value.PAGINATION_MAX_LIMIT
+    ) {
+      context.addIssue({
+        code: 'custom',
+        path: ['PAGINATION_DEFAULT_LIMIT'],
+        message: 'Pagination limits must satisfy default <= standard maximum <= absolute maximum',
+      });
+    }
+
     if (value.NODE_ENV !== 'production') return;
 
     for (const [field, url] of [

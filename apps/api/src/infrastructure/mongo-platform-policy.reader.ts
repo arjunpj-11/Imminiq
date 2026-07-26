@@ -9,6 +9,7 @@ import {
   type IMockTestPolicyReader,
   type ISecurityProductPolicyReader,
   type ITrackerPolicyReader,
+  type IFeaturePolicyReader,
   type LeaderboardPolicy,
   type MockTestPolicy,
   type PlatformPolicy,
@@ -21,7 +22,8 @@ type PlatformPolicyReader = IActivityPolicyReader &
   ILeaderboardPolicyReader &
   IMockTestPolicyReader &
   ITrackerPolicyReader &
-  ISecurityProductPolicyReader;
+  ISecurityProductPolicyReader &
+  IFeaturePolicyReader;
 
 /** Mongo-backed adapter for product policy ports owned by the application modules. */
 export class MongoPlatformPolicyReader implements PlatformPolicyReader {
@@ -35,6 +37,10 @@ export class MongoPlatformPolicyReader implements PlatformPolicyReader {
 
   async getActivityPolicy(): Promise<ActivityPolicy> {
     return (await this.getPolicy()).activity;
+  }
+
+  async getFeaturePolicy() {
+    return (await this.getPolicy()).features;
   }
 
   async getCommunityPolicy(): Promise<CommunityPolicy> {

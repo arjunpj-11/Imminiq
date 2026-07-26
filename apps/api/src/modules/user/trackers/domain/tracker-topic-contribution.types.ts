@@ -48,8 +48,5 @@ export type ReviewTopicContributionResult =
   | {
       ok: false;
       reason:
-        | 'tracker-not-found'
-        | 'contribution-not-found'
-        | 'already-reviewed'
-        | 'source-unavailable';
+        'tracker-not-found' | 'contribution-not-found' | 'already-reviewed' | 'source-unavailable';
     };

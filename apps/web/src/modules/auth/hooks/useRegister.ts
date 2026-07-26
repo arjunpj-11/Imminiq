@@ -50,11 +50,5 @@ export const useRegister = () => {
         },
       });
     },
-
-    onError: (error) => {
-      const message = error.response?.data?.message || 'Registration failed. Please try again.';
-
-      console.error(message);
-    },
   });
 };

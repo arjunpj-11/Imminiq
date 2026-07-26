@@ -9,9 +9,7 @@ export interface IGenerateLessonQuestionSolutionUseCase {
   execute(input: LessonQuestionPayloadDTO): Promise<LessonQuestionSolutionDTO>;
 }
 
-export class GenerateLessonQuestionSolutionUseCase
-  implements IGenerateLessonQuestionSolutionUseCase
-{
+export class GenerateLessonQuestionSolutionUseCase implements IGenerateLessonQuestionSolutionUseCase {
   constructor(
     private readonly _trackerRepository: Pick<
       ITrackerRepository,

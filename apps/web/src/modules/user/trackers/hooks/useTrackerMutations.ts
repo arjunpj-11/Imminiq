@@ -64,6 +64,10 @@ export const useUpdateTracker = () => {
       queryClient.invalidateQueries({
         queryKey: trackerKeys.detail(variables.trackerId),
       });
+
+      queryClient.invalidateQueries({
+        queryKey: communityKeys.all,
+      });
     },
   });
 };

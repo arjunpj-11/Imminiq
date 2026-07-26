@@ -11,8 +11,7 @@ import ConfettiCanvas from '../ui/ConfettiCanvas';
 export default function AuthenticatedAppLayout() {
   const location = useLocation();
   const isOpenSocialConversation =
-    location.pathname === ROUTES.chat &&
-    new URLSearchParams(location.search).has('conversation');
+    location.pathname === ROUTES.chat && new URLSearchParams(location.search).has('conversation');
   const routeAnimationKey = location.pathname.startsWith(ROUTES.settingsRoot)
     ? ROUTES.settingsRoot
     : location.pathname;

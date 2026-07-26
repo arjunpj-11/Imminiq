@@ -17,7 +17,7 @@ export default function AdminDashboardPage() {
   return (
     <main className="mx-auto max-w-310 px-5 py-9 sm:px-8">
       <AdminPageHeader
-        title="Performance Overview"
+        title="Dashboard"
         description="Live platform health, usage, and moderation signals."
         action={
           <div className="flex flex-wrap items-center gap-3">

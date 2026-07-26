@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
+import { paginationConfig } from '../../../../../config/pagination';
 import api from '../../../../../lib/axios';
 import { PROFILE_API_PATHS } from '../../constants/profile-api.constants';
 import type {
@@ -14,7 +15,11 @@ interface IUseProfileBadgesOptions {
   enabled?: boolean;
 }
 
-export const useProfileBadges = (page = 1, limit = 12, options: IUseProfileBadgesOptions = {}) => {
+export const useProfileBadges = (
+  page = 1,
+  limit = paginationConfig.gridLimit,
+  options: IUseProfileBadgesOptions = {}
+) => {
   return useQuery<
     IApiResponse<IPaginatedResult<IProfileBadge>>,
     AxiosError<IApiErrorResponse>,

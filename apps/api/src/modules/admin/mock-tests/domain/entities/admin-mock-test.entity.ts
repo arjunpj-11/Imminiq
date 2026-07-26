@@ -114,11 +114,7 @@ export type AdminMockTestLifecycleResult = {
 export type AdminMockTestIssueUpdateInput = {
   status: 'reviewing' | 'resolved' | 'dismissed';
   resolutionAction?:
-    | 'none'
-    | 'question_corrected'
-    | 'question_disabled'
-    | 'test_suspended'
-    | 'test_deleted';
+    'none' | 'question_corrected' | 'question_disabled' | 'test_suspended' | 'test_deleted';
   resolutionNote: string;
   correctedQuestion?: string;
   correctedAnswer?: string;

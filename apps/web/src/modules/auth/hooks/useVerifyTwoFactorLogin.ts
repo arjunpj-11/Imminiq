@@ -7,6 +7,7 @@ import { ADMIN_ROUTES, ROUTES } from '../../../routes/config/route-paths';
 import { AUTH_API_PATHS } from '../constants/auth.constants';
 import { isStaffRole } from '../../../lib/auth-roles';
 import type { IAuthUser } from '../../../store/useAuthStore';
+import { reportClientError } from '../../../lib/telemetry/client-error-reporter';
 
 interface IVerifyTwoFactorLoginPayload {
   code: string;
@@ -27,9 +28,7 @@ interface IUser {
 }
 
 type LoginRedirectPath =
-  | typeof ROUTES.dashboard
-  | typeof ROUTES.trackerCreate
-  | typeof ADMIN_ROUTES.dashboard;
+  typeof ROUTES.dashboard | typeof ROUTES.trackerCreate | typeof ADMIN_ROUTES.dashboard;
 
 interface IVerifyTwoFactorLoginResponse {
   success: boolean;
@@ -74,12 +73,16 @@ export const useVerifyTwoFactorLogin = () => {
         : response.data?.redirectPath || ROUTES.dashboard;
 
       if (!user) {
-        console.error('2FA verification succeeded, but user was not returned.');
+        reportClientError('Two-factor verification succeeded without a user payload.', {
+          source: 'invariant',
+        });
         return;
       }
 
       if (!accessToken) {
-        console.error('2FA verification succeeded, but access token was not returned.');
+        reportClientError('Two-factor verification succeeded without an access token.', {
+          source: 'invariant',
+        });
         return;
       }
 

@@ -26,11 +26,7 @@ describe('CommunityVerificationRewardService', () => {
         reviewRewardCoins: 50,
       }),
     };
-    const service = new CommunityVerificationRewardService(
-      repository,
-      activity,
-      policyReader
-    );
+    const service = new CommunityVerificationRewardService(repository, activity, policyReader);
 
     await service.settle({
       submissionId: 'submission-1',
@@ -49,16 +45,8 @@ describe('CommunityVerificationRewardService', () => {
         coinsAwarded: 50,
       })
     );
-    expect(repository.markVerificationVoteRewarded).toHaveBeenNthCalledWith(
-      1,
-      'vote-1',
-      50
-    );
-    expect(repository.markVerificationVoteRewarded).toHaveBeenNthCalledWith(
-      2,
-      'vote-2',
-      50
-    );
+    expect(repository.markVerificationVoteRewarded).toHaveBeenNthCalledWith(1, 'vote-1', 50);
+    expect(repository.markVerificationVoteRewarded).toHaveBeenNthCalledWith(2, 'vote-2', 50);
   });
 
   it('does nothing while consensus is unresolved', async () => {
@@ -72,11 +60,9 @@ describe('CommunityVerificationRewardService', () => {
       recordVerificationMajorityWon: vi.fn(),
       recordTrackerVerified: vi.fn(),
     };
-    const service = new CommunityVerificationRewardService(
-      repository,
-      activity,
-      { getCommunityPolicy: vi.fn() }
-    );
+    const service = new CommunityVerificationRewardService(repository, activity, {
+      getCommunityPolicy: vi.fn(),
+    });
 
     await service.settle({
       submissionId: 'submission-1',

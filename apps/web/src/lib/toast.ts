@@ -6,17 +6,19 @@ export interface IToastInput {
   tone?: ToastTone;
   /** Use 0 for a persistent toast that must be dismissed or updated. */
   duration?: number;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
 export interface IToastRecord extends Required<Pick<IToastInput, 'title' | 'tone' | 'duration'>> {
   id: number;
   description?: string;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
 type ToastEvent =
-  | { type: 'upsert'; toast: IToastRecord }
-  | { type: 'dismiss'; id: number }
-  | { type: 'clear' };
+  { type: 'upsert'; toast: IToastRecord } | { type: 'dismiss'; id: number } | { type: 'clear' };
 
 type ToastListener = (event: ToastEvent) => void;
 
@@ -42,6 +44,8 @@ export const showToast = (input: IToastInput) => {
       description: input.description,
       tone: input.tone ?? 'info',
       duration: input.duration ?? 4200,
+      actionLabel: input.actionLabel,
+      onAction: input.onAction,
     },
   });
   return id;
@@ -56,6 +60,8 @@ export const updateToast = (id: number, input: IToastInput) => {
       description: input.description,
       tone: input.tone ?? 'info',
       duration: input.duration ?? 4200,
+      actionLabel: input.actionLabel,
+      onAction: input.onAction,
     },
   });
   return id;

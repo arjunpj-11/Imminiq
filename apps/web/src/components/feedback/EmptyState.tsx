@@ -9,6 +9,7 @@ interface IEmptyStateProps {
   description?: ReactNode;
   action?: ReactNode;
   className?: string;
+  role?: 'status' | 'alert';
 }
 
 export default function EmptyState({
@@ -17,9 +18,12 @@ export default function EmptyState({
   description,
   action,
   className,
+  role = 'status',
 }: IEmptyStateProps) {
   return (
     <div
+      role={role}
+      aria-live={role === 'alert' ? 'assertive' : 'polite'}
       className={cn(
         'flex min-h-55 flex-col items-center justify-center rounded-lg border border-dashed border-(--border-strong) bg-[color-mix(in_srgb,var(--surface-card)_72%,transparent)] px-6 py-10 text-center',
         className

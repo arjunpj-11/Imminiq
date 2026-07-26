@@ -9,7 +9,6 @@ import AuthLayout from './AuthLayout';
 import AuthIdentifierField from './AuthIdentifierField';
 import AuthSocialButtons from './AuthSocialButtons';
 import { ApiErrorBanner, FieldError } from './AuthError';
-import { EyeIcon } from './icons/AuthIcons';
 import { authInputClass, authLabelClass, cn } from '../utils/auth-ui';
 import {
   getPasswordStrength,
@@ -18,6 +17,7 @@ import {
 } from '../utils/auth-validation';
 import { ROUTES } from '../../../routes/config/route-paths';
 import ImminiqWordmark from '../../../components/ui/ImminiqWordmark';
+import PasswordVisibilityButton from '../../../components/input/PasswordVisibilityButton';
 
 interface IFormState {
   fullName: string;
@@ -218,30 +218,43 @@ export default function RegisterForm() {
               placeholder="Create password"
               autoComplete="new-password"
             />
-            <button
-              type="button"
+            <PasswordVisibilityButton
+              visible={showPw}
+              fieldLabel="password"
               className="absolute right-1 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-md text-(--text-secondary) transition hover:bg-(--surface-muted) hover:text-(--brand-500) focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
-              onClick={() => setShowPw((value) => !value)}
-              aria-label={showPw ? 'Hide password' : 'Show password'}
-              title={showPw ? 'Hide password' : 'Show password'}
-            >
-              <EyeIcon open={showPw} />
-            </button>
+              onToggle={() => setShowPw((value) => !value)}
+            />
           </div>
           <FieldError message={errors.password} />
           {form.password && (
-            <div className="mt-2 flex items-center justify-between gap-3">
-              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-(--border-subtle) dark:bg-white/10">
-                <div
-                  className="h-full rounded-full bg-(--brand-500) dark:bg-(--brand-500)"
-                  style={{ width: `${strength.level * 25}%` }}
-                />
+            <div className="mt-2">
+              <div className="flex items-center justify-between gap-3">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-(--border-subtle) dark:bg-white/10">
+                  <div
+                    className="h-full rounded-full bg-(--brand-500) dark:bg-(--brand-500)"
+                    style={{ width: `${strength.level * 25}%` }}
+                  />
+                </div>
+                <span
+                  className={cn(
+                    'font-mono text-[10px] uppercase tracking-widest',
+                    strength.textClass
+                  )}
+                >
+                  {strength.label}
+                </span>
               </div>
-              <span
-                className={cn('font-mono text-[9px] uppercase tracking-widest', strength.textClass)}
-              >
-                {strength.label}
-              </span>
+              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-(--text-secondary)">
+                <span className={form.password.length >= 8 ? 'text-(--success)' : undefined}>
+                  {form.password.length >= 8 ? '✓' : '○'} 8+ characters
+                </span>
+                <span className={/[a-zA-Z]/.test(form.password) ? 'text-(--success)' : undefined}>
+                  {/[a-zA-Z]/.test(form.password) ? '✓' : '○'} One letter
+                </span>
+                <span className={/[0-9\W]/.test(form.password) ? 'text-(--success)' : undefined}>
+                  {/[0-9\W]/.test(form.password) ? '✓' : '○'} Number or symbol
+                </span>
+              </div>
             </div>
           )}
         </label>
@@ -265,15 +278,12 @@ export default function RegisterForm() {
               placeholder="Repeat password"
               autoComplete="new-password"
             />
-            <button
-              type="button"
+            <PasswordVisibilityButton
+              visible={showCpw}
+              fieldLabel="confirm password"
               className="absolute right-1 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-md text-(--text-secondary) transition hover:bg-(--surface-muted) hover:text-(--brand-500) focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
-              onClick={() => setShowCpw((value) => !value)}
-              aria-label={showCpw ? 'Hide confirm password' : 'Show confirm password'}
-              title={showCpw ? 'Hide confirm password' : 'Show confirm password'}
-            >
-              <EyeIcon open={showCpw} />
-            </button>
+              onToggle={() => setShowCpw((value) => !value)}
+            />
           </div>
           <FieldError message={errors.confirmPassword} />
         </label>
@@ -312,7 +322,7 @@ export default function RegisterForm() {
 
       <div className="my-5 flex items-center gap-3">
         <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/15" />
-        <span className="font-mono text-[9px] font-medium uppercase tracking-[0.12em] text-(--text-secondary) dark:text-(--text-secondary)">
+        <span className="font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-(--text-secondary) dark:text-(--text-secondary)">
           Or
         </span>
         <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/15" />

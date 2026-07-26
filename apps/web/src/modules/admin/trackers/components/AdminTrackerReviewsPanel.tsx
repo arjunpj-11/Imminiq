@@ -84,7 +84,7 @@ export default function AdminTrackerReviewsPanel() {
                 setSearch(value);
                 setPage(1);
               }}
-              placeholder="Search community reviews…"
+              placeholder="Search verification cases…"
             />
           </div>
         }
@@ -106,7 +106,7 @@ export default function AdminTrackerReviewsPanel() {
         ) : query.isError ? (
           <AdminError error={query.error} onRetry={() => void query.refetch()} />
         ) : !data?.items.length ? (
-          <AdminEmpty>No community reviews match this view.</AdminEmpty>
+          <AdminEmpty>No verification cases match this view.</AdminEmpty>
         ) : (
           <>
             <div className="admin-table-scroll overflow-x-auto">

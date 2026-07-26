@@ -9,4 +9,9 @@ export interface IChatMessageQueryRepository {
     viewerUserId: string
   ): Promise<ChatMessageEntity[]>;
   findUnreadCounts(conversationIds: string[], viewerUserId: string): Promise<Map<string, number>>;
+  listStarredMessages(
+    viewerUserId: string,
+    page: number,
+    limit: number
+  ): Promise<PaginatedChatResult<ChatMessageEntity>>;
 }
