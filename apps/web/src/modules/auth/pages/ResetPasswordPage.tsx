@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router';
 import AuthLayout from '../components/AuthLayout';
 import { ApiErrorBanner, FieldError } from '../components/AuthError';
 import { EyeIcon } from '../components/icons/AuthIcons';

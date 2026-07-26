@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ClipboardEvent, KeyboardEvent } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { STORAGE_KEYS } from '../../../lib/storage/storage-keys';
 import { safeSessionStorage } from '../../../lib/storage/safe-storage';
 import {

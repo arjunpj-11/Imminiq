@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router';
 import {
   AdminEmpty,
   AdminError,

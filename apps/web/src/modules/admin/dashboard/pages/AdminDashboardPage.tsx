@@ -1,5 +1,5 @@
 import { CheckCircle2, Flag, RefreshCw, ShieldAlert, TicketCheck } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { useState } from 'react';
 import { useAdminDashboard } from '../hooks/useAdminDashboard';
 import AdminDashboardState from '../components/AdminDashboardState';

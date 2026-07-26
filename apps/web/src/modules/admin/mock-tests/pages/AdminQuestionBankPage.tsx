@@ -1,6 +1,6 @@
 import { ArrowLeft, Database, Eye, Flag, Trash2, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router';
 import {
   AdminEmpty,
   AdminError,

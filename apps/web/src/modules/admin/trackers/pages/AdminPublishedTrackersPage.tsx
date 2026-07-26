@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, Eye, Heart, Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import {
   AdminCardSkeleton,
   AdminEmpty,

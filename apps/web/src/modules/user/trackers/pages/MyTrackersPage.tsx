@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import StatCard from '../../../../components/data-display/StatCard';
 import SkeletonBlock from '../../../../components/feedback/SkeletonBlock';

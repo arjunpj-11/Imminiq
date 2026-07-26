@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import { isAxiosError } from 'axios';
 import { ROUTES } from '../../../../routes/config/route-paths';
 

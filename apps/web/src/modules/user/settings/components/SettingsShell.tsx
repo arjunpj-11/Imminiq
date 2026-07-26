@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router';
 
 import PageHeader from '../../../../components/layout/PageHeader';
 import { ROUTES } from '../../../../routes/config/route-paths';

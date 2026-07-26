@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import type { ActivityChip } from '../types/onboarding.types';
 import { cn } from '../utils/cn';

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, Eye, ShieldCheck } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import Modal from '../../../../components/admin/AdminModal';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import {

@@ -8,7 +8,7 @@ import {
 
 import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router';
 import { useSubmitModerationAppeal } from '../hooks/moderation/useSubmitModerationAppeal';
 import { useGetModerationAppealStatus } from '../hooks/moderation/useGetModerationAppealStatus';
 import { useAuthStore } from '../store/useAuthStore';

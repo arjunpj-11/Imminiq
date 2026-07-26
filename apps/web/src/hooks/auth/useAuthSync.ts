@@ -1,7 +1,7 @@
 // apps/web/src/hooks/auth/useAuthSync.ts
 
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { resetClientState } from '../../store/reset-client-state';
 import { ROUTES } from '../../routes/config/route-paths';
 import { STORAGE_KEYS } from '../../lib/storage/storage-keys';

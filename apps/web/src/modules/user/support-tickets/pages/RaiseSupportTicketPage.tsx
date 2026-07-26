@@ -1,6 +1,6 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { CheckCircle2, LifeBuoy, Send } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { useCreateSupportTicket } from '../hooks/useCreateSupportTicket';
 import type { CreateSupportTicketInput } from '../types/support-tickets.types';
 import { ROUTES } from '../../../../routes/config/route-paths';

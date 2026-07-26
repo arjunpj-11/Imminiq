@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import type { IRoadmapSubtopic, IRoadmapTopic } from '../types/tracker.types';
 import { cn } from '../utils/tracker-ui';
 

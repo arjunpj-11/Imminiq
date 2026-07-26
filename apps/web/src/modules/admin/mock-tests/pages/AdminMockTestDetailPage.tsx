@@ -9,7 +9,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 import {
   AdminEmpty,
   AdminError,

@@ -1756,7 +1756,7 @@ export const useClaimAchievement = () => {
 // modules/achievements/hooks/useAchievementSearchState.ts
 
 import { useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 export const useAchievementSearchState = () => {
   const [searchParams, setSearchParams] = useSearchParams();

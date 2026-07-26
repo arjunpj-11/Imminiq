@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import type { IFriendRequest } from '../../types/friends.types';
 import { formatMutualFriends, formatRequestTime } from '../../utils/friends-formatters';
 import FriendsAvatar from '../shared/FriendsAvatar';

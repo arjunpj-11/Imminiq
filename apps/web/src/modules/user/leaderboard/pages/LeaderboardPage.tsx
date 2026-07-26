@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 import LeaderboardAppShell from '../components/LeaderboardAppShell';
 import LeaderboardControls from '../components/LeaderboardControls';

@@ -1,5 +1,5 @@
 import { useState, useEffect, type CSSProperties } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import ImminiqLogo from '../../../components/ui/ImminiqLogo';
 import ImminiqWordmark from '../../../components/ui/ImminiqWordmark';

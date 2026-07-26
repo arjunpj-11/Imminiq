@@ -1,6 +1,6 @@
 import { Download, Eye, FileText, Scale } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router';
 import {
   AdminBulkActionBar,
   AdminCardSkeleton,

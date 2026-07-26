@@ -1,5 +1,5 @@
 import { ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { AdminPageHeader } from '../../../../components/admin';
 import AdminTrackerReviewsPanel from '../components/AdminTrackerReviewsPanel';
 import { ADMIN_TRACKERS_ROUTES } from '../constants/admin-trackers.constants';

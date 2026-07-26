@@ -26,7 +26,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router';
 
 import UserAvatar from '../../../../components/data-display/UserAvatar';
 import { AppShellBoundary } from '../../../../components/layout/AppShell';

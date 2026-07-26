@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 import { ADMIN_ROUTES, ROUTES } from '../../routes/config/route-paths';
 import PageContainer from '../layout/PageContainer';

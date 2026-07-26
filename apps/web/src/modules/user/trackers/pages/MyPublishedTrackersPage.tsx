@@ -3,7 +3,7 @@ import { cn } from '../../../../lib/cn';
 // apps/web/src/modules/user/trackers/pages/MyPublishedTrackersPage.tsx
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { ROUTES } from '../../../../routes/config/route-paths';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';

@@ -1,7 +1,7 @@
 // apps/web/src/modules/user/trackers/pages/TrackerQuickRevisionPage.tsx
 
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 import { ROUTES } from '../../../../routes/config/route-paths';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';

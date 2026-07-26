@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import LeaderboardAppShell from '../components/LeaderboardAppShell';
 import LeaderboardRewardsView from '../components/LeaderboardRewardsView';

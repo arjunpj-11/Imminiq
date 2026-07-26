@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 import { MOCK_TEST_FILTERS, type MockTestFilter } from '../constants/mock-tests.constants';
 

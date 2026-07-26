@@ -2,7 +2,7 @@ import { STORAGE_KEYS } from '../../../lib/storage/storage-keys';
 import { safeSessionStorage } from '../../../lib/storage/safe-storage';
 import { useState } from 'react';
 import type { ChangeEvent, FocusEvent, FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import { useRegister } from '../hooks/useRegister';
 import AuthLayout from './AuthLayout';

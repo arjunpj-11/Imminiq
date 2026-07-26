@@ -16,7 +16,7 @@ import {
   UserCog,
   KeyRound,
 } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 import { AdminError } from '../../../../components/admin';
 import { useState } from 'react';
 import { useAdminUserDetail } from '../hooks/useAdminUserDetail';

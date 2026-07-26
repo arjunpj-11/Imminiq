@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ChangeEvent, FocusEvent, FormEvent } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router';
 import axios from 'axios';
 
 import { useLogin } from '../hooks/useLogin';

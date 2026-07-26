@@ -1,7 +1,7 @@
 import { AlertTriangle, Download, FileText, LoaderCircle, X } from 'lucide-react';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import type { UseQueryResult } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import {
   AdminEmpty,
   AdminError,

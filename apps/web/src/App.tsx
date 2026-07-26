@@ -1,5 +1,5 @@
 import { lazy, Suspense, useLayoutEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 import AppErrorBoundary from './components/system/AppErrorBoundary';
 import NetworkRedirector from './components/system/NetworkRedirector';

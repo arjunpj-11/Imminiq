@@ -1,5 +1,5 @@
 import UserAvatar from '../../../../components/data-display/UserAvatar';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 interface ILeaderboardAvatarProps {
   initials: string;
