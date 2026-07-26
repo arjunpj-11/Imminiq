@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useBodyScrollLock } from '../../../../hooks/useBodyScrollLock';
 import { boundedInteger } from '../../../../lib/bounded-number';
 

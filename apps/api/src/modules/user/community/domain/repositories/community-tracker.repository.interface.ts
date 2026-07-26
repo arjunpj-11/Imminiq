@@ -9,6 +9,7 @@ export type FindCommunityTrackersQuery = {
   minRating?: number | null;
   verifiedOnly?: boolean;
   sort?: CommunitySort;
+  recentSearches?: string[];
   page: number;
   limit: number;
 };

@@ -1,11 +1,12 @@
 import { lazy, Suspense, useLayoutEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 import AppErrorBoundary from './components/system/AppErrorBoundary';
 import NetworkRedirector from './components/system/NetworkRedirector';
 import OnlineStatus from './components/system/OnlineStatus';
 import RouteExperience from './components/system/RouteExperience';
 import ToastProvider from './components/system/ToastProvider';
+import CookieConsentBanner from './components/system/CookieConsentBanner';
 import AppRoutes from './routes/AppRoutes';
 import AuthSessionBridge from './routes/session/AuthSessionBridge';
 import { useAuthStore } from './store/useAuthStore';
@@ -49,6 +50,7 @@ export default function App() {
         </Suspense>
       )}
       <AppRoutes />
+      <CookieConsentBanner />
       <ToastProvider />
     </AppErrorBoundary>
   );

@@ -5,7 +5,7 @@ import type { PrivilegedAdminMiddleware } from '../../../../shared/middlewares/a
 import type { AdminTrackersUseCases } from '../application/admin-trackers-use-cases.contract';
 import { AdminTrackersController } from './admin-trackers.controller';
 import { ADMIN_TRACKERS_ROUTE_PATHS } from './admin-trackers.route.constants';
-import { validateIdentifierParam } from '../../../../shared/middlewares/validate.middleware';
+import { validateObjectIdParam } from '../../../../shared/middlewares/validate.middleware';
 export const createAdminTrackersRoutes = (
   useCases: AdminTrackersUseCases,
   requirePrivilegedMfa: PrivilegedAdminMiddleware
@@ -13,10 +13,10 @@ export const createAdminTrackersRoutes = (
   const router = Router();
   const controller = new AdminTrackersController(useCases);
   router.use(authenticate, requireAdminPermission('content:read'));
-  router.param('id', validateIdentifierParam);
-  router.param('reportId', validateIdentifierParam);
-  router.param('reviewId', validateIdentifierParam);
-  router.param('appealId', validateIdentifierParam);
+  router.param('id', validateObjectIdParam);
+  router.param('reportId', validateObjectIdParam);
+  router.param('reviewId', validateObjectIdParam);
+  router.param('appealId', validateObjectIdParam);
   router.get(ADMIN_TRACKERS_ROUTE_PATHS.ROOT, controller.list);
   router.get(ADMIN_TRACKERS_ROUTE_PATHS.EXPORT, controller.exportCsv);
   router.post(

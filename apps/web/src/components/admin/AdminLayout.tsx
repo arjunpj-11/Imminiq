@@ -17,7 +17,7 @@ import {
   Users,
 } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router';
 import ConfirmDialog from './AdminConfirmDialog';
 import ImminiqLogo from '../ui/ImminiqLogo';
 import ImminiqWordmark from '../ui/ImminiqWordmark';
@@ -80,7 +80,7 @@ const links = [
   },
   {
     to: ADMIN_ROUTES.subscriptions,
-    label: 'Premium / Subscriptions',
+    label: 'Subscriptions',
     section: 'Business',
     icon: ShieldCheck,
     roles: ADMIN_ROUTE_ROLES.subscriptions,

@@ -4,6 +4,7 @@ import {
   PhoneIncoming,
   PhoneMissed,
   PhoneOutgoing,
+  RotateCcw,
 } from 'lucide-react';
 
 import UserAvatar from '../../../../components/data-display/UserAvatar';
@@ -31,6 +32,9 @@ const messagePreview = (message: IChatMessage | null, viewerId: string) => {
   if (message.kind === 'voice') return `${prefix}Voice message`;
   if (message.kind === 'tracker') {
     return `${prefix}Tracker · ${message.sharedTracker?.title ?? 'Shared roadmap'}`;
+  }
+  if (message.kind === 'profile') {
+    return `${prefix}Profile · ${message.sharedProfile?.fullName ?? 'Shared profile'}`;
   }
   if (message.kind === 'file') return `${prefix}${message.attachment?.name ?? 'File'}`;
   if (message.kind === 'code') return `${prefix}Code · ${message.codeLanguage ?? 'snippet'}`;
@@ -202,7 +206,13 @@ export function RequestRow({
   );
 }
 
-export function CallHistoryRow({ call }: { call: ICall }) {
+export function CallHistoryRow({
+  call,
+  onCallAgain,
+}: {
+  call: ICall;
+  onCallAgain: () => void;
+}) {
   const Icon =
     call.status === 'missed' || call.status === 'declined'
       ? PhoneMissed
@@ -229,9 +239,20 @@ export function CallHistoryRow({ call }: { call: ICall }) {
           )}
         </div>
       </div>
-      <time className="font-mono text-[9px] text-(--text-muted)">
-        {conversationTime(call.createdAt)}
-      </time>
+      <div className="flex shrink-0 items-center gap-2">
+        <time className="font-mono text-[9px] text-(--text-muted)">
+          {conversationTime(call.createdAt)}
+        </time>
+        <button
+          type="button"
+          onClick={onCallAgain}
+          className="flex h-9 items-center gap-1.5 rounded-lg border border-(--border-subtle) px-3 text-[10px] font-bold text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-500)"
+          aria-label={`Call ${call.otherParticipant.fullName} again`}
+        >
+          <RotateCcw size={12} />
+          Call again
+        </button>
+      </div>
     </div>
   );
 }

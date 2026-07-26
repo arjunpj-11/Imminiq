@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 import { safeSessionStorage } from '../../lib/storage/safe-storage';
 import { STORAGE_KEYS } from '../../lib/storage/storage-keys';

@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { MeteredCallIceServerProvider } from '../../src/modules/user/calls/infrastructure/services/metered-call-ice-server.provider';
+import { FallbackCallIceServerProvider } from '../../src/modules/user/calls/infrastructure/services/fallback-call-ice-server.provider';
+import { ServiceError } from '../../src/shared/errors/service.error';
 
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -56,10 +58,57 @@ describe('MeteredCallIceServerProvider', () => {
     expect(JSON.parse(String(request.mock.calls[0]?.[1]?.body))).toMatchObject({
       expiryInSeconds: 14_400,
     });
+    expect(
+      JSON.parse(String(request.mock.calls[0]?.[1]?.body)).label
+    ).toMatch(/^imminiq-[a-f0-9]{12}-/);
 
     const loadUrl = new URL(String(request.mock.calls[1]?.[0]));
     expect(loadUrl.pathname).toBe('/api/v1/turn/credentials');
     expect(loadUrl.searchParams.get('apiKey')).toBe('credential-api-key');
+  });
+
+  it('loads a dashboard-created static credential without creating another credential', async () => {
+    const request = vi.fn<typeof fetch>().mockResolvedValueOnce(
+      jsonResponse([
+        { urls: 'stun:stun.relay.metered.ca:80' },
+        {
+          urls: 'turns:standard.relay.metered.ca:443?transport=tcp',
+          username: 'static-user',
+          credential: 'static-password',
+        },
+      ])
+    );
+    const provider = new MeteredCallIceServerProvider({
+      apiBaseUrl: 'https://imminiq.metered.live',
+      apiKey: 'dashboard-credential-api-key',
+      credentialTtlSeconds: 14_400,
+      requestTimeoutMs: 8_000,
+      request,
+    });
+
+    await expect(provider.getIceServers('user-id')).resolves.toHaveLength(2);
+    expect(request).toHaveBeenCalledTimes(1);
+    const requestUrl = new URL(String(request.mock.calls[0]?.[0]));
+    expect(requestUrl.pathname).toBe('/api/v1/turn/credentials');
+    expect(requestUrl.searchParams.get('apiKey')).toBe('dashboard-credential-api-key');
+  });
+
+  it('falls back to direct calling when Metered rejects dynamic credentials', async () => {
+    const primary = {
+      getIceServers: vi.fn().mockRejectedValue(
+        ServiceError.dependencyUnavailable(
+          'METERED_TURN_UNAVAILABLE',
+          'Metered rejected dynamic credentials'
+        )
+      ),
+    };
+    const fallback = {
+      getIceServers: vi.fn().mockResolvedValue([]),
+    };
+    const provider = new FallbackCallIceServerProvider(primary, fallback);
+
+    await expect(provider.getIceServers('user-id')).resolves.toEqual([]);
+    expect(fallback.getIceServers).toHaveBeenCalledWith('user-id');
   });
 
   it('rejects an invalid provider response without exposing provider details', async () => {

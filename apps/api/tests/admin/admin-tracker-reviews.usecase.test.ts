@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { AdminTrackersMapper } from '../../src/modules/admin/trackers/application/admin-trackers.mapper';
 import { AddAdminTrackerReviewConsensusUseCase } from '../../src/modules/admin/trackers/application/use-cases/add-admin-tracker-review-consensus.usecase';
+import { ResolveAdminTrackerReviewUseCase } from '../../src/modules/admin/trackers/application/use-cases/resolve-admin-tracker-review.usecase';
 import type { IAdminTrackerReviewsRepository } from '../../src/modules/admin/trackers/domain/repositories/admin-tracker-reviews.repository.interface';
 import { adminTrackerReviewConsensusSchema } from '../../src/modules/admin/trackers/presentation/admin-trackers.schema';
 
@@ -57,5 +58,40 @@ describe('AdminTrackerReviewsUseCase', () => {
   it('accepts only pass or fail consensus choices', () => {
     expect(adminTrackerReviewConsensusSchema.parse({ choice: 'fail' })).toEqual({ choice: 'fail' });
     expect(() => adminTrackerReviewConsensusSchema.parse({ choice: 'approve' })).toThrow();
+  });
+
+  it('settles voter rewards after an administrator resolves a review', async () => {
+    const rewardContext = {
+      submissionId: 'review-id',
+      consensusChoice: 'pass' as const,
+      trackerId: 'tracker-id',
+      ownerId: 'owner-id',
+      trackerTitle: 'Mathematics',
+    };
+    const repository = {
+      list: vi.fn(),
+      addConsensusVote: vi.fn(),
+      resolve: vi.fn().mockResolvedValue({
+        id: 'review-id',
+        status: 'approved',
+        rewardContext,
+      }),
+    } satisfies IAdminTrackerReviewsRepository;
+    const rewardService = { settle: vi.fn().mockResolvedValue(undefined) };
+    const actor = {
+      userId: 'admin-id',
+      role: 'admin' as const,
+      ipAddress: '127.0.0.1',
+      userAgent: 'test',
+    };
+
+    await expect(
+      new ResolveAdminTrackerReviewUseCase(
+        repository,
+        new AdminTrackersMapper(),
+        rewardService
+      ).execute('review-id', 'approved', actor)
+    ).resolves.toEqual({ id: 'review-id', status: 'approved' });
+    expect(rewardService.settle).toHaveBeenCalledWith(rewardContext);
   });
 });

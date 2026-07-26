@@ -13,7 +13,8 @@ export type ChatApplicationErrorCode =
   | 'CHAT_USER_BLOCKED'
   | 'CHAT_BLOCK_FAILED'
   | 'CHAT_MESSAGE_NOT_FOUND'
-  | 'CHAT_TRACKER_NOT_SHAREABLE';
+  | 'CHAT_TRACKER_NOT_SHAREABLE'
+  | 'CHAT_PROFILE_NOT_SHAREABLE';
 
 export class ChatApplicationError extends ChatDomainError {
   readonly kind: ErrorKind;
@@ -117,6 +118,14 @@ export class ChatApplicationError extends ChatDomainError {
       'forbidden',
       'CHAT_TRACKER_NOT_SHAREABLE',
       'This tracker is not available to share'
+    );
+  }
+
+  static profileNotShareable() {
+    return new ChatApplicationError(
+      'forbidden',
+      'CHAT_PROFILE_NOT_SHAREABLE',
+      'This profile is not available to share'
     );
   }
 }

@@ -37,6 +37,10 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
       'COMMUNITY_TRACKERS_READ_FAILED',
       'Failed to read community trackers',
       async () => {
+        if (this.isPersonalizedSuggestionQuery(query)) {
+          return this.findPersonalizedSuggestions(query);
+        }
+
         const filters = this.buildPublicTrackerQuery(query);
         const sort = this.buildTrackerSort(query.sort);
         const skip = (query.page - 1) * query.limit;
@@ -64,6 +68,119 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
         };
       }
     );
+  }
+
+  private isPersonalizedSuggestionQuery(query: FindCommunityTrackersQuery): boolean {
+    return (
+      !MongoCommunityNormalizer.search(query.search) &&
+      !query.topics?.length &&
+      (query.minRating === null || query.minRating === undefined) &&
+      !query.verifiedOnly &&
+      (!query.sort || query.sort === 'top-rated')
+    );
+  }
+
+  private async findPersonalizedSuggestions(query: FindCommunityTrackersQuery) {
+    const userObjectId = MongoCommunityObjectId.toObjectId(query.userId);
+    const ownedTrackers = (await CommunityTrackerModel.find({
+      ownerId: userObjectId,
+      deletedAt: null,
+    })
+      .select('title category field goal tags')
+      .sort({ lastActiveAt: -1, updatedAt: -1 })
+      .limit(50)
+      .lean<MongoCommunityTrackerRecord[]>()) as MongoCommunityTrackerRecord[];
+
+    const recentSearches = (query.recentSearches ?? [])
+      .map((value) => MongoCommunityNormalizer.search(value))
+      .filter((value): value is string => Boolean(value))
+      .slice(0, 8);
+    const categories = new Set(
+      ownedTrackers
+        .map((tracker) => MongoCommunityNormalizer.topic(tracker.category ?? ''))
+        .filter(Boolean)
+    );
+    const fields = new Set(
+      ownedTrackers
+        .map((tracker) => MongoCommunityNormalizer.topic(tracker.field ?? ''))
+        .filter(Boolean)
+    );
+    const tags = new Set(
+      ownedTrackers
+        .flatMap((tracker) => tracker.tags ?? [])
+        .map((tag) => MongoCommunityNormalizer.topic(String(tag)))
+        .filter(Boolean)
+    );
+    const interestTerms = new Set(
+      [...ownedTrackers.map((tracker) => tracker.title), ...recentSearches]
+        .flatMap((value) => String(value ?? '').toLowerCase().split(/[^\p{L}\p{N}+#.]+/u))
+        .map((value) => value.trim())
+        .filter((value) => value.length >= 2)
+        .slice(0, 60)
+    );
+
+    const candidates = (await CommunityTrackerModel.find({
+      ...MongoCommunityQueryUtils.publicTrackerVisibilityQuery(),
+      allowClone: true,
+      ownerId: { $ne: userObjectId },
+    })
+      .sort({ ratingAverage: -1, cloneCount: -1, createdAt: -1 })
+      .limit(200)
+      .lean<MongoCommunityTrackerRecord[]>()) as MongoCommunityTrackerRecord[];
+
+    const score = (tracker: MongoCommunityTrackerRecord) => {
+      const category = MongoCommunityNormalizer.topic(tracker.category ?? '');
+      const field = MongoCommunityNormalizer.topic(tracker.field ?? '');
+      const trackerTags = (tracker.tags ?? []).map((tag) =>
+        MongoCommunityNormalizer.topic(String(tag))
+      );
+      const searchable = [
+        tracker.title,
+        tracker.description,
+        tracker.goal,
+        tracker.category,
+        tracker.field,
+        ...trackerTags,
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      let relevance = 0;
+      if (category && categories.has(category)) relevance += 8;
+      if (field && fields.has(field)) relevance += 6;
+      relevance += trackerTags.filter((tag) => tags.has(tag)).length * 4;
+      for (const term of interestTerms) {
+        if (searchable.includes(term)) relevance += 2;
+      }
+      for (const search of recentSearches) {
+        if (searchable.includes(search.toLowerCase())) relevance += 10;
+      }
+      return relevance;
+    };
+
+    const ranked = candidates
+      .map((tracker) => ({ tracker, score: score(tracker) }))
+      .sort(
+        (left, right) =>
+          right.score - left.score ||
+          Number(right.tracker.ratingAverage ?? 0) -
+            Number(left.tracker.ratingAverage ?? 0) ||
+          Number(right.tracker.cloneCount ?? 0) - Number(left.tracker.cloneCount ?? 0)
+      )
+      .slice(0, Math.min(query.limit, 15))
+      .map(({ tracker }) => tracker);
+    const markedItems = await this.markDashboardTrackers(ranked, query.userId);
+    const trackers = markedItems
+      .map((item) => this._mapper.toTrackerEntity(item, query.userId))
+      .filter((item): item is NonNullable<typeof item> => Boolean(item));
+
+    return {
+      items: trackers,
+      total: trackers.length,
+      page: 1,
+      limit: Math.min(query.limit, 15),
+      totalPages: trackers.length ? 1 : 0,
+    };
   }
 
   async findCommunityTrackerById(trackerId: string, userId: string) {

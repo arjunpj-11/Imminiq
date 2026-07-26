@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 import { ADMIN_ROUTES, ROUTES } from '../../routes/config/route-paths';
 import PageContainer from '../layout/PageContainer';
@@ -21,11 +21,20 @@ type AppSkeletonKind =
 
 const S = ({ className }: { className: string }) => <SkeletonBlock className={className} />;
 
-function SkeletonStatus({ label, children }: { label: string; children: ReactNode }) {
+function SkeletonStatus({
+  label,
+  message,
+  children,
+}: {
+  label: string;
+  message?: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <div role="status" aria-live="polite" aria-busy="true" aria-label={label}>
       <span className="sr-only">{label}…</span>
       <div aria-hidden="true">{children}</div>
+      {message}
     </div>
   );
 }
@@ -368,9 +377,11 @@ function getAppSkeletonKind(pathname: string): AppSkeletonKind {
 export function AppPageSkeleton({
   kind,
   label = 'Loading page',
+  description,
 }: {
   kind?: AppSkeletonKind;
   label?: string;
+  description?: string;
 }) {
   const pathname = useLocation().pathname;
   const resolvedKind = kind ?? getAppSkeletonKind(pathname);
@@ -390,8 +401,38 @@ export function AppPageSkeleton({
   }[resolvedKind];
 
   const standalone = ['lesson', 'roadmap', 'attempt', 'workflow'].includes(resolvedKind);
+  const progressDescriptions: Partial<Record<AppSkeletonKind, string>> = {
+    lesson:
+      'Immi is preparing the explanation, examples, and practice activities. This can take a little longer for a new lesson.',
+    roadmap:
+      'Immi is arranging your topics, progress, and next learning step. Your roadmap will open automatically.',
+    workflow:
+      'Immi is building your personalised content. You can keep this page open while each stage completes.',
+    attempt:
+      'We are preparing your questions and restoring your test progress.',
+  };
   return (
-    <SkeletonStatus label={label}>
+    <SkeletonStatus
+      label={label}
+      message={
+        standalone ? (
+          <div className="fixed inset-x-4 bottom-5 z-40 mx-auto flex max-w-xl items-center gap-3 rounded-2xl border border-(--border-subtle) bg-(--surface-elevated)/95 px-4 py-3 text-left shadow-(--shadow-3) backdrop-blur-md">
+            <span
+              className="h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-(--brand-500) border-r-transparent"
+              aria-hidden="true"
+            />
+            <span className="min-w-0">
+              <strong className="block text-[12px] font-extrabold text-(--text-primary)">
+                {label}
+              </strong>
+              <span className="mt-0.5 block text-[10px] leading-4 text-(--text-secondary)">
+                {description ?? progressDescriptions[resolvedKind]}
+              </span>
+            </span>
+          </div>
+        ) : undefined
+      }
+    >
       {standalone ? content : <PageContainer>{content}</PageContainer>}
     </SkeletonStatus>
   );

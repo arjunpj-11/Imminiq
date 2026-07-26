@@ -1,6 +1,6 @@
 import { cn } from '../../lib/cn';
 
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router';
 
 import { prefetchRoute } from '../../lib/route-prefetch';
 import { getTemporaryUserNavItem } from '../../lib/current-page-navigation';

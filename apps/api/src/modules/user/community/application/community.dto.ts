@@ -12,6 +12,7 @@ export interface CommunityTrackerListPayloadDTO extends CommunityPaginationQuery
   minRating?: number | null;
   verifiedOnly?: boolean;
   sort?: CommunitySort;
+  recentSearches?: string[];
 }
 
 export interface VerificationQueuePayloadDTO extends CommunityPaginationQueryDTO {

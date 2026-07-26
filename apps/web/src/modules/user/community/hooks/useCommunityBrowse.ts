@@ -23,6 +23,9 @@ const buildCommunityParams = (query: ICommunityBrowseQuery) => {
   }
   if (query.verifiedOnly) params.set('verifiedOnly', 'true');
   if (query.sort) params.set('sort', query.sort);
+  if (query.recentSearches?.length) {
+    params.set('recentSearches', query.recentSearches.join(','));
+  }
 
   params.set('page', String(query.page ?? 1));
   params.set('limit', String(query.limit ?? COMMUNITY_PAGE_LIMIT));

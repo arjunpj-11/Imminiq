@@ -5,6 +5,7 @@ export {
   useRequestTrackerClanJoin,
 } from './hooks/useTrackerMutations';
 export { useActiveTrackerClanChallenge, useTrackerClan } from './hooks/useTrackerQueries';
+export { DomainCombobox } from './components/PublishTrackerModal';
 
 export type {
   IRoadmapSubtopic,
@@ -13,6 +14,10 @@ export type {
   TrackerDomain,
   TrackerLevel,
 } from './types/tracker.types';
-export { parseTrackerOutlineJson, trackerOutlineExample } from './utils/tracker-outline';
+export {
+  parseTrackerOutlineJson,
+  trackerOutlineExample,
+  validateTrackerTitle,
+} from './utils/tracker-outline';
 export * from './constants/tracker-api.constants';
 export { trackerKeys } from './hooks/trackers.query-keys';

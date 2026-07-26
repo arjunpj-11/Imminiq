@@ -28,6 +28,11 @@ export type ShareTrackerInputDTO = {
   targetConversationId: string;
 };
 
+export type ShareProfileInputDTO = {
+  username: string;
+  targetConversationId: string;
+};
+
 export type UserBlockInputDTO = {
   userId: string;
 };
@@ -70,10 +75,18 @@ export type ChatMessageDTO = {
     description: string;
     visibility: 'private' | 'public' | 'unlisted';
   } | null;
+  sharedProfile: {
+    userId: string;
+    username: string;
+    fullName: string;
+    headline: string;
+    avatarUrl: string | null;
+  } | null;
   isForwarded: boolean;
   createdAt: Date;
   updatedAt: Date;
   isRead: boolean;
+  isStarred: boolean;
 };
 
 export type ChatConversationDTO = {
@@ -104,4 +117,10 @@ export type ChatConversationReadViewDTO = {
   userId: string;
   readAt: Date;
   updatedCount: number;
+};
+
+export type ClearChatConversationViewDTO = {
+  conversationId: string;
+  clearedCount: number;
+  preservedStarredMessages: boolean;
 };

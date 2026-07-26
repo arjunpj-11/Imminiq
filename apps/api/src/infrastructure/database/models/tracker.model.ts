@@ -28,6 +28,7 @@ export interface ITrackerDocument extends Document {
   tags: string[];
   allowClone: boolean;
   sourceTrackerId?: mongoose.Types.ObjectId | null;
+  guildChangesFetchedAt?: Date | null;
   cloneFreshnessAnalysisStatus?: CloneFreshnessAnalysisStatus | null;
   cloneFreshnessAnalysisJobId?: mongoose.Types.ObjectId | null;
   cloneFreshnessAnalyzedAt?: Date | null;
@@ -144,6 +145,11 @@ const trackerSchema = new Schema<ITrackerDocument>(
     sourceTrackerId: {
       type: Schema.Types.ObjectId,
       ref: 'Tracker',
+      default: null,
+    },
+
+    guildChangesFetchedAt: {
+      type: Date,
       default: null,
     },
 

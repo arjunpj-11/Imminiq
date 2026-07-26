@@ -1,6 +1,6 @@
 import type { CommunitySort } from '../types/community.types';
 
-export const COMMUNITY_PAGE_LIMIT = 12;
+export const COMMUNITY_PAGE_LIMIT = 15;
 export const COMMUNITY_VERIFY_PAGE_LIMIT = 8;
 export const COMMUNITY_REVIEW_REWARD_COINS = 50;
 

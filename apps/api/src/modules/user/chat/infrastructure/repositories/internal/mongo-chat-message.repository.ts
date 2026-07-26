@@ -28,7 +28,15 @@ export class MongoChatMessageRepository
         input.conversationId,
         'INVALID_CHAT_CONVERSATION_ID'
       );
-      const filter = { conversationId, deletedAt: null };
+      const viewerId = MongoChatNormalizer.toObjectId(
+        input.viewerUserId,
+        'INVALID_CHAT_VIEWER_ID'
+      );
+      const filter = {
+        conversationId,
+        clearedFor: { $ne: viewerId },
+        deletedAt: null,
+      };
       const skip = (input.page - 1) * input.limit;
       const [records, total] = await Promise.all([
         ChatMessage.find(filter)
@@ -65,6 +73,33 @@ export class MongoChatMessageRepository
     });
   }
 
+  async findLatestVisibleMessages(conversationIds: string[], viewerUserId: string) {
+    if (conversationIds.length === 0) return [];
+    return this.execute('CHAT_MESSAGE_READ_FAILED', 'Failed to load messages', async () => {
+      const viewerId = MongoChatNormalizer.toObjectId(
+        viewerUserId,
+        'INVALID_CHAT_VIEWER_ID'
+      );
+      const records = await ChatMessage.aggregate<MongoChatMessageRecord>([
+        {
+          $match: {
+            conversationId: {
+              $in: conversationIds.map((id) =>
+                MongoChatNormalizer.toObjectId(id, 'INVALID_CHAT_CONVERSATION_ID')
+              ),
+            },
+            clearedFor: { $ne: viewerId },
+            deletedAt: null,
+          },
+        },
+        { $sort: { createdAt: -1 } },
+        { $group: { _id: '$conversationId', message: { $first: '$$ROOT' } } },
+        { $replaceRoot: { newRoot: '$message' } },
+      ]);
+      return records.map((record) => this._mapper.toMessageEntity(record));
+    });
+  }
+
   async findUnreadCounts(conversationIds: string[], viewerUserId: string) {
     if (conversationIds.length === 0) return new Map<string, number>();
     return this.execute('CHAT_UNREAD_COUNT_FAILED', 'Failed to load unread counts', async () => {
@@ -79,6 +114,7 @@ export class MongoChatMessageRepository
             },
             senderId: { $ne: viewerId },
             readBy: { $ne: viewerId },
+            clearedFor: { $ne: viewerId },
             deletedAt: null,
           },
         },
@@ -109,6 +145,15 @@ export class MongoChatMessageRepository
               ),
             }
           : null,
+        sharedProfile: input.sharedProfile
+          ? {
+              ...input.sharedProfile,
+              userId: MongoChatNormalizer.toObjectId(
+                input.sharedProfile.userId,
+                'INVALID_SHARED_PROFILE_ID'
+              ),
+            }
+          : null,
         forwardedFromMessageId: input.forwardedFromMessageId
           ? MongoChatNormalizer.toObjectId(
               input.forwardedFromMessageId,
@@ -118,6 +163,8 @@ export class MongoChatMessageRepository
         readBy: [
           MongoChatNormalizer.toObjectId(input.senderId, 'INVALID_CHAT_SENDER_ID'),
         ],
+        starredBy: [],
+        clearedFor: [],
         deletedAt: null,
       });
       await ChatConversation.updateOne(
@@ -145,9 +192,65 @@ export class MongoChatMessageRepository
           conversationId: conversationObjectId,
           senderId: { $ne: viewerObjectId },
           readBy: { $ne: viewerObjectId },
+          clearedFor: { $ne: viewerObjectId },
           deletedAt: null,
         },
         { $addToSet: { readBy: viewerObjectId } }
+      );
+      return result.modifiedCount;
+    });
+  }
+
+  async toggleMessageStar(messageId: string, viewerUserId: string) {
+    return this.execute('CHAT_MESSAGE_WRITE_FAILED', 'Failed to update message star', async () => {
+      const messageObjectId = MongoChatNormalizer.toObjectId(
+        messageId,
+        'INVALID_CHAT_MESSAGE_ID'
+      );
+      const viewerObjectId = MongoChatNormalizer.toObjectId(
+        viewerUserId,
+        'INVALID_CHAT_VIEWER_ID'
+      );
+      const current = await ChatMessage.findOne({
+        _id: messageObjectId,
+        clearedFor: { $ne: viewerObjectId },
+        deletedAt: null,
+      })
+        .select('starredBy')
+        .lean<{ starredBy?: unknown[] } | null>();
+      if (!current) return null;
+      const isStarred = (current.starredBy ?? []).some(
+        (userId) => String(userId) === viewerUserId
+      );
+      const updated = await ChatMessage.findOneAndUpdate(
+        { _id: messageObjectId, clearedFor: { $ne: viewerObjectId }, deletedAt: null },
+        isStarred
+          ? { $pull: { starredBy: viewerObjectId } }
+          : { $addToSet: { starredBy: viewerObjectId } },
+        { returnDocument: 'after' }
+      ).lean<MongoChatMessageRecord | null>();
+      return updated ? this._mapper.toMessageEntity(updated) : null;
+    });
+  }
+
+  async clearConversationMessages(conversationId: string, viewerUserId: string) {
+    return this.execute('CHAT_MESSAGE_WRITE_FAILED', 'Failed to clear conversation', async () => {
+      const conversationObjectId = MongoChatNormalizer.toObjectId(
+        conversationId,
+        'INVALID_CHAT_CONVERSATION_ID'
+      );
+      const viewerObjectId = MongoChatNormalizer.toObjectId(
+        viewerUserId,
+        'INVALID_CHAT_VIEWER_ID'
+      );
+      const result = await ChatMessage.updateMany(
+        {
+          conversationId: conversationObjectId,
+          starredBy: { $ne: viewerObjectId },
+          clearedFor: { $ne: viewerObjectId },
+          deletedAt: null,
+        },
+        { $addToSet: { clearedFor: viewerObjectId } }
       );
       return result.modifiedCount;
     });

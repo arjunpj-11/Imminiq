@@ -8,6 +8,31 @@ export type TrackerOutlineTopic = Omit<TrackerOutlineNode, 'subtopics'> & {
   subtopics: TrackerOutlineNode[];
 };
 
+const unsafeTitleCharacterPattern = /[<>{}`$\\]/u;
+const placeholderTitlePattern =
+  /^(?:test(?:ing)?|asdf(?:ghjkl)?|qwerty|random(?:\s+thing)?|untitled|new\s+tracker|tracker|lorem\s+ipsum)[\d\s._-]*$/i;
+const hasControlCharacter = (value: string) =>
+  [...value].some((character) => {
+    const codePoint = character.codePointAt(0) ?? 0;
+    return codePoint <= 31 || codePoint === 127;
+  });
+
+export const validateTrackerTitle = (source: string): string | null => {
+  const title = source.trim();
+  if (title.length < 2) return 'Enter a tracker title with at least 2 characters.';
+  if (title.length > 120) return 'Keep the tracker title within 120 characters.';
+  if (unsafeTitleCharacterPattern.test(title) || hasControlCharacter(title))
+    return 'Remove brackets, braces, template symbols, or control characters from the title.';
+  if (
+    !/[\p{L}\p{N}]{2}/u.test(title) ||
+    placeholderTitlePattern.test(title) ||
+    /^(.)\1+$/u.test(title.replace(/\s/g, ''))
+  ) {
+    return 'Enter a specific, meaningful learning topic instead of a placeholder.';
+  }
+  return null;
+};
+
 const asRecord = (value: unknown): Record<string, unknown> | null =>
   value && typeof value === 'object' && !Array.isArray(value)
     ? (value as Record<string, unknown>)
@@ -29,6 +54,8 @@ const readNodes = (
     if (!title) throw new Error(`Outline item ${index + 1} is missing a title.`);
     if (title.length > 120)
       throw new Error(`“${title.slice(0, 30)}…” is longer than 120 characters.`);
+    if (unsafeTitleCharacterPattern.test(title) || hasControlCharacter(title))
+      throw new Error(`“${title.slice(0, 30)}” contains unsupported or unsafe characters.`);
 
     count.value += 1;
     if (count.value > 250)

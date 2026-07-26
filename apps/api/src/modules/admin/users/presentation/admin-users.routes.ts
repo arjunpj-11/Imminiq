@@ -8,7 +8,7 @@ import type { PrivilegedAdminMiddleware } from '../../../../shared/middlewares/a
 import type { AdminUsersUseCases } from '../application/admin-users-use-cases.contract';
 import { AdminUsersController } from './admin-users.controller';
 import { ADMIN_USERS_ROUTE_PATHS } from './admin-users.route.constants';
-import { validateIdentifierParam } from '../../../../shared/middlewares/validate.middleware';
+import { validateObjectIdParam } from '../../../../shared/middlewares/validate.middleware';
 
 export const createAdminUsersRoutes = (
   useCases: AdminUsersUseCases,
@@ -17,11 +17,11 @@ export const createAdminUsersRoutes = (
   const router = Router();
   const controller = new AdminUsersController(useCases);
   router.use(authenticate, requireAdminPermission('users:manage'));
-  router.param('userId', validateIdentifierParam);
-  router.param('appealId', validateIdentifierParam);
-  router.param('sessionId', validateIdentifierParam);
-  router.param('requestId', validateIdentifierParam);
-  router.param('noteId', validateIdentifierParam);
+  router.param('userId', validateObjectIdParam);
+  router.param('appealId', validateObjectIdParam);
+  router.param('sessionId', validateObjectIdParam);
+  router.param('requestId', validateObjectIdParam);
+  router.param('noteId', validateObjectIdParam);
   router.get(ADMIN_USERS_ROUTE_PATHS.ROOT, controller.list);
   router.get(ADMIN_USERS_ROUTE_PATHS.EXPORT, controller.exportCsv);
   router.post(ADMIN_USERS_ROUTE_PATHS.BULK_STATUS, requirePrivilegedMfa, controller.bulkStatus);

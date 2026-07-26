@@ -385,11 +385,53 @@ describe('tracker topic contributions', () => {
       isLocked: false,
     });
     await expect(
+      clans.getOverview({
+        trackerId: tracker._id.toString(),
+        userId: member._id.toString(),
+      })
+    ).resolves.toMatchObject({ hasAcceptedChanges: false });
+    await expect(
+      clans.syncPersonalClone({
+        trackerId: tracker._id.toString(),
+        userId: member._id.toString(),
+      })
+    ).resolves.toBeNull();
+    await TrackerTopicContribution.create({
+      sourceTrackerId: tracker._id,
+      cloneTrackerId: memberClone._id,
+      cloneTopicId: personalTopic._id,
+      requesterId: member._id,
+      ownerId: owner._id,
+      title: upstreamTopic.title,
+      description: upstreamTopic.description,
+      status: 'approved',
+      reviewedAt: new Date(),
+      mergedTopicId: upstreamTopic._id,
+    });
+    await expect(
+      clans.getOverview({
+        trackerId: tracker._id.toString(),
+        userId: member._id.toString(),
+      })
+    ).resolves.toMatchObject({ hasAcceptedChanges: true });
+    await expect(
       clans.syncPersonalClone({
         trackerId: tracker._id.toString(),
         userId: member._id.toString(),
       })
     ).resolves.toMatchObject({ addedTopics: 1, addedSubtopics: 1 });
+    await expect(
+      clans.getOverview({
+        trackerId: tracker._id.toString(),
+        userId: member._id.toString(),
+      })
+    ).resolves.toMatchObject({ hasAcceptedChanges: false });
+    await expect(
+      clans.syncPersonalClone({
+        trackerId: tracker._id.toString(),
+        userId: member._id.toString(),
+      })
+    ).resolves.toBeNull();
     await expect(
       TrackerTopic.exists({ _id: personalTopic._id, trackerId: memberClone._id, deletedAt: null })
     ).resolves.toBeTruthy();

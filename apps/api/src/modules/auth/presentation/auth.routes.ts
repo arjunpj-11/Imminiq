@@ -59,7 +59,9 @@ export const createAuthRoutes = (useCases: AuthUseCases) => {
     authController.verifyTwoFactorLogin
   );
 
-  router.post(AUTH_ROUTE_PATHS.LOGOUT, authSessionActionIpLimiter, authController.logout);
+  // Logging out must remain available even when refresh attempts have been throttled,
+  // otherwise a client can clear its local state while leaving the server session alive.
+  router.post(AUTH_ROUTE_PATHS.LOGOUT, authController.logout);
 
   router.post(
     AUTH_ROUTE_PATHS.REFRESH_TOKEN,

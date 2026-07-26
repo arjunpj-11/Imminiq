@@ -3,7 +3,7 @@
 // ============================================================
 
 import type { ReactNode } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import SkeletonBlock from '../../../../components/feedback/SkeletonBlock';

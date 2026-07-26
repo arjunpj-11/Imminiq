@@ -20,6 +20,7 @@ export class ValidationApiError extends ApiError {
 }
 
 const SAFE_IDENTIFIER_PATTERN = /^[A-Za-z0-9_-]+$/;
+const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
 
 export const validateIdentifierParam: RequestParamHandler = (_req, _res, next, value, name) => {
   if (
@@ -28,6 +29,18 @@ export const validateIdentifierParam: RequestParamHandler = (_req, _res, next, v
     value.length > 128 ||
     !SAFE_IDENTIFIER_PATTERN.test(value)
   ) {
+    return next(
+      new ValidationApiError({
+        [name]: [`${name} is invalid`],
+      })
+    );
+  }
+
+  return next();
+};
+
+export const validateObjectIdParam: RequestParamHandler = (_req, _res, next, value, name) => {
+  if (typeof value !== 'string' || !OBJECT_ID_PATTERN.test(value)) {
     return next(
       new ValidationApiError({
         [name]: [`${name} is invalid`],

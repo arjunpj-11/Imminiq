@@ -20,7 +20,10 @@ type LocalLessonChatMessage = {
   content: string;
 };
 
-import { MicButton } from '../../../../../components/input/VoiceInputButton';
+import {
+  MicButton,
+  VoiceInputStatus,
+} from '../../../../../components/input/VoiceInputButton';
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -242,25 +245,29 @@ export default function LessonChatCard({
 
   const renderChatInput = () => (
     <div className="flex items-center gap-2 rounded-xl border-[1.5px] border-(--border-subtle) bg-white px-3 py-1.5 transition focus-within:border-(--brand-500) focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-(--border-subtle) dark:bg-(--surface-elevated)">
-      <input
-        value={message}
-        onChange={(event) => setMessage(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') {
-            event.preventDefault();
+      <div className="relative min-w-0 flex-1 self-stretch overflow-hidden rounded-lg">
+        <input
+          value={message}
+          onChange={(event) => setMessage(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
 
-            if (!isChatBusy) {
-              sendMessage();
+              if (!isChatBusy) {
+                sendMessage();
+              }
             }
-          }
-        }}
-        disabled={clearChatMutation.isPending}
-        placeholder={voice.isListening ? 'Listening...' : 'Send a message...'}
-        className="min-w-0 flex-1 bg-transparent py-1.5 text-[13px] text-(--text-primary) outline-none placeholder:text-(--text-secondary)/60 disabled:cursor-not-allowed disabled:opacity-60 dark:text-(--text-primary) dark:placeholder:text-[#9b9a92]/60"
-      />
+          }}
+          disabled={clearChatMutation.isPending || voice.phase !== 'idle'}
+          placeholder="Send a message..."
+          className="h-full w-full min-w-0 bg-transparent py-1.5 text-[13px] text-(--text-primary) outline-none placeholder:text-(--text-secondary)/60 disabled:cursor-not-allowed dark:text-(--text-primary) dark:placeholder:text-[#9b9a92]/60"
+        />
+        <VoiceInputStatus phase={voice.phase} audioLevel={voice.audioLevel} />
+      </div>
 
       <MicButton
         isListening={voice.isListening}
+        phase={voice.phase}
         isSupported={voice.isSupported}
         onToggle={voice.toggle}
         size="sm"

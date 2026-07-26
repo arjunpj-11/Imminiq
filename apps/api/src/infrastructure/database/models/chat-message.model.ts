@@ -30,6 +30,21 @@ const sharedTrackerSchema = new Schema(
   { _id: false }
 );
 
+const sharedProfileSchema = new Schema(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    username: { type: String, required: true, trim: true, lowercase: true, maxlength: 30 },
+    fullName: { type: String, required: true, trim: true, maxlength: 80 },
+    headline: { type: String, trim: true, maxlength: 160, default: '' },
+    avatarUrl: { type: String, trim: true, maxlength: 2048, default: null },
+  },
+  { _id: false }
+);
+
 const chatMessageSchema = new Schema(
   {
     conversationId: {
@@ -46,7 +61,7 @@ const chatMessageSchema = new Schema(
     },
     kind: {
       type: String,
-      enum: ['text', 'code', 'image', 'file', 'voice', 'tracker'],
+      enum: ['text', 'code', 'image', 'file', 'voice', 'tracker', 'profile'],
       required: true,
       default: 'text',
     },
@@ -70,12 +85,26 @@ const chatMessageSchema = new Schema(
       type: sharedTrackerSchema,
       default: null,
     },
+    sharedProfile: {
+      type: sharedProfileSchema,
+      default: null,
+    },
     forwardedFromMessageId: {
       type: Schema.Types.ObjectId,
       ref: 'ChatMessage',
       default: null,
     },
     readBy: {
+      type: [Schema.Types.ObjectId],
+      ref: 'User',
+      default: [],
+    },
+    starredBy: {
+      type: [Schema.Types.ObjectId],
+      ref: 'User',
+      default: [],
+    },
+    clearedFor: {
       type: [Schema.Types.ObjectId],
       ref: 'User',
       default: [],
@@ -94,6 +123,7 @@ const chatMessageSchema = new Schema(
 
 chatMessageSchema.index({ conversationId: 1, deletedAt: 1, createdAt: -1 });
 chatMessageSchema.index({ conversationId: 1, senderId: 1, readBy: 1, deletedAt: 1 });
+chatMessageSchema.index({ conversationId: 1, clearedFor: 1, createdAt: -1 });
 chatMessageSchema.index({ forwardedFromMessageId: 1, deletedAt: 1 });
 
 export type ChatMessageDocument = InferSchemaType<typeof chatMessageSchema>;

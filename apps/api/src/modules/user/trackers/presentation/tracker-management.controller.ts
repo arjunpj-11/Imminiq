@@ -39,6 +39,7 @@ export class TrackerManagementController {
         userId: getAuthUser(req).userId,
         status: query.status || 'all',
         domain: query.domain || 'all',
+        search: query.search || '',
         sortBy: query.sortBy || 'lastActive',
         page: query.page || 1,
         limit: query.limit || 12,

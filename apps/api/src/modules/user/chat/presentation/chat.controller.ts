@@ -14,6 +14,7 @@ import {
   listChatSchema,
   messageParamsSchema,
   sendChatMessageSchema,
+  shareProfileSchema,
   shareTrackerSchema,
   userBlockParamsSchema,
 } from './chat.schema';
@@ -129,6 +130,32 @@ export class ChatController {
     }
   };
 
+  toggleMessageStar = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const params = this.parse(messageParamsSchema.safeParse(req.params));
+      const result = await this._useCases.toggleMessageStar.execute(
+        getAuthUser(req).userId,
+        params.messageId
+      );
+      res.json(new ApiResponse(CHAT_RESPONSE_MESSAGES.MESSAGE_STAR_UPDATED, result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  clearConversation = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const params = this.parse(conversationParamsSchema.safeParse(req.params));
+      const result = await this._useCases.clearConversation.execute(
+        getAuthUser(req).userId,
+        params.conversationId
+      );
+      res.json(new ApiResponse(CHAT_RESPONSE_MESSAGES.CONVERSATION_CLEARED, result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
   shareTracker = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const body = this.parse(shareTrackerSchema.safeParse(req.body));
@@ -139,6 +166,21 @@ export class ChatController {
       res
         .status(HttpStatusCode.CREATED)
         .json(new ApiResponse(CHAT_RESPONSE_MESSAGES.TRACKER_SHARED, result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  shareProfile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const body = this.parse(shareProfileSchema.safeParse(req.body));
+      const result = await this._useCases.shareProfile.execute(
+        getAuthUser(req).userId,
+        body
+      );
+      res
+        .status(HttpStatusCode.CREATED)
+        .json(new ApiResponse(CHAT_RESPONSE_MESSAGES.PROFILE_SHARED, result));
     } catch (error) {
       next(error);
     }

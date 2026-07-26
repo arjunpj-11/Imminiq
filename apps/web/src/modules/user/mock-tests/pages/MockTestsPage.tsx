@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import PageHero from '../../../../components/layout/PageHero';

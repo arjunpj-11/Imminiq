@@ -139,6 +139,7 @@ export interface ICommunityBrowseQuery {
   minRating?: number | null;
   verifiedOnly?: boolean;
   sort?: CommunitySort;
+  recentSearches?: string[];
   page?: number;
   limit?: number;
 }

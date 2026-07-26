@@ -6,8 +6,10 @@ import { notificationKeys } from '../modules/notifications';
 import { friendsQueryKeys } from '../modules/user/friends';
 import { socialQueryKeys } from '../modules/user/social';
 import { profileQueryKeys } from '../modules/user/users';
+import { trackerKeys } from '../modules/user/trackers/hooks/trackers.query-keys';
 
 const FRIEND_NOTIFICATION_TYPES = new Set(['friend_request_received', 'friend_request_accepted']);
+const TRACKER_CHANGE_NOTIFICATION_TYPES = new Set(['tracker_topic_contribution_approved']);
 
 type NotificationCreatedEvent = {
   type?: string;
@@ -23,6 +25,9 @@ export const useRealtimeAppEvents = (accessToken: string | null, enabled: boolea
       void queryClient.invalidateQueries({ queryKey: notificationKeys.all });
       if (event?.type && FRIEND_NOTIFICATION_TYPES.has(event.type)) {
         void queryClient.invalidateQueries({ queryKey: friendsQueryKeys.all });
+      }
+      if (event?.type && TRACKER_CHANGE_NOTIFICATION_TYPES.has(event.type)) {
+        void queryClient.invalidateQueries({ queryKey: trackerKeys.all });
       }
     };
     const refreshChat = () => {

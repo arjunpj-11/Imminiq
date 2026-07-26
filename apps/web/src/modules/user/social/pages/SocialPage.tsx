@@ -3,7 +3,6 @@ import {
   ArrowDown,
   ArrowLeft,
   Check,
-  Copy,
   LoaderCircle,
   MessageCircle,
   MoreVertical,
@@ -11,6 +10,7 @@ import {
   PhoneCall,
   Search,
   ShieldOff,
+  Trash2,
   UserCheck,
   UserPlus,
   Users,
@@ -26,7 +26,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router';
 
 import UserAvatar from '../../../../components/data-display/UserAvatar';
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
@@ -65,9 +65,11 @@ import {
   useBlockedUsers,
   useChatConversations,
   useChatMessages,
+  useClearChatConversation,
   useCreateConversation,
   useForwardChatMessage,
   useMarkChatRead,
+  useToggleChatMessageStar,
   useUnblockUser,
 } from '../hooks/useChat';
 import { useCallHistory } from '../hooks/useCalls';
@@ -117,6 +119,7 @@ export default function SocialPage() {
   const [presenceClock, setPresenceClock] = useState(() => Date.now());
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [blockConfirmationOpen, setBlockConfirmationOpen] = useState(false);
+  const [clearChatConfirmationOpen, setClearChatConfirmationOpen] = useState(false);
   const [forwardingMessage, setForwardingMessage] = useState<IChatMessage | null>(null);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const optionsRef = useRef<HTMLDivElement>(null);
@@ -135,6 +138,8 @@ export default function SocialPage() {
   const declineRequest = useDeclineFriendRequest();
   const markRead = useMarkChatRead();
   const forwardMessage = useForwardChatMessage();
+  const toggleMessageStar = useToggleChatMessageStar();
+  const clearConversation = useClearChatConversation();
   const blockUser = useBlockUser();
   const unblockUser = useUnblockUser();
   const openCall = useCallLauncherStore((state) => state.open);
@@ -175,7 +180,7 @@ export default function SocialPage() {
     const query = messageSearch.trim().toLowerCase();
     if (!query) return messages;
     return messages.filter((message) =>
-      `${message.text} ${message.codeLanguage ?? ''} ${message.attachment?.name ?? ''} ${message.sharedTracker?.title ?? ''}`
+      `${message.text} ${message.codeLanguage ?? ''} ${message.attachment?.name ?? ''} ${message.sharedTracker?.title ?? ''} ${message.sharedProfile?.fullName ?? ''} ${message.sharedProfile?.username ?? ''}`
         .toLowerCase()
         .includes(query)
     );
@@ -410,22 +415,6 @@ export default function SocialPage() {
     [selectedId]
   );
 
-  const copySelectedHandle = async () => {
-    if (!selectedConversation) return;
-    try {
-      await navigator.clipboard.writeText(
-        selectedConversation.participant.handle
-      );
-      toast.success('Handle copied');
-      setOptionsOpen(false);
-    } catch {
-      toast.error(
-        'Could not copy',
-        'Clipboard access is unavailable in this browser.'
-      );
-    }
-  };
-
   const sidebarVisibleOnMobile = !selectedId;
   const tabs = [
     ['chats', 'Chats', MessageCircle],
@@ -635,7 +624,16 @@ export default function SocialPage() {
               ) : calls.length ? (
                 <>
                   {calls.map((call) => (
-                    <CallHistoryRow key={call.id} call={call} />
+                    <CallHistoryRow
+                      key={call.id}
+                      call={call}
+                      onCallAgain={() =>
+                        openCall({
+                          participant: call.otherParticipant,
+                          type: call.type,
+                        })
+                      }
+                    />
                   ))}
                   {callHistoryQuery.hasNextPage && (
                     <button
@@ -788,10 +786,13 @@ export default function SocialPage() {
                       <button
                         type="button"
                         role="menuitem"
-                        onClick={() => void copySelectedHandle()}
-                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[10px] font-semibold hover:bg-(--surface-muted)"
+                        onClick={() => {
+                          setOptionsOpen(false);
+                          setClearChatConfirmationOpen(true);
+                        }}
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[10px] font-semibold text-(--danger) hover:bg-(--surface-muted)"
                       >
-                        <Copy size={14} /> Copy profile handle
+                        <Trash2 size={14} /> Clear chat
                       </button>
                       <div className="my-1 h-px bg-(--border-subtle)" />
                       <button
@@ -909,6 +910,25 @@ export default function SocialPage() {
                             message={message}
                             mine={message.senderId === viewerId}
                             onForward={setForwardingMessage}
+                            onToggleStar={(target) => {
+                              toggleMessageStar.mutate(target.id, {
+                                onSuccess: (updated) =>
+                                  toast.success(
+                                    updated.isStarred
+                                      ? 'Message starred'
+                                      : 'Star removed'
+                                  ),
+                                onError: (error) =>
+                                  toast.error(
+                                    'Could not update star',
+                                    error.response?.data?.message ?? 'Please try again.'
+                                  ),
+                              });
+                            }}
+                            starPending={
+                              toggleMessageStar.isPending &&
+                              toggleMessageStar.variables === message.id
+                            }
                           />
                         </Fragment>
                       );
@@ -1087,6 +1107,38 @@ export default function SocialPage() {
             </div>
         </Modal>
       )}
+
+      <ConfirmDialog
+        open={clearChatConfirmationOpen && Boolean(selectedConversation)}
+        title="Clear unstarred messages?"
+        description="This hides every unstarred message from your view. Starred messages stay safe, and the other person’s chat is not changed."
+        confirmText="Clear chat"
+        variant="danger"
+        icon={<Trash2 size={20} />}
+        isLoading={clearConversation.isPending}
+        onClose={() => setClearChatConfirmationOpen(false)}
+        onConfirm={() => {
+          if (!selectedConversation) return;
+          clearConversation.mutate(selectedConversation.id, {
+            onSuccess: (result) => {
+              toast.success(
+                'Chat cleared',
+                result.clearedCount
+                  ? `${result.clearedCount} unstarred message${result.clearedCount === 1 ? '' : 's'} removed from your view.`
+                  : 'No unstarred messages needed clearing.'
+              );
+              setMessageSearch('');
+              setShowMessageSearch(false);
+              setClearChatConfirmationOpen(false);
+            },
+            onError: (error) =>
+              toast.error(
+                'Could not clear chat',
+                error.response?.data?.message ?? 'Please try again.'
+              ),
+          });
+        }}
+      />
 
       <ConfirmDialog
         open={blockConfirmationOpen && Boolean(selectedConversation)}

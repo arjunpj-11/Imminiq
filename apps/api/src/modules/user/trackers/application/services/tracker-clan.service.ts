@@ -144,7 +144,7 @@ export class TrackerClanService implements ITrackerClanServiceContract {
     const result = await this._clans.syncPersonalClone(input);
     if (!result) {
       throw TrackerApplicationError.forbidden(
-        'A personal clone is required before guild changes can be fetched'
+        'No newly accepted guild changes are available for this personal clone'
       );
     }
     return result;

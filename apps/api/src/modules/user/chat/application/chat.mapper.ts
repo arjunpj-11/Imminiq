@@ -63,11 +63,13 @@ export class ChatMapper implements IChatMapper {
           }
         : null,
       sharedTracker: message.sharedTracker,
+      sharedProfile: message.sharedProfile,
       isForwarded: Boolean(message.forwardedFromMessageId),
       createdAt: message.createdAt,
       updatedAt: message.updatedAt,
       isRead:
         message.senderId !== viewerUserId || message.isReadByAnotherParticipant(),
+      isStarred: message.isStarredBy(viewerUserId),
     };
   }
 
@@ -109,7 +111,7 @@ export class ChatMapper implements IChatMapper {
       lastMessage: summary.lastMessage
         ? this.toMessageView(summary.lastMessage, viewerUserId)
         : null,
-      lastMessageAt: summary.conversation.lastMessageAt,
+      lastMessageAt: summary.lastMessage?.createdAt ?? null,
       unreadCount: summary.unreadCount,
     };
   }

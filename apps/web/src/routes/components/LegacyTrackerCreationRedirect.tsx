@@ -1,4 +1,4 @@
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router';
 
 export default function LegacyTrackerCreationRedirect({ to }: { to: (jobId: string) => string }) {
   const { jobId = '' } = useParams();

@@ -63,4 +63,15 @@ describe('production environment policy', () => {
       )
     ).toThrow('Metered TURN configuration is required in production');
   });
+
+  it('accepts a static Metered credential API key instead of dynamic credential access', () => {
+    expect(() =>
+      parseApiEnvironment(
+        productionEnvironment({
+          METERED_TURN_SECRET_KEY: undefined,
+          METERED_TURN_API_KEY: 'dashboard-credential-api-key',
+        })
+      )
+    ).not.toThrow();
+  });
 });

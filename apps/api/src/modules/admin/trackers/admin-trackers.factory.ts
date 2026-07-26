@@ -17,9 +17,12 @@ import { ResolveAdminTrackerReviewUseCase } from './application/use-cases/resolv
 import { mongoAdminTrackerReviewsRepository } from './infrastructure/repositories/mongo-admin-tracker-reviews.repository';
 import { AdminContentAppealService, AdminExportService } from './infrastructure';
 import { AdminTrackerVersionService } from './infrastructure/services/mongo-admin-tracker-version.service';
+import type { ICommunityVerificationRewardService } from '../../user/community';
 export type AdminTrackersComposition = { useCases: AdminTrackersUseCases };
 
-export const createAdminTrackersComposition = (): AdminTrackersComposition => {
+export const createAdminTrackersComposition = (
+  verificationRewards: ICommunityVerificationRewardService
+): AdminTrackersComposition => {
   const mapper = new AdminTrackersMapper();
   const updateLifecycle = new UpdateAdminTrackerLifecycleUseCase(
     mongoAdminTrackersRepository,
@@ -48,7 +51,11 @@ export const createAdminTrackersComposition = (): AdminTrackersComposition => {
           mongoAdminTrackerReviewsRepository,
           mapper
         ),
-        resolve: new ResolveAdminTrackerReviewUseCase(mongoAdminTrackerReviewsRepository, mapper),
+        resolve: new ResolveAdminTrackerReviewUseCase(
+          mongoAdminTrackerReviewsRepository,
+          mapper,
+          verificationRewards
+        ),
       },
     },
   };

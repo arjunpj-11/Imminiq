@@ -33,7 +33,8 @@ const iceServersSchema = z.array(iceServerSchema).min(1);
 
 type MeteredCallIceServerProviderOptions = {
   apiBaseUrl: string;
-  secretKey: string;
+  secretKey?: string;
+  apiKey?: string;
   credentialTtlSeconds: number;
   requestTimeoutMs: number;
   request?: typeof fetch;
@@ -60,8 +61,9 @@ export class MeteredCallIceServerProvider implements ICallIceServerProvider {
     if (cached && cached.expiresAt > this._now()) return cached.value;
 
     try {
-      const credential = await this.createCredential(userId);
-      const iceServers = await this.loadIceServers(credential.apiKey);
+      const apiKey =
+        this._options.apiKey ?? (await this.createCredential(userId)).apiKey;
+      const iceServers = await this.loadIceServers(apiKey);
       const cacheSafetySeconds = Math.min(300, this._options.credentialTtlSeconds / 4);
       this._cache.set(userId, {
         expiresAt:
@@ -76,9 +78,12 @@ export class MeteredCallIceServerProvider implements ICallIceServerProvider {
   }
 
   private async createCredential(userId: string) {
+    if (!this._options.secretKey) {
+      throw this.providerFailure(new Error('Metered TURN secret key is not configured'));
+    }
     const url = new URL('/api/v1/turn/credential', this._options.apiBaseUrl);
     url.searchParams.set('secretKey', this._options.secretKey);
-    const label = `imminiq-${createHash('sha256').update(userId).digest('hex').slice(0, 16)}`;
+    const label = `imminiq-${createHash('sha256').update(userId).digest('hex').slice(0, 12)}-${this._now().toString(36)}`;
     const response = await this._request(url, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },

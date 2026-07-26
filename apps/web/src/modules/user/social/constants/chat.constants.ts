@@ -3,7 +3,10 @@ export const CHAT_ENDPOINTS = {
   messages: (conversationId: string) => `/chat/conversations/${conversationId}/messages`,
   read: (conversationId: string) => `/chat/conversations/${conversationId}/read`,
   forward: (messageId: string) => `/chat/messages/${messageId}/forward`,
+  star: (messageId: string) => `/chat/messages/${messageId}/star`,
+  clear: (conversationId: string) => `/chat/conversations/${conversationId}/messages`,
   trackerShares: '/chat/tracker-shares',
+  profileShares: '/chat/profile-shares',
   blocks: '/chat/blocks',
   block: (userId: string) => `/chat/blocks/${userId}`,
 } as const;

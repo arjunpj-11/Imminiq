@@ -2,11 +2,12 @@ import { cn } from '../../../../lib/cn';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 
 import { type ChangeEvent, useCallback, useMemo, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import Modal from '../../../../components/overlays/Modal';
 import { toast } from '../../../../lib/toast';
+import { ROUTES } from '../../../../routes/config/route-paths';
 import { CheckCircleIcon, HintIcon } from '../components/MockTestAttemptIcons';
 import { MockTestAttemptFooter, MockTestAttemptHeader } from '../components/MockTestAttemptChrome';
 import { useCountdown } from '../hooks/useCountdown';
@@ -87,7 +88,7 @@ export default function MockTestAttemptPage() {
   const reportMutation = useReportMockTestQuestion();
   const timerDisplay = useCountdown(3600);
 
-  const totalQuestions = questions.length || 15;
+  const totalQuestions = questions.length;
   const question = questions[currentIndex];
   const isMCQ = question?.type === 'mcq' && Boolean(question.options?.length);
   const isCoding = question?.type === 'coding' && Boolean(question.coding);
@@ -221,8 +222,15 @@ export default function MockTestAttemptPage() {
   const finish = async () => {
     if (!attemptId) return;
 
-    await finishMutation.mutateAsync({ attemptId });
-    navigate(`/mock-tests/attempts/${attemptId}/result`);
+    try {
+      await finishMutation.mutateAsync({ attemptId });
+      navigate(ROUTES.mockTestResult(attemptId));
+    } catch (error) {
+      toast.error(
+        'Could not finish this test',
+        getUserFacingError(error, 'Please check your connection and try again.')
+      );
+    }
   };
 
   const toggleFlag = () => {
@@ -318,6 +326,51 @@ export default function MockTestAttemptPage() {
   const isSubmitting = submitMutation.isPending;
   const isRunningCode = runCodeMutation.isPending;
   const isSubmittingCode = submitCodeMutation.isPending;
+  const attemptUnavailable = !isLoading && (questionsQuery.isError || !question);
+
+  if (attemptUnavailable) {
+    return (
+      <AppShellBoundary
+        showSidebar={false}
+        withTopBar={false}
+        withFooter={false}
+        className="bg-(--surface-sunken)"
+      >
+        <main className="grid min-h-dvh place-items-center px-5 py-10">
+          <section className="w-full max-w-lg rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-7 text-center shadow-(--shadow-2)">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-(--brand-500)/10 text-xl text-(--brand-500)">
+              !
+            </div>
+            <h1 className="mt-4 text-2xl font-black text-(--text-primary)">
+              Attempt unavailable
+            </h1>
+            <p className="mt-2 text-sm leading-6 text-(--text-secondary)">
+              This mock-test attempt does not exist, is no longer available, or belongs to another
+              account.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              {questionsQuery.isError && (
+                <button
+                  type="button"
+                  onClick={() => void questionsQuery.refetch()}
+                  className="rounded-md border border-(--border-subtle) bg-(--surface-elevated) px-4 py-2.5 text-sm font-bold text-(--text-primary)"
+                >
+                  Try again
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => navigate(ROUTES.mockTests, { replace: true })}
+                className="rounded-md bg-(--brand-500) px-4 py-2.5 text-sm font-bold text-white"
+              >
+                Back to mock tests
+              </button>
+            </div>
+          </section>
+        </main>
+      </AppShellBoundary>
+    );
+  }
 
   return (
     <AppShellBoundary
@@ -336,7 +389,7 @@ export default function MockTestAttemptPage() {
           flagged={flagged}
           visited={visited}
           isFinishing={isFinishing}
-          canFinish={Boolean(attemptId)}
+          canFinish={Boolean(attemptId && questions.length)}
           onToggleFlag={toggleFlag}
           onFinish={finish}
           onGoTo={goTo}

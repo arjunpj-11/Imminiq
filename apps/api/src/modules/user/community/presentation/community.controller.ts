@@ -183,6 +183,7 @@ export class CommunityController {
       minRating: this.getNumberQuery(req, 'minRating'),
       verifiedOnly: this.getBooleanQuery(req, 'verifiedOnly'),
       sort: this.getSortQuery(req),
+      recentSearches: this.getStringArrayQuery(req, 'recentSearches'),
       page: this.getNumberQuery(req, 'page'),
       limit: this.getNumberQuery(req, 'limit'),
     };

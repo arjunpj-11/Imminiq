@@ -6,7 +6,7 @@ import ImminiqLogo from '../components/ui/ImminiqLogo';
 import ImminiqWordmark from '../components/ui/ImminiqWordmark';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { ROUTES } from '../routes/config/route-paths';
 
 const RefreshIcon = ({ className = '' }: { className?: string }) => {

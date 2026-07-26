@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys';
 import { safeSessionStorage } from '../../../../lib/storage/safe-storage';

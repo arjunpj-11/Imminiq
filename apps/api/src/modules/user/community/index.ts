@@ -25,3 +25,4 @@ export type {
 export { createCommunityComposition } from './community.factory';
 export { createCommunityRoutes } from './presentation/community.routes';
 export type { ICommunityTrackerRepository } from './domain/repositories/community-tracker.repository.interface';
+export type { ICommunityVerificationRewardService } from './application/services/community-verification-reward.service';

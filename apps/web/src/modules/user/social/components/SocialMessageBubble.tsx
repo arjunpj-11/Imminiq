@@ -10,10 +10,12 @@ import {
   Forward,
   Map,
   Mic,
+  Star,
+  UserRound,
   X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import Modal from '../../../../components/overlays/Modal';
 import { cn } from '../../../../lib/cn';
@@ -35,14 +37,40 @@ const formatMessageTime = (value: string) =>
 const getCopyValue = (message: IChatMessage) =>
   message.kind === 'text' || message.kind === 'code' ? message.text : '';
 
+const URL_PATTERN = /(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi;
+
+const renderLinkedText = (value: string, mine: boolean) =>
+  value.split(URL_PATTERN).map((part, index) => {
+    if (!part.match(URL_PATTERN)) return part;
+    const href = part.toLowerCase().startsWith('www.') ? `https://${part}` : part;
+    return (
+      <a
+        key={`${part}-${index}`}
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cn(
+          'break-all font-semibold underline decoration-1 underline-offset-2',
+          mine ? 'text-inherit' : 'text-(--brand-500)'
+        )}
+      >
+        {part}
+      </a>
+    );
+  });
+
 export default function SocialMessageBubble({
   message,
   mine,
   onForward,
+  onToggleStar,
+  starPending = false,
 }: {
   message: IChatMessage;
   mine: boolean;
   onForward: (message: IChatMessage) => void;
+  onToggleStar: (message: IChatMessage) => void;
+  starPending?: boolean;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
@@ -146,6 +174,23 @@ export default function SocialMessageBubble({
                   Copy
                 </button>
               )}
+              <button
+                type="button"
+                role="menuitem"
+                disabled={starPending}
+                onClick={() => {
+                  setMenuOpen(false);
+                  onToggleStar(message);
+                }}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[10px] font-semibold hover:bg-(--surface-muted) disabled:opacity-50"
+              >
+                <Star
+                  size={13}
+                  fill={message.isStarred ? 'currentColor' : 'none'}
+                  className={message.isStarred ? 'text-(--warning)' : undefined}
+                />
+                {message.isStarred ? 'Remove star' : 'Star message'}
+              </button>
               <button
                 type="button"
                 role="menuitem"
@@ -267,6 +312,59 @@ export default function SocialMessageBubble({
           </Link>
         )}
 
+        {message.kind === 'profile' && message.sharedProfile && (
+          <Link
+            to={ROUTES.publicProfileFor(message.sharedProfile.username)}
+            className={cn(
+              'mb-1 block min-w-[260px] rounded-2xl border p-3.5 no-underline transition hover:-translate-y-0.5',
+              mine
+                ? 'border-white/25 bg-black/10 text-inherit hover:bg-black/15'
+                : 'border-(--border-subtle) bg-(--surface-muted) text-(--text-primary) hover:border-(--brand-500)'
+            )}
+            aria-label={`Open ${message.sharedProfile.fullName}'s profile`}
+          >
+            <div className="flex items-center gap-2 text-[8px] font-bold uppercase tracking-[0.12em] opacity-65">
+              <UserRound size={13} />
+              Shared profile
+            </div>
+            <div className="mt-3 flex items-center gap-3">
+              {message.sharedProfile.avatarUrl ? (
+                <img
+                  src={message.sharedProfile.avatarUrl}
+                  alt=""
+                  className="h-12 w-12 shrink-0 rounded-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/15 text-[13px] font-extrabold">
+                  {message.sharedProfile.fullName
+                    .split(/\s+/)
+                    .slice(0, 2)
+                    .map((part) => part[0])
+                    .join('')
+                    .toUpperCase()}
+                </span>
+              )}
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[13px] font-extrabold">
+                  {message.sharedProfile.fullName}
+                </span>
+                <span className="mt-0.5 block truncate text-[9px] opacity-70">
+                  @{message.sharedProfile.username}
+                </span>
+              </span>
+            </div>
+            {message.sharedProfile.headline && (
+              <div className="mt-2 line-clamp-2 text-[9px] leading-relaxed opacity-75">
+                {message.sharedProfile.headline}
+              </div>
+            )}
+            <div className="mt-3 flex items-center gap-1 text-[9px] font-bold">
+              View profile <ExternalLink size={11} />
+            </div>
+          </Link>
+        )}
+
         {message.kind === 'code' ? (
           <div className="min-w-[240px] overflow-hidden rounded-xl bg-[#171614] text-[#f4eee8]">
             <div className="flex items-center justify-between border-b border-white/10 px-3 py-2 font-mono text-[8px] uppercase tracking-[0.1em] text-white/55">
@@ -290,7 +388,7 @@ export default function SocialMessageBubble({
         ) : (
           message.text && (
             <p className="m-0 whitespace-pre-wrap break-words pr-4 text-[13px] leading-[1.6]">
-              {message.text}
+              {renderLinkedText(message.text, mine)}
             </p>
           )
         )}
@@ -301,6 +399,14 @@ export default function SocialMessageBubble({
             mine ? 'text-white/70 dark:text-black/55' : 'text-(--text-muted)'
           )}
         >
+          {message.isStarred && (
+            <Star
+              size={11}
+              fill="currentColor"
+              className={mine ? 'text-amber-200 dark:text-amber-700' : 'text-(--warning)'}
+              aria-label="Starred message"
+            />
+          )}
           <time>{formatMessageTime(message.createdAt)}</time>
           {mine &&
             (message.isRead ? (

@@ -8,7 +8,10 @@ export type ChatUseCases = {
   markConversationRead: Application.IMarkChatConversationReadUseCase;
   forwardMessage: Application.IForwardChatMessageUseCase;
   shareTracker: Application.IShareTrackerToChatUseCase;
+  shareProfile: Application.IShareProfileToChatUseCase;
   listBlockedUsers: Application.IListBlockedUsersUseCase;
   blockUser: Application.IBlockUserUseCase;
   unblockUser: Application.IUnblockUserUseCase;
+  toggleMessageStar: Application.IToggleChatMessageStarUseCase;
+  clearConversation: Application.IClearChatConversationUseCase;
 };

@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import { ROUTES } from '../../../../routes/config/route-paths';
@@ -7,7 +7,7 @@ export default function TrackerCreationChoicePage() {
   const navigate = useNavigate();
   return (
     <AppShellBoundary>
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-4 py-10 sm:px-6 md:px-10">
+      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-4 py-10 sm:px-6 md:px-10">
         <p className="font-mono text-[10px] font-bold uppercase tracking-[.18em] text-(--brand-500)">
           New tracker
         </p>
@@ -56,7 +56,7 @@ export default function TrackerCreationChoicePage() {
             </span>
           </button>
         </div>
-      </main>
+      </div>
     </AppShellBoundary>
   );
 }

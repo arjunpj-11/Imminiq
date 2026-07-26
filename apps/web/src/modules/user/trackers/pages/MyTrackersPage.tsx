@@ -1,8 +1,10 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import StatCard from '../../../../components/data-display/StatCard';
 import SkeletonBlock from '../../../../components/feedback/SkeletonBlock';
 import PageHero from '../../../../components/layout/PageHero';
+import Pagination from '../../../../components/navigation/Pagination';
+import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import TrackerCard, { type PublishFormData } from '../components/TrackerCard';
 import TrackerFilterBar from '../components/TrackerFilterBar';
@@ -121,13 +123,15 @@ function MyTrackersPageSkeleton() {
 
 export default function MyTrackersPage() {
   const navigate = useNavigate();
-  const { status, setStatus } = useTrackerFilters();
+  const { status, search, page, setStatus, setSearch, setPage } = useTrackerFilters();
+  const debouncedSearch = useDebouncedValue(search.trim(), 350);
   const summaryQuery = useTrackerSummary();
   const trackersQuery = useTrackers({
     status,
     domain: 'all',
+    search: debouncedSearch,
     sortBy: 'lastActive',
-    page: 1,
+    page,
     limit: 12,
   });
 
@@ -205,9 +209,15 @@ export default function MyTrackersPage() {
     await deleteTrackerMutation.mutateAsync(trackerId);
   };
 
-  const emptyTitle = status === 'all' ? 'Create your first tracker' : `No ${status} trackers`;
+  const emptyTitle = debouncedSearch
+    ? `No trackers match “${debouncedSearch}”`
+    : status === 'all'
+      ? 'Create your first tracker'
+      : `No ${status} trackers`;
   const emptyDescription =
-    status === 'all'
+    debouncedSearch
+      ? 'Try a different title or description, or clear the search to see all learning paths.'
+      : status === 'all'
       ? 'Turn a learning goal into a structured roadmap, then continue from exactly where you stopped.'
       : 'There are no trackers in this view. Choose another status or create a new learning path.';
 
@@ -336,7 +346,12 @@ export default function MyTrackersPage() {
         </section>
       )}
 
-      <TrackerFilterBar status={status} onStatusChange={setStatus} />
+      <TrackerFilterBar
+        status={status}
+        search={search}
+        onStatusChange={setStatus}
+        onSearchChange={setSearch}
+      />
 
       {trackersQuery.isFetching && trackers.length > 0 && (
         <div
@@ -401,6 +416,18 @@ export default function MyTrackersPage() {
             </button>
           </div>
         </section>
+      )}
+
+      {trackersQuery.data && (
+        <Pagination
+          page={trackersQuery.data.page}
+          totalPages={trackersQuery.data.totalPages}
+          totalItems={trackersQuery.data.total}
+          onPageChange={setPage}
+          disabled={trackersQuery.isFetching}
+          showPageNumbers
+          className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) px-4 py-3 shadow-(--shadow-1)"
+        />
       )}
     </TrackerShell>
   );

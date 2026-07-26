@@ -22,7 +22,7 @@ export default function LandingFooter() {
   return (
     <footer
       ref={footerRef}
-      className="bg-[#f5ede4] px-5 pb-24 pt-8 text-center font-['DM_Mono',monospace] text-[11px] uppercase tracking-[0.16em] text-[#6b5f58] dark:bg-[#050505] dark:text-white/55"
+      className="bg-[#f5ede4] px-5 pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))] pt-8 text-center font-['DM_Mono',monospace] text-[11px] uppercase tracking-[0.16em] text-[#6b5f58] dark:bg-[#050505] dark:text-white/65"
     >
       <div>
         {text.split('').map((char, i) => (

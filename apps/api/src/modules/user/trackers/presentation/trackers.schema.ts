@@ -33,9 +33,57 @@ const defaultTrimmedStringSchema = (maxLength: number, maxMessage: string) =>
     return value.trim();
   }, z.string().max(maxLength, maxMessage).optional().default(''));
 
+const unsafeTrackerTitleCharacterPattern = /[<>{}`$\\]/u;
+const placeholderTrackerTitlePattern =
+  /^(?:test(?:ing)?|asdf(?:ghjkl)?|qwerty|random(?:\s+thing)?|untitled|new\s+tracker|tracker|lorem\s+ipsum)[\d\s._-]*$/i;
+const hasControlCharacter = (value: string) =>
+  [...value].some((character) => {
+    const codePoint = character.codePointAt(0) ?? 0;
+    return codePoint <= 31 || codePoint === 127;
+  });
+
+export const trackerTitleSchema = z
+  .string()
+  .trim()
+  .min(2, 'Tracker title must be at least 2 characters')
+  .max(120, 'Tracker title must be 120 characters or fewer')
+  .refine(
+    (title) =>
+      !unsafeTrackerTitleCharacterPattern.test(title) && !hasControlCharacter(title),
+    'Tracker title contains unsupported or unsafe characters'
+  )
+  .refine(
+    (title) => /[\p{L}\p{N}]{2}/u.test(title),
+    'Enter a meaningful tracker title'
+  )
+  .refine(
+    (title) => !placeholderTrackerTitlePattern.test(title),
+    'Enter a specific learning topic instead of a placeholder title'
+  )
+  .refine(
+    (title) => !/^(.)\1+$/u.test(title.replace(/\s/g, '')),
+    'Enter a meaningful tracker title'
+  );
+
+const outlineNodeTitleSchema = z
+  .string()
+  .trim()
+  .min(2, 'Outline item title must be at least 2 characters')
+  .max(120, 'Outline item title must be 120 characters or fewer')
+  .refine(
+    (title) =>
+      !unsafeTrackerTitleCharacterPattern.test(title) && !hasControlCharacter(title),
+    'Outline item title contains unsupported or unsafe characters'
+  );
+
 const titleSchema = z.string().trim().min(2).max(120);
 
 const descriptionSchema = optionalTrimmedStringSchema(500, 'Description is too long');
+const customTrackerDomainSchema = z
+  .string()
+  .trim()
+  .min(1, 'Domain is required')
+  .max(80, 'Domain must be 80 characters or fewer');
 
 const longDescriptionSchema = optionalTrimmedStringSchema(700, 'Description is too long');
 
@@ -61,19 +109,22 @@ export const trackerDomainSchema = z.enum([
 export const trackerListQuerySchema = z.object({
   status: z.enum(['all', 'active', 'stalled', 'completed', 'archived']).optional(),
   domain: trackerDomainSchema.or(z.literal('all')).optional(),
+  search: z.string().trim().max(120).optional(),
   sortBy: z.enum(['lastActive', 'createdAt', 'progress', 'title']).optional(),
   page: z.coerce.number().int().min(1).optional(),
   limit: z.coerce.number().int().min(1).max(50).optional(),
 });
 
-export const createTrackerSchema = z.object({
-  title: titleSchema,
-  description: descriptionSchema,
-  domain: trackerDomainSchema.optional(),
-  goal: optionalTrimmedStringSchema(500, 'Goal is too long'),
-  level: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
-  visibility: z.enum(['private', 'public']).optional(),
-});
+export const createTrackerSchema = z
+  .object({
+    title: trackerTitleSchema,
+    description: descriptionSchema,
+    domain: customTrackerDomainSchema.optional(),
+    goal: optionalTrimmedStringSchema(500, 'Goal is too long'),
+    level: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
+    visibility: z.enum(['private', 'public']).optional(),
+  })
+  .strict();
 
 export const updateTrackerSchema = createTrackerSchema.partial();
 
@@ -107,33 +158,39 @@ export const createSubtopicSchema = z.object({
 });
 
 const importOutlineNodeSchema: z.ZodTypeAny = z.lazy(() =>
-  z.object({
-    title: titleSchema,
-    description: longDescriptionSchema,
-    subtopics: z.array(importOutlineNodeSchema).max(25).default([]),
-  })
+  z
+    .object({
+      title: outlineNodeTitleSchema,
+      description: longDescriptionSchema,
+      subtopics: z.array(importOutlineNodeSchema).max(25).default([]),
+    })
+    .strict()
 );
 
 export const importTrackerOutlineSchema = z
   .discriminatedUnion('kind', [
-    z.object({
-      kind: z.literal('topics'),
-      topics: z.array(importOutlineNodeSchema).min(1).max(50),
-    }),
-    z.object({
-      kind: z.literal('subtopics'),
-      topicId: z
-        .string()
-        .trim()
-        .regex(/^[a-f\d]{24}$/i, 'Invalid topic id'),
-      parentSubtopicId: z
-        .string()
-        .trim()
-        .regex(/^[a-f\d]{24}$/i, 'Invalid parent subtopic id')
-        .nullable()
-        .optional(),
-      subtopics: z.array(importOutlineNodeSchema).min(1).max(50),
-    }),
+    z
+      .object({
+        kind: z.literal('topics'),
+        topics: z.array(importOutlineNodeSchema).min(1).max(50),
+      })
+      .strict(),
+    z
+      .object({
+        kind: z.literal('subtopics'),
+        topicId: z
+          .string()
+          .trim()
+          .regex(/^[a-f\d]{24}$/i, 'Invalid topic id'),
+        parentSubtopicId: z
+          .string()
+          .trim()
+          .regex(/^[a-f\d]{24}$/i, 'Invalid parent subtopic id')
+          .nullable()
+          .optional(),
+        subtopics: z.array(importOutlineNodeSchema).min(1).max(50),
+      })
+      .strict(),
   ])
   .superRefine((outline, context) => {
     let count = 0;

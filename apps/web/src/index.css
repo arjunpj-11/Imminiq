@@ -367,6 +367,58 @@ img {
   animation: voice-wave 680ms ease-in-out infinite;
 }
 
+@keyframes voice-flow-pulse {
+  0%,
+  100% {
+    transform: scaleY(0.58);
+    opacity: 0.62;
+  }
+
+  50% {
+    transform: scaleY(1.12);
+    opacity: 1;
+  }
+}
+
+.voice-flow-bar {
+  transform-origin: center;
+  animation: voice-flow-pulse 680ms ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes voice-flow-sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(calc(100vw + 120%));
+  }
+}
+
+.voice-flow-sweep {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--brand-500) 16%, transparent),
+    color-mix(in srgb, var(--brand-500) 30%, transparent),
+    transparent
+  );
+  filter: blur(4px);
+  animation: voice-flow-sweep 2.2s linear infinite;
+  will-change: transform;
+}
+
+@keyframes voice-transcribing {
+  0% {
+    left: -35%;
+  }
+
+  100% {
+    left: 105%;
+  }
+}
+
 .skip-link {
   position: fixed;
   left: 1rem;

@@ -4,7 +4,7 @@ import { authenticatedApiUserLimiter } from '../../../../shared/middlewares/secu
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import {
   validate,
-  validateIdentifierParam,
+  validateObjectIdParam,
   validateQuery,
 } from '../../../../shared/middlewares/validate.middleware';
 import { CommunityController } from './community.controller';
@@ -25,9 +25,9 @@ export const createCommunityRoutes = (
 ) => {
   const communityController = new CommunityController(useCases);
   const router = Router();
-  router.param('trackerId', validateIdentifierParam);
-  router.param('reviewId', validateIdentifierParam);
-  router.param('submissionId', validateIdentifierParam);
+  router.param('trackerId', validateObjectIdParam);
+  router.param('reviewId', validateObjectIdParam);
+  router.param('submissionId', validateObjectIdParam);
 
   // ─── PROTECTED ROUTES ────────────────────────────────────────────────
 

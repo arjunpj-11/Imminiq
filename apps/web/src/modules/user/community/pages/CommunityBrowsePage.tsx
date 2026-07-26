@@ -1,7 +1,7 @@
 // apps/web/src/modules/user/community/pages/CommunityBrowsePage.tsx
 
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { ROUTES } from '../../../../routes/config/route-paths';
 
 import CommunityErrorState from '../components/shared/CommunityErrorState';
@@ -47,6 +47,45 @@ export default function CommunityBrowsePage() {
   const debouncedSearch = useDebouncedValue(search, 400);
   const searchError = validateSearch(search);
   const debouncedSearchError = validateSearch(debouncedSearch);
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    try {
+      const stored = JSON.parse(
+        window.localStorage.getItem('imminiq.community.recent-searches') ?? '[]'
+      );
+      return Array.isArray(stored)
+        ? stored.filter((value): value is string => typeof value === 'string').slice(0, 8)
+        : [];
+    } catch {
+      return [];
+    }
+  });
+  const hasDiscoveryFilters =
+    Boolean(debouncedSearch.trim()) ||
+    selectedTopics.length > 0 ||
+    minRating !== null ||
+    verifiedOnly ||
+    sort !== 'top-rated';
+
+  useEffect(() => {
+    const normalized = debouncedSearch.trim();
+    if (debouncedSearchError || normalized.length < 2) return;
+    const timer = window.setTimeout(() => {
+      setRecentSearches((current) => {
+        const next = [
+          normalized,
+          ...current.filter(
+            (value) => value.toLowerCase() !== normalized.toLowerCase()
+          ),
+        ].slice(0, 8);
+        window.localStorage.setItem(
+          'imminiq.community.recent-searches',
+          JSON.stringify(next)
+        );
+        return next;
+      });
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [debouncedSearch, debouncedSearchError, recentSearches]);
 
   const browseQuery = useMemo(
     () => ({
@@ -55,10 +94,21 @@ export default function CommunityBrowsePage() {
       minRating,
       verifiedOnly,
       sort,
-      page,
+      page: hasDiscoveryFilters ? page : 1,
       limit: COMMUNITY_PAGE_LIMIT,
+      recentSearches: hasDiscoveryFilters ? [] : recentSearches,
     }),
-    [debouncedSearch, debouncedSearchError, minRating, page, selectedTopics, sort, verifiedOnly]
+    [
+      debouncedSearch,
+      debouncedSearchError,
+      hasDiscoveryFilters,
+      minRating,
+      page,
+      recentSearches,
+      selectedTopics,
+      sort,
+      verifiedOnly,
+    ]
   );
 
   const browse = useCommunityBrowse(browseQuery);
@@ -228,14 +278,16 @@ export default function CommunityBrowsePage() {
             <div className="flex flex-wrap items-end justify-between gap-3 pt-2">
               <div>
                 <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-(--brand-500)">
-                  Browse library
+                  {hasDiscoveryFilters ? 'Browse library' : 'Personalised discovery'}
                 </div>
                 <h2 className="mt-1 font-ui text-[24px] font-extrabold tracking-[-0.5px] text-(--text-primary)">
-                  Find your next roadmap
+                  {hasDiscoveryFilters ? 'Search community roadmaps' : 'Suggestions for you'}
                 </h2>
               </div>
               <span className="font-mono text-[11px] uppercase tracking-widest text-(--text-muted)">
-                {browse.data.pagination.total} result{browse.data.pagination.total !== 1 ? 's' : ''}
+                {browse.data.pagination.total}{' '}
+                {hasDiscoveryFilters ? 'result' : 'suggestion'}
+                {browse.data.pagination.total !== 1 ? 's' : ''}
               </span>
             </div>
 
@@ -294,7 +346,13 @@ export default function CommunityBrowsePage() {
               )}
             </div>
 
-            <CommunityPagination pagination={browse.data.pagination} onPageChange={setPage} />
+            {hasDiscoveryFilters && (
+              <CommunityPagination
+                pagination={browse.data.pagination}
+                onPageChange={setPage}
+                disabled={browse.isFetching}
+              />
+            )}
           </>
         )}
       </div>

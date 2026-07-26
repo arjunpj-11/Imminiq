@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { ROUTES } from '../../../../routes/config/route-paths';

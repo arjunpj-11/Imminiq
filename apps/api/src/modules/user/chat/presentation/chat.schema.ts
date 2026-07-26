@@ -14,6 +14,10 @@ export const shareTrackerSchema = z.object({
   trackerId: objectId,
   targetConversationId: objectId,
 });
+export const shareProfileSchema = z.object({
+  username: z.string().trim().toLowerCase().min(3).max(30),
+  targetConversationId: objectId,
+});
 export const blockUserSchema = z.object({ userId: objectId });
 export const sendChatMessageSchema = z
   .object({

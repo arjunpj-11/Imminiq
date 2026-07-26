@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router';
 import { useAuthStore } from '../../store/useAuthStore';
 import { ADMIN_ROUTES } from '../config/route-paths';
 import type { AuthRole } from '../../lib/auth-roles';

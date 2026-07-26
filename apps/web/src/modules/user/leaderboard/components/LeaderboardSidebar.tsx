@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { LEADERBOARD_ROUTES } from '../constants/leaderboard.constants';
 import type {

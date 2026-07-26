@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { ROUTES } from '../../../routes/config/route-paths';
 
 import {
@@ -133,7 +133,7 @@ export default function TermsPage() {
             <div className="mx-3 my-3 h-px bg-(--border-subtle) dark:bg-white/15" />
 
             <div className="px-3 font-mono text-[9px] tracking-[0.06em] text-(--text-secondary)/60 dark:text-(--text-secondary)/60">
-              Version 6.6.2 · May 2026
+              Version 7.0.0 · July 2026
             </div>
           </aside>
 
@@ -156,12 +156,13 @@ export default function TermsPage() {
               </h1>
 
               <p className="mb-5 max-w-160 text-[15px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
-                These terms govern your access to and use of Imminiq — our AI-powered personalized
-                learning platform. Please read them carefully before creating an account.
+                These terms govern your access to Imminiq—our AI-assisted learning, tracker,
+                community, communication, assessment, and collaboration platform. Please read them
+                carefully before creating an account.
               </p>
 
               <div className="flex flex-wrap items-center gap-4">
-                {['Effective: 1 May 2026', 'Last Updated: 10 May 2026', 'Version 6.6.2'].map(
+                {['Effective: 26 July 2026', 'Last Updated: 26 July 2026', 'Version 7.0.0'].map(
                   (item) => (
                     <div
                       key={item}
@@ -215,7 +216,7 @@ export default function TermsPage() {
               <BodyP>
                 Welcome to Imminiq. These Terms of Service constitute a legally binding agreement
                 between you and Imminiq regarding your access to and use of the Imminiq platform,
-                including our website, mobile applications, APIs, and associated services.
+                including our website, APIs, and associated services.
               </BodyP>
 
               <BodyP>
@@ -226,7 +227,7 @@ export default function TermsPage() {
                   className="font-medium text-(--brand-500) underline underline-offset-4 hover:text-[#963d22] dark:text-(--brand-500) dark:hover:text-[#f5a090]"
                   to={ROUTES.privacy}
                 >
-                  Scholarly Privacy Policy
+                  Privacy Policy
                 </Link>
                 .
               </BodyP>
@@ -244,9 +245,9 @@ export default function TermsPage() {
               <TermsList
                 items={[
                   <>
-                    You must be at least <strong>13 years of age</strong>. If you are under 18, you
-                    may only use the Platform with the consent and supervision of a parent or legal
-                    guardian.
+                    You must be at least <strong>13 years of age</strong>. If you are under the age
+                    of legal majority where you live, your parent or legal guardian must review
+                    these Terms and consent to your use where applicable law requires it.
                   </>,
                   'You must not be prohibited from using the Platform under applicable law in your jurisdiction.',
                   'You must not have had a previous account suspended or terminated by Imminiq for violations of these Terms.',
@@ -314,11 +315,13 @@ export default function TermsPage() {
                 variant="check"
                 items={[
                   'AI-generated personalized learning roadmaps and tracker management.',
+                  'Manual tracker creation with reusable or custom learning domains.',
                   'Mock test creation, AI evaluation, and performance analytics.',
                   'In-browser code practice environment with multi-language support.',
-                  'Community learning features: tracker sharing, challenges, and leaderboards.',
-                  'Real-time chat, video calls, and social learning tools.',
-                  'Streak tracking, coins, store items, and gamification rewards.',
+                  'Personalized community discovery, tracker publishing, cloning, reviews, contributions, and verification.',
+                  'Profiles, rich sharing cards, clickable links, real-time chat, starred messages, voice notes, and file sharing.',
+                  'Contextual audio and video calls, call history, supported audio-output controls, and Social tools.',
+                  'Streaks, leaderboards, coins, rewards, and learning-guild challenges.',
                 ]}
               />
 
@@ -384,8 +387,9 @@ export default function TermsPage() {
 
             <Section id="s7" num="07" title="User-Generated Content">
               <BodyP>
-                You may create and share content on Imminiq, including learning trackers, community
-                posts, comments, reviews, and code submissions.
+                You may create and share content on Imminiq, including profiles, learning trackers,
+                topic contributions, reviews, verification votes, chat messages, links, code,
+                images, documents, and voice notes.
               </BodyP>
 
               <TermsList
@@ -393,7 +397,8 @@ export default function TermsPage() {
                   'You retain ownership of your User Content. You grant Imminiq a worldwide, non-exclusive, royalty-free licence to use, display, reproduce, and distribute your User Content solely for operating and improving the Platform.',
                   'You confirm that your User Content does not infringe upon the intellectual property rights, privacy rights, or other rights of any third party.',
                   'Imminiq may remove any User Content that violates these Terms, our Community Guidelines, or applicable law.',
-                  'Once published to the community feed, your tracker may be cloned by other users under the Platform sharing system.',
+                  'Public profiles and published trackers may appear in search, recommendation, and share cards. Published trackers may be cloned by other users under the Platform sharing system.',
+                  'Private messages are visible to conversation participants. Clearing a chat removes eligible messages from your view while starred messages are preserved until unstarred or otherwise deleted.',
                 ]}
               />
 
@@ -419,7 +424,7 @@ export default function TermsPage() {
                     You should verify critical information from authoritative external sources.
                   </>,
                   'AI-generated roadmaps, test questions, and lesson content are learning aids — not substitutes for professional academic advice or certified curricula.',
-                  'Your prompts and interactions with AI features may be used to improve our AI systems, subject to our Privacy Policy.',
+                  'Prompts, voice-typing audio, tracker context, and relevant learning data may be sent to configured AI or transcription providers to produce the output you request, as explained in our Privacy Policy.',
                   'AI usage is subject to daily quotas based on your subscription plan.',
                   'We reserve the right to update, change, or replace the AI models powering our features as technology evolves.',
                 ]}
@@ -481,6 +486,7 @@ export default function TermsPage() {
                 items={[
                   'Coins have no real-world monetary value, cannot be exchanged for cash, and are non-transferable between accounts.',
                   'Coins are earned through legitimate platform activities such as completing subtopics, winning challenges, verifying trackers, and successful referrals.',
+                  'Verification rewards are issued according to the applicable majority outcome and moderation result. Duplicate, self-dealing, or manipulated votes are not eligible.',
                   'Purchased store items, badges, and powerups are tied to your account and are non-transferable and non-refundable.',
                   'We reserve the right to modify earning rates, store catalog, and item prices at any time.',
                   'Coins obtained through exploits, bugs, or unauthorized means will be revoked and may result in account suspension.',
@@ -651,8 +657,8 @@ export default function TermsPage() {
               </h3>
 
               <p className="mx-auto mb-6 max-w-140 text-sm leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
-                By creating your account, you confirm you have read and agree to these Terms and our
-                Scholarly Privacy Policy.
+                By creating your account, you confirm you have read and agree to these Terms and
+                acknowledge our Privacy Policy.
               </p>
 
               <Link
@@ -672,7 +678,7 @@ export default function TermsPage() {
                   to={ROUTES.privacy}
                   className="transition hover:text-(--brand-500) dark:hover:text-(--brand-500)"
                 >
-                  Scholarly Privacy Policy
+                  Privacy Policy
                 </Link>
                 <Link
                   to={ROUTES.terms}

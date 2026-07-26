@@ -1,20 +1,30 @@
-import { Check, LoaderCircle, Search, Send, X } from 'lucide-react';
+import { Check, Copy, LoaderCircle, Search, Send, UserRound, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import UserAvatar from '../../../../components/data-display/UserAvatar';
 import Modal from '../../../../components/overlays/Modal';
 import { toast } from '../../../../lib/toast';
 import { CHAT_PAGE_SIZE } from '../constants/chat.constants';
-import { useChatConversations, useShareTrackerToChat } from '../hooks/useChat';
+import {
+  useChatConversations,
+  useShareProfileToChat,
+  useShareTrackerToChat,
+} from '../hooks/useChat';
 import { useSocialShareStore } from '../store/useSocialShareStore';
 
 export default function ShareTrackerDialog() {
   const tracker = useSocialShareStore((state) => state.tracker);
+  const profile = useSocialShareStore((state) => state.profile);
   const close = useSocialShareStore((state) => state.close);
   const [search, setSearch] = useState('');
   const [sentConversationId, setSentConversationId] = useState<string | null>(null);
-  const conversationsQuery = useChatConversations(CHAT_PAGE_SIZE, Boolean(tracker));
+  const conversationsQuery = useChatConversations(
+    CHAT_PAGE_SIZE,
+    Boolean(tracker || profile)
+  );
   const shareTracker = useShareTrackerToChat();
+  const shareProfile = useShareProfileToChat();
+  const sharePending = shareTracker.isPending || shareProfile.isPending;
 
   const conversations = useMemo(
     () => conversationsQuery.data?.pages.flatMap((page) => page.items) ?? [],
@@ -30,7 +40,7 @@ export default function ShareTrackerDialog() {
     );
   }, [conversations, search]);
 
-  if (!tracker) return null;
+  if (!tracker && !profile) return null;
 
   const dismiss = () => {
     setSearch('');
@@ -43,22 +53,40 @@ export default function ShareTrackerDialog() {
       open
       onClose={dismiss}
       titleId="share-tracker-title"
-      preventClose={shareTracker.isPending}
+      preventClose={sharePending}
       overlayClassName="z-190 bg-black/55"
       contentClassName="flex max-h-[min(680px,92vh)] max-w-md flex-col rounded-3xl p-0"
     >
         <header className="flex items-start gap-3 border-b border-(--border-subtle) px-5 py-4">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--brand-500)_12%,transparent)] text-(--brand-500)">
-            <Send size={18} />
+            {profile ? <UserRound size={18} /> : <Send size={18} />}
           </div>
           <div className="min-w-0 flex-1">
             <h2 id="share-tracker-title" className="m-0 text-[15px] font-bold">
-              Share tracker in Social
+              Share {profile ? 'profile' : 'tracker'} in Social
             </h2>
             <p className="mb-0 mt-1 truncate text-[10px] text-(--text-muted)">
-              {tracker.title}
+              {profile ? `@${profile.username}` : tracker?.title}
             </p>
           </div>
+          {profile && (
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(profile.url);
+                  toast.success('Profile link copied');
+                } catch {
+                  toast.error('Could not copy link', 'Clipboard access is unavailable.');
+                }
+              }}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-(--border-subtle) text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-500)"
+              aria-label="Copy profile link"
+              title="Copy profile link"
+            >
+              <Copy size={15} />
+            </button>
+          )}
           <button
             type="button"
             onClick={dismiss}
@@ -89,36 +117,45 @@ export default function ShareTrackerDialog() {
           ) : filtered.length ? (
             filtered.map((conversation) => {
               const sending =
-                shareTracker.isPending &&
-                shareTracker.variables?.targetConversationId === conversation.id;
+                (shareTracker.isPending &&
+                  shareTracker.variables?.targetConversationId === conversation.id) ||
+                (shareProfile.isPending &&
+                  shareProfile.variables?.targetConversationId === conversation.id);
               const sent = sentConversationId === conversation.id;
               return (
                 <button
                   key={conversation.id}
                   type="button"
-                  disabled={shareTracker.isPending || sent}
-                  onClick={() =>
-                    shareTracker.mutate(
-                      {
-                        trackerId: tracker.trackerId,
-                        targetConversationId: conversation.id,
-                      },
+                  disabled={sharePending || sent}
+                  onClick={() => {
+                    const mutation = profile ? shareProfile : shareTracker;
+                    const payload = profile
+                      ? {
+                          targetConversationId: conversation.id,
+                          username: profile.username,
+                        }
+                      : {
+                          trackerId: tracker!.trackerId,
+                          targetConversationId: conversation.id,
+                        };
+                    mutation.mutate(
+                      payload as never,
                       {
                         onSuccess: () => {
                           setSentConversationId(conversation.id);
                           toast.success(
-                            'Tracker shared',
+                            `${profile ? 'Profile' : 'Tracker'} shared`,
                             `Sent to ${conversation.participant.fullName}.`
                           );
                         },
                         onError: (error) =>
                           toast.error(
-                            'Could not share tracker',
+                            `Could not share ${profile ? 'profile' : 'tracker'}`,
                             error.response?.data?.message ?? 'Please try again.'
                           ),
                       }
-                    )
-                  }
+                    );
+                  }}
                   className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition hover:bg-(--surface-muted) disabled:opacity-60"
                 >
                   <UserAvatar

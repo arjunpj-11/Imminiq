@@ -7,6 +7,7 @@ import {
   Minimize2,
   Phone,
   PhoneOff,
+  Volume2,
   Video,
   VideoOff,
   X,
@@ -34,12 +35,15 @@ import {
   useRespondCall,
 } from '../hooks/useCalls';
 import { useCallLauncherStore } from '../store/useCallLauncherStore';
-import type { CallSignal, ICall } from '../types/call.types';
+import type { CallSignal, CallType, ICall } from '../types/call.types';
 import { loadCallIceServers } from '../utils/load-call-ice-servers';
 import { WebRtcCallService } from '../utils/web-rtc-call.service';
 
 const terminalStatuses = new Set(['declined', 'ended', 'missed', 'cancelled']);
 const callQueryKeys = socialQueryKeys.calls;
+type SinkSelectableMediaElement = HTMLMediaElement & {
+  setSinkId?: (deviceId: string) => Promise<void>;
+};
 
 const formatCallDuration = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
@@ -81,6 +85,8 @@ export default function CallManager() {
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [videoEnabled, setVideoEnabled] = useState(true);
   const [mediaPending, setMediaPending] = useState(false);
+  const [audioOutputs, setAudioOutputs] = useState<MediaDeviceInfo[]>([]);
+  const [selectedAudioOutput, setSelectedAudioOutput] = useState('default');
   const [clock, setClock] = useState(() => Date.now());
 
   const activeCallRef = useRef<ICall | null>(null);
@@ -144,13 +150,32 @@ export default function CallManager() {
     [clearTerminalTimer, closeMedia, dismissCall, setActiveCall]
   );
 
+  const refreshAudioOutputs = useCallback(async () => {
+    if (!navigator.mediaDevices?.enumerateDevices) return;
+    try {
+      const devices = (await navigator.mediaDevices.enumerateDevices()).filter(
+        (device) => device.kind === 'audiooutput'
+      );
+      setAudioOutputs(devices);
+      if (
+        devices.length &&
+        !devices.some((device) => device.deviceId === selectedAudioOutput)
+      ) {
+        setSelectedAudioOutput(devices[0]?.deviceId || 'default');
+      }
+    } catch {
+      setAudioOutputs([]);
+    }
+  }, [selectedAudioOutput]);
+
   const prepareMedia = useCallback(
-    async (call: ICall) => {
+    async (type: CallType) => {
       setMediaPending(true);
       try {
         const iceServers = await loadCallIceServers();
-        const stream = await callService.prepare(call.type, iceServers);
+        const stream = await callService.prepare(type, iceServers);
         setLocalStream(stream);
+        await refreshAudioOutputs();
         return true;
       } catch (error) {
         toast.error(
@@ -162,12 +187,12 @@ export default function CallManager() {
         setMediaPending(false);
       }
     },
-    [callService]
+    [callService, refreshAudioOutputs]
   );
 
   const connectAcceptedCall = useCallback(
     async (call: ICall) => {
-      const ready = localStream ? true : await prepareMedia(call);
+      const ready = localStream ? true : await prepareMedia(call.type);
       if (ready && call.direction === 'outgoing') {
         await callService.createOffer();
       }
@@ -180,6 +205,17 @@ export default function CallManager() {
       setActiveCall(activeQuery.data);
     }
   }, [activeQuery.data, setActiveCall]);
+
+  useEffect(() => {
+    if (activeCall?.status === 'accepted') {
+      queueMicrotask(() => {
+        const currentCall = activeCallRef.current;
+        if (currentCall?.id === activeCall.id && currentCall.status === 'accepted') {
+          void connectAcceptedCall(currentCall);
+        }
+      });
+    }
+  }, [activeCall, connectAcceptedCall]);
 
   useEffect(() => {
     if (activeCall?.status !== 'accepted' || !activeCall.acceptedAt) return undefined;
@@ -214,7 +250,7 @@ export default function CallManager() {
         return;
       }
       setActiveCall(call);
-      if (call.status === 'accepted' && call.direction === 'outgoing') {
+      if (call.status === 'accepted') {
         void connectAcceptedCall(call);
       }
     };
@@ -223,8 +259,7 @@ export default function CallManager() {
       if (
         !currentCall ||
         event.callId !== currentCall.id ||
-        !event.signal ||
-        currentCall.status !== 'accepted'
+        !event.signal
       ) {
         return;
       }
@@ -258,9 +293,10 @@ export default function CallManager() {
     [callService, clearTerminalTimer]
   );
 
-  const submitReason = (event: FormEvent) => {
+  const submitReason = async (event: FormEvent) => {
     event.preventDefault();
     if (!launchTarget || reason.trim().length < 3 || initiate.isPending) return;
+    if (!(await prepareMedia(launchTarget.type))) return;
     initiate.mutate(
       {
         calleeUserId: launchTarget.participant.id,
@@ -274,11 +310,13 @@ export default function CallManager() {
           setReason('');
           closeLauncher();
         },
-        onError: (error) =>
+        onError: (error) => {
+          closeMedia();
           toast.error(
             'Could not start the call',
             error.response?.data?.message ?? 'Please try again.'
-          ),
+          );
+        },
       }
     );
   };
@@ -286,7 +324,7 @@ export default function CallManager() {
   const acceptIncoming = async () => {
     const call = activeCallRef.current;
     if (!call || call.status !== 'ringing' || call.direction !== 'incoming') return;
-    if (!(await prepareMedia(call))) return;
+    if (!(await prepareMedia(call.type))) return;
     respond.mutate(
       { callId: call.id, response: 'accept' },
       {
@@ -324,6 +362,26 @@ export default function CallManager() {
     );
   };
 
+  const selectAudioOutput = async (deviceId: string) => {
+    const elements = [remoteAudioRef.current, remoteVideoRef.current].filter(
+      (element): element is HTMLMediaElement => Boolean(element)
+    );
+    try {
+      await Promise.all(
+        elements.map((element) => {
+          const selectable = element as SinkSelectableMediaElement;
+          return selectable.setSinkId ? selectable.setSinkId(deviceId) : Promise.resolve();
+        })
+      );
+      setSelectedAudioOutput(deviceId);
+    } catch {
+      toast.error(
+        'Could not change audio output',
+        'Choose a speaker from your browser or phone audio controls.'
+      );
+    }
+  };
+
   if (launchTarget && !activeCall) {
     return (
       <Modal
@@ -338,7 +396,7 @@ export default function CallManager() {
         contentClassName="max-w-md rounded-2xl"
       >
         <form
-          onSubmit={submitReason}
+          onSubmit={(event) => void submitReason(event)}
         >
           <div className="flex items-start gap-3">
             <UserAvatar
@@ -349,7 +407,7 @@ export default function CallManager() {
             />
             <div className="min-w-0 flex-1">
               <h2 id="call-reason-title" className="m-0 text-[16px] font-bold">
-                Start a {launchTarget.type} call
+                Start {launchTarget.type === 'audio' ? 'an' : 'a'} {launchTarget.type} call
               </h2>
               <p className="mb-0 mt-1 text-[11px] text-(--text-muted)">
                 Tell {launchTarget.participant.fullName.split(' ')[0]} why you’re calling. They’ll
@@ -385,17 +443,21 @@ export default function CallManager() {
           </div>
           <button
             type="submit"
-            disabled={reason.trim().length < 3 || initiate.isPending}
+            disabled={reason.trim().length < 3 || initiate.isPending || mediaPending}
             className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-(--brand-500) text-[11px] font-bold text-(--brand-contrast) disabled:opacity-45"
           >
-            {initiate.isPending ? (
+            {initiate.isPending || mediaPending ? (
               <LoaderCircle size={16} className="animate-spin" />
             ) : launchTarget.type === 'video' ? (
               <Video size={16} />
             ) : (
               <Phone size={16} />
             )}
-            {initiate.isPending ? 'Starting…' : 'Start call'}
+            {mediaPending
+              ? 'Waiting for permission…'
+              : initiate.isPending
+                ? 'Starting…'
+                : 'Start call'}
           </button>
         </form>
       </Modal>
@@ -423,7 +485,7 @@ export default function CallManager() {
   if (minimized) {
     return (
       <div className="fixed bottom-4 left-1/2 z-190 w-[min(94vw,560px)] -translate-x-1/2 rounded-xl border border-(--border-subtle) bg-(--surface-elevated) p-3 shadow-(--shadow-3)">
-        <audio ref={remoteAudioRef} playsInline />
+        <audio ref={remoteAudioRef} autoPlay playsInline />
         <div className="flex items-center gap-3">
           <span className="relative">
             <UserAvatar
@@ -619,6 +681,48 @@ export default function CallManager() {
                     >
                       {audioEnabled ? <Mic size={18} /> : <MicOff size={18} />}
                     </button>
+                    {'setSinkId' in HTMLMediaElement.prototype ? (
+                      <label
+                        className="relative flex h-12 min-w-12 items-center justify-center rounded-full bg-white/12 px-3"
+                        title="Audio output"
+                      >
+                        <Volume2 size={18} className="shrink-0" />
+                        <select
+                          value={selectedAudioOutput}
+                          onChange={(event) => void selectAudioOutput(event.target.value)}
+                          className="absolute inset-0 cursor-pointer opacity-0"
+                          aria-label="Choose call audio output"
+                        >
+                          {audioOutputs.length ? (
+                            audioOutputs.map((device, index) => (
+                              <option key={device.deviceId} value={device.deviceId}>
+                                {device.label || `Audio output ${index + 1}`}
+                              </option>
+                            ))
+                          ) : (
+                            <option value="default">Default speaker</option>
+                          )}
+                        </select>
+                        <span className="ml-1.5 max-w-20 truncate text-[9px] font-bold">
+                          Output
+                        </span>
+                      </label>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          toast.info(
+                            'Use device audio controls',
+                            'This browser manages speaker and phone audio from the system call controls.'
+                          )
+                        }
+                        className="flex h-12 items-center gap-1.5 rounded-full bg-white/12 px-3 text-[9px] font-bold"
+                        aria-label="Audio output help"
+                      >
+                        <Volume2 size={18} />
+                        Output
+                      </button>
+                    )}
                     {activeCall.type === 'video' && (
                       <button
                         type="button"

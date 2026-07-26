@@ -44,6 +44,7 @@ export class UsersMapper implements IUsersMapper {
       xp: user.xp,
       level: user.level,
       streakCount: user.streakCount,
+      isPremium: user.isPremium,
       avatarUrl: user.avatarUrl,
       provider: user.provider,
       referralCode: user.referralCode,

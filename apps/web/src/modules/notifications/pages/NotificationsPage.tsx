@@ -1,6 +1,6 @@
-import { Bell, CheckCheck, CircleAlert, Sparkles } from 'lucide-react';
+import { Bell, Check, CheckCheck, CircleAlert, Sparkles } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import PageContainer from '../../../components/layout/PageContainer';
 import PageHeader from '../../../components/layout/PageHeader';
 import SkeletonBlock from '../../../components/feedback/SkeletonBlock';
@@ -106,9 +106,26 @@ export default function NotificationsPage() {
                   />
                 )}
               </span>
-              {!notification.isRead && (
-                <span className="mt-2 h-2 w-2 rounded-full bg-(--brand-500)" aria-label="Unread" />
-              )}
+              <button
+                type="button"
+                disabled={notification.isRead || markRead.isPending}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  if (!notification.isRead) markRead.mutate(notification.id);
+                }}
+                className={cn(
+                  'mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition',
+                  notification.isRead
+                    ? 'border-transparent text-(--success)'
+                    : 'border-(--border-subtle) text-(--text-muted) hover:border-(--brand-500) hover:text-(--brand-500)'
+                )}
+                aria-label={
+                  notification.isRead ? 'Notification read' : 'Mark notification as read'
+                }
+                title={notification.isRead ? 'Read' : 'Mark as read'}
+              >
+                <Check size={15} strokeWidth={notification.isRead ? 2.5 : 2} />
+              </button>
             </div>
           );
         })}

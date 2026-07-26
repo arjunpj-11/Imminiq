@@ -6,7 +6,10 @@ export const CHAT_RESPONSE_MESSAGES = {
   CONVERSATION_READ: 'Conversation marked as read',
   MESSAGE_FORWARDED: 'Message forwarded',
   TRACKER_SHARED: 'Tracker shared',
+  PROFILE_SHARED: 'Profile shared',
   BLOCKS_LISTED: 'Blocked users loaded',
   USER_BLOCKED: 'User blocked',
   USER_UNBLOCKED: 'User unblocked',
+  MESSAGE_STAR_UPDATED: 'Message star updated',
+  CONVERSATION_CLEARED: 'Unstarred messages cleared',
 } as const;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Check, Eye, ThumbsDown, ThumbsUp, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import {
   AdminCardSkeleton,
   AdminEmpty,

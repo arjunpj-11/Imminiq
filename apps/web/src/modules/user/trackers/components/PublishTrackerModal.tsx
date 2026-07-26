@@ -156,9 +156,15 @@ type DomainComboboxProps = {
   value: string;
   disabled: boolean;
   onChange: (value: string) => void;
+  inputId?: string;
 };
 
-function DomainCombobox({ value, disabled, onChange }: DomainComboboxProps) {
+export function DomainCombobox({
+  value,
+  disabled,
+  onChange,
+  inputId = 'publish-domain',
+}: DomainComboboxProps) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const debouncedSearch = useDebouncedValue(value.trim(), 250);
@@ -208,12 +214,12 @@ function DomainCombobox({ value, disabled, onChange }: DomainComboboxProps) {
   return (
     <div className="relative">
       <input
-        id="publish-domain"
+        id={inputId}
         type="search"
         role="combobox"
         aria-autocomplete="list"
         aria-expanded={open}
-        aria-controls="publish-domain-options"
+        aria-controls={`${inputId}-options`}
         autoComplete="off"
         value={value}
         disabled={disabled}
@@ -243,7 +249,7 @@ function DomainCombobox({ value, disabled, onChange }: DomainComboboxProps) {
 
       {open && (
         <div
-          id="publish-domain-options"
+          id={`${inputId}-options`}
           role="listbox"
           className="absolute z-20 mt-1 max-h-56 w-full overflow-y-auto rounded-md border border-(--border-subtle) bg-(--surface-card) p-1.5 shadow-[0_12px_36px_rgba(26,23,20,0.18)] dark:bg-[#26231f]"
           onMouseDown={(event) => event.preventDefault()}

@@ -41,6 +41,7 @@ export class MongoUsersMapper {
       teacherXp: Number(user.teacherXp ?? 0),
       teacherLevel: Number(user.teacherLevel ?? 1),
       streakCount: Number(user.streakCount ?? 0),
+      isPremium: Boolean(user.isPremium),
       avatarUrl: user.avatarUrl ?? '',
       provider: user.provider ?? 'email',
       referralCode: user.referralCode ?? '',

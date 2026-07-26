@@ -4,7 +4,7 @@ import { cn } from '../../../../lib/cn';
 // MockTestAnalysisPage.tsx — aligned with Trackers design
 // ============================================================
 
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 

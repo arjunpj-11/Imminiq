@@ -4,7 +4,7 @@ import { authenticate } from '../../../shared/middlewares/auth.middleware';
 import { authenticatedApiUserLimiter } from '../../../shared/middlewares/security-rate-limit.middleware';
 import {
   validate,
-  validateIdentifierParam,
+  validateObjectIdParam,
   validateQuery,
 } from '../../../shared/middlewares/validate.middleware';
 import { NotificationsController } from './notifications.controller';
@@ -14,7 +14,7 @@ import { notificationPollVoteSchema, notificationsListQuerySchema } from './noti
 export const createNotificationsRoutes = (useCases: NotificationsUseCases) => {
   const controller = new NotificationsController(useCases);
   const router = Router();
-  router.param('notificationId', validateIdentifierParam);
+  router.param('notificationId', validateObjectIdParam);
   router.use(authenticate, authenticatedApiUserLimiter);
   router.get(
     NOTIFICATION_ROUTE_PATHS.ROOT,

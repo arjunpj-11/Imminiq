@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { useRoutes, type RouteObject } from 'react-router-dom';
+import { useRoutes, type RouteObject } from 'react-router';
 
 import { RouteSkeleton } from '../components/feedback/RouteSkeleton';
 import AuthenticatedAppLayout from '../components/layout/AuthenticatedAppLayout';

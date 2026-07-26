@@ -1,4 +1,5 @@
 import type { CallSignal, CallType } from '../types/call.types';
+import { requestMediaPermission } from '../../../../lib/media-permissions';
 
 export type WebRtcCallCallbacks = {
   onSignal: (signal: CallSignal) => void;
@@ -11,6 +12,7 @@ export class WebRtcCallService {
   private _peer: RTCPeerConnection | null = null;
   private _localStream: MediaStream | null = null;
   private readonly _pendingCandidates: RTCIceCandidateInit[] = [];
+  private readonly _pendingSignals: CallSignal[] = [];
   private _offerCreated = false;
 
   setCallbacks(callbacks: WebRtcCallCallbacks) {
@@ -26,7 +28,7 @@ export class WebRtcCallService {
       throw new Error('Calling is not supported in this browser');
     }
     if (!this._localStream) {
-      this._localStream = await navigator.mediaDevices.getUserMedia({
+      this._localStream = await requestMediaPermission({
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
@@ -58,6 +60,7 @@ export class WebRtcCallService {
       peer.onconnectionstatechange = () => {
         this._callbacks?.onConnectionState(peer.connectionState);
       };
+      await this.flushSignals();
     }
     return this._localStream;
   }
@@ -72,7 +75,14 @@ export class WebRtcCallService {
 
   async handleSignal(signal: CallSignal) {
     const peer = this._peer;
-    if (!peer) return;
+    if (!peer) {
+      this._pendingSignals.push(signal);
+      return;
+    }
+    await this.applySignal(peer, signal);
+  }
+
+  private async applySignal(peer: RTCPeerConnection, signal: CallSignal) {
     if (signal.type === 'offer') {
       await peer.setRemoteDescription(signal.description);
       const answer = await peer.createAnswer();
@@ -111,7 +121,17 @@ export class WebRtcCallService {
     this._localStream?.getTracks().forEach((track) => track.stop());
     this._localStream = null;
     this._pendingCandidates.length = 0;
+    this._pendingSignals.length = 0;
     this._offerCreated = false;
+  }
+
+  private async flushSignals() {
+    const peer = this._peer;
+    if (!peer) return;
+    while (this._pendingSignals.length) {
+      const signal = this._pendingSignals.shift();
+      if (signal) await this.applySignal(peer, signal);
+    }
   }
 
   private async flushCandidates() {

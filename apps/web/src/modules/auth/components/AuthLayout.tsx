@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { LogoIcon } from './icons/AuthIcons';
 import ImminiqWordmark from '../../../components/ui/ImminiqWordmark';
 import { cn } from '../utils/auth-ui';

@@ -4,7 +4,7 @@ export default function ArenaPreview() {
   return (
     <section
       id="arena"
-      className="render-lazy-section bg-[#f5ede4] px-4 py-24 text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb] sm:px-8 lg:px-10"
+      className="render-lazy-section bg-[#f5ede4] px-4 py-16 text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb] sm:px-8 sm:py-20 lg:px-10"
     >
       <div className="mx-auto grid max-w-340 gap-6 lg:grid-cols-[0.85fr_1.15fr]">
         <div className="flex flex-col justify-between rounded-[34px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-7 shadow-[0_22px_70px_rgba(26,23,20,0.10)] dark:border-white/9 dark:bg-[#1e1c19]">
@@ -28,7 +28,7 @@ export default function ArenaPreview() {
           </div>
         </div>
 
-        <div className="relative min-h-150 overflow-hidden rounded-[34px] border-[1.5px] border-[#e0d0c5] bg-[#141412] p-5 text-[#f2f0eb] shadow-[0_28px_90px_rgba(26,23,20,0.16)] dark:border-white/9 dark:bg-[#050505]">
+        <div className="relative min-h-130 overflow-hidden rounded-[34px] border-[1.5px] border-[#e0d0c5] bg-[#141412] p-5 text-[#f2f0eb] shadow-[0_28px_90px_rgba(26,23,20,0.16)] dark:border-white/9 dark:bg-[#050505]">
           <div className="landing-pulse-orb absolute -right-20 top-10 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(232,129,106,0.22),transparent_70%)] blur-3xl" />
           <div className="landing-pulse-orb absolute -bottom-24 left-0 h-90 w-90 rounded-full bg-[radial-gradient(circle,rgba(107,159,232,0.18),transparent_70%)] blur-3xl" />
 

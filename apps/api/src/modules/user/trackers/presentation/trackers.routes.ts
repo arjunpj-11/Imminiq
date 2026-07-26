@@ -6,7 +6,7 @@ import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import { authenticatedApiUserLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
 import {
   validate,
-  validateIdentifierParam,
+  validateObjectIdParam,
 } from '../../../../shared/middlewares/validate.middleware';
 import { TrackerManagementController } from './tracker-management.controller';
 import { TrackerRoadmapController } from './tracker-roadmap.controller';
@@ -51,6 +51,10 @@ import {
   respondClanRoleInvitationSchema,
   clanMessagesQuerySchema,
 } from './trackers.schema';
+import {
+  parseTrackerOutlineUpload,
+  trackerOutlineUpload,
+} from './tracker-outline-upload.middleware';
 
 export const createTrackerRoutes = (
   useCases: TrackerUseCases,
@@ -62,15 +66,15 @@ export const createTrackerRoutes = (
   const clanChallengesController = new TrackerClanChallengesController(useCases);
   const clanController = new TrackerClanController(useCases);
   const router = Router();
-  router.param('trackerId', validateIdentifierParam);
-  router.param('topicId', validateIdentifierParam);
-  router.param('subtopicId', validateIdentifierParam);
-  router.param('evaluationJobId', validateIdentifierParam);
-  router.param('contributionId', validateIdentifierParam);
-  router.param('requestId', validateIdentifierParam);
-  router.param('memberId', validateIdentifierParam);
-  router.param('challengeId', validateIdentifierParam);
-  router.param('invitationId', validateIdentifierParam);
+  router.param('trackerId', validateObjectIdParam);
+  router.param('topicId', validateObjectIdParam);
+  router.param('subtopicId', validateObjectIdParam);
+  router.param('evaluationJobId', validateObjectIdParam);
+  router.param('contributionId', validateObjectIdParam);
+  router.param('requestId', validateObjectIdParam);
+  router.param('memberId', validateObjectIdParam);
+  router.param('challengeId', validateObjectIdParam);
+  router.param('invitationId', validateObjectIdParam);
 
   const validateQuery =
     (localKey: string, schema: ZodTypeAny) => (req: Request, res: Response, next: NextFunction) => {
@@ -214,6 +218,8 @@ export const createTrackerRoutes = (
 
   router.post(
     TRACKER_ROUTE_PATHS.IMPORT_OUTLINE,
+    trackerOutlineUpload.single('file'),
+    parseTrackerOutlineUpload,
     validate(importTrackerOutlineSchema),
     roadmapController.importOutline
   );

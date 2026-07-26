@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import { isAxiosError } from 'axios';
 import { ROUTES } from '../../../../routes/config/route-paths';
 
@@ -45,6 +45,7 @@ import PublishedTrackersSection, {
   type IPublishedTrackerCardViewModel,
 } from '../components/PublishedTrackersSection';
 import { AdaptiveMasteryGraph, useAdaptiveLearningDashboard } from '../../adaptive-learning';
+import { useSocialShareStore } from '../../social';
 
 /* ─── Main ProfilePage ─── */
 export default function ProfilePage() {
@@ -53,6 +54,7 @@ export default function ProfilePage() {
   const location = useLocation();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const authReady = useAuthStore((state) => state.authReady);
+  const shareProfile = useSocialShareStore((state) => state.shareProfile);
 
   const isPublicView = Boolean(username);
   const isOwnView = !isPublicView;
@@ -140,6 +142,40 @@ export default function ProfilePage() {
         showToast('Unable to copy profile URL.', 'error');
       }
     }
+  };
+
+  const handleShareProfile = async () => {
+    if (!profileShareUrl || !activeProfileData) {
+      showToast('Profile URL is unavailable.', 'error');
+      return;
+    }
+
+    if (isAuthenticated) {
+      shareProfile({
+        username: shareUsername,
+        name:
+          activeProfileData.profile.fullName ||
+          activeProfileData.user.fullName ||
+          shareUsername,
+        url: profileShareUrl,
+        avatarUrl: activeProfileData.user.avatarUrl || null,
+      });
+      return;
+    }
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${activeProfileData.user.fullName || shareUsername} on Imminiq`,
+          url: profileShareUrl,
+        });
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+      }
+    }
+
+    await copyProfileLink();
   };
 
   const activeStats = isPublicView
@@ -319,6 +355,7 @@ export default function ProfilePage() {
   const profileLevelLabel = formatProfileLevel(
     activeStats?.studentLevel ?? activeProfileData?.user.level
   );
+  const isPremium = Boolean(activeProfileData?.user.isPremium);
 
   const accountCreatedAt = activeProfileData?.user.createdAt ?? null;
 
@@ -364,6 +401,7 @@ export default function ProfilePage() {
         avatarUrl: profile.avatarUrl,
         streak: activeStreak?.currentStreak ?? activeStats?.streakCount ?? 0,
         levelLabel: profileLevelLabel,
+        isPremium,
       }}
     >
       <ProfileDocumentStyles />
@@ -377,6 +415,7 @@ export default function ProfilePage() {
             stats={activeStats}
             streak={activeStreak}
             levelLabel={profileLevelLabel}
+            isPremium={isPremium}
             location={locationStr}
             isOwnView={isOwnView}
             isPublicView={isPublicView}
@@ -386,7 +425,7 @@ export default function ProfilePage() {
             onChangeAvatar={openAvatarCropModal}
             onEdit={openEditPanel}
             onSendFriendRequest={handleSendFriendRequest}
-            onCopyProfileLink={copyProfileLink}
+            onShareProfile={() => void handleShareProfile()}
           />
 
           <div className="flex flex-col gap-6 py-6 max-[640px]:py-5 max-[900px]:pb-[calc(80px+env(safe-area-inset-bottom,0))]">
@@ -413,7 +452,7 @@ export default function ProfilePage() {
 
             <PublishedTrackersSection
               trackers={trackers}
-              onOpen={(tracker) => navigate(`/community/trackers/${tracker.id}`)}
+              onOpen={(tracker) => navigate(ROUTES.communityTracker(tracker.id))}
             />
           </div>
         </div>

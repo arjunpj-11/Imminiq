@@ -1,18 +1,12 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../../routes/config/route-paths';
+import { useBackNavigation } from '../../../hooks/useBackNavigation';
 
-export function useLegalDocumentNavigation(defaultBackPath = ROUTES.register) {
-  const navigate = useNavigate();
-  const location = useLocation();
+export function useLegalDocumentNavigation(defaultBackPath = ROUTES.home) {
+  const handleBack = useBackNavigation(defaultBackPath);
   const scrollAreaRef = useRef<HTMLElement | null>(null);
   const [activeId, setActiveId] = useState('s1');
   const [readPct, setReadPct] = useState(0);
-
-  const handleBack = () => {
-    const from = (location.state as { from?: string } | null)?.from;
-    navigate(from || defaultBackPath, { replace: true });
-  };
 
   const handleTocClick = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
     event.preventDefault();
@@ -26,7 +20,11 @@ export function useLegalDocumentNavigation(defaultBackPath = ROUTES.register) {
     const top = sectionRect.top - scrollAreaRect.top + scrollArea.scrollTop - 24;
 
     scrollArea.scrollTo({ top, behavior: 'smooth' });
-    window.history.replaceState(null, '', window.location.pathname);
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${window.location.pathname}${window.location.search}`
+    );
     setActiveId(id);
   };
 

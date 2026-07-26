@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router';
 
 import AuthLoadingScreen from '../../components/feedback/AuthLoadingScreen';
 import { useSecurityOverview } from '../../modules/user/settings';

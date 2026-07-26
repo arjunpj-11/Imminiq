@@ -10,7 +10,17 @@ export type AdminTrackerReview = {
   failVotes: number;
   createdAt: Date;
 };
-export type AdminTrackerReviewStatusResult = { id: string; status: string };
+export type AdminTrackerReviewStatusResult = {
+  id: string;
+  status: string;
+  rewardContext?: {
+    submissionId: string;
+    consensusChoice: 'pass' | 'fail';
+    trackerId: string;
+    ownerId: string;
+    trackerTitle: string;
+  };
+};
 export type AdminTrackerReviewConsensusChoice = 'pass' | 'fail';
 export type AdminTrackerReviewConsensusResult = {
   id: string;

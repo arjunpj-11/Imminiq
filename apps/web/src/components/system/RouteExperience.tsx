@@ -1,24 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { useLocation, useNavigationType } from 'react-router-dom';
+import { useLocation, useNavigationType } from 'react-router';
 
-const routeNames: Array<[RegExp, string]> = [
-  [/^\/dashboard/, 'Dashboard'],
-  [/^\/trackers\/[^/]+\/lessons/, 'Lesson'],
-  [/^\/trackers\/[^/]+\/roadmap/, 'Tracker roadmap'],
-  [/^\/trackers/, 'Trackers'],
-  [/^\/mock-tests/, 'Mock tests'],
-  [/^\/learning-agent/, 'Learning agent'],
-  [/^\/community/, 'Community'],
-  [/^\/leaderboard/, 'Leaderboard'],
-  [/^\/activity/, 'Activity'],
-  [/^\/chat/, 'Chats'],
-  [/^\/friends/, 'Friends'],
-  [/^\/settings/, 'Settings'],
-  [/^\/profile/, 'Profile'],
-];
-
-const getRouteName = (pathname: string) =>
-  routeNames.find(([pattern]) => pattern.test(pathname))?.[1] ?? 'Imminiq';
+import { getRouteName } from './route-experience-metadata';
 
 const positions = new Map<string, number>();
 

@@ -106,14 +106,14 @@ export const audienceCards = [
 export const socialCapabilities = [
   {
     title: 'Everything in one conversation',
-    body: 'Send messages, voice notes, code, images, files, and public trackers without losing your learning context.',
+    body: 'Send messages, voice notes, links, code, files, and rich tracker or profile cards without losing your learning context.',
   },
   {
     title: 'Calls with context',
-    body: 'Start an audio or video call with a reason, minimize it while it rings, and keep a useful call history.',
+    body: 'Start an audio or video call with a reason, choose supported audio outputs, and call back directly from history.',
   },
   {
-    title: 'Privacy that is actually respected',
-    body: 'Control online and last-active visibility, block unwanted contact, and keep your profile private from blocked people.',
+    title: 'Your useful moments stay',
+    body: 'Star important messages, clear the rest, and use privacy controls to manage visibility and unwanted contact.',
   },
 ];

@@ -69,6 +69,7 @@ export interface IProfileUser {
   xp?: number;
   level?: number;
   streakCount?: number;
+  isPremium?: boolean;
   avatarUrl?: string;
   provider?: string;
   referralCode?: string;
