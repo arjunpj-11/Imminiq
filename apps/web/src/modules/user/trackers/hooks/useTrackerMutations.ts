@@ -242,13 +242,19 @@ export const useCreateTrackerSubtopic = () => {
 };
 
 type ImportTrackerOutlinePayload =
-  | { trackerId: string; kind: 'topics'; topics: TrackerOutlineTopic[] }
+  | {
+      trackerId: string;
+      kind: 'topics';
+      topics: TrackerOutlineTopic[];
+      uploadAsFile?: boolean;
+    }
   | {
       trackerId: string;
       kind: 'subtopics';
       topicId: string;
       parentSubtopicId?: string;
       subtopics: TrackerOutlineNode[];
+      uploadAsFile?: boolean;
     };
 
 export const useImportTrackerOutline = () => {
@@ -259,10 +265,24 @@ export const useImportTrackerOutline = () => {
     Error,
     ImportTrackerOutlinePayload
   >({
-    mutationFn: async ({ trackerId, ...outline }) => {
+    mutationFn: async ({ trackerId, uploadAsFile = false, ...outline }) => {
+      const serializedOutline = JSON.stringify(outline);
+      const payload =
+        uploadAsFile || new Blob([serializedOutline]).size >= 80 * 1024
+          ? (() => {
+              const form = new FormData();
+              form.append(
+                'file',
+                new File([serializedOutline], 'tracker-outline.json', {
+                  type: 'application/json',
+                })
+              );
+              return form;
+            })()
+          : outline;
       const response = await api.post<
         IApiResponse<{ topicsAdded: number; subtopicsAdded: number }>
-      >(TRACKER_API_PATHS.importOutline(trackerId), outline);
+      >(TRACKER_API_PATHS.importOutline(trackerId), payload);
       return response.data.data;
     },
     onSettled: (_response, _error, variables) => {

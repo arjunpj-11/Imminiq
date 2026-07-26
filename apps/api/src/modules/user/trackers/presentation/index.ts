@@ -3,6 +3,7 @@ export * from './tracker-roadmap.controller';
 export * from './tracker-lessons.controller';
 export * from './tracker-clan.controller';
 export * from './tracker-clan-challenges.controller';
+export * from './tracker-outline-upload.middleware';
 export * from './trackers.route.constants';
 export * from './trackers.routes';
 export * from './trackers.schema';

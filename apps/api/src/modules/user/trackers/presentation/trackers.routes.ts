@@ -51,6 +51,10 @@ import {
   respondClanRoleInvitationSchema,
   clanMessagesQuerySchema,
 } from './trackers.schema';
+import {
+  parseTrackerOutlineUpload,
+  trackerOutlineUpload,
+} from './tracker-outline-upload.middleware';
 
 export const createTrackerRoutes = (
   useCases: TrackerUseCases,
@@ -214,6 +218,8 @@ export const createTrackerRoutes = (
 
   router.post(
     TRACKER_ROUTE_PATHS.IMPORT_OUTLINE,
+    trackerOutlineUpload.single('file'),
+    parseTrackerOutlineUpload,
     validate(importTrackerOutlineSchema),
     roadmapController.importOutline
   );

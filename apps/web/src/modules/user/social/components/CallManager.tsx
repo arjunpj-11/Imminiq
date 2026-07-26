@@ -182,6 +182,17 @@ export default function CallManager() {
   }, [activeQuery.data, setActiveCall]);
 
   useEffect(() => {
+    if (activeCall?.status === 'accepted') {
+      queueMicrotask(() => {
+        const currentCall = activeCallRef.current;
+        if (currentCall?.id === activeCall.id && currentCall.status === 'accepted') {
+          void connectAcceptedCall(currentCall);
+        }
+      });
+    }
+  }, [activeCall, connectAcceptedCall]);
+
+  useEffect(() => {
     if (activeCall?.status !== 'accepted' || !activeCall.acceptedAt) return undefined;
     const timer = window.setInterval(() => setClock(Date.now()), 1_000);
     return () => window.clearInterval(timer);
@@ -214,7 +225,7 @@ export default function CallManager() {
         return;
       }
       setActiveCall(call);
-      if (call.status === 'accepted' && call.direction === 'outgoing') {
+      if (call.status === 'accepted') {
         void connectAcceptedCall(call);
       }
     };
@@ -223,8 +234,7 @@ export default function CallManager() {
       if (
         !currentCall ||
         event.callId !== currentCall.id ||
-        !event.signal ||
-        currentCall.status !== 'accepted'
+        !event.signal
       ) {
         return;
       }
@@ -423,7 +433,7 @@ export default function CallManager() {
   if (minimized) {
     return (
       <div className="fixed bottom-4 left-1/2 z-190 w-[min(94vw,560px)] -translate-x-1/2 rounded-xl border border-(--border-subtle) bg-(--surface-elevated) p-3 shadow-(--shadow-3)">
-        <audio ref={remoteAudioRef} playsInline />
+        <audio ref={remoteAudioRef} autoPlay playsInline />
         <div className="flex items-center gap-3">
           <span className="relative">
             <UserAvatar
