@@ -11,7 +11,6 @@ import {
   parseNewTopLevelPlacement,
   type NewTopLevelPlacement,
 } from '../missing-topic-placement.policy';
-import { TrackerApplicationError } from '../tracker-application.error';
 
 type PlacementInput = {
   trackerId: string;
