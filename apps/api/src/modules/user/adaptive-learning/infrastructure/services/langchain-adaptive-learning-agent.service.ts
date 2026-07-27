@@ -266,9 +266,8 @@ export class LangChainAdaptiveLearningAgent implements IAdaptiveLearningAgent {
         };
       }
       if (input.snapshot.trackers.length >= 3) {
-        const tracker = this.nextTrackerToContinue(input.snapshot);
         return {
-          content: `You already have ${input.snapshot.trackers.length} trackers. Continue “${tracker?.title ?? 'one of your current trackers'}” before creating another learning path.`,
+          content: response.content,
         };
       }
       return { content: response.content, action: response.action };

@@ -1,0 +1,1024 @@
+{
+  "topics": [
+    {
+      "title": "TypeScript Fundamentals",
+      "description": "Understand what TypeScript is and how it works with JavaScript.",
+      "subtopics": [
+        {
+          "title": "Introduction to TypeScript",
+          "description": "Learn the purpose and benefits of TypeScript.",
+          "subtopics": [
+            {
+              "title": "What is TypeScript?",
+              "subtopics": []
+            },
+            {
+              "title": "TypeScript vs JavaScript",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Development Setup",
+          "description": "Install and configure a TypeScript development environment.",
+          "subtopics": [
+            {
+              "title": "Installing TypeScript",
+              "subtopics": []
+            },
+            {
+              "title": "Using the tsc Command",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Basic Types",
+      "description": "Learn the built-in types available in TypeScript.",
+      "subtopics": [
+        {
+          "title": "Primitive Types",
+          "description": "Use TypeScript primitive data types.",
+          "subtopics": [
+            {
+              "title": "string",
+              "subtopics": []
+            },
+            {
+              "title": "number",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Special Types",
+          "description": "Understand TypeScript types with special behaviour.",
+          "subtopics": [
+            {
+              "title": "any",
+              "subtopics": []
+            },
+            {
+              "title": "unknown",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Arrays, Tuples and Objects",
+      "description": "Model collections and structured data with TypeScript.",
+      "subtopics": [
+        {
+          "title": "Arrays",
+          "description": "Create strongly typed collections of values.",
+          "subtopics": [
+            {
+              "title": "Array Type Syntax",
+              "subtopics": []
+            },
+            {
+              "title": "Readonly Arrays",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Tuples",
+          "description": "Create fixed-length arrays with predefined element types.",
+          "subtopics": [
+            {
+              "title": "Basic Tuples",
+              "subtopics": []
+            },
+            {
+              "title": "Named Tuples",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Functions",
+      "description": "Create strongly typed functions and callbacks.",
+      "subtopics": [
+        {
+          "title": "Function Typing",
+          "description": "Add type safety to function parameters and return values.",
+          "subtopics": [
+            {
+              "title": "Parameter Types",
+              "subtopics": []
+            },
+            {
+              "title": "Return Types",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Function Parameters",
+          "description": "Handle different kinds of function parameters.",
+          "subtopics": [
+            {
+              "title": "Optional Parameters",
+              "subtopics": []
+            },
+            {
+              "title": "Default Parameters",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Type Aliases and Interfaces",
+      "description": "Create reusable names for object shapes and other types.",
+      "subtopics": [
+        {
+          "title": "Type Aliases",
+          "description": "Create reusable names for any TypeScript type.",
+          "subtopics": [
+            {
+              "title": "Basic Type Aliases",
+              "subtopics": []
+            },
+            {
+              "title": "Union Type Aliases",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Interfaces",
+          "description": "Describe object and class contracts.",
+          "subtopics": [
+            {
+              "title": "Basic Interfaces",
+              "subtopics": []
+            },
+            {
+              "title": "Optional Interface Properties",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Union and Intersection Types",
+      "description": "Combine multiple types to model flexible data.",
+      "subtopics": [
+        {
+          "title": "Union Types",
+          "description": "Allow a value to be one of several types.",
+          "subtopics": [
+            {
+              "title": "Basic Unions",
+              "subtopics": []
+            },
+            {
+              "title": "Literal Unions",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Intersection Types",
+          "description": "Combine multiple types into a single type.",
+          "subtopics": [
+            {
+              "title": "Basic Intersections",
+              "subtopics": []
+            },
+            {
+              "title": "Composing Object Types",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Type Narrowing",
+      "description": "Refine broad types into more specific types.",
+      "subtopics": [
+        {
+          "title": "Built-in Type Guards",
+          "description": "Use JavaScript checks to narrow TypeScript types.",
+          "subtopics": [
+            {
+              "title": "typeof Narrowing",
+              "subtopics": []
+            },
+            {
+              "title": "instanceof Narrowing",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Control Flow Analysis",
+          "description": "Understand how TypeScript follows values through program branches.",
+          "subtopics": [
+            {
+              "title": "Conditional Branches",
+              "subtopics": []
+            },
+            {
+              "title": "Early Returns",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Enums and Constants",
+      "description": "Represent named groups of related constant values.",
+      "subtopics": [
+        {
+          "title": "Enums",
+          "description": "Use TypeScript enums to define named constants.",
+          "subtopics": [
+            {
+              "title": "Numeric Enums",
+              "subtopics": []
+            },
+            {
+              "title": "String Enums",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Alternatives to Enums",
+          "description": "Model constants without TypeScript enums.",
+          "subtopics": [
+            {
+              "title": "String Literal Unions",
+              "subtopics": []
+            },
+            {
+              "title": "Objects with as const",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Classes and Object-Oriented Programming",
+      "description": "Use TypeScript to build strongly typed object-oriented programs.",
+      "subtopics": [
+        {
+          "title": "Class Fundamentals",
+          "description": "Create classes, properties and methods.",
+          "subtopics": [
+            {
+              "title": "Class Properties",
+              "subtopics": []
+            },
+            {
+              "title": "Constructors",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Access Modifiers",
+          "description": "Control access to class members.",
+          "subtopics": [
+            {
+              "title": "public",
+              "subtopics": []
+            },
+            {
+              "title": "private",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Generics",
+      "description": "Create reusable components that preserve type information.",
+      "subtopics": [
+        {
+          "title": "Generic Fundamentals",
+          "description": "Understand type parameters and generic syntax.",
+          "subtopics": [
+            {
+              "title": "Generic Functions",
+              "subtopics": []
+            },
+            {
+              "title": "Generic Interfaces",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Generic Constraints",
+          "description": "Limit the types accepted by a generic.",
+          "subtopics": [
+            {
+              "title": "extends Constraints",
+              "subtopics": []
+            },
+            {
+              "title": "keyof Constraints",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Keyof, Typeof and Indexed Access",
+      "description": "Derive new types from existing values and object types.",
+      "subtopics": [
+        {
+          "title": "keyof Operator",
+          "description": "Create a union of an object type's property names.",
+          "subtopics": [
+            {
+              "title": "Basic keyof",
+              "subtopics": []
+            },
+            {
+              "title": "keyof with Generics",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "typeof Operator",
+          "description": "Create types from existing variables and values.",
+          "subtopics": [
+            {
+              "title": "Type Queries",
+              "subtopics": []
+            },
+            {
+              "title": "Function Type Extraction",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Utility Types",
+      "description": "Transform existing types using built-in TypeScript utilities.",
+      "subtopics": [
+        {
+          "title": "Object Transformation Utilities",
+          "description": "Create modified versions of object types.",
+          "subtopics": [
+            {
+              "title": "Partial",
+              "subtopics": []
+            },
+            {
+              "title": "Required",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Union Transformation Utilities",
+          "description": "Filter and modify union types.",
+          "subtopics": [
+            {
+              "title": "Exclude",
+              "subtopics": []
+            },
+            {
+              "title": "Extract",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Advanced Type Manipulation",
+      "description": "Build complex reusable types using TypeScript's type system.",
+      "subtopics": [
+        {
+          "title": "Conditional Types",
+          "description": "Choose one type or another based on a type relationship.",
+          "subtopics": [
+            {
+              "title": "Basic Conditional Types",
+              "subtopics": []
+            },
+            {
+              "title": "Distributive Conditional Types",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "infer Keyword",
+          "description": "Capture a type from within another type.",
+          "subtopics": [
+            {
+              "title": "Inferring Return Types",
+              "subtopics": []
+            },
+            {
+              "title": "Inferring Array Elements",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Type Assertions and Type Safety",
+      "description": "Work safely when TypeScript cannot automatically determine a type.",
+      "subtopics": [
+        {
+          "title": "Type Assertions",
+          "description": "Tell TypeScript to treat a value as a specific type.",
+          "subtopics": [
+            {
+              "title": "as Syntax",
+              "subtopics": []
+            },
+            {
+              "title": "Angle-Bracket Syntax",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Non-null Assertions",
+          "description": "Indicate that a nullable value is present.",
+          "subtopics": [
+            {
+              "title": "Non-null Assertion Operator",
+              "subtopics": []
+            },
+            {
+              "title": "Avoiding Unsafe Assertions",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Modules and Project Structure",
+      "description": "Organise TypeScript code across multiple files and packages.",
+      "subtopics": [
+        {
+          "title": "ES Modules",
+          "description": "Share code using modern import and export syntax.",
+          "subtopics": [
+            {
+              "title": "Named Exports",
+              "subtopics": []
+            },
+            {
+              "title": "Default Exports",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Module Systems",
+          "description": "Understand how TypeScript works with different JavaScript module systems.",
+          "subtopics": [
+            {
+              "title": "ECMAScript Modules",
+              "subtopics": []
+            },
+            {
+              "title": "CommonJS",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "TypeScript Configuration",
+      "description": "Configure the TypeScript compiler for different environments.",
+      "subtopics": [
+        {
+          "title": "Compiler Fundamentals",
+          "description": "Understand the structure and behaviour of tsconfig.json.",
+          "subtopics": [
+            {
+              "title": "compilerOptions",
+              "subtopics": []
+            },
+            {
+              "title": "include",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Output Configuration",
+          "description": "Control the generated JavaScript and declaration files.",
+          "subtopics": [
+            {
+              "title": "target",
+              "subtopics": []
+            },
+            {
+              "title": "module",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Declaration Files and Third-Party Libraries",
+      "description": "Use and create type definitions for JavaScript libraries.",
+      "subtopics": [
+        {
+          "title": "Declaration File Fundamentals",
+          "description": "Understand files ending in .d.ts.",
+          "subtopics": [
+            {
+              "title": "Purpose of .d.ts Files",
+              "subtopics": []
+            },
+            {
+              "title": "declare Keyword",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Third-Party Type Definitions",
+          "description": "Use external packages with TypeScript.",
+          "subtopics": [
+            {
+              "title": "Built-in Package Types",
+              "subtopics": []
+            },
+            {
+              "title": "DefinitelyTyped",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Asynchronous TypeScript",
+      "description": "Build type-safe asynchronous programs.",
+      "subtopics": [
+        {
+          "title": "Promises",
+          "description": "Represent values that will be available in the future.",
+          "subtopics": [
+            {
+              "title": "Promise Type",
+              "subtopics": []
+            },
+            {
+              "title": "Promise Resolve and Reject",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Async and Await",
+          "description": "Write readable asynchronous functions.",
+          "subtopics": [
+            {
+              "title": "Async Function Return Types",
+              "subtopics": []
+            },
+            {
+              "title": "Awaited Values",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "DOM and Browser APIs",
+      "description": "Use TypeScript safely in browser-based applications.",
+      "subtopics": [
+        {
+          "title": "DOM Element Types",
+          "description": "Work with typed HTML elements.",
+          "subtopics": [
+            {
+              "title": "HTMLElement",
+              "subtopics": []
+            },
+            {
+              "title": "Specific Element Types",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Browser Events",
+          "description": "Handle browser events with accurate event types.",
+          "subtopics": [
+            {
+              "title": "Event",
+              "subtopics": []
+            },
+            {
+              "title": "MouseEvent",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "TypeScript with Node.js and Express",
+      "description": "Build type-safe backend applications using TypeScript.",
+      "subtopics": [
+        {
+          "title": "Node.js Setup",
+          "description": "Configure TypeScript for a Node.js application.",
+          "subtopics": [
+            {
+              "title": "Node Type Definitions",
+              "subtopics": []
+            },
+            {
+              "title": "NodeNext Configuration",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Express Types",
+          "description": "Build typed Express applications.",
+          "subtopics": [
+            {
+              "title": "Request and Response Types",
+              "subtopics": []
+            },
+            {
+              "title": "Route Parameter Types",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "TypeScript with React",
+      "description": "Build strongly typed React applications.",
+      "subtopics": [
+        {
+          "title": "Component Typing",
+          "description": "Create type-safe React components.",
+          "subtopics": [
+            {
+              "title": "Function Components",
+              "subtopics": []
+            },
+            {
+              "title": "Component Props",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "React Hooks",
+          "description": "Use React hooks with TypeScript.",
+          "subtopics": [
+            {
+              "title": "useState",
+              "subtopics": []
+            },
+            {
+              "title": "useEffect",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Runtime Validation",
+      "description": "Validate external data that TypeScript cannot check at runtime.",
+      "subtopics": [
+        {
+          "title": "Validation Fundamentals",
+          "description": "Understand the difference between compile-time and runtime safety.",
+          "subtopics": [
+            {
+              "title": "Untrusted Data",
+              "subtopics": []
+            },
+            {
+              "title": "Parsing vs Casting",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Schema Validation",
+          "description": "Define schemas that validate data and produce TypeScript types.",
+          "subtopics": [
+            {
+              "title": "Zod Basics",
+              "subtopics": []
+            },
+            {
+              "title": "Schema Type Inference",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Error Handling",
+      "description": "Model, throw and handle errors safely.",
+      "subtopics": [
+        {
+          "title": "JavaScript Errors",
+          "description": "Understand the built-in Error object.",
+          "subtopics": [
+            {
+              "title": "Throwing Errors",
+              "subtopics": []
+            },
+            {
+              "title": "Catching Errors",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Custom Errors",
+          "description": "Create structured error classes for application failures.",
+          "subtopics": [
+            {
+              "title": "Extending Error",
+              "subtopics": []
+            },
+            {
+              "title": "Error Codes",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Testing TypeScript Applications",
+      "description": "Test TypeScript code with strong type safety.",
+      "subtopics": [
+        {
+          "title": "Unit Testing",
+          "description": "Test individual functions, classes and modules.",
+          "subtopics": [
+            {
+              "title": "Vitest Setup",
+              "subtopics": []
+            },
+            {
+              "title": "Jest Setup",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Mocking",
+          "description": "Replace dependencies during tests.",
+          "subtopics": [
+            {
+              "title": "Function Mocks",
+              "subtopics": []
+            },
+            {
+              "title": "Module Mocks",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Tooling and Code Quality",
+      "description": "Configure tools that improve TypeScript development quality.",
+      "subtopics": [
+        {
+          "title": "ESLint",
+          "description": "Detect code-quality and TypeScript problems.",
+          "subtopics": [
+            {
+              "title": "TypeScript ESLint",
+              "subtopics": []
+            },
+            {
+              "title": "Type-aware Linting",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Formatting",
+          "description": "Maintain consistent code formatting.",
+          "subtopics": [
+            {
+              "title": "Prettier",
+              "subtopics": []
+            },
+            {
+              "title": "ESLint and Prettier Integration",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Project References and Monorepos",
+      "description": "Manage multiple related TypeScript applications and packages.",
+      "subtopics": [
+        {
+          "title": "Project References",
+          "description": "Connect multiple TypeScript projects.",
+          "subtopics": [
+            {
+              "title": "composite Option",
+              "subtopics": []
+            },
+            {
+              "title": "references Field",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Monorepo Fundamentals",
+          "description": "Organise multiple applications and packages in one repository.",
+          "subtopics": [
+            {
+              "title": "Workspace Structure",
+              "subtopics": []
+            },
+            {
+              "title": "Shared Type Packages",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Design Patterns with TypeScript",
+      "description": "Apply common software design patterns using TypeScript.",
+      "subtopics": [
+        {
+          "title": "Creational Patterns",
+          "description": "Control how objects are created.",
+          "subtopics": [
+            {
+              "title": "Factory Pattern",
+              "subtopics": []
+            },
+            {
+              "title": "Builder Pattern",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Structural Patterns",
+          "description": "Combine objects and classes into larger structures.",
+          "subtopics": [
+            {
+              "title": "Adapter Pattern",
+              "subtopics": []
+            },
+            {
+              "title": "Decorator Pattern",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "TypeScript Best Practices",
+      "description": "Write maintainable, scalable and production-ready TypeScript.",
+      "subtopics": [
+        {
+          "title": "Type Safety Practices",
+          "description": "Reduce unsafe code and prevent type-related bugs.",
+          "subtopics": [
+            {
+              "title": "Avoid Unnecessary any",
+              "subtopics": []
+            },
+            {
+              "title": "Prefer unknown for External Data",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Type Design",
+          "description": "Create understandable and maintainable application types.",
+          "subtopics": [
+            {
+              "title": "Prefer Narrow Types",
+              "subtopics": []
+            },
+            {
+              "title": "Model Invalid States Out",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Practice Projects",
+      "description": "Apply TypeScript concepts through practical projects.",
+      "subtopics": [
+        {
+          "title": "Beginner Projects",
+          "description": "Practise TypeScript syntax and fundamental types.",
+          "subtopics": [
+            {
+              "title": "Typed Calculator",
+              "subtopics": []
+            },
+            {
+              "title": "Todo List",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Intermediate Projects",
+          "description": "Practise APIs, generics, classes and application architecture.",
+          "subtopics": [
+            {
+              "title": "Weather Application",
+              "subtopics": []
+            },
+            {
+              "title": "Typed REST API",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Interview Preparation",
+      "description": "Review important TypeScript concepts commonly discussed in interviews.",
+      "subtopics": [
+        {
+          "title": "Fundamental Questions",
+          "description": "Prepare explanations for essential TypeScript concepts.",
+          "subtopics": [
+            {
+              "title": "TypeScript Compilation",
+              "subtopics": []
+            },
+            {
+              "title": "Static vs Dynamic Typing",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "title": "Advanced Questions",
+          "description": "Prepare explanations for advanced type-system features.",
+          "subtopics": [
+            {
+              "title": "Generic Constraints",
+              "subtopics": []
+            },
+            {
+              "title": "Conditional Types",
+              "subtopics": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

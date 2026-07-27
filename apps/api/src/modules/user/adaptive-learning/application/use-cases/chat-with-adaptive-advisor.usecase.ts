@@ -24,17 +24,17 @@ export class ChatWithAdaptiveAdvisorUseCase implements IChatWithAdaptiveAdvisorU
       throw AdaptiveLearningApplicationError.invalidAdvisorQuestion();
     }
 
-    const [snapshot, profile, history] = await Promise.all([
-      this._repository.getLearnerSnapshot(userId),
-      this._repository.getOrCreateProfile(userId),
-      this._repository.listAdvisorMessages(userId, 12),
-    ]);
-
     await this._repository.addAdvisorMessage({
       userId,
       role: 'user',
       content: cleanQuestion,
     });
+
+    const [snapshot, profile, history] = await Promise.all([
+      this._repository.getLearnerSnapshot(userId),
+      this._repository.getOrCreateProfile(userId),
+      this._repository.listAdvisorMessages(userId, 12),
+    ]);
 
     const answer = await this._agent.answer({
       question: cleanQuestion,
