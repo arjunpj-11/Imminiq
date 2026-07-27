@@ -85,7 +85,9 @@ export default function SocialPreview() {
                   <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.17em] text-[#b84c2b] dark:text-[#e8816a]">
                     Social
                   </p>
-                  <p className="mt-1 text-xl font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">Conversations</p>
+                  <p className="mt-1 text-xl font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">
+                    Conversations
+                  </p>
                 </div>
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#b84c2b] text-[#fdf8f5] dark:bg-[#e8816a] dark:text-[#141412]">
                   <Send aria-hidden="true" size={15} />
@@ -118,7 +120,9 @@ export default function SocialPreview() {
                       {conversation.initials}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-[12px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">{conversation.name}</p>
+                      <p className="truncate text-[12px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                        {conversation.name}
+                      </p>
                       <p className="mt-1 truncate text-[10px] text-[#6b5f58] dark:text-white/45">
                         {conversation.preview}
                       </p>
@@ -135,7 +139,9 @@ export default function SocialPreview() {
                     AK
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-[13px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">Aarav K.</p>
+                    <p className="truncate text-[13px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">
+                      Aarav K.
+                    </p>
                     <p className="mt-0.5 flex items-center gap-1.5 text-[10px] text-[#2d6a47] dark:text-[#84a98c]">
                       <span className="h-1.5 w-1.5 rounded-full bg-[#2d6a47] dark:bg-[#84a98c]" />
                       online
@@ -189,7 +195,11 @@ export default function SocialPreview() {
                           </p>
                         </div>
                       </div>
-                      <ChevronDown aria-hidden="true" className="shrink-0 opacity-75 dark:opacity-55" size={15} />
+                      <ChevronDown
+                        aria-hidden="true"
+                        className="shrink-0 opacity-75 dark:opacity-55"
+                        size={15}
+                      />
                     </div>
                   </div>
                   <div className="mt-2 flex items-center justify-end gap-1 font-['DM_Mono',monospace] text-[8px] opacity-75 dark:opacity-55">
@@ -219,7 +229,9 @@ export default function SocialPreview() {
                       <Code2 aria-hidden="true" size={12} />
                       cache.ts
                     </span>
-                    <span className="text-[9px] font-bold text-[#6b5f58] dark:text-white/46">Copy</span>
+                    <span className="text-[9px] font-bold text-[#6b5f58] dark:text-white/46">
+                      Copy
+                    </span>
                   </div>
                   <pre className="overflow-hidden p-4 font-['DM_Mono',monospace] text-[9px] leading-[1.7] text-[#1a1714] dark:text-white/62">
                     <code>{`const value = await cache.get(key)\nreturn value ?? loadFresh()`}</code>
@@ -232,7 +244,9 @@ export default function SocialPreview() {
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#f5ede4] text-[#6b5f58] dark:bg-white/7 dark:text-white/55">
                     <Mic aria-hidden="true" size={14} />
                   </div>
-                  <span className="flex-1 text-[11px] text-[#8c827a] dark:text-white/32">Message Aarav...</span>
+                  <span className="flex-1 text-[11px] text-[#8c827a] dark:text-white/32">
+                    Message Aarav...
+                  </span>
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#b84c2b] text-[#fdf8f5] dark:bg-[#e8816a] dark:text-[#141412]">
                     <Send aria-hidden="true" size={14} />
                   </div>
@@ -254,7 +268,9 @@ export default function SocialPreview() {
               <h3 className="mt-5 font-['Playfair_Display',serif] text-2xl font-extrabold tracking-[-0.035em] text-[#1a1714] dark:text-[#f2f0eb]">
                 {capability.title}
               </h3>
-              <p className="mt-3 text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">{capability.body}</p>
+              <p className="mt-3 text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+                {capability.body}
+              </p>
             </article>
           ))}
         </div>

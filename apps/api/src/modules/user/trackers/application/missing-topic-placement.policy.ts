@@ -88,7 +88,11 @@ export const formatNumberedTopicTitle = (
   orderNumber: number,
   shouldNumber: boolean
 ): string => {
-  const cleanTitle = rawTitle.trim().replace(/^(?:topic\s+)?\d+[\s._:-]*/i, '').trim() || rawTitle.trim();
+  const cleanTitle =
+    rawTitle
+      .trim()
+      .replace(/^(?:topic\s+)?\d+[\s._:-]*/i, '')
+      .trim() || rawTitle.trim();
   if (!shouldNumber) {
     return cleanTitle;
   }

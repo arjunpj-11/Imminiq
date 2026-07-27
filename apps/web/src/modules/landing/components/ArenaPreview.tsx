@@ -76,7 +76,9 @@ export default function ArenaPreview() {
                 <h4 className="font-['Playfair_Display',serif] text-3xl font-extrabold tracking-tighter">
                   {title}
                 </h4>
-                <p className="mt-3 text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#b8b4aa]">{body}</p>
+                <p className="mt-3 text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#b8b4aa]">
+                  {body}
+                </p>
               </article>
             ))}
           </div>
