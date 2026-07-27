@@ -241,7 +241,7 @@ export type CreatedTrackerTopicRecord = {
 
 export type CreatedTrackerSubtopicRecord = TrackerSubtopicRecord;
 
-export type LastTopicRecord = { order?: number };
+export type LastTopicRecord = { order?: number; title?: string };
 export type LastSiblingSubtopicRecord = { order?: number };
 
 // ─── User Progress ────────────────────────────────────────────────────────────

@@ -7,9 +7,12 @@ import { ApiError } from '../../../../shared/utils/api-error';
 
 const MAX_OUTLINE_FILE_BYTES = 1024 * 1024;
 const allowedJsonMimeTypes = new Set([
+  '',
   'application/json',
   'text/json',
   'text/plain',
+  'text/x-json',
+  'application/x-json',
   'application/octet-stream',
 ]);
 
@@ -18,14 +21,14 @@ export const trackerOutlineUpload = multer({
   limits: {
     fileSize: MAX_OUTLINE_FILE_BYTES,
     files: 1,
-    fields: 0,
-    parts: 1,
+    fields: 10,
+    parts: 20,
   },
   fileFilter: (_request, file, callback) => {
-    if (
-      extname(file.originalname).toLowerCase() !== '.json' ||
-      !allowedJsonMimeTypes.has(file.mimetype.toLowerCase())
-    ) {
+    const isJsonExt = extname(file.originalname).toLowerCase() === '.json';
+    const mime = file.mimetype.toLowerCase();
+
+    if (!isJsonExt || !allowedJsonMimeTypes.has(mime)) {
       callback(
         new ApiError(400, 'Upload a valid .json outline file', 'INVALID_TRACKER_OUTLINE_FILE')
       );

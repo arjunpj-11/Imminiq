@@ -24,4 +24,13 @@ describe('missing topic placement policy', () => {
       referenceTitle: 'Data Structures',
     });
   });
+
+  it('matches parent titles even with leading topic numbers', () => {
+    const topics = [
+      { id: 'one', title: 'Exam Preparation & Mastery' },
+      { id: 'two', title: 'System Design' },
+    ];
+
+    expect(findBestMatchingParent(topics, '8. Exam Preparation & Mastery')).toBe(topics[0]);
+  });
 });

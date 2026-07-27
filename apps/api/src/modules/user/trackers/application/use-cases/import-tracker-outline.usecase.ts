@@ -25,31 +25,37 @@ export class ImportTrackerOutlineUseCase implements IImportTrackerOutlineUseCase
       parentSubtopicId: string | null,
       nodes: ImportTrackerOutlineNodeDTO[]
     ): Promise<void> => {
-      for (const node of nodes) {
-        const created = await this._createSubtopic.execute({
-          trackerId: input.trackerId,
-          userId: input.userId,
-          topicId,
-          parentSubtopicId,
-          title: node.title,
-          description: node.description || '',
-        });
-        subtopicsAdded += 1;
-        await addSubtopics(topicId, created._id.toString(), node.subtopics);
-      }
+      await Promise.all(
+        nodes.map(async (node) => {
+          const created = await this._createSubtopic.execute({
+            trackerId: input.trackerId,
+            userId: input.userId,
+            topicId,
+            parentSubtopicId,
+            title: node.title,
+            description: node.description || '',
+          });
+          subtopicsAdded += 1;
+          if (node.subtopics && node.subtopics.length > 0) {
+            await addSubtopics(topicId, created._id.toString(), node.subtopics);
+          }
+        })
+      );
     };
 
     if (input.kind === 'topics') {
-      for (const topic of input.topics) {
-        const created = await this._createTopic.execute({
-          trackerId: input.trackerId,
-          userId: input.userId,
-          title: topic.title,
-          description: topic.description || '',
-        });
-        topicsAdded += 1;
-        await addSubtopics(created._id.toString(), null, topic.subtopics);
-      }
+      await Promise.all(
+        input.topics.map(async (topic) => {
+          const created = await this._createTopic.execute({
+            trackerId: input.trackerId,
+            userId: input.userId,
+            title: topic.title,
+            description: topic.description || '',
+          });
+          topicsAdded += 1;
+          await addSubtopics(created._id.toString(), null, topic.subtopics);
+        })
+      );
     } else {
       await addSubtopics(input.topicId, input.parentSubtopicId || null, input.subtopics);
     }

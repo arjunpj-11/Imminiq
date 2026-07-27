@@ -7,10 +7,10 @@ import type {
 import type { IMissingEvaluationTopicPlacementRepository } from '../missing-evaluation-topic.ports';
 import {
   findBestMatchingParent,
+  formatNumberedTopicTitle,
   parseNewTopLevelPlacement,
   type NewTopLevelPlacement,
 } from '../missing-topic-placement.policy';
-import { TrackerApplicationError } from '../tracker-application.error';
 
 type PlacementInput = {
   trackerId: string;
@@ -42,9 +42,18 @@ export class MissingEvaluationTopicPlacementService implements IMissingEvaluatio
     placement: NewTopLevelPlacement
   ): Promise<AddMissingEvaluationTopicResult> {
     const order = await this.resolveTopLevelOrder(input.trackerId, input.trackerTopics, placement);
+
+    const hasNumberedTopic = input.trackerTopics.some((t) =>
+      /^(?:topic\s+)?\d+[\s._:-]*/i.test(t.title.trim())
+    );
+    const inputHasNumber = /^(?:topic\s+)?\d+[\s._:-]*/i.test(input.missingTopic.title.trim());
+    const shouldNumber = hasNumberedTopic || inputHasNumber;
+
+    const formattedTitle = formatNumberedTopicTitle(input.missingTopic.title, order, shouldNumber);
+
     const addedTopic = await this._repository.createTrackerTopic({
       trackerId: input.trackerId,
-      title: input.missingTopic.title,
+      title: formattedTitle,
       description: input.missingTopic.description,
       order,
     });
@@ -80,15 +89,38 @@ export class MissingEvaluationTopicPlacementService implements IMissingEvaluatio
       ? null
       : findBestMatchingParent(input.trackerTopics, suggestedParentTitle);
 
-    if (!matchedSubtopic && !matchedTopic) {
-      throw TrackerApplicationError.suggestedParentNotFound(
-        `Suggested parent "${suggestedParentTitle}" was not found in this tracker`
+    let activeMatchedTopic = matchedTopic;
+
+    if (!matchedSubtopic && !activeMatchedTopic) {
+      const lastTopic = await this._repository.findLastTopicForTracker(input.trackerId);
+      const nextOrder = (lastTopic?.order || 0) + 1;
+
+      const hasNumberedTopic = input.trackerTopics.some((t) =>
+        /^(?:topic\s+)?\d+[\s._:-]*/i.test(t.title.trim())
       );
+      const inputHasNumber = /^(?:topic\s+)?\d+[\s._:-]*/i.test(suggestedParentTitle.trim());
+      const shouldNumber = hasNumberedTopic || inputHasNumber;
+
+      const formattedParentTitle = formatNumberedTopicTitle(
+        suggestedParentTitle,
+        nextOrder,
+        shouldNumber
+      );
+
+      const createdParentTopic = await this._repository.createTrackerTopic({
+        trackerId: input.trackerId,
+        title: formattedParentTitle,
+        description: '',
+        order: nextOrder,
+      });
+
+      await this._repository.incrementTrackerTopicsCount(input.trackerId);
+      activeMatchedTopic = createdParentTopic;
     }
 
     const topicId = matchedSubtopic
       ? matchedSubtopic.topicId.toString()
-      : matchedTopic!._id.toString();
+      : activeMatchedTopic!._id.toString();
     const parentSubtopicId = matchedSubtopic ? matchedSubtopic._id.toString() : null;
     const lastSibling = await this._repository.findLastSiblingSubtopic({
       topicId,
@@ -133,7 +165,11 @@ export class MissingEvaluationTopicPlacementService implements IMissingEvaluatio
       },
       placedUnder: matchedSubtopic
         ? { type: 'subtopic', _id: matchedSubtopic._id.toString(), title: matchedSubtopic.title }
-        : { type: 'topic', _id: matchedTopic!._id.toString(), title: matchedTopic!.title },
+        : {
+            type: 'topic',
+            _id: activeMatchedTopic!._id.toString(),
+            title: activeMatchedTopic!.title,
+          },
     };
   }
 

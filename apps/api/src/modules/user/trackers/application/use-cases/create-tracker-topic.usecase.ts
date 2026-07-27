@@ -3,6 +3,7 @@ import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { CreateTopicUseCaseInput } from '../../domain/trackers.types';
+import { formatNumberedTopicTitle } from '../missing-topic-placement.policy';
 
 export interface ICreateTrackerTopicUseCase {
   execute(input: CreateTopicUseCaseInput): Promise<TrackerTopicDTO>;
@@ -31,12 +32,21 @@ export class CreateTrackerTopicUseCase implements ICreateTrackerTopicUseCase {
     }
 
     const lastTopic = await this._trackerRepository.findLastTopicForTracker(input.trackerId);
+    const nextOrder = (lastTopic?.order || 0) + 1;
+
+    const hasNumberedLastTopic = Boolean(
+      lastTopic?.title && /^(?:topic\s+)?\d+[\s._:-]*/i.test(lastTopic.title.trim())
+    );
+    const inputHasNumber = /^(?:topic\s+)?\d+[\s._:-]*/i.test(input.title.trim());
+    const shouldNumber = hasNumberedLastTopic || inputHasNumber;
+
+    const formattedTitle = formatNumberedTopicTitle(input.title, nextOrder, shouldNumber);
 
     const topic = await this._trackerRepository.createTrackerTopic({
       trackerId: input.trackerId,
-      title: input.title,
+      title: formattedTitle,
       description: input.description || '',
-      order: (lastTopic?.order || 0) + 1,
+      order: nextOrder,
     });
 
     await this._trackerRepository.incrementTrackerTopicsCount(input.trackerId);
