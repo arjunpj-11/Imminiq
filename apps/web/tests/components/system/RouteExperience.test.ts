@@ -13,6 +13,7 @@ describe('route experience metadata', () => {
     ['/blocked', 'Account restricted'],
     ['/offline', 'Offline'],
     ['/notifications', 'Notifications'],
+    ['/saved', 'Saved'],
     ['/verify-and-earn', 'Verify and earn'],
     ['/leaderboard/rewards', 'Leaderboard rewards'],
     ['/trackers/published', 'Published trackers'],

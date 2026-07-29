@@ -18,6 +18,7 @@ Title: ${lesson.title}
 Type: ${lesson.lessonType}
 Difficulty: ${lesson.difficulty}
 Tags: ${lesson.tags.join(', ')}
+Recommended visual format: ${lesson.visualizationKind || 'Choose the clearest format'}
 Summary: ${lesson.summary}
 ${codeSnippet}
 
@@ -88,6 +89,18 @@ DATABASE CONCEPTS (indexing, joins, transactions, ACID, etc.)
 → Draw tables as grids with real sample data (not "data1", "data2").
 → Animate the operation: highlight rows being joined, index pointer jumping to row, transaction locking.
 
+SCIENCE / SYSTEMS (cycles, anatomy, circuits, ecosystems, physical systems, etc.)
+→ Draw the real parts with accurate labels and show how matter, energy, or signals move.
+→ Use arrows and staged highlights only when they represent a real relationship.
+
+TIMELINES / HISTORICAL CHANGE
+→ Draw a readable time axis with meaningful events and dates.
+→ Animate the sequence in order and show cause-and-effect links only when the lesson supports them.
+
+SPATIAL CONCEPTS (geometry, geography, anatomy, layouts, coordinate systems, etc.)
+→ Draw the actual spatial arrangement with labels, scale, axes, or regions as appropriate.
+→ Add a control that changes a meaningful property, such as angle, position, or scale.
+
 ════════════════════════════════════════
 LABEL QUALITY RULES
 ════════════════════════════════════════
@@ -127,6 +140,8 @@ VISUAL STYLE
     databases → blue (#2196f3 family)
     design patterns → pink (#e91e63 family)
 - Canvas: 100vw × 100vh, resize on window resize
+- Fit all important content inside the current viewport at every size.
+- Use responsive positions based on the canvas width and height. Do not assume a fixed screen size.
 - Top-left label: "⬢ ${lesson.title}" in small monospace text, faded
 
 ════════════════════════════════════════

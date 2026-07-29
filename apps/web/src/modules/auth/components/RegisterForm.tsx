@@ -172,7 +172,7 @@ export default function RegisterForm() {
       badge="Create account"
       title={
         <>
-          Join <ImminiqWordmark lowercase />
+          Join <ImminiqWordmark />
         </>
       }
       subtitle="Build your personalized learning roadmap."

@@ -1,16 +1,15 @@
 import type { HTMLAttributes } from 'react';
 
+import { PRODUCT_LANGUAGE } from '../../config/product-language';
 import { cn } from '../../lib/cn';
 
 interface IImminiqWordmarkProps extends HTMLAttributes<HTMLSpanElement> {
-  lowercase?: boolean;
   trailingDot?: boolean;
   prefixClassName?: string;
   accentClassName?: string;
 }
 
 export default function ImminiqWordmark({
-  lowercase = false,
   trailingDot = false,
   className,
   prefixClassName,
@@ -23,13 +22,14 @@ export default function ImminiqWordmark({
         className={prefixClassName}
         style={{ color: 'var(--imminiq-wordmark-prefix, var(--text-primary))' }}
       >
-        {lowercase ? 'immin' : 'Immin'}
+        {PRODUCT_LANGUAGE.brand.slice(0, -2)}
       </span>
       <span
         className={accentClassName}
         style={{ color: 'var(--imminiq-wordmark-accent, var(--brand-500))' }}
       >
-        iq{trailingDot ? '.' : ''}
+        {PRODUCT_LANGUAGE.brand.slice(-2)}
+        {trailingDot ? '.' : ''}
       </span>
     </span>
   );

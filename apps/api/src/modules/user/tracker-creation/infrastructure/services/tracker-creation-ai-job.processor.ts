@@ -420,10 +420,6 @@ const processRoadmapGeneration = async (
   });
 };
 
-// ============================================================
-// ROADMAP EVALUATION JOB
-// ============================================================
-
 const processRoadmapEvaluation = async (
   jobId: string,
   trackerId: string,
@@ -434,11 +430,9 @@ const processRoadmapEvaluation = async (
     analysisKind?: 'generated_roadmap' | 'clone_freshness';
   }
 ) => {
-  // Step 1 — Load generated roadmap reference
   await startStep(jobId, 1);
   await completeStep(jobId, 1);
 
-  // Step 2 — Build full roadmap tree for Gemini
   await startStep(jobId, 2);
 
   const roadmap = await getRoadmapTreeForEvaluation(trackerId);
@@ -449,7 +443,6 @@ const processRoadmapEvaluation = async (
 
   await completeStep(jobId, 2);
 
-  // Step 3 — Gemini evaluation
   await startStep(jobId, 3);
 
   const evaluation =
@@ -459,7 +452,6 @@ const processRoadmapEvaluation = async (
 
   await completeStep(jobId, 3);
 
-  // Step 4 — Prepare and store result payload
   await startStep(jobId, 4);
 
   await AIGenerationJob.findByIdAndUpdate(jobId, {
@@ -472,18 +464,12 @@ const processRoadmapEvaluation = async (
 
   await completeStep(jobId, 4);
 
-  // Step 5 — Finalise evaluation job
   await startStep(jobId, 5);
 
   await AIGenerationJob.findByIdAndUpdate(jobId, {
     status: 'completed',
     currentStep: 5,
     completedAt: new Date(),
-    outputData: {
-      trackerId,
-      ...options,
-      evaluation,
-    },
   });
 
   await completeStep(jobId, 5);
@@ -500,10 +486,6 @@ const processRoadmapEvaluation = async (
     );
   }
 };
-
-// ============================================================
-// WORKER
-// ============================================================
 
 export class TrackerCreationAIJobProcessor implements ITrackerCreationAIJobProcessor {
   constructor(

@@ -50,10 +50,7 @@ export function SystemBrandLink({ to, className }: ISystemBrandLinkProps) {
     >
       <ImminiqLogo size={30} className="rounded-sm" decorative />
 
-      <ImminiqWordmark
-        lowercase
-        className="font-serif text-[22px] font-extrabold leading-none tracking-[-0.5px]"
-      />
+      <ImminiqWordmark className="font-serif text-[22px] font-extrabold leading-none tracking-[-0.5px]" />
     </Link>
   );
 }

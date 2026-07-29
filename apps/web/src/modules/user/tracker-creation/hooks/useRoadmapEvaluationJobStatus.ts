@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
-import { ONBOARDING_API_PATHS } from '../constants/onboarding.constants';
+import { TRACKER_CREATION_API_PATHS } from '../constants/tracker-creation.constants';
 import { trackerCreationKeys } from './tracker-creation.query-keys';
 
 export type EvaluationJobStep = {
@@ -36,7 +36,7 @@ export const useRoadmapEvaluationJobStatus = (jobId?: string) => {
 
     queryFn: async () => {
       const response = await api.get<EvaluationJobStatusResponse>(
-        ONBOARDING_API_PATHS.jobStatus(jobId || '')
+        TRACKER_CREATION_API_PATHS.jobStatus(jobId || '')
       );
 
       return response.data;

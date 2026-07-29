@@ -490,23 +490,6 @@ export default function TrackerCard({
         )}
 
         <footer className="relative mt-auto pt-5">
-          {canAnalyzeClone && (
-            <div className="mb-3">
-              <button
-                type="button"
-                onClick={() => void handleAnalyzeClone()}
-                disabled={isUnavailable || analyzeClone.isPending}
-                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border-[1.5px] border-[rgba(184,76,43,0.24)] bg-[rgba(184,76,43,0.07)] px-4 text-[13px] font-extrabold text-(--brand-500) transition hover:-translate-y-px hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.12)] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <span aria-hidden="true">✦</span>
-                {analyzeClone.isPending ? 'Starting analysis…' : 'Analyze new topics (one time)'}
-              </button>
-              <p className="mt-1.5 text-center text-[11.5px] leading-4 text-(--text-secondary)">
-                Check for credible topics added since the original was published.
-              </p>
-            </div>
-          )}
-
           {analysisError && (
             <div className="mb-3 rounded-lg border border-[rgba(200,50,50,0.22)] bg-[rgba(200,50,50,0.08)] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#b83232] dark:text-[#ff8c8c]">
               {analysisError}
@@ -524,6 +507,26 @@ export default function TrackerCard({
               {isUnavailable ? 'Temporarily unavailable' : primaryActionLabel}
               {!isUnavailable && <ArrowUpRightIcon />}
             </button>
+            {canAnalyzeClone && (
+              <button
+                type="button"
+                onClick={() => void handleAnalyzeClone()}
+                disabled={isUnavailable || analyzeClone.isPending}
+                className="grid min-h-11 w-11 shrink-0 place-items-center rounded-xl border-[1.5px] border-[rgba(184,76,43,0.24)] bg-[rgba(184,76,43,0.07)] text-(--brand-500) transition hover:-translate-y-px hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(184,76,43,0.18)] disabled:cursor-not-allowed disabled:opacity-50"
+                aria-label={
+                  analyzeClone.isPending
+                    ? 'Starting tracker analysis'
+                    : 'Analyze new tracker topics'
+                }
+                title={
+                  analyzeClone.isPending
+                    ? 'Starting analysis…'
+                    : 'Analyze topics added since the original was published'
+                }
+              >
+                <span aria-hidden="true">{analyzeClone.isPending ? '…' : '✦'}</span>
+              </button>
+            )}
             <button
               type="button"
               disabled={isUnavailable}

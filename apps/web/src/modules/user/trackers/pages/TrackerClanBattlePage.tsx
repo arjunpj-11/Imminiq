@@ -26,6 +26,10 @@ import {
   getBattleHistoryQuestions,
 } from '../utils/downloadBattleHistoryPdf';
 import { syncTrackerClanChallengeCache } from '../hooks/syncTrackerClanChallengeCache';
+import {
+  getTrackerClanChallengeTerminalMessage,
+  isTrackerClanChallengeTerminal,
+} from '../utils/tracker-clan-challenge-status';
 
 type ChallengeEvent = { id: string; trackerId: string };
 
@@ -84,7 +88,7 @@ export default function TrackerClanBattlePage() {
     quitChallenge.isPending;
   const error = chooseCheckpoint.error || answerNode.error || usePower.error || quitChallenge.error;
   const timerClock =
-    challenge?.status === 'completed' && challenge.completedAt
+    challenge && isTrackerClanChallengeTerminal(challenge.status) && challenge.completedAt
       ? new Date(challenge.completedAt).getTime()
       : clock;
   const secondsLeft = Math.max(
@@ -205,7 +209,8 @@ export default function TrackerClanBattlePage() {
     );
   }
 
-  const finished = challenge.status === 'completed';
+  const finished = isTrackerClanChallengeTerminal(challenge.status);
+  const terminalMessage = getTrackerClanChallengeTerminalMessage(challenge.status);
   const won = challenge.winnerId === currentUserId;
 
   return (
@@ -374,26 +379,30 @@ export default function TrackerClanBattlePage() {
           <section className="rounded-2xl border border-[#d6ad47]/40 bg-[#f4c95d]/10 p-8 text-center">
             <div className="text-5xl">{challenge.winnerId ? '🏆' : '🤝'}</div>
             <h2 className="mt-3 font-serif text-3xl font-extrabold">
-              {challenge.quitById === currentUserId
-                ? 'You left the battle'
-                : challenge.quitById
-                  ? `${rival!.name} left — you win!`
-                  : challenge.winnerId
-                    ? won
-                      ? 'You won the node race!'
-                      : `${rival!.name} won the race`
-                    : 'The battle ended in a draw'}
+              {terminalMessage?.title ??
+                (challenge.quitById === currentUserId
+                  ? 'You left the battle'
+                  : challenge.quitById
+                    ? `${rival!.name} left — you win!`
+                    : challenge.winnerId
+                      ? won
+                        ? 'You won the node race!'
+                        : `${rival!.name} won the race`
+                      : 'The battle ended in a draw')}
             </h2>
             <p className="mt-2 text-sm text-(--text-secondary)">
-              {challenge.viewerScore} – {challenge.opponentLiveScore} correct answers
+              {terminalMessage?.description ??
+                `${challenge.viewerScore} – ${challenge.opponentLiveScore} correct answers`}
             </p>
-            <button
-              type="button"
-              onClick={() => setHistoryOpen(true)}
-              className="mt-5 rounded-xl bg-[#171512] px-6 py-3 text-xs font-extrabold text-white dark:bg-[#f2f0eb] dark:text-[#171512]"
-            >
-              View question history
-            </button>
+            {challenge.status === 'completed' && (
+              <button
+                type="button"
+                onClick={() => setHistoryOpen(true)}
+                className="mt-5 rounded-xl bg-[#171512] px-6 py-3 text-xs font-extrabold text-white dark:bg-[#f2f0eb] dark:text-[#171512]"
+              >
+                View question history
+              </button>
+            )}
           </section>
         ) : challenge.checkpointDecisionRequired ? (
           <section className="mx-auto w-full max-w-190 rounded-2xl border border-[#d6ad47]/45 bg-(--surface-card) p-7 text-center shadow-xl">

@@ -17,6 +17,7 @@ export type {
 export {
   parseTrackerOutlineJson,
   trackerOutlineExample,
+  trackerOutlineTitleRules,
   validateTrackerTitle,
 } from './utils/tracker-outline';
 export * from './constants/tracker-api.constants';

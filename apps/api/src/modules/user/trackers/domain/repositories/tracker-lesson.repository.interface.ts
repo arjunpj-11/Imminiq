@@ -1,4 +1,4 @@
-import type { GeneratedLessonPracticeTask } from '../lesson-practice.types';
+import type { GeneratedLessonData, GeneratedLessonPracticeTask } from '../lesson-practice.types';
 import type { GeneratedTrackerLessonRecord } from '../trackers.types';
 import type { AnswerVerificationResult } from '../services/tracker-ai.interface';
 
@@ -29,6 +29,7 @@ export type CreateTrackerLessonInput = {
   practiceTask: GeneratedLessonPracticeTask;
   tags: string[];
   difficulty: TrackerLessonDifficulty;
+  visualization?: GeneratedLessonData['visualization'];
 };
 
 export type LessonChatScope = 'lesson_doubt_chat' | 'question_solution_chat';
@@ -182,7 +183,6 @@ export type ClearLessonQuestionSolutionDoubtsInput = {
 export type FindLessonVisualizationInput = {
   trackerId: string;
   subtopicId: string;
-  userId: string;
 };
 
 export type LessonVisualizationRecord = {

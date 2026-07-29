@@ -23,7 +23,7 @@ import { bullMqAIJobQueueGateway } from './infrastructure/gateways/bullmq-ai-job
 import { mongoTrackerCreationRepository } from './infrastructure/repositories/mongo-tracker-creation.repository';
 import { mongoCloneFreshnessAnalysisRepository } from './infrastructure/repositories/mongo-clone-freshness-analysis.repository';
 import { redisAIJobQuotaStore } from './infrastructure/stores/redis-ai-job-quota.store';
-import { langChainTrackerIntakeAgent } from './infrastructure/services/langchain-tracker-intake-agent.service';
+import { trackerIntakeAgent } from './infrastructure/services/tracker-intake-agent.service';
 import { TrackerCreationAIJobProcessor } from './infrastructure/services/tracker-creation-ai-job.processor';
 import type { ICreateNotificationUseCase } from '../../notifications';
 import type { ISubscriptionLimitEnforcer } from '../subscriptions';
@@ -70,7 +70,7 @@ export const createTrackerCreationComposition = (): TrackerCreationComposition =
 
   return {
     useCases: {
-      continueTrackerIntake: new ContinueTrackerIntakeUseCase(langChainTrackerIntakeAgent),
+      continueTrackerIntake: new ContinueTrackerIntakeUseCase(trackerIntakeAgent),
       saveTrackerCreationStepOne: new SaveTrackerCreationStepOneUseCase(
         trackerCreationRepository,
         trackerCreationMapper

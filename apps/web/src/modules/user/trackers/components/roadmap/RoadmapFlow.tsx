@@ -616,7 +616,6 @@ export function RoadmapFlowNode({
     <div
       className={cn(
         'flex w-full',
-        // ── FIX: strict alternating left/right (no justify-center) ──
         index % 2 === 0 && 'justify-start',
         index % 2 === 1 && 'justify-end'
       )}

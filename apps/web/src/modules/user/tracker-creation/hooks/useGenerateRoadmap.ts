@@ -1,13 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import api from '../../../../lib/axios';
-import { ONBOARDING_API_PATHS } from '../constants/onboarding.constants';
-import type { OnboardingLevel } from './useSaveOnboardingStepTwo';
+import { TRACKER_CREATION_API_PATHS } from '../constants/tracker-creation.constants';
+import type { TrackerCreationLevel } from './useSaveTrackerLevel';
 
 interface IGenerateRoadmapPayload {
   topic: string;
   goal?: string;
-  level: OnboardingLevel;
+  level: TrackerCreationLevel;
   preferredLanguage: string;
 }
 
@@ -32,7 +32,7 @@ export const useGenerateRoadmap = () => {
   >({
     mutationFn: async (payload) => {
       const response = await api.post<IGenerateRoadmapResponse>(
-        ONBOARDING_API_PATHS.generateRoadmap,
+        TRACKER_CREATION_API_PATHS.generateRoadmap,
         payload
       );
 

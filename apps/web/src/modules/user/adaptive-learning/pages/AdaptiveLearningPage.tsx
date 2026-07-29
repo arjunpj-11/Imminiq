@@ -9,7 +9,7 @@ import { useVoiceInput } from '../../../../hooks/useVoiceInput';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 import AdaptiveMasteryGraph from '../components/AdaptiveMasteryGraph';
-import { useGenerateRoadmap, useOnboardingStore } from '../../tracker-creation';
+import { useGenerateRoadmap, useTrackerCreationStore } from '../../tracker-creation';
 import { useActiveMockTestGeneration, useGenerateMockTest } from '../../mock-tests';
 import type { AdaptiveAdvisorAction } from '../types/adaptive-learning.types';
 import {
@@ -32,10 +32,10 @@ export default function AdaptiveLearningPage() {
   const activeMockTestGeneration = useActiveMockTestGeneration();
   const generateRoadmap = useGenerateRoadmap();
   const generateMockTest = useGenerateMockTest();
-  const saveStepOneDraft = useOnboardingStore((state) => state.saveStep1);
-  const saveStepTwoDraft = useOnboardingStore((state) => state.saveStep2);
-  const setActiveRoadmapJobId = useOnboardingStore((state) => state.setActiveRoadmapJobId);
-  const activeRoadmapJobId = useOnboardingStore((state) => state.activeRoadmapJobId);
+  const saveStepOneDraft = useTrackerCreationStore((state) => state.saveStep1);
+  const saveStepTwoDraft = useTrackerCreationStore((state) => state.saveStep2);
+  const setActiveRoadmapJobId = useTrackerCreationStore((state) => state.setActiveRoadmapJobId);
+  const activeRoadmapJobId = useTrackerCreationStore((state) => state.activeRoadmapJobId);
   const [question, setQuestion] = useState('');
   const [advisorAction, setAdvisorAction] = useState<AdaptiveAdvisorAction | null>(null);
   const [actionError, setActionError] = useState('');

@@ -84,6 +84,10 @@ import {
 } from '../hooks/useChat';
 import { useCallHistory } from '../hooks/useCalls';
 import { useCallLauncherStore } from '../store/useCallLauncherStore';
+import {
+  REMOTE_TYPING_INDICATOR_TIMEOUT_MS,
+  resolveRemoteTypingConversationId,
+} from '../utils/remote-typing-indicator';
 import type {
   ChatSection,
   IChatConversation,
@@ -130,6 +134,7 @@ export default function SocialPage() {
   const [messageSearch, setMessageSearch] = useState('');
   const [showMessageSearch, setShowMessageSearch] = useState(false);
   const [typingConversationId, setTypingConversationId] = useState<string | null>(null);
+  const typingExpiryTimerRef = useRef<number | null>(null);
   const [showJumpButton, setShowJumpButton] = useState(false);
   const [initialUnreadCount, setInitialUnreadCount] = useState(0);
   const [presenceClock, setPresenceClock] = useState(() => Date.now());
@@ -147,6 +152,15 @@ export default function SocialPage() {
   const isPrependingRef = useRef(false);
   const initialScrollDoneRef = useRef(false);
   const optionsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(
+    () => () => {
+      if (typingExpiryTimerRef.current !== null) {
+        window.clearTimeout(typingExpiryTimerRef.current);
+      }
+    },
+    []
+  );
 
   const conversationsQuery = useChatConversations(CHAT_PAGE_SIZE);
   const messagesQuery = useChatMessages(selectedId, CHAT_PAGE_SIZE);
@@ -347,8 +361,18 @@ export default function SocialPage() {
       userId?: string;
       isTyping?: boolean;
     }) => {
-      if (event.userId !== viewerId) {
-        setTypingConversationId(event.isTyping ? (event.conversationId ?? null) : null);
+      if (event.userId === viewerId) return;
+      if (typingExpiryTimerRef.current !== null) {
+        window.clearTimeout(typingExpiryTimerRef.current);
+        typingExpiryTimerRef.current = null;
+      }
+      setTypingConversationId((current) => resolveRemoteTypingConversationId(current, event));
+      if (event.isTyping && event.conversationId) {
+        const conversationId = event.conversationId;
+        typingExpiryTimerRef.current = window.setTimeout(() => {
+          setTypingConversationId((current) => (current === conversationId ? null : current));
+          typingExpiryTimerRef.current = null;
+        }, REMOTE_TYPING_INDICATOR_TIMEOUT_MS);
       }
     };
     const receiveRead = (event: { conversationId?: string; userId?: string }) => {

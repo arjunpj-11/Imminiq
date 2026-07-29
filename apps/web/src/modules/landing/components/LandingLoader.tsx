@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
+
 import ImminiqProgressMark from '../../../components/ui/ImminiqProgressMark';
+import { PRODUCT_LANGUAGE } from '../../../config/product-language';
 import { cn } from '../utils/landing-ui';
 
 const EXIT_MS = 220;
 const REVEAL_MS = 320;
 const DECODE_GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&$*';
-const FULL_WORD = 'imminiq'; // first 5 chars = main color, last 2 = rust
+const FULL_WORD = PRODUCT_LANGUAGE.brand;
 
-// ── Static CSS injected once into <head> — no per-render style recalculation ──
 const STATIC_CSS = `
   @keyframes im-blink   { 0%,100%{opacity:1} 50%{opacity:0} }
 `;
@@ -21,7 +22,6 @@ function injectCSS() {
   document.head.appendChild(el);
 }
 
-// ── theme ─────────────────────────────────────────────────────────────────────
 function useIsDark() {
   const [dark, setDark] = useState(() =>
     typeof window !== 'undefined' ? document.documentElement.classList.contains('dark') : false
@@ -84,7 +84,6 @@ export default function LandingLoader({
       return cleanup;
     }
 
-    // ── schedule ──
     t(() => setLoaderPhase('frame'), 40);
     t(() => setLoaderPhase('revealing'), 80);
     t(() => setLoaderPhase('settled'), 80 + REVEAL_MS);
@@ -129,13 +128,11 @@ export default function LandingLoader({
         'transition-all duration-200 ease-in-out',
         isLeaving && '-translate-y-16 scale-[0.74] opacity-0 blur-[6px]'
       )}
-      // pass rust as CSS var here so every descendant (ring, svg, wordmark) can read it
       style={{ '--im-rust': rust } as React.CSSProperties}
       role="status"
       aria-live="polite"
       aria-label="Loading Imminiq"
     >
-      {/* radial vignette */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -153,9 +150,8 @@ export default function LandingLoader({
   );
 }
 
-// ── LogoScene: scan-reveal + progress ring ──────────────────────────────────
 function LogoScene({ phase, isDark }: { phase: LoaderPhase; isDark: boolean }) {
-  const [revealPct, setRevealPct] = useState(0); // 0–100, drives clip width + ring
+  const [revealPct, setRevealPct] = useState(0);
   const [settled, setSettled] = useState(false);
   const [ringIn, setRingIn] = useState(false);
   const [fadeRing, setFadeRing] = useState(false);
@@ -213,7 +209,6 @@ function LogoScene({ phase, isDark }: { phase: LoaderPhase; isDark: boolean }) {
   );
 }
 
-// ── WordMark: decode-text reveal ────────────────────────────────────────────
 function WordMark({ phase, isDark }: { phase: LoaderPhase; isDark: boolean }) {
   const textMain = isDark ? '#f2f0eb' : '#1a1714';
 

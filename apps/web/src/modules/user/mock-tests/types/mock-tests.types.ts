@@ -209,6 +209,7 @@ export interface IMockTestDetailsResponse {
 export interface IStartAttemptResponse {
   attempt: IMockTestAttempt;
   questions: IPublicMockTestQuestion[];
+  timeLimitMinutes: number;
 }
 
 export interface IAttemptResultResponse {

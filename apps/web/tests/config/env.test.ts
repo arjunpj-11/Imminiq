@@ -6,6 +6,7 @@ describe('parseWebEnvironment', () => {
     expect(parseWebEnvironment({ VITE_API_URL: 'https://api.imminiq.com/api/' })).toEqual({
       apiUrl: 'https://api.imminiq.com/api',
       webrtcStunUrl: 'stun:stun.l.google.com:19302',
+      longRequestTimeoutMs: 120_000,
     });
   });
 
@@ -13,6 +14,7 @@ describe('parseWebEnvironment', () => {
     expect(parseWebEnvironment({ VITE_API_URL: '/api' })).toEqual({
       apiUrl: '/api',
       webrtcStunUrl: 'stun:stun.l.google.com:19302',
+      longRequestTimeoutMs: 120_000,
     });
   });
 
@@ -36,6 +38,7 @@ describe('parseWebEnvironment', () => {
       apiUrl: '/api',
       socketUrl: 'https://imminiq-api.onrender.com',
       webrtcStunUrl: 'stun:stun.l.google.com:19302',
+      longRequestTimeoutMs: 120_000,
     });
   });
 
@@ -48,8 +51,30 @@ describe('parseWebEnvironment', () => {
     ).toEqual({
       apiUrl: '/api',
       webrtcStunUrl: 'stuns:rtc.imminiq.com:5349',
+      longRequestTimeoutMs: 120_000,
     });
   });
+
+  it('accepts a configurable timeout for long-running requests', () => {
+    expect(
+      parseWebEnvironment({
+        VITE_API_URL: '/api',
+        VITE_LONG_REQUEST_TIMEOUT_MS: '180000',
+      }).longRequestTimeoutMs
+    ).toBe(180_000);
+  });
+
+  it.each(['not-a-number', '44000', '-1'])(
+    'falls back to a safe long-request timeout for %s',
+    (value) => {
+      expect(
+        parseWebEnvironment({
+          VITE_API_URL: '/api',
+          VITE_LONG_REQUEST_TIMEOUT_MS: value,
+        }).longRequestTimeoutMs
+      ).toBe(120_000);
+    }
+  );
 
   it('rejects unsupported Socket.IO URL protocols', () => {
     expect(() =>

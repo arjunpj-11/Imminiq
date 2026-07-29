@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
 import type { IApiResponse, ICommunityBrowseData, ICommunityTracker } from '../../community';
-import { ONBOARDING_API_PATHS } from '../constants/onboarding.constants';
+import { TRACKER_CREATION_API_PATHS } from '../constants/tracker-creation.constants';
 import { trackerCreationKeys } from './tracker-creation.query-keys';
 
 export const useTrackerReuseSuggestions = (topic?: string) =>
@@ -17,7 +17,7 @@ export const useTrackerReuseSuggestions = (topic?: string) =>
         limit: '3',
       });
       const response = await api.get<IApiResponse<ICommunityBrowseData>>(
-        ONBOARDING_API_PATHS.reuseSuggestions(params.toString())
+        TRACKER_CREATION_API_PATHS.reuseSuggestions(params.toString())
       );
       return response.data.data?.trackers ?? [];
     },

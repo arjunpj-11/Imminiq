@@ -292,7 +292,6 @@ export default function MyTrackersPage() {
         }
       />
 
-      {/* Shared StatCard components intentionally remain unchanged. */}
       <section className="grid grid-cols-4 gap-3 max-[860px]:grid-cols-2 max-[440px]:grid-cols-1">
         <StatCard
           label="Total"

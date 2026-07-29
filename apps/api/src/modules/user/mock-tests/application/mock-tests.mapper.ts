@@ -84,7 +84,8 @@ export interface IMockTestsMapper {
   toDetailsDto(input: MockTestDetailsMappingInput): MockTestDetailsDTO;
   toAttemptSessionDto(
     attempt: MockTestAttemptEntity,
-    questions: MockTestQuestionEntity[]
+    questions: MockTestQuestionEntity[],
+    timeLimitMinutes: number
   ): MockTestAttemptSessionDTO;
   toFinishAttemptDto(input: FinishMockTestAttemptMappingInput): FinishMockTestAttemptDTO;
   toImportSharedDto(input: ImportSharedMockTestMappingInput): ImportSharedMockTestDTO;
@@ -289,11 +290,13 @@ export class MockTestsMapper implements IMockTestsMapper {
 
   toAttemptSessionDto(
     attempt: MockTestAttemptEntity,
-    questions: MockTestQuestionEntity[]
+    questions: MockTestQuestionEntity[],
+    timeLimitMinutes: number
   ): MockTestAttemptSessionDTO {
     return {
       attempt: this.toAttempt(attempt),
       questions: questions.map((question) => this.sanitizeQuestionForAttempt(question)),
+      timeLimitMinutes,
     };
   }
 

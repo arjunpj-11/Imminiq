@@ -7,6 +7,7 @@ export type TrackerApplicationErrorCode =
   | 'INVALID_TOPIC_INDEX'
   | 'LESSON_NODE_NOT_FOUND'
   | 'LESSON_NOT_GENERATED'
+  | 'LESSON_NOT_VISUALIZABLE'
   | 'MISSING_TOPIC_ALREADY_ADDED'
   | 'MISSING_TOPIC_NOT_FOUND'
   | 'MISSING_TOPICS_NOT_FOUND'
@@ -105,6 +106,14 @@ export class TrackerApplicationError extends TrackerDomainError {
     message = 'Generate the lesson before continuing'
   ): TrackerApplicationError {
     return new TrackerApplicationError('missing-resource', 'LESSON_NOT_GENERATED', message);
+  }
+
+  static lessonNotVisualizable(): TrackerApplicationError {
+    return new TrackerApplicationError(
+      'invalid-input',
+      'LESSON_NOT_VISUALIZABLE',
+      'This lesson is clearer without an interactive visualization'
+    );
   }
 
   static solutionNotGenerated(

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import api from '../../../../lib/axios';
-import { ONBOARDING_API_PATHS } from '../constants/onboarding.constants';
+import { TRACKER_CREATION_API_PATHS } from '../constants/tracker-creation.constants';
 import { trackerCreationKeys } from './tracker-creation.query-keys';
 
 interface IActiveRoadmapJobResponse {
@@ -15,7 +15,7 @@ export const useActiveRoadmapJob = () =>
     queryKey: trackerCreationKeys.activeRoadmapJob(),
     queryFn: async () => {
       const response = await api.get<IActiveRoadmapJobResponse>(
-        ONBOARDING_API_PATHS.activeRoadmapJob
+        TRACKER_CREATION_API_PATHS.activeRoadmapJob
       );
       return response.data.data;
     },

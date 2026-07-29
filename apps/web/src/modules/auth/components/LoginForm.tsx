@@ -107,7 +107,7 @@ export default function LoginForm() {
       badge="Welcome back"
       title={
         <>
-          Sign in to <ImminiqWordmark lowercase />
+          Sign in to <ImminiqWordmark />
         </>
       }
       subtitle="Continue your personalized learning journey."
@@ -177,7 +177,7 @@ export default function LoginForm() {
       <AuthSocialButtons />
 
       <p className="mt-6 text-center text-[13px] text-(--text-secondary) dark:text-(--text-secondary)">
-        New to <ImminiqWordmark lowercase />?{' '}
+        New to <ImminiqWordmark />?{' '}
         <Link
           to={ROUTES.register}
           className="font-semibold text-(--brand-500) hover:opacity-70 dark:text-(--brand-500)"

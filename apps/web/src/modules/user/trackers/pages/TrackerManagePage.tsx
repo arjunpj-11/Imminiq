@@ -500,8 +500,20 @@ export default function TrackerManagePage() {
   const handleImportJson = async () => {
     if (!trackerId || importOutlineMutation.isPending) return;
     clearMessages();
+
+    let importedTopics: ReturnType<typeof parseTrackerOutlineJson>;
     try {
-      const importedTopics = parseTrackerOutlineJson(importJson);
+      importedTopics = parseTrackerOutlineJson(importJson);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : 'Unable to read this JSON outline. Check its structure and try again.'
+      );
+      return;
+    }
+
+    try {
       const result = await importOutlineMutation.mutateAsync({
         trackerId,
         kind: 'topics',

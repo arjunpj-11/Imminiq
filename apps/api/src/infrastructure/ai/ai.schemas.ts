@@ -48,6 +48,7 @@ export interface IVisualizationInput {
   lessonType: string;
   tags: string[];
   difficulty: string;
+  visualizationKind?: string;
   codeExample?: {
     code?: string;
     language?: string;
@@ -116,6 +117,28 @@ export const generatedLessonSchema = z.object({
   tags: z.array(z.string().trim()).default([]),
 
   difficulty: z.enum(['beginner', 'intermediate', 'advanced']).default('beginner'),
+
+  visualization: z
+    .object({
+      recommended: z.boolean(),
+      kind: z.enum([
+        'process',
+        'algorithm',
+        'structure',
+        'system',
+        'chart',
+        'timeline',
+        'spatial',
+        'simulation',
+        'none',
+      ]),
+      reason: z.string().trim().default(''),
+    })
+    .default({
+      recommended: false,
+      kind: 'none',
+      reason: '',
+    }),
 });
 
 export type GeneratedLesson = z.infer<typeof generatedLessonSchema>;

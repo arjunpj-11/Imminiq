@@ -52,7 +52,8 @@ export class StartTestAttemptUseCase implements IStartTestAttemptUseCase {
     if (existingAttempt) {
       return this._mapper.toAttemptSessionDto(
         existingAttempt,
-        this._questionSnapshot.all(existingAttempt, questions)
+        this._questionSnapshot.all(existingAttempt, questions),
+        test.timeLimitMinutes
       );
     }
 
@@ -76,6 +77,6 @@ export class StartTestAttemptUseCase implements IStartTestAttemptUseCase {
       })),
     });
 
-    return this._mapper.toAttemptSessionDto(attempt, questions);
+    return this._mapper.toAttemptSessionDto(attempt, questions, test.timeLimitMinutes);
   }
 }

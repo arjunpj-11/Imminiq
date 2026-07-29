@@ -4,6 +4,7 @@ import { PRODUCT_LANGUAGE, formatProductLabel } from '../../src/config/product-l
 describe('product language', () => {
   it('keeps the canonical names used across learner and admin surfaces', () => {
     expect(PRODUCT_LANGUAGE).toMatchObject({
+      brand: 'Imminiq',
       assistant: 'Ask Immi',
       guild: 'Guild',
       tracker: 'Tracker',

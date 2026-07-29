@@ -51,6 +51,7 @@ const routeNames: Array<[RegExp, string]> = [
   [/^\/leaderboard\/rewards\/?$/, 'Leaderboard rewards'],
   [/^\/leaderboard\/?$/, 'Leaderboard'],
   [/^\/activity\/?$/, 'Activity'],
+  [/^\/saved\/?$/, 'Saved'],
   [/^\/chat\/?$/, 'Social'],
   [/^\/friends\/search\/?$/, 'Find friends'],
   [/^\/friends\/?$/, 'Friends'],

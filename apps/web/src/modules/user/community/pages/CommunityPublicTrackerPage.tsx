@@ -39,7 +39,7 @@ import {
 } from '../hooks/useReportCommunityTracker';
 import { useAuthStore } from '../../../../store/useAuthStore';
 import { useRequestTrackerClanJoin, useTrackerClan } from '../../trackers';
-import { useOnboardingStore } from '../../tracker-creation';
+import { useTrackerCreationStore } from '../../tracker-creation';
 import { useSocialShareStore } from '../../social';
 import { useBackNavigation } from '../../../../hooks/useBackNavigation';
 import { FEATURE_AVAILABILITY_SAFE_FALLBACK } from '../../../../config/feature-availability';
@@ -90,7 +90,7 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
   const location = useLocation();
   const navigationState = location.state as CommunityTrackerNavigationState | null;
   const goBack = useBackNavigation(ROUTES.community);
-  const clearTrackerCreation = useOnboardingStore((state) => state.reset);
+  const clearTrackerCreation = useTrackerCreationStore((state) => state.reset);
 
   const cloneTracker = useCloneCommunityTracker();
   const upsertReview = useUpsertCommunityTrackerReview();

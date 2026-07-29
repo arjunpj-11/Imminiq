@@ -8,6 +8,7 @@ import type { IAdminUsersRepository } from '../../domain/repositories/admin-user
 import type { AdminStatusResultDTO } from '../admin-users.dto';
 import { AdminUsersApplicationError } from '../admin-users-application.error';
 import type { IAdminUserEmailProvider } from '../../domain/services/admin-user-email-provider.interface';
+import type { IAdminUserRealtimeAccessProvider } from '../../domain/services/admin-user-realtime-access-provider.interface';
 
 export interface ISetAdminUserStatusUseCase {
   execute(
@@ -23,7 +24,8 @@ export class SetAdminUserStatusUseCase implements ISetAdminUserStatusUseCase {
       IAdminUsersRepository,
       'findById' | 'recordStatusChange' | 'revokeSessions' | 'updateStatus'
     >,
-    private readonly _emailProvider: IAdminUserEmailProvider
+    private readonly _emailProvider: IAdminUserEmailProvider,
+    private readonly _realtimeAccessProvider: IAdminUserRealtimeAccessProvider
   ) {}
   async execute(
     userId: string,
@@ -49,16 +51,23 @@ export class SetAdminUserStatusUseCase implements ISetAdminUserStatusUseCase {
       reason: meta.reason,
       reasonCode: meta.reasonCode,
     });
-    if (status === 'blocked' || status === 'paused') await this._repository.revokeSessions(userId);
-    await this._repository.recordStatusChange({
-      ...meta,
-      actorId: actor.userId,
-      userId,
-      previousStatus: target.status,
-      status,
-      targetName: target.fullName,
-      targetUsername: target.username,
-    });
+    await Promise.all([
+      ...(status === 'blocked' || status === 'paused'
+        ? [
+            this._repository.revokeSessions(userId),
+            this._realtimeAccessProvider.disconnectUser(userId),
+          ]
+        : []),
+      this._repository.recordStatusChange({
+        ...meta,
+        actorId: actor.userId,
+        userId,
+        previousStatus: target.status,
+        status,
+        targetName: target.fullName,
+        targetUsername: target.username,
+      }),
+    ]);
     let emailQueued = false;
     if (meta.notifyEmail && target.email) {
       try {
@@ -70,7 +79,7 @@ export class SetAdminUserStatusUseCase implements ISetAdminUserStatusUseCase {
         });
         emailQueued = true;
       } catch {
-        // The database decision and in-app notification remain authoritative.
+        emailQueued = false;
       }
     }
     return { userId, status, emailQueued };

@@ -47,6 +47,8 @@ type AttemptDraft = {
   confidence?: Record<number, Confidence>;
   codeByQuestion?: Record<string, string>;
   languageByQuestion?: Record<string, MockTestCodingLanguage>;
+  startedAt?: string;
+  timeLimitMinutes?: number;
 };
 
 const readAttemptDraft = (attemptId: string): AttemptDraft => {
@@ -112,7 +114,9 @@ export default function MockTestAttemptPage() {
   const finishMutation = useFinishMockTestAttempt();
   const flagMutation = useFlagMockTestQuestion();
   const reportMutation = useReportMockTestQuestion();
-  const timerDisplay = useCountdown(3600);
+  const startedAt = initial?.attempt.startedAt ?? draft.startedAt;
+  const timeLimitMinutes = initial?.timeLimitMinutes ?? draft.timeLimitMinutes ?? 60;
+  const timerDisplay = useCountdown(timeLimitMinutes * 60, startedAt);
 
   const totalQuestions = questions.length;
   const question = questions[currentIndex];
@@ -135,9 +139,26 @@ export default function MockTestAttemptPage() {
     if (!attemptId) return;
     safeSessionStorage.set(
       `${STORAGE_KEYS.mockTestAttemptDraftPrefix}:${attemptId}`,
-      JSON.stringify({ currentIndex, answers, confidence, codeByQuestion, languageByQuestion })
+      JSON.stringify({
+        currentIndex,
+        answers,
+        confidence,
+        codeByQuestion,
+        languageByQuestion,
+        startedAt,
+        timeLimitMinutes,
+      })
     );
-  }, [answers, attemptId, codeByQuestion, confidence, currentIndex, languageByQuestion]);
+  }, [
+    answers,
+    attemptId,
+    codeByQuestion,
+    confidence,
+    currentIndex,
+    languageByQuestion,
+    startedAt,
+    timeLimitMinutes,
+  ]);
 
   const selectedLanguage = useMemo(() => {
     if (!question?._id) return COMPILER_LANGUAGES[0];

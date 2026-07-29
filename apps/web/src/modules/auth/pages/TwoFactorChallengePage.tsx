@@ -82,7 +82,7 @@ export default function TwoFactorChallengePage() {
             <div className="inline-flex items-center gap-3">
               <LogoIcon className="h-11 w-11" />
 
-              <ImminiqWordmark lowercase className="text-[26px] font-bold tracking-[-0.5px]" />
+              <ImminiqWordmark className="text-[26px] font-bold tracking-[-0.5px]" />
             </div>
           </div>
 
@@ -99,7 +99,7 @@ export default function TwoFactorChallengePage() {
 
             <p className="mt-5 text-[15px] leading-[1.75] text-(--text-secondary) dark:text-(--text-secondary)">
               Your password or OAuth login was accepted. Complete your second verification step to
-              securely enter imminiq.
+              securely enter Imminiq.
             </p>
           </div>
 
@@ -114,7 +114,7 @@ export default function TwoFactorChallengePage() {
               <Link to={ROUTES.home} className="inline-flex items-center gap-2.5">
                 <LogoIcon className="h-10 w-10" />
 
-                <ImminiqWordmark lowercase className="text-[23px] font-bold tracking-[-0.5px]" />
+                <ImminiqWordmark className="text-[23px] font-bold tracking-[-0.5px]" />
               </Link>
             </div>
 

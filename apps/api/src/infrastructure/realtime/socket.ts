@@ -718,6 +718,11 @@ export const emitCallUpdated = (userId: string, call: unknown) => {
   io.to(userRoom(userId)).emit('call:updated', call);
 };
 
+export const disconnectUserSockets = (userId: string) => {
+  if (!io || !userId) return;
+  io.in(userRoom(userId)).disconnectSockets(true);
+};
+
 export const closeSocket = async () => {
   if (!io) return;
   await new Promise<void>((resolve) => io.close(() => resolve()));

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import api from '../../../../lib/axios';
-import { ONBOARDING_API_PATHS } from '../constants/onboarding.constants';
+import { TRACKER_CREATION_API_PATHS } from '../constants/tracker-creation.constants';
 import { trackerCreationKeys } from './tracker-creation.query-keys';
 
 export interface IRoadmapSubtopic {
@@ -69,7 +69,7 @@ export const useRoadmapJobResult = (jobId?: string) => {
 
     queryFn: async () => {
       const response = await api.get<IRoadmapJobResultResponse>(
-        ONBOARDING_API_PATHS.jobResult(jobId || '')
+        TRACKER_CREATION_API_PATHS.jobResult(jobId || '')
       );
 
       return response.data;

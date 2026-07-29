@@ -37,7 +37,6 @@ export class GenerateLessonVisualizationUseCase implements IGenerateLessonVisual
       const cached = await this._trackerRepository.findLessonVisualization({
         trackerId: input.trackerId,
         subtopicId: input.subtopicId,
-        userId: input.userId,
       });
 
       if (cached) {
@@ -55,6 +54,13 @@ export class GenerateLessonVisualizationUseCase implements IGenerateLessonVisual
       throw TrackerApplicationError.lessonNotGenerated('Generate the lesson before visualizing');
     }
 
+    if (
+      lesson.visualization &&
+      (!lesson.visualization.recommended || lesson.visualization.kind === 'none')
+    ) {
+      throw TrackerApplicationError.lessonNotVisualizable();
+    }
+
     const result = await this._trackerAIGateway.generateLessonVisualization({
       title: lesson.title,
       summary: lesson.summary,
@@ -62,6 +68,7 @@ export class GenerateLessonVisualizationUseCase implements IGenerateLessonVisual
       lessonType: lesson.lessonType,
       tags: lesson.tags ?? [],
       difficulty: lesson.difficulty,
+      visualizationKind: lesson.visualization?.kind,
       codeExample: lesson.codeExample,
     });
 

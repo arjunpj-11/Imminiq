@@ -11,8 +11,5 @@ export {
   mongoCloneFreshnessAnalysisRepository,
 } from './repositories/mongo-clone-freshness-analysis.repository';
 export { RedisAIJobQuotaStore, redisAIJobQuotaStore } from './stores/redis-ai-job-quota.store';
-export {
-  LangChainTrackerIntakeAgent,
-  langChainTrackerIntakeAgent,
-} from './services/langchain-tracker-intake-agent.service';
+export { TrackerIntakeAgent, trackerIntakeAgent } from './services/tracker-intake-agent.service';
 export { TrackerCreationAIJobProcessor } from './services/tracker-creation-ai-job.processor';

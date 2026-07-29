@@ -92,6 +92,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
               practiceTask: data.practiceTask,
               tags: data.tags,
               difficulty: data.difficulty,
+              visualization: data.visualization,
               deletedAt: null,
             }),
           },
@@ -652,20 +653,42 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
   async findLessonVisualization({
     trackerId,
     subtopicId,
-    userId,
   }: Parameters<ITrackerRepository['findLessonVisualization']>[0]) {
     return this.execute(
       'LESSON_VISUALIZATION_READ_FAILED',
       'Failed to read lesson visualization',
       async () => {
-        const doc = await LessonVisualization.findOne(
-          this.mapper.asMongoFilter({
-            trackerId: this.mapper.toObjectId(trackerId),
-            subtopicId: this.mapper.toObjectId(subtopicId),
-            userId: this.mapper.toObjectId(userId),
+        const contentKey = await this.resolveLessonContentKey(trackerId, subtopicId);
+        let doc = await LessonVisualization.findOne({ contentKey, deletedAt: null });
+
+        if (!doc) {
+          const [canonicalTrackerId, canonicalSubtopicId] = contentKey.split(':');
+          doc = await LessonVisualization.findOne({
+            $or: [
+              {
+                trackerId: this.mapper.toObjectId(canonicalTrackerId ?? trackerId),
+                subtopicId: this.mapper.toObjectId(canonicalSubtopicId ?? subtopicId),
+              },
+              {
+                trackerId: this.mapper.toObjectId(trackerId),
+                subtopicId: this.mapper.toObjectId(subtopicId),
+              },
+            ],
             deletedAt: null,
-          })
-        ).lean();
+          }).sort({ createdAt: 1 });
+
+          if (doc && !doc.contentKey) {
+            try {
+              doc = await LessonVisualization.findOneAndUpdate(
+                { _id: doc._id, contentKey: null },
+                { $set: { contentKey } },
+                { returnDocument: 'after' }
+              );
+            } catch {
+              doc = await LessonVisualization.findOne({ contentKey, deletedAt: null });
+            }
+          }
+        }
 
         return this.mapper.toLessonVisualizationView(doc);
       }
@@ -685,12 +708,10 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
       'LESSON_VISUALIZATION_SAVE_FAILED',
       'Failed to save lesson visualization',
       async () => {
+        const contentKey = await this.resolveLessonContentKey(trackerId, subtopicId);
+        const [canonicalTrackerId, canonicalSubtopicId] = contentKey.split(':');
         const visualization = await LessonVisualization.findOneAndUpdate(
-          this.mapper.asMongoFilter({
-            trackerId: this.mapper.toObjectId(trackerId),
-            subtopicId: this.mapper.toObjectId(subtopicId),
-            userId: this.mapper.toObjectId(userId),
-          }),
+          { contentKey },
           this.mapper.asMongoUpdate({
             $set: {
               lessonId: lessonId ? this.mapper.toObjectId(lessonId) : null,
@@ -700,9 +721,10 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
               deletedAt: null,
             },
             $setOnInsert: {
-              trackerId: this.mapper.toObjectId(trackerId),
-              subtopicId: this.mapper.toObjectId(subtopicId),
+              trackerId: this.mapper.toObjectId(canonicalTrackerId ?? trackerId),
+              subtopicId: this.mapper.toObjectId(canonicalSubtopicId ?? subtopicId),
               userId: this.mapper.toObjectId(userId),
+              contentKey,
             },
           }),
           {

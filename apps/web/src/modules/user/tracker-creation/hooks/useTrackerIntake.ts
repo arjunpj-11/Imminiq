@@ -1,8 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 
 import api from '../../../../lib/axios';
-import { ONBOARDING_API_PATHS } from '../constants/onboarding.constants';
-import type { ITrackerIntakeMessage, ITrackerIntakeProfile } from '../types/onboarding.types';
+import { TRACKER_CREATION_API_PATHS } from '../constants/tracker-creation.constants';
+import type { ITrackerIntakeMessage, ITrackerIntakeProfile } from '../types/tracker-creation.types';
 
 interface ITrackerIntakeApiResponse {
   success: boolean;
@@ -18,7 +18,7 @@ export const useTrackerIntake = () =>
   useMutation({
     mutationFn: async (messages: ITrackerIntakeMessage[]) => {
       const response = await api.post<ITrackerIntakeApiResponse>(
-        ONBOARDING_API_PATHS.trackerIntake,
+        TRACKER_CREATION_API_PATHS.trackerIntake,
         {
           messages,
         }

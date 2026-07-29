@@ -13,14 +13,12 @@
     "test:security:integration": "vitest run tests/integration/security",
     "seed:test-admin": "tsx src/scripts/seed-test-admin.ts",
     "migrate:admin-moderation": "tsx src/scripts/migrate-admin-moderation.ts",
-    "migrate:adaptive-assessments": "tsx src/scripts/migrate-adaptive-assessments.ts"
+    "migrate:adaptive-assessments": "tsx src/scripts/migrate-adaptive-assessments.ts",
+    "migrate:shared-lesson-visualizations": "tsx src/scripts/migrate-shared-lesson-visualizations.ts"
   },
   "dependencies": {
     "@cerebras/cerebras_cloud_sdk": "^1.91.0",
     "@google/generative-ai": "^0.24.1",
-    "@langchain/core": "^1.2.3",
-    "@langchain/google-genai": "^2.2.0",
-    "@langchain/langgraph": "^1.4.8",
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.81.2",
     "cloudinary": "^2.10.0",
@@ -32,7 +30,6 @@
     "helmet": "^8.3.0",
     "ioredis": "^5.10.1",
     "jsonwebtoken": "^9.0.3",
-    "langchain": "^1.5.4",
     "mongoose": "9.8.0",
     "morgan": "^1.11.0",
     "multer": "^2.2.0",
