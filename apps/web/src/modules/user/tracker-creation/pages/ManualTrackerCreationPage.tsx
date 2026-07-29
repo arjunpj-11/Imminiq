@@ -288,10 +288,10 @@ export default function ManualTrackerCreationPage() {
                   </p>
                 </div>
                 <div className="grid grid-cols-[112px_minmax(0,1fr)] text-[11px]">
-                  <div className="border-b border-r border-(--border-subtle) px-3 py-2 font-mono text-[9px] font-bold uppercase tracking-[.1em] text-(--text-secondary)">
+                  <div className="border-b border-r border-(--border-subtle) px-3 py-2 font-mono text-[9px] font-bold uppercase tracking-widest text-(--text-secondary)">
                     Layer
                   </div>
-                  <div className="border-b border-(--border-subtle) px-3 py-2 font-mono text-[9px] font-bold uppercase tracking-[.1em] text-(--text-secondary)">
+                  <div className="border-b border-(--border-subtle) px-3 py-2 font-mono text-[9px] font-bold uppercase tracking-widest text-(--text-secondary)">
                     Required JSON path
                   </div>
                   {trackerOutlineTitleRules.map((rule) => (

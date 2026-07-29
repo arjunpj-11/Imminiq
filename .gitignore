@@ -51,6 +51,7 @@ apps/web/.vite/
 
 # demo folder
 demo/
+output/
 
 # local curl / API testing artifacts
 cookies.txt

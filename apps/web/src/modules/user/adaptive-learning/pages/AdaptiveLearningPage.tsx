@@ -197,7 +197,7 @@ export default function AdaptiveLearningPage() {
         ) : null}
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
-          <section className="flex h-[640px] min-h-[520px] max-h-[calc(100vh-120px)] flex-col overflow-hidden rounded-2xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1)">
+          <section className="flex h-160 min-h-130 max-h-[calc(100vh-120px)] flex-col overflow-hidden rounded-2xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1)">
             <div className="flex items-start justify-between gap-4 border-b border-(--border-subtle) p-5">
               <div>
                 <h2 className="font-ui text-[18px] font-black text-(--text-primary)">Ask Immi</h2>
