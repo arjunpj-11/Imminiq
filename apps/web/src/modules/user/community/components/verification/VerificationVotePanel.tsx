@@ -12,8 +12,6 @@ import { CheckIcon, CoinsIcon } from '../icons/CommunityIcons';
 interface IVerificationVotePanelProps {
   submission: ICommunityVerificationSubmission;
   pending?: boolean;
-  apiError?: string;
-  rewardMessage?: string;
   allTopicsChecked?: boolean;
   onVote: (vote: VerificationVoteChoice, reason: string) => void;
   onSkip?: () => void;
@@ -22,8 +20,6 @@ interface IVerificationVotePanelProps {
 export default function VerificationVotePanel({
   submission,
   pending = false,
-  apiError,
-  rewardMessage,
   allTopicsChecked = false,
   onVote,
   onSkip,
@@ -66,18 +62,6 @@ export default function VerificationVotePanel({
           <CoinsIcon /> +50
         </span>
       </div>
-
-      {apiError && (
-        <div className="mt-4 rounded-xl border border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.07)] px-4 py-3 text-[12px] leading-normal text-(--brand-500) dark:border-[rgba(232,129,106,0.25)] dark:text-(--brand-500)">
-          {apiError}
-        </div>
-      )}
-
-      {rewardMessage && (
-        <div className="mt-4 rounded-xl border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.07)] px-4 py-3 text-[12px] leading-normal text-(--success) dark:text-(--success)">
-          {rewardMessage}
-        </div>
-      )}
 
       {submission.userVote ? (
         <div className="mt-5 flex items-center gap-3 rounded-xl border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.07)] px-4 py-3 text-(--success) dark:text-(--success)">

@@ -62,12 +62,11 @@ const normalizeEvalStatus = (status?: EvaluationJobStatus) => {
     completedSteps,
     rawProgress ?? 0
   );
-  const progress = clampProgress(
-    rawProgress ??
-      (terminalState === 'completed'
-        ? 100
-        : (stepProgressFloors[activeStepIndex] ?? defaultEvalStatus.progress))
-  );
+  const fallbackProgress =
+    terminalState === 'completed'
+      ? 100
+      : (stepProgressFloors[activeStepIndex] ?? defaultEvalStatus.progress);
+  const progress = clampProgress(rawProgress, fallbackProgress);
   const completedStepCount =
     terminalState === 'completed'
       ? 5

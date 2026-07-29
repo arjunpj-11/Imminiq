@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { CheckCircle2, LifeBuoy, Send } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router';
 import FormField from '../../../../components/forms/FormField';
@@ -11,6 +11,7 @@ import { ROUTES } from '../../../../routes/config/route-paths';
 import PageHero from '../../../../components/layout/PageHero';
 import { safeSessionStorage } from '../../../../lib/storage/safe-storage';
 import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys';
+import { toast } from '../../../../lib/toast';
 
 const initial: CreateSupportTicketInput = {
   subject: '',
@@ -20,7 +21,6 @@ const initial: CreateSupportTicketInput = {
 };
 export default function RaiseSupportTicketPage() {
   const [searchParams] = useSearchParams();
-  const errorRef = useRef<HTMLParagraphElement>(null);
   const [form, setForm] = useState<CreateSupportTicketInput>(() => {
     let saved = initial;
     try {
@@ -63,12 +63,15 @@ export default function RaiseSupportTicketPage() {
     safeSessionStorage.set(STORAGE_KEYS.supportTicketDraft, JSON.stringify(form));
   }, [create.isSuccess, form, isDirty]);
 
-  useEffect(() => {
-    if (create.isError) errorRef.current?.focus();
-  }, [create.isError]);
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    create.mutate(form, { onSuccess: () => setForm(initial) });
+    create.mutate(form, {
+      onSuccess: () => {
+        setForm(initial);
+        toast.success('Support ticket submitted');
+      },
+      onError: () => toast.error('Ticket not submitted', 'Please check the details and try again.'),
+    });
   };
   return (
     <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8">
@@ -186,11 +189,6 @@ export default function RaiseSupportTicketPage() {
                 placeholder="Include what you expected, what happened, and any steps that reproduce the issue."
               />
             </FormField>
-            {create.isError && (
-              <p ref={errorRef} tabIndex={-1} className="text-sm text-(--danger)">
-                The ticket could not be submitted. Please check the details and try again.
-              </p>
-            )}
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <Link to={ROUTES.dashboard} className="text-sm text-(--text-secondary)">

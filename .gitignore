@@ -28,6 +28,7 @@ pnpm-debug.log*
 .nyc_output/
 .vitest/
 test-results/
+apps/api/tmp/
 
 # ESLint cache
 .eslintcache

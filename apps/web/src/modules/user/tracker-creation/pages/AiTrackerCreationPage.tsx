@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import { MicButton, VoiceInputStatus } from '../../../../components/input/VoiceInputButton';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import { useVoiceInput } from '../../../../hooks/useVoiceInput';
+import { normalizePercentage } from '../../../../lib/bounded-number';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import TrackerCreationBrandLink from '../components/TrackerCreationBrandLink';
 import { useActiveRoadmapJob } from '../hooks/useActiveRoadmapJob';
@@ -244,10 +245,11 @@ export default function AiTrackerCreationPage() {
     8,
     Math.min(
       95,
-      Math.round(
+      normalizePercentage(
         ((activeJob.data?.data?.currentStep ?? 0) /
           Math.max(activeJob.data?.data?.totalSteps ?? 5, 1)) *
-          100
+          100,
+        8
       )
     )
   );

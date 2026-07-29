@@ -48,20 +48,6 @@ export const FriendsErrorState = ({
   </div>
 );
 
-export const FriendsActionError = ({ message }: { message?: string | undefined }) => {
-  if (!message) return null;
-
-  return (
-    <div
-      role="alert"
-      className="flex items-start gap-2.5 rounded-xl border border-[rgba(217,69,53,0.22)] bg-[rgba(217,69,53,0.06)] px-4 py-3 text-[12px] leading-5 text-[#a9362c] dark:border-[rgba(255,107,95,0.2)] dark:bg-[rgba(255,107,95,0.06)] dark:text-[#ff8a80]"
-    >
-      <AlertIcon className="mt-0.5 shrink-0" />
-      <span>{message}</span>
-    </div>
-  );
-};
-
 export const FriendsLoadMoreButton = ({
   loading,
   onClick,

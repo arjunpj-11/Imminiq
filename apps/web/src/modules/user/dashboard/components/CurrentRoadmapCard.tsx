@@ -1,6 +1,7 @@
 import EmptyCard from './EmptyCard';
 import { formatRelativeTime } from '../utils/dashboard-formatters';
 import type { ReactElement } from 'react';
+import { normalizePercentage } from '../../../../lib/bounded-number';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import { safeLocalStorage } from '../../../../lib/storage/safe-storage';
 import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys';
@@ -109,7 +110,7 @@ export default function CurrentRoadmapCard({
   onNavigate,
   canCreateTracker = true,
 }: CurrentRoadmapCardProps) {
-  const progress = currentRoadmap?.completionPercentage ?? 0;
+  const progress = normalizePercentage(currentRoadmap?.completionPercentage);
   const levelKey = currentRoadmap?.level?.toLowerCase() ?? 'beginner';
   const levelCfg = LEVEL_CONFIG[levelKey] ?? LEVEL_CONFIG.beginner;
   const milestones = getMilestones(progress);
@@ -204,7 +205,7 @@ export default function CurrentRoadmapCard({
                 Completion Progress
               </span>
               <span className="font-mono text-[13px] font-bold tracking-[0.04em] text-(--brand-500) dark:text-(--brand-500)">
-                {Math.round(progress)}%
+                {progress}%
               </span>
             </div>
 
@@ -213,7 +214,7 @@ export default function CurrentRoadmapCard({
               <div className="h-2.5 overflow-hidden rounded-full bg-[rgba(26,23,20,0.08)] dark:bg-white/8">
                 <div
                   className="h-full rounded-full bg-linear-to-r from-(--brand-500) to-(--brand-500) transition-all duration-700 dark:from-[#f5a090] dark:to-(--brand-500)"
-                  style={{ width: `${Math.min(progress, 100)}%` }}
+                  style={{ width: `${progress}%` }}
                 />
               </div>
               {/* Milestone ticks */}

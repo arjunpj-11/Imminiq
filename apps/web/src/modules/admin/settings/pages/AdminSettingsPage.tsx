@@ -8,6 +8,7 @@ import {
   AdminPanel,
 } from '../../../../components/admin';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { toast } from '../../../../lib/toast';
 import { useAdminSettings } from '../hooks/useAdminSettings';
 import { useUpdateAdminSettings } from '../hooks/useUpdateAdminSettings';
 import type { AdminSettings } from '../types/admin-settings.types';
@@ -74,7 +75,13 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
           setReviewOpen(false);
           setChangeReason('');
           setActionPassword('');
+          toast.success('Settings saved', 'The change was added to the audit log.');
         },
+        onError: (error) =>
+          toast.error(
+            'Settings not saved',
+            getUserFacingError(error, 'Settings could not be saved.')
+          ),
       }
     );
   };
@@ -699,23 +706,6 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
               }
             />
           </PolicySection>
-
-          {update.isSuccess && (
-            <p
-              className="rounded-lg border border-[#52c58c]/25 bg-[#52c58c]/10 p-3 text-sm text-[#52c58c]"
-              role="status"
-            >
-              Settings saved and added to the audit log.
-            </p>
-          )}
-          {update.isError && (
-            <p
-              className="rounded-lg border border-[#e26767]/25 bg-[#e26767]/10 p-3 text-sm text-[#e26767]"
-              role="alert"
-            >
-              {getUserFacingError(update.error, 'Settings could not be saved.')}
-            </p>
-          )}
 
           <div className="admin-sticky-action-bar">
             <div>

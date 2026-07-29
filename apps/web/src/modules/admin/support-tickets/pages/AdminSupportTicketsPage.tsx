@@ -15,6 +15,7 @@ import {
 } from '../../../../components/admin';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { toast } from '../../../../lib/toast';
 import { useAdminSupportTickets } from '../hooks/useAdminSupportTickets';
 import { useUpdateAdminSupportTicket } from '../hooks/useUpdateAdminSupportTicket';
 import Modal from '../../../../components/admin/AdminModal';
@@ -197,7 +198,20 @@ function TicketDetail({ ticket, close }: { ticket: AdminSupportTicket; close: ()
     event.preventDefault();
     update.mutate(
       { id: ticket.id, status, resolutionNote, notificationMessage, actionPassword },
-      { onSuccess: close }
+      {
+        onSuccess: () => {
+          close();
+          toast.success('Support ticket updated', 'The requester was notified.');
+        },
+        onError: (error) =>
+          toast.error(
+            'Ticket not updated',
+            getUserFacingError(
+              error,
+              'The ticket could not be updated or the notification could not be sent.'
+            )
+          ),
+      }
     );
   };
 
@@ -298,18 +312,6 @@ function TicketDetail({ ticket, close }: { ticket: AdminSupportTicket; close: ()
             Saving sends an in-app notification to the requester with the new status and message.
           </p>
           <AdminActionPasswordField value={actionPassword} onChange={setActionPassword} />
-
-          {update.isError && (
-            <p
-              className="rounded-lg border border-[#e26767]/25 bg-[#e26767]/10 p-3 text-sm text-[#e26767]"
-              role="alert"
-            >
-              {getUserFacingError(
-                update.error,
-                'The ticket could not be updated or the notification could not be sent.'
-              )}
-            </p>
-          )}
 
           <div className="flex flex-wrap justify-end gap-3">
             <button type="button" onClick={close} className="admin-button">

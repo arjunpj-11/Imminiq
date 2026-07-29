@@ -12,6 +12,7 @@ import {
 import { useAdminBroadcasts } from '../hooks/useAdminBroadcasts';
 import { useCreateAdminBroadcast } from '../hooks/useCreateAdminBroadcast';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { toast } from '../../../../lib/toast';
 import ConfirmDialog from '../../../../components/admin/AdminConfirmDialog';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { AdminSearch } from '../../../../components/admin';
@@ -66,7 +67,13 @@ export default function AdminBroadcastPage() {
           setActionPassword('');
           setConfirmOpen(false);
           setPage(1);
+          toast.success('Broadcast sent');
         },
+        onError: (error) =>
+          toast.error(
+            'Broadcast not sent',
+            getUserFacingError(error, 'The broadcast could not be sent.')
+          ),
       }
     );
   };
@@ -284,11 +291,6 @@ export default function AdminBroadcastPage() {
               />
               <small>Internal path opened when a user selects the notification.</small>
             </label>
-            {create.isError && (
-              <p className="text-sm text-[#e26767]">
-                {getUserFacingError(create.error, 'The broadcast could not be sent.')}
-              </p>
-            )}
             <AdminActionPasswordField
               value={actionPassword}
               onChange={setActionPassword}

@@ -7,7 +7,6 @@ type Props = {
   open: boolean;
   opponent: ITrackerClanPerson | null;
   isLoading: boolean;
-  error?: string | null;
   onClose: () => void;
   onCreate: (input: { durationMinutes: number; questionCount: number }) => void;
 };
@@ -16,7 +15,6 @@ export default function ClanChallengeDialog({
   open,
   opponent,
   isLoading,
-  error,
   onClose,
   onCreate,
 }: Props) {
@@ -65,7 +63,6 @@ export default function ClanChallengeDialog({
           </select>
         </label>
       </div>
-      {error && <p className="mt-3 text-[11px] font-semibold text-red-500">{error}</p>}
       <div className="mt-6 flex justify-end gap-2">
         <button
           type="button"

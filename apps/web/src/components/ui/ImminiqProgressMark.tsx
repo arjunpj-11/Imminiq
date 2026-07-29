@@ -1,5 +1,7 @@
 import { useId, type CSSProperties } from 'react';
 
+import { normalizePercentage } from '../../lib/bounded-number';
+
 interface IImminiqProgressMarkProps {
   progress: number;
   active?: boolean;
@@ -19,7 +21,7 @@ export default function ImminiqProgressMark({
   size = 96,
 }: IImminiqProgressMarkProps) {
   const clipId = `im-reveal-${useId().replace(/:/g, '')}`;
-  const boundedProgress = Math.min(100, Math.max(0, progress));
+  const boundedProgress = normalizePercentage(progress);
   const rust = isDark ? '#e8816a' : '#b84c2b';
   const clipWidth = (boundedProgress / 100) * 80;
 

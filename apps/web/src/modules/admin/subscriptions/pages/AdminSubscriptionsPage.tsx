@@ -640,7 +640,14 @@ function PlanEditor({
         actionPassword,
         changeReason: changeReason.trim(),
       },
-      { onSuccess: onSaved }
+      {
+        onSuccess: () => {
+          toast.success('Subscription plan saved');
+          onSaved();
+        },
+        onError: (error) =>
+          toast.error('Plan not saved', getUserFacingError(error, 'Plan could not be saved.')),
+      }
     );
   };
 
@@ -806,15 +813,6 @@ function PlanEditor({
             );
           })}
         </div>
-
-        {update.isError && (
-          <div
-            className="mt-4 rounded-lg border border-[#e26767]/25 bg-[#e26767]/10 p-3 text-sm text-[#e26767]"
-            role="alert"
-          >
-            {getUserFacingError(update.error, 'Plan could not be saved.')}
-          </div>
-        )}
 
         <div className="admin-sticky-action-bar mt-6">
           <div>

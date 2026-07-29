@@ -241,6 +241,25 @@ export class MongoTrackerTopicContributionRepository implements ITrackerTopicCon
     let mergedSubtopicsCount = 0;
     let countsIncremented = false;
     try {
+      const existingTopics = await TrackerTopic.find({
+        trackerId: sourceTrackerId,
+        deletedAt: null,
+      })
+        .select('title description')
+        .lean();
+      const equivalentTopic = existingTopics.some(
+        (topic) =>
+          this.topicSignature(topic.title, topic.description) ===
+          this.topicSignature(claimed.title, claimed.description)
+      );
+      if (equivalentTopic) {
+        await TrackerTopicContribution.updateOne(
+          { _id: contributionId, status: 'processing' },
+          { $set: { status: 'pending' } }
+        );
+        return { ok: false as const, reason: 'merge-conflict' as const };
+      }
+
       const lastTopic = await TrackerTopic.findOne({ trackerId: sourceTrackerId, deletedAt: null })
         .sort({ order: -1 })
         .select('order')

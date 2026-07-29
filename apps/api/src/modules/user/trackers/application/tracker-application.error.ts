@@ -24,6 +24,7 @@ export type TrackerApplicationErrorCode =
   | 'TOPIC_CONTRIBUTION_ALREADY_REVIEWED'
   | 'TOPIC_CONTRIBUTION_NOT_FOUND'
   | 'TOPIC_CONTRIBUTION_NOT_A_CHANGE'
+  | 'TOPIC_CONTRIBUTION_MERGE_CONFLICT'
   | 'TOPIC_CONTRIBUTION_REQUIRES_CLONE'
   | 'TOPIC_CONTRIBUTION_SOURCE_UNAVAILABLE'
   | 'FORBIDDEN'
@@ -83,6 +84,14 @@ export class TrackerApplicationError extends TrackerDomainError {
       'conflict',
       'TOPIC_CONTRIBUTION_NOT_A_CHANGE',
       'Only topics added after cloning can be proposed to the original tracker.'
+    );
+  }
+
+  static contributionMergeConflict(): TrackerApplicationError {
+    return new TrackerApplicationError(
+      'conflict',
+      'TOPIC_CONTRIBUTION_MERGE_CONFLICT',
+      'An equivalent topic now exists in the original tracker. Reject this stale request or review the existing topic.'
     );
   }
 

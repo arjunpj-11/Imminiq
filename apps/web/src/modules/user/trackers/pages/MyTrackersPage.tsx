@@ -7,6 +7,7 @@ import Pagination from '../../../../components/navigation/Pagination';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { useFeatureEnabled } from '../../../../hooks/useFeatureAvailability';
 import { paginationConfig } from '../../../../config/pagination';
+import { normalizePercentage } from '../../../../lib/bounded-number';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import { toast } from '../../../../lib/toast';
 import TrackerCard, { type PublishFormData } from '../components/TrackerCard';
@@ -239,7 +240,11 @@ export default function MyTrackersPage() {
       : 'There are no trackers in this view. Choose another status or create a new learning path.';
 
   const activeResumeTracker =
-    trackers.find((t) => t.status === 'active' && (t.progressPercent ?? 0) < 100) ?? trackers[0];
+    trackers.find(
+      (tracker) => tracker.status === 'active' && normalizePercentage(tracker.progressPercent) < 100
+    ) ?? trackers[0];
+  const averageProgress = normalizePercentage(summary.averageProgress);
+  const activeResumeProgress = normalizePercentage(activeResumeTracker?.progressPercent);
 
   return (
     <TrackerShell>
@@ -282,7 +287,7 @@ export default function MyTrackersPage() {
               Overall mastery
             </div>
             <div className="mt-3 font-ui text-[36px] font-extrabold leading-none text-(--brand-500)">
-              {summary.averageProgress || 0}%
+              {averageProgress}%
             </div>
             <p className="mt-2 text-[12px] leading-5 text-(--text-secondary)">
               {summary.activeTrackers || 0} active path{summary.activeTrackers === 1 ? '' : 's'}{' '}
@@ -313,7 +318,7 @@ export default function MyTrackersPage() {
         />
         <StatCard
           label="Average"
-          value={`${summary.averageProgress || 0}%`}
+          value={`${averageProgress}%`}
           helper="Overall mastery"
           tone="amber"
         />
@@ -341,11 +346,11 @@ export default function MyTrackersPage() {
                 <div className="h-2 flex-1 max-w-xs overflow-hidden rounded-full bg-black/8 dark:bg-white/10">
                   <div
                     className="h-full rounded-full bg-(--brand-500) transition-all duration-300"
-                    style={{ width: `${Math.max(5, activeResumeTracker.progressPercent ?? 0)}%` }}
+                    style={{ width: `${Math.max(5, activeResumeProgress)}%` }}
                   />
                 </div>
                 <span className="font-mono text-[11px] font-bold text-(--brand-500)">
-                  {activeResumeTracker.progressPercent ?? 0}% completed
+                  {activeResumeProgress}% completed
                 </span>
               </div>
             </div>

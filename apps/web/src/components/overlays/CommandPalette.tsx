@@ -10,6 +10,7 @@ import {
 import { useNavigate } from 'react-router';
 
 import { cn } from '../../lib/cn';
+import { normalizePercentage } from '../../lib/bounded-number';
 import {
   formatNavigationShortcut,
   NAVIGATION_COMMANDS,
@@ -145,7 +146,7 @@ function CommandPaletteContent({ inputRef, onClose }: ICommandPaletteContentProp
       ...(features.trackers ? trackerResults : []).map((tracker) => ({
         id: `tracker-${tracker._id}`,
         label: tracker.title,
-        description: `${tracker.progressPercent ?? 0}% complete · Open roadmap`,
+        description: `${normalizePercentage(tracker.progressPercent)}% complete · Open roadmap`,
         group: 'Trackers' as const,
         keywords: [tracker.title, tracker.domain ?? '', tracker.level ?? '', 'lesson', 'roadmap'],
         run: () => go(ROUTES.trackerRoadmap(tracker._id)),
@@ -199,7 +200,7 @@ function CommandPaletteContent({ inputRef, onClose }: ICommandPaletteContentProp
       {
         id: 'notification-settings',
         label: 'Notification settings',
-        description: 'Control alerts, quiet hours, and message noise',
+        description: 'Manage supported in-app notification delivery',
         group: 'Actions' as const,
         keywords: ['mute', 'quiet', 'notification', 'alerts'],
         run: () => go(ROUTES.settingsNotifications),

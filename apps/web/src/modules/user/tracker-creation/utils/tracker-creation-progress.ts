@@ -1,3 +1,5 @@
+import { normalizePercentage } from '../../../../lib/bounded-number';
+
 export const fallbackPhaseByProgress = (progress: number) => {
   if (progress >= 80) return 4;
   if (progress >= 60) return 3;
@@ -29,4 +31,4 @@ export const normalizeProgressStepIndex = (
   return Math.min(lastStepIndex, fallbackPhaseByProgress(progress));
 };
 
-export const clampProgress = (value: number) => Math.min(100, Math.max(0, Math.round(value)));
+export const clampProgress = (value: unknown, fallback = 0) => normalizePercentage(value, fallback);

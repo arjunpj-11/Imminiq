@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { getUserFacingError } from '../../../../../lib/user-facing-error';
+import { toast } from '../../../../../lib/toast';
 import { useGenerateLessonVisualization } from '../../hooks/useTrackers';
 import { cn } from '../../utils/tracker-ui';
 
@@ -186,7 +187,6 @@ export default function LessonVisualizerCard({
     visualDescription: string;
   } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const prevSubtopicIdRef = useRef(subtopicId);
   useEffect(() => {
@@ -194,14 +194,12 @@ export default function LessonVisualizerCard({
       prevSubtopicIdRef.current = subtopicId;
       setVisualization(null);
       setModalOpen(false);
-      setError(null);
     }
   }, [subtopicId]);
 
   const isGenerating = visualizeMutation.isPending;
 
   const generate = () => {
-    setError(null);
     visualizeMutation.mutate(
       { trackerId, subtopicId },
       {
@@ -210,7 +208,10 @@ export default function LessonVisualizerCard({
           setModalOpen(true);
         },
         onError: (err) => {
-          setError(getUserFacingError(err, 'Failed to generate visualization.'));
+          toast.error(
+            'Visualization not generated',
+            getUserFacingError(err, 'Failed to generate visualization.')
+          );
         },
       }
     );
@@ -225,7 +226,6 @@ export default function LessonVisualizerCard({
   };
 
   const handleRegenerate = () => {
-    setError(null);
     visualizeMutation.mutate(
       { trackerId, subtopicId, regenerate: true },
       {
@@ -234,7 +234,10 @@ export default function LessonVisualizerCard({
           setModalOpen(true);
         },
         onError: (err) => {
-          setError(getUserFacingError(err, 'Failed to generate visualization.'));
+          toast.error(
+            'Visualization not regenerated',
+            getUserFacingError(err, 'Failed to generate visualization.')
+          );
         },
       }
     );
@@ -282,12 +285,6 @@ export default function LessonVisualizerCard({
             ↗
           </span>
         </button>
-
-        {error && (
-          <div className="mt-2 rounded-lg border border-[rgba(200,50,50,0.22)] bg-[rgba(200,50,50,0.06)] px-3 py-2 text-[11px] leading-5 text-red-600 dark:text-red-400">
-            {error}
-          </div>
-        )}
       </div>
 
       {modalOpen && visualization && (

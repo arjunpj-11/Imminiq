@@ -2,7 +2,6 @@ import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import {
   ArrowDown,
   ArrowLeft,
-  BellOff,
   Check,
   LoaderCircle,
   MessageCircle,
@@ -41,7 +40,6 @@ import { socket } from '../../../../lib/socket';
 import { toast } from '../../../../lib/toast';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import { useAuthStore } from '../../../../store/useAuthStore';
-import { useAppShellStore } from '../../../../store/useAppShellStore';
 import {
   FRIENDS_DEFAULT_PAGE_SIZE,
   mergeFriendRequestPages,
@@ -191,8 +189,6 @@ export default function SocialPage() {
   const blockUser = useBlockUser();
   const unblockUser = useUnblockUser();
   const openCall = useCallLauncherStore((state) => state.open);
-  const mutedConversationIds = useAppShellStore((state) => state.mutedConversationIds);
-  const toggleMutedConversation = useAppShellStore((state) => state.toggleMutedConversation);
 
   const conversations = useMemo(
     () => conversationsQuery.data?.pages.flatMap((page) => page.items) ?? [],
@@ -861,25 +857,6 @@ export default function SocialPage() {
                           role="menu"
                           className="absolute right-0 top-12 w-56 rounded-2xl border border-(--border-subtle) bg-(--surface-elevated) p-2 shadow-(--shadow-3)"
                         >
-                          <button
-                            type="button"
-                            role="menuitem"
-                            onClick={() => {
-                              toggleMutedConversation(selectedConversation.id);
-                              setOptionsOpen(false);
-                              toast.success(
-                                mutedConversationIds.includes(selectedConversation.id)
-                                  ? 'Conversation unmuted'
-                                  : 'Conversation muted'
-                              );
-                            }}
-                            className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[12px] font-semibold hover:bg-(--surface-muted)"
-                          >
-                            <BellOff size={14} />
-                            {mutedConversationIds.includes(selectedConversation.id)
-                              ? 'Unmute conversation'
-                              : 'Mute conversation'}
-                          </button>
                           <button
                             type="button"
                             role="menuitem"

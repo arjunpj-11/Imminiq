@@ -133,12 +133,11 @@ const normalizeJobStatus = (payload: IJobStatusApiData | undefined): INormalized
     completedSteps,
     rawProgress ?? 0
   );
-  const progress = clampProgress(
-    rawProgress ??
-      (terminalState === 'completed'
-        ? 100
-        : (stepProgressFloors[activeStepIndex] ?? defaultJobStatus.progress))
-  );
+  const fallbackProgress =
+    terminalState === 'completed'
+      ? 100
+      : (stepProgressFloors[activeStepIndex] ?? defaultJobStatus.progress);
+  const progress = clampProgress(rawProgress, fallbackProgress);
   const completedStepCount =
     terminalState === 'completed'
       ? 5

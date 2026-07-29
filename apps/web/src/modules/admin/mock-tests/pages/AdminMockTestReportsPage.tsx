@@ -23,6 +23,8 @@ import type {
 } from '../types/admin-mock-tests.types';
 import AdminActionPasswordField from '../../../../components/admin/AdminActionPasswordField';
 import { isAdminActionPasswordReady } from '../../../../lib/admin/admin-action-password';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { toast } from '../../../../lib/toast';
 
 const reasonLabel = (value: string) => value.replaceAll('_', ' ');
 
@@ -241,7 +243,17 @@ function ReportReviewDialog({
             : {}),
         },
       },
-      { onSuccess: onClose }
+      {
+        onSuccess: () => {
+          onClose();
+          toast.success('Question report updated');
+        },
+        onError: (error) =>
+          toast.error(
+            'Report not updated',
+            getUserFacingError(error, 'Unable to update this question report.')
+          ),
+      }
     );
   };
   return (

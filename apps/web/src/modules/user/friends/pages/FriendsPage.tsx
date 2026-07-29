@@ -8,7 +8,6 @@ import FriendsHeader from '../components/shared/FriendsHeader';
 import FriendsListView from '../components/list/FriendsListView';
 import FriendsSearchInput from '../components/search/FriendsSearchInput';
 import {
-  FriendsActionError,
   FriendsErrorState,
   FriendsListSkeleton,
   FriendsRequestsSkeleton,
@@ -23,6 +22,7 @@ import {
 import { useAcceptFriendRequest } from '../hooks/useAcceptFriendRequest';
 import { useCancelFriendRequest } from '../hooks/useCancelFriendRequest';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
+import { toast } from '../../../../lib/toast';
 import { useDeclineFriendRequest } from '../hooks/useDeclineFriendRequest';
 import { useFriends } from '../hooks/useFriends';
 import { useReceivedFriendRequests } from '../hooks/useReceivedFriendRequests';
@@ -43,7 +43,6 @@ export default function FriendsPage() {
   const activeTab = parseFriendsTab(searchParams.get('tab'));
   const [friendSearch, setFriendSearch] = useState('');
   const [selectedFriend, setSelectedFriend] = useState<IFriendUser | null>(null);
-  const [actionError, setActionError] = useState<string>();
 
   const debouncedSearch = useDebouncedValue(
     normalizeSearchQuery(friendSearch),
@@ -84,19 +83,19 @@ export default function FriendsPage() {
   const sentFirstPage = sentQuery.data?.pages[0];
 
   const changeTab = (tab: FriendsTab) => {
-    setActionError(undefined);
     setSearchParams(tab === 'requests' ? { tab: 'requests' } : {}, {
       replace: true,
     });
   };
 
   const handleAccept = (request: IFriendRequest) => {
-    setActionError(undefined);
     acceptMutation.mutate(
       { requestId: request.id },
       {
+        onSuccess: () => toast.success('Friend request accepted'),
         onError: (error) =>
-          setActionError(
+          toast.error(
+            'Request not accepted',
             getFriendsApiErrorMessage(error, 'The friend invite could not be accepted.')
           ),
       }
@@ -104,12 +103,13 @@ export default function FriendsPage() {
   };
 
   const handleDecline = (request: IFriendRequest) => {
-    setActionError(undefined);
     declineMutation.mutate(
       { requestId: request.id },
       {
+        onSuccess: () => toast.success('Friend request declined'),
         onError: (error) =>
-          setActionError(
+          toast.error(
+            'Request not declined',
             getFriendsApiErrorMessage(error, 'The friend invite could not be declined.')
           ),
       }
@@ -117,12 +117,13 @@ export default function FriendsPage() {
   };
 
   const handleCancel = (request: IFriendRequest) => {
-    setActionError(undefined);
     cancelMutation.mutate(
       { requestId: request.id },
       {
+        onSuccess: () => toast.success('Friend request cancelled'),
         onError: (error) =>
-          setActionError(
+          toast.error(
+            'Request not cancelled',
             getFriendsApiErrorMessage(error, 'The sent invite could not be cancelled.')
           ),
       }
@@ -132,13 +133,18 @@ export default function FriendsPage() {
   const handleConfirmRemove = () => {
     if (!selectedFriend) return;
 
-    setActionError(undefined);
     removeMutation.mutate(
       { friendUserId: selectedFriend.id },
       {
-        onSuccess: () => setSelectedFriend(null),
+        onSuccess: () => {
+          setSelectedFriend(null);
+          toast.success('Friend removed');
+        },
         onError: (error) =>
-          setActionError(getFriendsApiErrorMessage(error, 'The friend could not be removed.')),
+          toast.error(
+            'Friend not removed',
+            getFriendsApiErrorMessage(error, 'The friend could not be removed.')
+          ),
       }
     );
   };
@@ -197,8 +203,6 @@ export default function FriendsPage() {
           pendingCount={pendingCount}
           onChange={changeTab}
         />
-
-        <FriendsActionError message={actionError} />
 
         {activeTab === 'friends' ? (
           friendsQuery.isPending ? (

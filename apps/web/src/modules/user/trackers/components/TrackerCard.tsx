@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { cn } from '../../../../lib/cn';
+import { normalizePercentage } from '../../../../lib/bounded-number';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { toast } from '../../../../lib/toast';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import { useAnalyzeClonedTracker } from '../../tracker-creation';
 import { useSocialShareStore } from '../../social';
@@ -160,22 +162,16 @@ export default function TrackerCard({
   const analyzeClone = useAnalyzeClonedTracker();
   const shareTracker = useSocialShareStore((state) => state.shareTracker);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const nudgeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [publishError, setPublishError] = useState<string | null>(null);
   const [isSendingVerification, setIsSendingVerification] = useState(false);
-  const [verificationError, setVerificationError] = useState<string | null>(null);
   const [verificationSent, setVerificationSent] = useState(false);
-  const [showPublishNudge, setShowPublishNudge] = useState(false);
   const [deleteConfirmationStep, setDeleteConfirmationStep] = useState<0 | 1 | 2>(0);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
-  const progress = Math.min(100, Math.max(0, Number(tracker.progressPercent ?? 0)));
+  const progress = normalizePercentage(tracker.progressPercent);
   const totalTopics = Number(tracker.topicsCount ?? tracker.totalTopics ?? 0);
   const completedTopics = Number(tracker.completedTopics ?? 0);
   const remainingTopics = Math.max(0, totalTopics - completedTopics);
@@ -240,27 +236,21 @@ export default function TrackerCard({
     return () => window.removeEventListener('mousedown', closeMenu);
   }, [menuOpen]);
 
-  useEffect(
-    () => () => {
-      if (nudgeTimerRef.current) clearTimeout(nudgeTimerRef.current);
-    },
-    []
-  );
-
   const triggerPublishNudge = () => {
-    setShowPublishNudge(true);
-    if (nudgeTimerRef.current) clearTimeout(nudgeTimerRef.current);
-    nudgeTimerRef.current = setTimeout(() => setShowPublishNudge(false), 3500);
+    toast.warning('Publish required', 'Publish this tracker before sending it for verification.');
   };
 
   const handlePublish = async (trackerId: string, data: PublishFormData) => {
     try {
       setIsPublishing(true);
-      setPublishError(null);
       await onPublish(trackerId, data);
       setPublishModalOpen(false);
+      toast.success('Tracker published');
     } catch (error) {
-      setPublishError(getUserFacingError(error, 'Failed to publish tracker. Please try again.'));
+      toast.error(
+        'Tracker not published',
+        getUserFacingError(error, 'Failed to publish tracker. Please try again.')
+      );
     } finally {
       setIsPublishing(false);
     }
@@ -276,11 +266,12 @@ export default function TrackerCard({
 
     try {
       setIsSendingVerification(true);
-      setVerificationError(null);
       await onSendForVerification(tracker._id);
       setVerificationSent(true);
+      toast.success('Tracker sent for verification');
     } catch (error) {
-      setVerificationError(
+      toast.error(
+        'Verification request not sent',
         getUserFacingError(error, 'Failed to send tracker for verification. Please try again.')
       );
     } finally {
@@ -296,18 +287,20 @@ export default function TrackerCard({
 
     try {
       setIsDeleting(true);
-      setDeleteError(null);
       await onDelete(tracker._id);
       setDeleteConfirmationStep(0);
+      toast.success('Tracker deleted');
     } catch (error) {
-      setDeleteError(getUserFacingError(error, 'Failed to delete tracker. Please try again.'));
+      toast.error(
+        'Tracker not deleted',
+        getUserFacingError(error, 'Failed to delete tracker. Please try again.')
+      );
     } finally {
       setIsDeleting(false);
     }
   };
 
   const openPublishModal = () => {
-    setPublishError(null);
     setPublishModalOpen(true);
   };
 
@@ -315,11 +308,13 @@ export default function TrackerCard({
     if (!canAnalyzeClone || analyzeClone.isPending) return;
 
     try {
-      setAnalysisError(null);
       const result = await analyzeClone.mutateAsync(tracker._id);
       navigate(ROUTES.trackerCreateEvaluation(result.data.jobId));
     } catch (error) {
-      setAnalysisError(getUserFacingError(error, 'Unable to start the one-time tracker analysis.'));
+      toast.error(
+        'Tracker analysis not started',
+        getUserFacingError(error, 'Unable to start the one-time tracker analysis.')
+      );
     }
   };
 
@@ -413,7 +408,6 @@ export default function TrackerCard({
               onSendForVerification={() => void handleSendForVerification()}
               onArchive={onArchive ? () => onArchive(tracker._id) : undefined}
               onDelete={() => {
-                setDeleteError(null);
                 setDeleteConfirmationStep(1);
               }}
             />
@@ -474,28 +468,7 @@ export default function TrackerCard({
           </div>
         </section>
 
-        {(showPublishNudge || verificationError) && (
-          <div className="relative mt-4 space-y-2" aria-live="polite">
-            {showPublishNudge && (
-              <div className="rounded-lg border border-[rgba(138,98,0,0.22)] bg-[rgba(138,98,0,0.08)] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#8a6200] dark:text-(--warning)">
-                Publish this tracker before sending it for verification.
-              </div>
-            )}
-            {verificationError && (
-              <div className="rounded-lg border border-[rgba(200,50,50,0.22)] bg-[rgba(200,50,50,0.08)] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#b83232] dark:text-[#ff8c8c]">
-                {verificationError}
-              </div>
-            )}
-          </div>
-        )}
-
         <footer className="relative mt-auto pt-5">
-          {analysisError && (
-            <div className="mb-3 rounded-lg border border-[rgba(200,50,50,0.22)] bg-[rgba(200,50,50,0.08)] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#b83232] dark:text-[#ff8c8c]">
-              {analysisError}
-            </div>
-          )}
-
           <div className="flex gap-2.5">
             <button
               type="button"
@@ -606,10 +579,8 @@ export default function TrackerCard({
         <PublishTrackerModal
           tracker={tracker}
           isPublishing={isPublishing}
-          publishError={publishError}
           onClose={() => {
             if (!isPublishing) {
-              setPublishError(null);
               setPublishModalOpen(false);
             }
           }}
@@ -633,11 +604,6 @@ export default function TrackerCard({
                 Community users will no longer be able to view this published tracker.
               </p>
             )}
-            {deleteError && (
-              <p className="rounded-md border border-red-400/30 bg-red-500/10 px-3 py-2 text-red-600 dark:text-red-400">
-                {deleteError}
-              </p>
-            )}
           </div>
         }
         confirmText={
@@ -650,7 +616,6 @@ export default function TrackerCard({
         isLoading={isDeleting}
         onClose={() => {
           if (!isDeleting) {
-            setDeleteError(null);
             setDeleteConfirmationStep(0);
           }
         }}

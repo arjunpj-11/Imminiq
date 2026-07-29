@@ -31,6 +31,9 @@ export class ReviewTopicContributionUseCase implements IReviewTopicContributionU
       if (result.reason === 'source-unavailable') {
         throw TrackerApplicationError.contributionSourceUnavailable();
       }
+      if (result.reason === 'merge-conflict') {
+        throw TrackerApplicationError.contributionMergeConflict();
+      }
       if (result.reason === 'tracker-not-found') throw TrackerApplicationError.trackerNotFound();
       throw TrackerApplicationError.contributionNotFound();
     }

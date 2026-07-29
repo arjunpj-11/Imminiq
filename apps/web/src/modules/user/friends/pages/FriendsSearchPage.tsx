@@ -7,7 +7,6 @@ import FriendsAppShell from '../components/shared/FriendsAppShell';
 import FriendsHeader from '../components/shared/FriendsHeader';
 import FriendsSearchInput from '../components/search/FriendsSearchInput';
 import {
-  FriendsActionError,
   FriendsEmptyState,
   FriendsErrorState,
   FriendsListSkeleton,
@@ -19,6 +18,7 @@ import {
 } from '../constants/friends.constants';
 import { useFriendSearch } from '../hooks/useFriendSearch';
 import { useSendFriendRequest } from '../hooks/useSendFriendRequest';
+import { toast } from '../../../../lib/toast';
 import type { IFriendUser } from '../types/friends.types';
 import {
   getFriendsApiErrorMessage,
@@ -43,7 +43,6 @@ function FriendsSearchPageContent({ activeQuery }: FriendsSearchPageContentProps
    * is required.
    */
   const [inputValue, setInputValue] = useState(activeQuery);
-  const [actionError, setActionError] = useState<string>();
 
   const searchQuery = useFriendSearch({
     query: activeQuery,
@@ -62,8 +61,6 @@ function FriendsSearchPageContent({ activeQuery }: FriendsSearchPageContentProps
   const handleSubmit = () => {
     const normalized = normalizeSearchQuery(inputValue);
 
-    setActionError(undefined);
-
     if (!normalized) {
       setSearchParams({}, { replace: true });
       return;
@@ -81,20 +78,21 @@ function FriendsSearchPageContent({ activeQuery }: FriendsSearchPageContentProps
 
   const handleClear = () => {
     setInputValue('');
-    setActionError(undefined);
     setSearchParams({}, { replace: true });
   };
 
   const handleSendRequest = (user: IFriendUser) => {
-    setActionError(undefined);
-
     sendMutation.mutate(
       {
         receiverUserId: user.id,
       },
       {
+        onSuccess: () => toast.success('Friend request sent'),
         onError: (error) => {
-          setActionError(getFriendsApiErrorMessage(error, 'The friend invite could not be sent.'));
+          toast.error(
+            'Request not sent',
+            getFriendsApiErrorMessage(error, 'The friend invite could not be sent.')
+          );
         },
       }
     );
@@ -131,8 +129,6 @@ function FriendsSearchPageContent({ activeQuery }: FriendsSearchPageContentProps
           submitDisabled={!inputValue.trim()}
           autoFocus
         />
-
-        <FriendsActionError message={actionError} />
 
         <div aria-live="polite">
           {queryTooShort ? (

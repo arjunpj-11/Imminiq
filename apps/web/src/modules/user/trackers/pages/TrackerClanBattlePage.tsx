@@ -10,6 +10,7 @@ import Modal from '../../../../components/overlays/Modal';
 import { cn } from '../../../../lib/cn';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { socket } from '../../../../lib/socket';
+import { toast } from '../../../../lib/toast';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import { useAuthStore } from '../../../../store/useAuthStore';
 import {
@@ -72,7 +73,6 @@ export default function TrackerClanBattlePage() {
   const [quitDialogOpen, setQuitDialogOpen] = useState(false);
   const [unavailableChallengeId, setUnavailableChallengeId] = useState<string | null>(null);
   const [pdfDownloading, setPdfDownloading] = useState(false);
-  const [pdfError, setPdfError] = useState<string | null>(null);
   const extensionRequestRef = useRef('');
 
   const isChallenger = challenge?.challenger.userId === currentUserId;
@@ -549,10 +549,15 @@ export default function TrackerClanBattlePage() {
               disabled={!historyQuery.data || pdfDownloading}
               onClick={() => {
                 if (!historyQuery.data) return;
-                setPdfError(null);
                 setPdfDownloading(true);
                 void downloadBattleHistoryPdf(historyQuery.data)
-                  .catch(() => setPdfError('The PDF could not be created. Please try again.'))
+                  .then(() => toast.success('Battle history PDF downloaded'))
+                  .catch(() =>
+                    toast.error(
+                      'PDF not created',
+                      'The battle history PDF could not be created. Please try again.'
+                    )
+                  )
                   .finally(() => setPdfDownloading(false));
               }}
               className="rounded-lg bg-(--brand-500) px-4 py-2.5 text-xs font-extrabold text-white disabled:opacity-50"
@@ -577,11 +582,6 @@ export default function TrackerClanBattlePage() {
           {historyQuery.error && (
             <div className="rounded-xl bg-red-500/10 p-4 text-sm font-semibold text-red-600">
               {getUserFacingError(historyQuery.error, 'Unable to load battle history.')}
-            </div>
-          )}
-          {pdfError && (
-            <div className="mb-4 rounded-xl bg-red-500/10 p-4 text-sm font-semibold text-red-600">
-              {pdfError}
             </div>
           )}
           {historyQuery.data &&

@@ -7,6 +7,7 @@ import {
 import { useActiveMockTestGeneration } from '../../mock-tests';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { toast } from '../../../../lib/toast';
 
 export default function AdaptiveExamPanel() {
   const navigate = useNavigate();
@@ -18,6 +19,11 @@ export default function AdaptiveExamPanel() {
   const generateExam = () => {
     generate.mutate(undefined, {
       onSuccess: (job) => navigate(ROUTES.mockTestGenerating(job.jobId)),
+      onError: (error) =>
+        toast.error(
+          'Adaptive exam not generated',
+          getUserFacingError(error, 'The adaptive exam could not be generated.')
+        ),
     });
   };
 
@@ -83,11 +89,6 @@ export default function AdaptiveExamPanel() {
           )}
         </div>
       </div>
-      {generate.isError ? (
-        <p className="mt-3 text-[12px] font-semibold text-red-600">
-          {getUserFacingError(generate.error, 'The adaptive exam could not be generated.')}
-        </p>
-      ) : null}
     </section>
   );
 }

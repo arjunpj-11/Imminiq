@@ -1,8 +1,9 @@
 import { Link } from 'react-router';
 
+import { normalizePercentage } from '../../../../lib/bounded-number';
+import { ROUTES } from '../../../../routes/config/route-paths';
 import type { ActivityChip } from '../types/tracker-creation.types';
 import { cn } from '../utils/cn';
-import { ROUTES } from '../../../../routes/config/route-paths';
 
 interface ITrackerCreationProgressStatusCardProps {
   logMessage: string;
@@ -21,6 +22,8 @@ export function TrackerCreationProgressStatusCard({
   stepsLabel,
   progressAriaLabel,
 }: ITrackerCreationProgressStatusCardProps) {
+  const normalizedProgress = normalizePercentage(progress);
+
   return (
     <section
       className="relative w-full overflow-hidden rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-[0_14px_42px_rgba(26,23,20,0.07)] dark:border-white/15 dark:bg-(--surface-card) sm:p-6"
@@ -66,7 +69,7 @@ export function TrackerCreationProgressStatusCard({
         >
           <div
             className="relative h-full overflow-hidden rounded-full bg-(--brand-500) transition-[width] duration-1000 ease-out"
-            style={{ width: `${progress}%` }}
+            style={{ width: `${normalizedProgress}%` }}
           >
             <span className="absolute inset-y-0 left-0 w-[55%] animate-[roadmapShimmer_1.6s_ease-in-out_infinite] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.38),transparent)]" />
           </div>
@@ -74,7 +77,7 @@ export function TrackerCreationProgressStatusCard({
 
         <div className="mt-2 flex items-center justify-between gap-3">
           <span className="text-[10px] font-bold uppercase tracking-[0.09em] text-(--text-secondary)/70">
-            {progress}% complete
+            {normalizedProgress}% complete
           </span>
           <span className="text-[10px] font-bold uppercase tracking-[0.09em] text-(--text-secondary)/70">
             {stepsLabel}

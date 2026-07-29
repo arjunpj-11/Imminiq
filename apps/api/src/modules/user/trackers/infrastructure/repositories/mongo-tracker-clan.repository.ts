@@ -73,6 +73,19 @@ type TrackerLean = {
   createdAt: Date;
 };
 
+type ApprovedTopicContributionLean = {
+  cloneTopicId: unknown;
+  mergedTopicId?: unknown | null;
+  subtopics?: Array<{
+    sourceId: string;
+    parentSourceId?: string | null;
+    title: string;
+    description?: string;
+    order: number;
+    depth: number;
+  }>;
+};
+
 type ChallengeSubmissionLean = {
   answers: Array<{ questionId: unknown; answer: string }>;
   score: number;
@@ -536,15 +549,38 @@ export class MongoTrackerClanRepository
     });
     if (!hasAcceptedChanges) return null;
 
-    const [sourceTopics, cloneTopics] = await Promise.all([
+    const [sourceTopics, cloneTopics, approvedContributions] = await Promise.all([
       TrackerTopic.find({ trackerId: sourceTrackerId, deletedAt: null }).sort({ order: 1 }).lean(),
       TrackerTopic.find({ trackerId: clone._id, deletedAt: null }).sort({ order: 1 }).lean(),
+      TrackerTopicContribution.find({
+        sourceTrackerId,
+        cloneTrackerId: clone._id,
+        requesterId: userId,
+        status: 'approved',
+        mergedTopicId: { $ne: null },
+      })
+        .select('cloneTopicId mergedTopicId subtopics')
+        .lean<ApprovedTopicContributionLean[]>(),
     ]);
     const topicMap = new Map(
       cloneTopics
         .filter((topic) => topic.sourceTopicId)
         .map((topic) => [String(topic.sourceTopicId), topic])
     );
+    const cloneTopicById = new Map(cloneTopics.map((topic) => [String(topic._id), topic]));
+    for (const contribution of approvedContributions) {
+      if (!contribution.mergedTopicId) continue;
+      const cloneTopic = cloneTopicById.get(String(contribution.cloneTopicId));
+      if (!cloneTopic || cloneTopic.sourceTopicId) continue;
+      const mergedTopicId = String(contribution.mergedTopicId);
+      if (!sourceTopics.some((topic) => String(topic._id) === mergedTopicId)) continue;
+
+      await TrackerTopic.updateOne(
+        { _id: cloneTopic._id, trackerId: clone._id, sourceTopicId: null, deletedAt: null },
+        { $set: { sourceTopicId: contribution.mergedTopicId } }
+      );
+      topicMap.set(mergedTopicId, cloneTopic);
+    }
     let nextTopicOrder = cloneTopics.reduce((max, topic) => Math.max(max, topic.order), 0) + 1;
     let addedTopics = 0;
     let updatedTopics = 0;
@@ -590,6 +626,66 @@ export class MongoTrackerClanRepository
         .filter((subtopic) => subtopic.sourceSubtopicId)
         .map((subtopic) => [String(subtopic.sourceSubtopicId), subtopic])
     );
+    const cloneSubtopicById = new Map(
+      cloneSubtopics.map((subtopic) => [String(subtopic._id), subtopic])
+    );
+    const normalizeContributionText = (value: unknown) =>
+      String(value ?? '')
+        .trim()
+        .replace(/\s+/g, ' ')
+        .toLowerCase();
+    for (const contribution of approvedContributions) {
+      if (!contribution.mergedTopicId) continue;
+      const mappedTopic = topicMap.get(String(contribution.mergedTopicId));
+      if (!mappedTopic || String(mappedTopic._id) !== String(contribution.cloneTopicId)) continue;
+
+      const contributedSubtopics = [...(contribution.subtopics ?? [])].sort(
+        (left, right) => left.depth - right.depth || left.order - right.order
+      );
+      const mergedSubtopics = sourceSubtopics.filter(
+        (subtopic) => String(subtopic.topicId) === String(contribution.mergedTopicId)
+      );
+      const usedMergedSubtopicIds = new Set<string>();
+      const mergedParentByCloneSourceId = new Map<string, string>();
+
+      for (const contributedSubtopic of contributedSubtopics) {
+        const cloneSubtopic = cloneSubtopicById.get(contributedSubtopic.sourceId);
+        if (!cloneSubtopic || cloneSubtopic.sourceSubtopicId) continue;
+        const expectedParentId = contributedSubtopic.parentSourceId
+          ? mergedParentByCloneSourceId.get(contributedSubtopic.parentSourceId)
+          : null;
+        const mergedSubtopic = mergedSubtopics.find((candidate) => {
+          const candidateId = String(candidate._id);
+          if (usedMergedSubtopicIds.has(candidateId)) return false;
+          if (String(candidate.parentSubtopicId ?? '') !== String(expectedParentId ?? '')) {
+            return false;
+          }
+          return (
+            candidate.order === contributedSubtopic.order &&
+            candidate.depth === contributedSubtopic.depth &&
+            normalizeContributionText(candidate.title) ===
+              normalizeContributionText(contributedSubtopic.title) &&
+            normalizeContributionText(candidate.description) ===
+              normalizeContributionText(contributedSubtopic.description)
+          );
+        });
+        if (!mergedSubtopic) continue;
+
+        await TrackerSubtopic.updateOne(
+          {
+            _id: cloneSubtopic._id,
+            trackerId: clone._id,
+            sourceSubtopicId: null,
+            deletedAt: null,
+          },
+          { $set: { sourceSubtopicId: mergedSubtopic._id } }
+        );
+        const mergedSubtopicId = String(mergedSubtopic._id);
+        usedMergedSubtopicIds.add(mergedSubtopicId);
+        mergedParentByCloneSourceId.set(contributedSubtopic.sourceId, mergedSubtopicId);
+        subtopicMap.set(mergedSubtopicId, cloneSubtopic);
+      }
+    }
     let addedSubtopics = 0;
     let updatedSubtopics = 0;
     for (const sourceSubtopic of sourceSubtopics) {

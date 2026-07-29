@@ -60,6 +60,21 @@ export type AiVerificationState = {
   message: string | null;
 };
 
+export const canAddAiVerifiedItem = ({
+  hasTitle,
+  verificationStatus,
+  allowRejected,
+  pending,
+}: {
+  hasTitle: boolean;
+  verificationStatus: AiVerificationStatus;
+  allowRejected: boolean;
+  pending: boolean;
+}) =>
+  hasTitle &&
+  !pending &&
+  (verificationStatus === 'approved' || (verificationStatus === 'rejected' && allowRejected));
+
 const getRawId = (node: RawRoadmapNode) => {
   const rawId = node._id || node.id || node.topicId || node.subtopicId;
 
