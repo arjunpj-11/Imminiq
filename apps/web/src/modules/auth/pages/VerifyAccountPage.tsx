@@ -229,7 +229,7 @@ export default function VerifyAccountPage() {
         <main className="px-5 py-8 text-center sm:px-8">
           <Link to={ROUTES.home} className="mb-6 inline-flex items-center justify-center gap-2">
             <LogoIcon className="h-10 w-10" />
-            <ImminiqWordmark lowercase className="text-[24px] font-black tracking-[-0.8px]" />
+            <ImminiqWordmark className="text-[24px] font-black tracking-[-0.8px]" />
           </Link>
 
           <div className="relative mx-auto mb-5 h-2 overflow-hidden rounded-full bg-(--border-subtle) dark:bg-white/10">

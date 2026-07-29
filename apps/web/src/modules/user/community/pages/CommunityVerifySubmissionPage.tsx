@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { normalizePercentage } from '../../../../lib/bounded-number';
+import { toast } from '../../../../lib/toast';
 import { ROUTES } from '../../../../routes/config/route-paths';
 
 import CommunityErrorState from '../components/shared/CommunityErrorState';
@@ -42,7 +44,6 @@ export default function CommunityVerifySubmissionPage() {
   const submissionQuery = useVerificationSubmission(submissionId);
   const voteMutation = useVoteVerificationSubmission();
 
-  const [rewardMessage, setRewardMessage] = useState<string | undefined>();
   const [openTopicId, setOpenTopicId] = useState<string>('');
   const [checkedTopics, setCheckedTopics] = useState<Set<string>>(new Set());
 
@@ -68,8 +69,6 @@ export default function CommunityVerifySubmissionPage() {
   const handleVote = (vote: VerificationVoteChoice, reason: string) => {
     if (!submissionId) return;
 
-    setRewardMessage(undefined);
-
     voteMutation.mutate(
       {
         submissionId,
@@ -79,13 +78,22 @@ export default function CommunityVerifySubmissionPage() {
       {
         onSuccess: (result) => {
           if (result.reward.awarded) {
-            setRewardMessage(
+            toast.success(
+              `You earned ${result.reward.coins} coins`,
               `Consensus reached. You earned +${result.reward.coins} coins. Current balance: ${result.reward.balance}.`
             );
             return;
           }
-          setRewardMessage('Vote submitted. Rewards unlock after consensus.');
+          toast.success('Vote submitted', 'Rewards unlock after consensus.');
         },
+        onError: (error) =>
+          toast.error(
+            'Vote not submitted',
+            getApiErrorMessage(
+              'Unable to submit this verification vote.',
+              error?.response?.data?.message
+            )
+          ),
       }
     );
   };
@@ -175,7 +183,7 @@ export default function CommunityVerifySubmissionPage() {
                       Consensus progress
                     </div>
                     <div className="mt-2 font-ui text-[26px] font-black text-(--text-primary) dark:text-(--text-primary)">
-                      {submission.progress}%
+                      {normalizePercentage(submission.progress)}%
                     </div>
                   </div>
                   <div className="px-4 py-4">
@@ -417,8 +425,6 @@ export default function CommunityVerifySubmissionPage() {
                 <VerificationVotePanel
                   submission={submission}
                   pending={voteMutation.isPending}
-                  apiError={voteMutation.error?.response?.data?.message}
-                  rewardMessage={rewardMessage}
                   allTopicsChecked={allTopicsChecked}
                   onVote={handleVote}
                   onSkip={() => navigate(ROUTES.verifyAndEarn)}

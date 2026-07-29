@@ -1,5 +1,3 @@
-// ─── DIFF: Added LessonVisualizerCard import and placement in <aside> ─────────
-
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Bookmark } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router';
@@ -17,12 +15,13 @@ import TrackerModerationNotice from '../components/TrackerModerationNotice';
 import CompilerCard from '../components/lesson/CompilerCard';
 import LessonChatCard from '../components/lesson/LessonChatCard';
 import LessonNavigationPreview from '../components/lesson/LessonNavigationPreview';
-import LessonVisualizerCard from '../components/lesson/LessonVisualizerCard'; // ← NEW
+import LessonVisualizerCard from '../components/lesson/LessonVisualizerCard';
 import MathText from '../components/lesson/MathText';
 import ReflectionPracticeCard from '../components/lesson/ReflectionPracticeCard';
 import LessonFeedbackCard from '../components/lesson/LessonFeedbackCard';
 import type { LessonLocationState } from '../types/lesson.types';
 import { formatLessonType } from '../utils/lesson-formatters';
+import { shouldOfferLessonVisualization } from '../utils/lesson-visualization';
 import { readSavedRoadmapStack } from '../utils/roadmap.utils';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import { useBackNavigation } from '../../../../hooks/useBackNavigation';
@@ -122,37 +121,44 @@ export default function TrackerLessonPage() {
         }
       });
     }
-    let frameId: number | null = null;
+    let saveTimerId: number | null = null;
     const onScroll = () => {
-      if (frameId !== null) return;
-      frameId = window.requestAnimationFrame(() => {
+      if (saveTimerId !== null) return;
+      saveTimerId = window.setTimeout(() => {
         save();
-        frameId = null;
-      });
+        saveTimerId = null;
+      }, 250);
     };
     save();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', onScroll);
-      if (frameId !== null) window.cancelAnimationFrame(frameId);
+      if (saveTimerId !== null) window.clearTimeout(saveTimerId);
       save();
     };
   }, [generatedLesson, subtopicId, tracker, trackerId]);
 
   useEffect(() => {
     if (!generatedLesson) return undefined;
+    let frameId: number | null = null;
     const updateReadingProgress = () => {
       const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-      setReadingProgress(
-        scrollable <= 0 ? 100 : Math.min(100, Math.round((window.scrollY / scrollable) * 100))
-      );
+      const nextProgress =
+        scrollable <= 0 ? 100 : Math.min(100, Math.round((window.scrollY / scrollable) * 100));
+      setReadingProgress((current) => (current === nextProgress ? current : nextProgress));
+      frameId = null;
+    };
+    const scheduleReadingProgressUpdate = () => {
+      if (frameId !== null) return;
+      frameId = window.requestAnimationFrame(updateReadingProgress);
     };
     updateReadingProgress();
-    window.addEventListener('scroll', updateReadingProgress, { passive: true });
-    window.addEventListener('resize', updateReadingProgress);
+    window.addEventListener('scroll', scheduleReadingProgressUpdate, { passive: true });
+    window.addEventListener('resize', scheduleReadingProgressUpdate);
     return () => {
-      window.removeEventListener('scroll', updateReadingProgress);
-      window.removeEventListener('resize', updateReadingProgress);
+      window.removeEventListener('scroll', scheduleReadingProgressUpdate);
+      window.removeEventListener('resize', scheduleReadingProgressUpdate);
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
     };
   }, [generatedLesson]);
 
@@ -208,6 +214,7 @@ export default function TrackerLessonPage() {
   const compilerRuntime = generatedLesson?.compilerRuntime ?? null;
   const showCompiler = Boolean(compilerRuntime);
   const compilerLanguage = compilerRuntime ?? 'javascript';
+  const showVisualizer = generatedLesson ? shouldOfferLessonVisualization(generatedLesson) : false;
 
   return (
     <AppShellBoundary
@@ -407,14 +414,16 @@ export default function TrackerLessonPage() {
                   />
                 </WidgetErrorBoundary>
 
-                {/* ✦ AI Visualizer — NEW */}
-                <WidgetErrorBoundary title="Visualizer unavailable">
-                  <LessonVisualizerCard
-                    trackerId={trackerId!}
-                    subtopicId={subtopicId!}
-                    lessonTitle={generatedLesson.title}
-                  />
-                </WidgetErrorBoundary>
+                {showVisualizer && (
+                  <WidgetErrorBoundary title="Visualizer unavailable">
+                    <LessonVisualizerCard
+                      trackerId={trackerId!}
+                      subtopicId={subtopicId!}
+                      lessonTitle={generatedLesson.title}
+                      visualizationKind={generatedLesson.visualization?.kind}
+                    />
+                  </WidgetErrorBoundary>
+                )}
 
                 <LessonNavigationPreview
                   previousLesson={lessonData.previousLesson}

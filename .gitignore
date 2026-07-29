@@ -8,7 +8,6 @@ node_modules/
 .env.*
 !.env.example
 !apps/**/.env.example
-!apps/web/.env.production
 
 # build outputs
 dist/
@@ -29,6 +28,7 @@ pnpm-debug.log*
 .nyc_output/
 .vitest/
 test-results/
+apps/api/tmp/
 
 # ESLint cache
 .eslintcache
@@ -51,6 +51,7 @@ apps/web/.vite/
 
 # demo folder
 demo/
+output/
 
 # local curl / API testing artifacts
 cookies.txt

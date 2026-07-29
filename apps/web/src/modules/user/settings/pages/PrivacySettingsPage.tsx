@@ -11,6 +11,7 @@ import {
 } from '../hooks/useSettings';
 import { useSettingsToast } from '../hooks/useSettingsToast';
 import type { DataPrivacyRequest, IPrivacySettings } from '../types/settings.types';
+import { toast } from '../../../../lib/toast';
 
 export default function PrivacySettingsPage() {
   const query = usePrivacySettings();
@@ -185,7 +186,15 @@ function DataRightsPanel() {
         type="button"
         className="mt-3 rounded-md bg-(--brand-500) px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
         disabled={details.trim().length < 10 || active || submit.isPending}
-        onClick={() => submit.mutate({ type, details: details.trim() })}
+        onClick={() =>
+          submit.mutate(
+            { type, details: details.trim() },
+            {
+              onSuccess: () => toast.success('Data privacy request submitted'),
+              onError: () => toast.error('Data privacy request not submitted'),
+            }
+          )
+        }
       >
         {active ? 'Request already active' : submit.isPending ? 'Submitting…' : 'Submit request'}
       </button>
@@ -220,7 +229,12 @@ function DataRightsPanel() {
               {item.status === 'pending' && (
                 <button
                   className="text-xs font-bold text-(--danger)"
-                  onClick={() => cancel.mutate(item.id)}
+                  onClick={() =>
+                    cancel.mutate(item.id, {
+                      onSuccess: () => toast.success('Data privacy request cancelled'),
+                      onError: () => toast.error('Data privacy request not cancelled'),
+                    })
+                  }
                 >
                   Cancel
                 </button>

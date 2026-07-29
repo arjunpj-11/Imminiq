@@ -8,8 +8,9 @@ import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import { useVoiceInput } from '../../../../hooks/useVoiceInput';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { toast } from '../../../../lib/toast';
 import AdaptiveMasteryGraph from '../components/AdaptiveMasteryGraph';
-import { useGenerateRoadmap, useOnboardingStore } from '../../tracker-creation';
+import { useGenerateRoadmap, useTrackerCreationStore } from '../../tracker-creation';
 import { useActiveMockTestGeneration, useGenerateMockTest } from '../../mock-tests';
 import type { AdaptiveAdvisorAction } from '../types/adaptive-learning.types';
 import {
@@ -32,13 +33,12 @@ export default function AdaptiveLearningPage() {
   const activeMockTestGeneration = useActiveMockTestGeneration();
   const generateRoadmap = useGenerateRoadmap();
   const generateMockTest = useGenerateMockTest();
-  const saveStepOneDraft = useOnboardingStore((state) => state.saveStep1);
-  const saveStepTwoDraft = useOnboardingStore((state) => state.saveStep2);
-  const setActiveRoadmapJobId = useOnboardingStore((state) => state.setActiveRoadmapJobId);
-  const activeRoadmapJobId = useOnboardingStore((state) => state.activeRoadmapJobId);
+  const saveStepOneDraft = useTrackerCreationStore((state) => state.saveStep1);
+  const saveStepTwoDraft = useTrackerCreationStore((state) => state.saveStep2);
+  const setActiveRoadmapJobId = useTrackerCreationStore((state) => state.setActiveRoadmapJobId);
+  const activeRoadmapJobId = useTrackerCreationStore((state) => state.activeRoadmapJobId);
   const [question, setQuestion] = useState('');
   const [advisorAction, setAdvisorAction] = useState<AdaptiveAdvisorAction | null>(null);
-  const [actionError, setActionError] = useState('');
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const voice = useVoiceInput((transcript) =>
     setQuestion((current) => (current.trim() ? `${current.trim()} ${transcript}` : transcript))
@@ -64,24 +64,42 @@ export default function AdaptiveLearningPage() {
     if (!value || chat.isPending) return;
     setQuestion('');
     setAdvisorAction(null);
-    setActionError('');
-    const result = await chat.mutateAsync(value);
-    setAdvisorAction(result.action ?? null);
+    try {
+      const result = await chat.mutateAsync(value);
+      setAdvisorAction(result.action ?? null);
+    } catch (error) {
+      toast.error(
+        'Immi could not answer',
+        getUserFacingError(error, 'Unable to send this question right now.')
+      );
+    }
   };
 
   const generateExam = () => {
     generate.mutate(undefined, {
       onSuccess: (job) => navigate(ROUTES.mockTestGenerating(job.jobId)),
+      onError: (error) =>
+        toast.error(
+          'Adaptive exam not generated',
+          getUserFacingError(error, 'The adaptive exam could not be generated.')
+        ),
     });
   };
 
   const clearAdvisorConversation = async () => {
     if (voice.isListening) voice.toggle();
-    await clearChat.mutateAsync();
-    setClearDialogOpen(false);
-    setQuestion('');
-    setAdvisorAction(null);
-    setActionError('');
+    try {
+      await clearChat.mutateAsync();
+      setClearDialogOpen(false);
+      setQuestion('');
+      setAdvisorAction(null);
+      toast.success('Advisor conversation cleared');
+    } catch (error) {
+      toast.error(
+        'Conversation not cleared',
+        getUserFacingError(error, 'Unable to clear this conversation.')
+      );
+    }
   };
 
   const executeAdvisorAction = async () => {
@@ -89,7 +107,6 @@ export default function AdaptiveLearningPage() {
       return;
     }
 
-    setActionError('');
     try {
       if (advisorAction.type === 'browse_community_trackers') {
         navigate(`${ROUTES.community}?q=${encodeURIComponent(advisorAction.topic)}`);
@@ -98,7 +115,8 @@ export default function AdaptiveLearningPage() {
 
       if (advisorAction.type === 'create_tracker') {
         if (activeRoadmapJobId) {
-          setActionError(
+          toast.info(
+            'Tracker generation already active',
             'Another tracker is already being created. Wait for it to finish before creating a new one.'
           );
           return;
@@ -138,7 +156,8 @@ export default function AdaptiveLearningPage() {
     } catch (error) {
       const apiMessage = (error as { response?: { data?: { message?: string } } }).response?.data
         ?.message;
-      setActionError(
+      toast.error(
+        'Recommended action not started',
         apiMessage ||
           (error instanceof Error ? error.message : 'Unable to start the recommended action.')
       );
@@ -178,7 +197,7 @@ export default function AdaptiveLearningPage() {
         ) : null}
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
-          <section className="flex h-[640px] min-h-[520px] max-h-[calc(100vh-120px)] flex-col overflow-hidden rounded-2xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1)">
+          <section className="flex h-160 min-h-130 max-h-[calc(100vh-120px)] flex-col overflow-hidden rounded-2xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1)">
             <div className="flex items-start justify-between gap-4 border-b border-(--border-subtle) p-5">
               <div>
                 <h2 className="font-ui text-[18px] font-black text-(--text-primary)">Ask Immi</h2>
@@ -264,9 +283,6 @@ export default function AdaptiveLearningPage() {
                         ? 'Starting generation…'
                         : advisorAction.label}
                   </button>
-                  {actionError ? (
-                    <p className="mt-2 text-[11px] font-semibold text-red-600">{actionError}</p>
-                  ) : null}
                 </div>
               ) : null}
             </div>
@@ -346,14 +362,6 @@ export default function AdaptiveLearningPage() {
                         ? 'Starting background job…'
                         : 'Generate adaptive exam'}
                   </button>
-                  {generate.isError ? (
-                    <p className="mt-3 text-[11.5px] font-semibold leading-5 text-red-600">
-                      {getUserFacingError(
-                        generate.error,
-                        'The adaptive exam could not be generated.'
-                      )}
-                    </p>
-                  ) : null}
                 </>
               )}
             </div>

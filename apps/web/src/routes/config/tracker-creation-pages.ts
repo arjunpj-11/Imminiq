@@ -1,23 +1,23 @@
 import { lazy } from 'react';
 
-export const OnboardingGeneratingPage = lazy(
-  () => import('../../modules/user/tracker-creation/pages/OnboardingGeneratingPage')
+export const TrackerGenerationProgressPage = lazy(
+  () => import('../../modules/user/tracker-creation/pages/TrackerGenerationProgressPage')
 );
 
-export const OnboardingRoadmapEvaluationLoadingPage = lazy(
-  () => import('../../modules/user/tracker-creation/pages/OnboardingRoadmapEvaluationLoadingPage')
+export const TrackerEvaluationProgressPage = lazy(
+  () => import('../../modules/user/tracker-creation/pages/TrackerEvaluationProgressPage')
 );
 
-export const OnboardingRoadmapEvaluationScorePage = lazy(
-  () => import('../../modules/user/tracker-creation/pages/OnboardingRoadmapEvaluationScorePage')
+export const TrackerEvaluationResultPage = lazy(
+  () => import('../../modules/user/tracker-creation/pages/TrackerEvaluationResultPage')
 );
 
-export const OnboardingRoadmapReadyPage = lazy(
-  () => import('../../modules/user/tracker-creation/pages/OnboardingRoadmapReadyPage')
+export const TrackerRoadmapReviewPage = lazy(
+  () => import('../../modules/user/tracker-creation/pages/TrackerRoadmapReviewPage')
 );
 
-export const OnboardingStepOnePage = lazy(
-  () => import('../../modules/user/tracker-creation/pages/OnboardingStepOnePage')
+export const AiTrackerCreationPage = lazy(
+  () => import('../../modules/user/tracker-creation/pages/AiTrackerCreationPage')
 );
 
 export const TrackerCreationChoicePage = lazy(

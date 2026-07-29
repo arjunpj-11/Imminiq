@@ -39,11 +39,12 @@ import {
 } from '../hooks/useReportCommunityTracker';
 import { useAuthStore } from '../../../../store/useAuthStore';
 import { useRequestTrackerClanJoin, useTrackerClan } from '../../trackers';
-import { useOnboardingStore } from '../../tracker-creation';
+import { useTrackerCreationStore } from '../../tracker-creation';
 import { useSocialShareStore } from '../../social';
 import { useBackNavigation } from '../../../../hooks/useBackNavigation';
 import { FEATURE_AVAILABILITY_SAFE_FALLBACK } from '../../../../config/feature-availability';
 import { useFeatureAvailability } from '../../../../hooks/useFeatureAvailability';
+import { toast } from '../../../../lib/toast';
 
 type CommunityTrackerNavigationState = {
   returnTo?: string;
@@ -90,7 +91,7 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
   const location = useLocation();
   const navigationState = location.state as CommunityTrackerNavigationState | null;
   const goBack = useBackNavigation(ROUTES.community);
-  const clearTrackerCreation = useOnboardingStore((state) => state.reset);
+  const clearTrackerCreation = useTrackerCreationStore((state) => state.reset);
 
   const cloneTracker = useCloneCommunityTracker();
   const upsertReview = useUpsertCommunityTrackerReview();
@@ -150,9 +151,18 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
       return;
     }
 
-    toggleLike.mutate({
-      trackerId: tracker._id,
-    });
+    toggleLike.mutate(
+      {
+        trackerId: tracker._id,
+      },
+      {
+        onError: (error) =>
+          toast.error(
+            'Like not updated',
+            getApiErrorMessage('Unable to update like. Please try again.', error)
+          ),
+      }
+    );
   };
 
   const handleClone = () => {
@@ -180,12 +190,19 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
         onSuccess: () => {
           setCloned(true);
           setCloneConfirmOpen(false);
+          toast.success('Tracker cloned to your dashboard');
           if (navigationState?.finishTrackerCreationOnClone) {
             clearTrackerCreation();
             navigate(ROUTES.trackers, { replace: true });
           }
         },
-        onError: () => setCloneConfirmOpen(false),
+        onError: (error) => {
+          setCloneConfirmOpen(false);
+          toast.error(
+            'Tracker not cloned',
+            getApiErrorMessage('Unable to clone tracker. Please try again.', error)
+          );
+        },
       }
     );
   };
@@ -208,7 +225,13 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
           setReviewText('');
           setMyRating(0);
           setSortBy('new');
+          toast.success(tracker.myReview ? 'Review updated' : 'Review submitted');
         },
+        onError: (error) =>
+          toast.error(
+            'Review not submitted',
+            getApiErrorMessage('Unable to submit review. Please try again.', error)
+          ),
       }
     );
   };
@@ -226,6 +249,11 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
       },
       {
         onSettled: () => setActiveHelpfulReviewId(null),
+        onError: (error) =>
+          toast.error(
+            'Helpful vote not updated',
+            getApiErrorMessage('Unable to update this review. Please try again.', error)
+          ),
       }
     );
   };
@@ -327,7 +355,19 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
                     clanQuery.data?.role === 'outsider' && (
                       <button
                         type="button"
-                        onClick={() => requestClanJoin.mutate({ trackerId: tracker._id })}
+                        onClick={() =>
+                          requestClanJoin.mutate(
+                            { trackerId: tracker._id },
+                            {
+                              onSuccess: () => toast.success('Joined tracker guild'),
+                              onError: (error) =>
+                                toast.error(
+                                  'Could not join guild',
+                                  getApiErrorMessage('Unable to join this guild.', error)
+                                ),
+                            }
+                          )
+                        }
                         disabled={requestClanJoin.isPending}
                         className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-[#d6ad47]/45 bg-[#f4c95d]/12 px-4 py-2.5 text-[13px] font-bold text-[#8a6509] transition hover:-translate-y-px hover:bg-[#f4c95d]/20 disabled:cursor-not-allowed disabled:opacity-65 dark:text-[#f4c95d]"
                       >
@@ -376,29 +416,6 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
                     </button>
                   ) : null}
                 </div>
-
-                {toggleLike.isError && (
-                  <p className="mt-3 text-[12px] font-medium text-(--brand-500) dark:text-(--brand-500)">
-                    {getApiErrorMessage(
-                      'Unable to update like. Please try again.',
-                      toggleLike.error
-                    )}
-                  </p>
-                )}
-
-                {cloneTracker.isError && (
-                  <p className="mt-3 text-[12px] font-medium text-(--brand-500) dark:text-(--brand-500)">
-                    {getApiErrorMessage(
-                      'Unable to clone tracker. Please try again.',
-                      cloneTracker.error
-                    )}
-                  </p>
-                )}
-                {requestClanJoin.isError && (
-                  <p className="mt-3 text-[12px] font-medium text-(--brand-500)">
-                    {getApiErrorMessage('Unable to send guild request.', requestClanJoin.error)}
-                  </p>
-                )}
               </div>
 
               <aside className="rounded-lg border border-[#e8ddd6] bg-white/60 p-4 dark:border-white/8 dark:bg-white/4">
@@ -694,18 +711,13 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
 
                 <div className="mt-3 flex items-center justify-between gap-3">
                   <p className="text-[11px] text-[#9b9a92]">
-                    {upsertReview.isError
-                      ? getApiErrorMessage(
-                          'Unable to submit review. Please try again.',
-                          upsertReview.error
-                        )
-                      : myRating === 0
-                        ? 'Select a star rating to enable submit.'
-                        : !reviewText.trim()
-                          ? 'Write a review to enable submit.'
-                          : tracker.myReview
-                            ? `Updating your ${myRating}-star review.`
-                            : `Submitting a ${myRating}-star review.`}
+                    {myRating === 0
+                      ? 'Select a star rating to enable submit.'
+                      : !reviewText.trim()
+                        ? 'Write a review to enable submit.'
+                        : tracker.myReview
+                          ? `Updating your ${myRating}-star review.`
+                          : `Submitting a ${myRating}-star review.`}
                   </p>
                   <button
                     type="button"
@@ -807,14 +819,6 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
             Add a short explanation when choosing Other.
           </p>
         )}
-        {reportTracker.isError && (
-          <p className="mt-3 text-sm text-red-600">
-            {getApiErrorMessage(
-              'Unable to submit this report. Please try again.',
-              reportTracker.error
-            )}
-          </p>
-        )}
         <div className="mt-6 flex justify-end gap-2">
           <button
             type="button"
@@ -839,7 +843,13 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
                     setReportOpen(false);
                     setReportReason('incorrect_or_misleading');
                     setReportDetails('');
+                    toast.success('Report submitted for review');
                   },
+                  onError: (error) =>
+                    toast.error(
+                      'Report not submitted',
+                      getApiErrorMessage('Unable to submit this report. Please try again.', error)
+                    ),
                 }
               )
             }

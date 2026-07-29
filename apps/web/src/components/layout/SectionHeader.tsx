@@ -1,14 +1,22 @@
 import type { ReactNode } from 'react';
 
+import { cn } from '../../lib/cn';
+
 interface ISectionHeaderProps {
   title: ReactNode;
   description?: ReactNode;
   action?: ReactNode;
+  className?: string;
 }
 
-export default function SectionHeader({ title, description, action }: ISectionHeaderProps) {
+export default function SectionHeader({
+  title,
+  description,
+  action,
+  className,
+}: ISectionHeaderProps) {
   return (
-    <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+    <div className={cn('mb-4 flex flex-wrap items-start justify-between gap-3', className)}>
       <div className="min-w-0">
         <h2 className="type-heading-lg text-(--text-primary)">{title}</h2>
         {description && (

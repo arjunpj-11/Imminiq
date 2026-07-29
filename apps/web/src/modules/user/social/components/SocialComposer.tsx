@@ -16,6 +16,7 @@ import { cn } from '../../../../lib/cn';
 import { safeLocalStorage } from '../../../../lib/storage/safe-storage';
 import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys';
 import { CHAT_MAX_FILE_SIZE } from '../constants/chat.constants';
+import { toast } from '../../../../lib/toast';
 import { useSendChatMessage } from '../hooks/useChat';
 import { useVoiceMessageRecorder } from '../hooks/useVoiceMessageRecorder';
 import type { IChatMessage } from '../types/chat.types';
@@ -55,7 +56,6 @@ export default function SocialComposer({
   const [codeMode, setCodeMode] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState('javascript');
   const [file, setFile] = useState<File | null>(null);
-  const [error, setError] = useState<string>();
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -106,7 +106,10 @@ export default function SocialComposer({
         },
         {
           onError: (mutationError) =>
-            setError(mutationError.response?.data?.message ?? 'Voice message could not be sent.'),
+            toast.error(
+              'Voice message not sent',
+              mutationError.response?.data?.message ?? 'Voice message could not be sent.'
+            ),
         }
       );
     },
@@ -131,9 +134,8 @@ export default function SocialComposer({
 
   const chooseFile = (event: ChangeEvent<HTMLInputElement>) => {
     const selected = event.target.files?.[0] ?? null;
-    setError(undefined);
     if (selected && selected.size > CHAT_MAX_FILE_SIZE) {
-      setError('Attachments must be 10 MB or smaller.');
+      toast.error('Attachment is too large', 'Attachments must be 10 MB or smaller.');
       event.target.value = '';
       return;
     }
@@ -143,7 +145,6 @@ export default function SocialComposer({
   const submit = (event: FormEvent) => {
     event.preventDefault();
     if ((!text.trim() && !file) || sendMessage.isPending || disabled) return;
-    setError(undefined);
     if (!navigator.onLine && !file) {
       let queue: unknown[];
       try {
@@ -162,7 +163,7 @@ export default function SocialComposer({
       setText('');
       safeLocalStorage.remove(draftKey);
       onCancelReply?.();
-      setError('Message queued. It will send automatically when you reconnect.');
+      toast.info('Message queued', 'It will send automatically when you reconnect.');
       return;
     }
     setUploadProgress(file ? 0 : null);
@@ -187,7 +188,10 @@ export default function SocialComposer({
         },
         onError: (mutationError) => {
           setUploadProgress(null);
-          setError(mutationError.response?.data?.message ?? 'Message could not be sent.');
+          toast.error(
+            'Message not sent',
+            mutationError.response?.data?.message ?? 'Message could not be sent.'
+          );
         },
       }
     );
@@ -206,9 +210,9 @@ export default function SocialComposer({
       onSubmit={submit}
       className="border-t border-(--border-subtle) bg-(--surface-card)/92 px-3 py-3 shadow-[0_-10px_32px_rgba(26,23,20,0.05)] backdrop-blur sm:px-5 sm:py-4 max-[640px]:pb-[max(0.75rem,env(safe-area-inset-bottom))]"
     >
-      {(error || voice.error) && (
+      {voice.error && (
         <div className="mb-2 rounded-xl bg-[color-mix(in_srgb,var(--danger)_10%,transparent)] px-3 py-2 text-[10px] text-(--danger)">
-          {error ?? voice.error}
+          {voice.error}
         </div>
       )}
       {queuedCount > 0 && (

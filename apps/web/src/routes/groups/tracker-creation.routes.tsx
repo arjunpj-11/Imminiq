@@ -2,11 +2,11 @@ import type { ReactNode } from 'react';
 import { Navigate, type RouteObject } from 'react-router';
 
 import {
-  OnboardingGeneratingPage,
-  OnboardingRoadmapEvaluationLoadingPage,
-  OnboardingRoadmapEvaluationScorePage,
-  OnboardingRoadmapReadyPage,
-  OnboardingStepOnePage,
+  TrackerGenerationProgressPage,
+  TrackerEvaluationProgressPage,
+  TrackerEvaluationResultPage,
+  TrackerRoadmapReviewPage,
+  AiTrackerCreationPage,
   TrackerCreationChoicePage,
   ManualTrackerCreationPage,
 } from '../config/tracker-creation-pages';
@@ -28,7 +28,7 @@ export const trackerCreationRoutes: RouteObject[] = [
   },
   {
     path: ROUTES.trackerCreateAi,
-    element: gateTrackerCreation(<OnboardingStepOnePage />),
+    element: gateTrackerCreation(<AiTrackerCreationPage />),
   },
   {
     path: ROUTES.trackerCreateManual,
@@ -36,19 +36,19 @@ export const trackerCreationRoutes: RouteObject[] = [
   },
   {
     path: ROUTES.trackerCreateGeneratingPattern,
-    element: gateTrackerCreation(<OnboardingGeneratingPage />),
+    element: gateTrackerCreation(<TrackerGenerationProgressPage />),
   },
   {
     path: ROUTES.trackerCreateReadyPattern,
-    element: gateTrackerCreation(<OnboardingRoadmapReadyPage />),
+    element: gateTrackerCreation(<TrackerRoadmapReviewPage />),
   },
   {
     path: ROUTES.trackerCreateEvaluationPattern,
-    element: gateTrackerCreation(<OnboardingRoadmapEvaluationLoadingPage />),
+    element: gateTrackerCreation(<TrackerEvaluationProgressPage />),
   },
   {
     path: ROUTES.trackerCreateEvaluationScorePattern,
-    element: gateTrackerCreation(<OnboardingRoadmapEvaluationScorePage />),
+    element: gateTrackerCreation(<TrackerEvaluationResultPage />),
   },
   legacyRedirect(
     gateTrackerCreation(<Navigate replace to={ROUTES.trackerCreate} />),

@@ -239,6 +239,19 @@ describe('frontend feature-module architecture', () => {
     expect(existsSync(join(sourceRoot, 'components', 'admin', 'index.ts'))).toBe(true);
   });
 
+  it('keeps the documented shared form and section primitives available', () => {
+    for (const relativePath of [
+      'components/forms/FormField.tsx',
+      'components/forms/Input.tsx',
+      'components/forms/Select.tsx',
+      'components/forms/Textarea.tsx',
+      'components/layout/SectionCard.tsx',
+      'components/layout/SectionHeader.tsx',
+    ]) {
+      expect(existsSync(join(sourceRoot, relativePath)), relativePath).toBe(true);
+    }
+  });
+
   it('keeps global API contracts out of the admin component public API', () => {
     const adminComponentIndex = readFileSync(
       join(sourceRoot, 'components', 'admin', 'index.ts'),

@@ -64,6 +64,6 @@ export class RetakeTestUseCase implements IRetakeTestUseCase {
       })),
     });
 
-    return this._mapper.toAttemptSessionDto(newAttempt, questions);
+    return this._mapper.toAttemptSessionDto(newAttempt, questions, test.timeLimitMinutes);
   }
 }

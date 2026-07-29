@@ -1,4 +1,5 @@
 import { cn } from '../../../../../lib/cn';
+import { normalizePercentage } from '../../../../../lib/bounded-number';
 import type { RoadmapNode } from '../../utils/roadmap.types';
 import { getNodeState } from '../../utils/roadmap.utils';
 import EmbeddedLearningVideo from '../EmbeddedLearningVideo';
@@ -605,7 +606,7 @@ export function RoadmapFlowNode({
   onClick: () => void;
 }) {
   const state = getNodeState(node, isFirstLevel);
-  const progress = Math.min(100, Math.max(0, Number(node.progressPercent ?? 0)));
+  const progress = normalizePercentage(node.progressPercent);
 
   const locked = state === 'locked';
   const completed = state === 'completed';
@@ -616,7 +617,6 @@ export function RoadmapFlowNode({
     <div
       className={cn(
         'flex w-full',
-        // ── FIX: strict alternating left/right (no justify-center) ──
         index % 2 === 0 && 'justify-start',
         index % 2 === 1 && 'justify-end'
       )}

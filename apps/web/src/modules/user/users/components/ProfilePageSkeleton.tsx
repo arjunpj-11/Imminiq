@@ -21,13 +21,13 @@ export default function ProfilePageSkeleton({ showSidebar }: { showSidebar: bool
         <div className="profile-page flex min-w-0 flex-1 flex-col overflow-x-clip">
           <div className="mx-auto mt-5.5 w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
             <div
-              className="relative overflow-hidden rounded-t-[22px] bg-[var(--surface-card)] dark:bg-[var(--surface-card)] max-[640px]:rounded-t-2xl"
+              className="relative overflow-hidden rounded-t-[22px] bg-(--surface-card) dark:bg-(--surface-card) max-[640px]:rounded-t-2xl"
               style={{ aspectRatio: '4 / 1' }}
             >
               <div className="absolute inset-0 animate-pulse bg-[#e8d8cf] dark:bg-white/10" />
             </div>
 
-            <div className="border-x border-b border-[var(--border-subtle)] bg-[var(--surface-card)] px-7 pb-5.5 dark:border-[var(--border-subtle)] dark:bg-[var(--surface-card)] max-[640px]:px-4">
+            <div className="border-x border-b border-(--border-subtle) bg-(--surface-card) px-7 pb-5.5 dark:border-(--border-subtle) dark:bg-(--surface-card) max-[640px]:px-4">
               <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
                 <div className="flex min-w-0 flex-1 items-start gap-4 max-[640px]:flex-col max-[640px]:gap-3">
                   <div className="relative z-20 shrink-0 -mt-18 max-[640px]:-mt-13.5">
@@ -48,8 +48,8 @@ export default function ProfilePageSkeleton({ showSidebar }: { showSidebar: bool
                 </div>
 
                 <div className="flex translate-y-1.5 items-center gap-2 max-[900px]:w-full max-[900px]:translate-y-0 max-[640px]:flex-wrap">
-                  <SkeletonBlock className="h-10 w-32 rounded-[var(--radius-md)] max-[640px]:flex-[1_1_150px]" />
-                  <SkeletonBlock className="h-10 w-40 rounded-[var(--radius-md)] max-[640px]:flex-[1_1_170px]" />
+                  <SkeletonBlock className="h-10 w-32 rounded-md max-[640px]:flex-[1_1_150px]" />
+                  <SkeletonBlock className="h-10 w-40 rounded-md max-[640px]:flex-[1_1_170px]" />
                 </div>
               </div>
             </div>
@@ -59,7 +59,7 @@ export default function ProfilePageSkeleton({ showSidebar }: { showSidebar: bool
                 {Array.from({ length: 4 }).map((_, index) => (
                   <div
                     key={index}
-                    className="rounded-[var(--radius-lg)] border-[1.5px] border-[var(--border-subtle)] bg-[var(--surface-card)] p-5 shadow-[var(--shadow-1)] dark:border-[var(--border-subtle)] dark:bg-[var(--surface-card)]"
+                    className="rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)"
                   >
                     <SkeletonBlock className="h-3 w-24" />
                     <SkeletonBlock className="mt-5 h-9 w-28 rounded-2xl" />
@@ -68,7 +68,7 @@ export default function ProfilePageSkeleton({ showSidebar }: { showSidebar: bool
                 ))}
               </div>
 
-              <div className="rounded-[var(--radius-lg)] border-[1.5px] border-[var(--border-subtle)] bg-[var(--surface-card)] p-6 shadow-[var(--shadow-1)] dark:border-[var(--border-subtle)] dark:bg-[var(--surface-card)]">
+              <div className="rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-6 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
                 <SkeletonBlock className="h-7 w-44 rounded-2xl" />
                 <div className="mt-5 space-y-3">
                   <SkeletonBlock className="h-4 w-full" />
@@ -95,7 +95,7 @@ export default function ProfilePageSkeleton({ showSidebar }: { showSidebar: bool
                 </div>
               </div>
 
-              <div className="rounded-[var(--radius-lg)] border-[1.5px] border-[var(--border-subtle)] bg-[var(--surface-card)] p-5 shadow-[var(--shadow-1)] dark:border-[var(--border-subtle)] dark:bg-[var(--surface-card)]">
+              <div className="rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
                 <SkeletonBlock className="h-6 w-44 rounded-2xl" />
                 <SkeletonBlock className="mt-5 h-36 w-full rounded-2xl" />
               </div>
@@ -109,7 +109,7 @@ export default function ProfilePageSkeleton({ showSidebar }: { showSidebar: bool
                   {Array.from({ length: 3 }).map((_, index) => (
                     <div
                       key={index}
-                      className="rounded-[var(--radius-lg)] border-[1.5px] border-[var(--border-subtle)] bg-[var(--surface-card)] p-4 dark:border-[var(--border-subtle)] dark:bg-[var(--surface-card)]"
+                      className="rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-4 dark:border-(--border-subtle) dark:bg-(--surface-card)"
                     >
                       <SkeletonBlock className="h-32 w-full rounded-2xl" />
                       <SkeletonBlock className="mt-4 h-5 w-3/4 rounded-xl" />

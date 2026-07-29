@@ -406,6 +406,20 @@ export interface IGeneratedLesson {
   };
   tags: string[];
   difficulty: TrackerLevel;
+  visualization?: {
+    recommended: boolean;
+    kind:
+      | 'process'
+      | 'algorithm'
+      | 'structure'
+      | 'system'
+      | 'chart'
+      | 'timeline'
+      | 'spatial'
+      | 'simulation'
+      | 'none';
+    reason: string;
+  };
 }
 
 export interface ILessonNavigationItem {

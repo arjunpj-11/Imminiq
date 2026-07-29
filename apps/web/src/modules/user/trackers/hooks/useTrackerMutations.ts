@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import api from '../../../../lib/axios';
+import { webEnvironment } from '../../../../config/env';
 import { TRACKER_API_PATHS } from '../constants/tracker-api.constants';
 import { communityKeys } from '../../community';
 import { dashboardKeys } from '../../dashboard';
 import { activityQueryKeys } from '../../activity';
-import { activityQueryKeys as profileActivityKeys } from '../../../../hooks/activity/activity.query-keys';
 import type {
   IApiResponse,
   ICreateSubtopicPayload,
@@ -525,7 +525,8 @@ export const useCreateTrackerClanChallenge = () =>
       (
         await api.post<IApiResponse<ITrackerClanChallenge>>(
           TRACKER_API_PATHS.clanChallenges(trackerId),
-          payload
+          payload,
+          { timeout: webEnvironment.longRequestTimeoutMs }
         )
       ).data,
     ({ trackerId }) => trackerId
@@ -748,7 +749,6 @@ export const useUpdateSubtopicProgress = () => {
 
       queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       queryClient.invalidateQueries({ queryKey: activityQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: profileActivityKeys.all });
     },
   });
 };

@@ -16,6 +16,7 @@ import { AdminExportService } from './infrastructure';
 import { AdminUserNotesService } from './infrastructure/services/mongo-admin-user-notes.service';
 import { SetAdminActionPasswordUseCase } from './application/use-cases/set-admin-action-password.usecase';
 import type { IAdminPasswordHasher } from './domain/services/admin-password-hasher.interface';
+import { socketAdminUserRealtimeAccessProvider } from './infrastructure/providers/socket-admin-user-realtime-access.provider';
 
 export type AdminUsersComposition = { useCases: AdminUsersUseCases };
 export const createAdminUsersComposition = (
@@ -24,7 +25,8 @@ export const createAdminUsersComposition = (
   const mapper = new AdminUsersMapper();
   const setStatus = new SetAdminUserStatusUseCase(
     mongoAdminUsersRepository,
-    queuedAdminUserEmailProvider
+    queuedAdminUserEmailProvider,
+    socketAdminUserRealtimeAccessProvider
   );
   return {
     useCases: {

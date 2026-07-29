@@ -2,7 +2,6 @@ import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import {
   ArrowDown,
   ArrowLeft,
-  BellOff,
   Check,
   LoaderCircle,
   MessageCircle,
@@ -41,7 +40,6 @@ import { socket } from '../../../../lib/socket';
 import { toast } from '../../../../lib/toast';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import { useAuthStore } from '../../../../store/useAuthStore';
-import { useAppShellStore } from '../../../../store/useAppShellStore';
 import {
   FRIENDS_DEFAULT_PAGE_SIZE,
   mergeFriendRequestPages,
@@ -84,6 +82,10 @@ import {
 } from '../hooks/useChat';
 import { useCallHistory } from '../hooks/useCalls';
 import { useCallLauncherStore } from '../store/useCallLauncherStore';
+import {
+  REMOTE_TYPING_INDICATOR_TIMEOUT_MS,
+  resolveRemoteTypingConversationId,
+} from '../utils/remote-typing-indicator';
 import type {
   ChatSection,
   IChatConversation,
@@ -130,6 +132,7 @@ export default function SocialPage() {
   const [messageSearch, setMessageSearch] = useState('');
   const [showMessageSearch, setShowMessageSearch] = useState(false);
   const [typingConversationId, setTypingConversationId] = useState<string | null>(null);
+  const typingExpiryTimerRef = useRef<number | null>(null);
   const [showJumpButton, setShowJumpButton] = useState(false);
   const [initialUnreadCount, setInitialUnreadCount] = useState(0);
   const [presenceClock, setPresenceClock] = useState(() => Date.now());
@@ -147,6 +150,15 @@ export default function SocialPage() {
   const isPrependingRef = useRef(false);
   const initialScrollDoneRef = useRef(false);
   const optionsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(
+    () => () => {
+      if (typingExpiryTimerRef.current !== null) {
+        window.clearTimeout(typingExpiryTimerRef.current);
+      }
+    },
+    []
+  );
 
   const conversationsQuery = useChatConversations(CHAT_PAGE_SIZE);
   const messagesQuery = useChatMessages(selectedId, CHAT_PAGE_SIZE);
@@ -177,8 +189,6 @@ export default function SocialPage() {
   const blockUser = useBlockUser();
   const unblockUser = useUnblockUser();
   const openCall = useCallLauncherStore((state) => state.open);
-  const mutedConversationIds = useAppShellStore((state) => state.mutedConversationIds);
-  const toggleMutedConversation = useAppShellStore((state) => state.toggleMutedConversation);
 
   const conversations = useMemo(
     () => conversationsQuery.data?.pages.flatMap((page) => page.items) ?? [],
@@ -347,8 +357,18 @@ export default function SocialPage() {
       userId?: string;
       isTyping?: boolean;
     }) => {
-      if (event.userId !== viewerId) {
-        setTypingConversationId(event.isTyping ? (event.conversationId ?? null) : null);
+      if (event.userId === viewerId) return;
+      if (typingExpiryTimerRef.current !== null) {
+        window.clearTimeout(typingExpiryTimerRef.current);
+        typingExpiryTimerRef.current = null;
+      }
+      setTypingConversationId((current) => resolveRemoteTypingConversationId(current, event));
+      if (event.isTyping && event.conversationId) {
+        const conversationId = event.conversationId;
+        typingExpiryTimerRef.current = window.setTimeout(() => {
+          setTypingConversationId((current) => (current === conversationId ? null : current));
+          typingExpiryTimerRef.current = null;
+        }, REMOTE_TYPING_INDICATOR_TIMEOUT_MS);
       }
     };
     const receiveRead = (event: { conversationId?: string; userId?: string }) => {
@@ -496,7 +516,7 @@ export default function SocialPage() {
         className={cn(
           'flex-1',
           selectedId &&
-            'h-[calc(100dvh-var(--topbar-height))] min-h-0 gap-0 overflow-hidden !mt-0 !pb-0 max-[640px]:!w-full'
+            'h-[calc(100dvh-var(--topbar-height))] min-h-0 gap-0 overflow-hidden mt-0! pb-0! max-[640px]:w-full!'
         )}
       >
         {!selectedId && (
@@ -521,13 +541,13 @@ export default function SocialPage() {
             'relative flex flex-1 overflow-hidden rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1)',
             selectedId
               ? 'h-full min-h-0 max-h-none max-[640px]:rounded-none max-[640px]:border-x-0 max-[640px]:border-b-0'
-              : 'h-[calc(100dvh-var(--topbar-height)-220px)] min-h-[620px] max-h-[780px] max-[640px]:h-[calc(100dvh-var(--topbar-height)-190px)] max-[640px]:min-h-[560px]'
+              : 'h-[calc(100dvh-var(--topbar-height)-220px)] min-h-155 max-h-195 max-[640px]:h-[calc(100dvh-var(--topbar-height)-190px)] max-[640px]:min-h-140'
           )}
         >
           <div className="pointer-events-none absolute inset-x-8 top-0 z-20 h-px bg-linear-to-r from-transparent via-(--brand-500) to-transparent opacity-40" />
           <aside
             className={cn(
-              'min-h-0 w-full flex-col border-r border-(--border-subtle) bg-(--surface-card) min-[760px]:w-[360px] min-[760px]:shrink-0',
+              'min-h-0 w-full flex-col border-r border-(--border-subtle) bg-(--surface-card) min-[760px]:w-90 min-[760px]:shrink-0',
               sidebarVisibleOnMobile ? 'flex' : 'hidden min-[760px]:flex'
             )}
             aria-label="Social navigation"
@@ -731,7 +751,7 @@ export default function SocialPage() {
           >
             {selectedConversation ? (
               <>
-                <header className="relative z-10 flex h-[80px] shrink-0 items-center gap-3 border-b border-(--border-subtle) bg-(--surface-card)/95 px-3 shadow-[0_8px_28px_rgba(26,23,20,0.04)] backdrop-blur sm:px-5">
+                <header className="relative z-10 flex h-20 shrink-0 items-center gap-3 border-b border-(--border-subtle) bg-(--surface-card)/95 px-3 shadow-[0_8px_28px_rgba(26,23,20,0.04)] backdrop-blur sm:px-5">
                   <button
                     type="button"
                     onClick={() => {
@@ -837,25 +857,6 @@ export default function SocialPage() {
                           role="menu"
                           className="absolute right-0 top-12 w-56 rounded-2xl border border-(--border-subtle) bg-(--surface-elevated) p-2 shadow-(--shadow-3)"
                         >
-                          <button
-                            type="button"
-                            role="menuitem"
-                            onClick={() => {
-                              toggleMutedConversation(selectedConversation.id);
-                              setOptionsOpen(false);
-                              toast.success(
-                                mutedConversationIds.includes(selectedConversation.id)
-                                  ? 'Conversation unmuted'
-                                  : 'Conversation muted'
-                              );
-                            }}
-                            className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[12px] font-semibold hover:bg-(--surface-muted)"
-                          >
-                            <BellOff size={14} />
-                            {mutedConversationIds.includes(selectedConversation.id)
-                              ? 'Unmute conversation'
-                              : 'Mute conversation'}
-                          </button>
                           <button
                             type="button"
                             role="menuitem"
@@ -966,7 +967,7 @@ export default function SocialPage() {
                   {messagesQuery.isPending ||
                   (deferredMessageSearch && messageSearchQuery.isPending) ? (
                     <div
-                      className="mx-auto flex w-full max-w-[820px] flex-col gap-4 py-6"
+                      className="mx-auto flex w-full max-w-205 flex-col gap-4 py-6"
                       aria-label="Loading messages"
                     >
                       {Array.from({ length: 6 }, (_, index) => (
@@ -984,7 +985,7 @@ export default function SocialPage() {
                       ))}
                     </div>
                   ) : visibleMessages.length ? (
-                    <div className="mx-auto flex w-full max-w-[820px] flex-col gap-3">
+                    <div className="mx-auto flex w-full max-w-205 flex-col gap-3">
                       <div className="mb-3 flex justify-center">
                         <span className="inline-flex items-center gap-1.5 rounded-full border border-(--border-subtle) bg-(--surface-elevated)/90 px-3 py-1.5 text-[9px] text-(--text-muted) shadow-(--shadow-1) backdrop-blur">
                           <ShieldOff size={10} />
@@ -1179,7 +1180,7 @@ export default function SocialPage() {
             ) : (
               <div className="flex h-full items-center justify-center px-8 text-center">
                 <div>
-                  <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-[32px] border border-(--border-subtle) bg-[color-mix(in_srgb,var(--brand-500)_9%,var(--surface-elevated))] text-(--brand-500) shadow-(--shadow-2)">
+                  <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-4xl border border-(--border-subtle) bg-[color-mix(in_srgb,var(--brand-500)_9%,var(--surface-elevated))] text-(--brand-500) shadow-(--shadow-2)">
                     {section === 'calls' ? <PhoneCall size={36} /> : <MessageCircle size={36} />}
                   </div>
                   <h2 className="mb-0 mt-6 font-ui text-[23px] font-extrabold tracking-[-0.5px]">

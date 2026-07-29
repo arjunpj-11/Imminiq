@@ -6,7 +6,7 @@
 
 ![Status](https://img.shields.io/badge/status-production%20baseline-brightgreen?style=flat-square)
 ![Started](https://img.shields.io/badge/started-May%206%2C%202026-blue?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-444%20passing-success?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-476%20passing-success?style=flat-square)
 ![License](https://img.shields.io/badge/license-private-lightgrey?style=flat-square)
 
 </div>
@@ -333,9 +333,9 @@ This structure keeps business logic independent from frameworks and makes indivi
 
 | Test Suite                                                  | Status       |
 | ----------------------------------------------------------- | ------------ |
-| Backend architecture, security, unit, and integration tests | ✅ 331 / 331 |
-| Frontend architecture, configuration, and utility tests     | ✅ 113 / 113 |
-| Total                                                       | ✅ 444 / 444 |
+| Backend architecture, security, unit, and integration tests | ✅ 335 / 335 |
+| Frontend architecture, configuration, and utility tests     | ✅ 141 / 141 |
+| Total                                                       | ✅ 476 / 476 |
 
 ### Coverage Includes
 
@@ -366,12 +366,6 @@ Build
 Test
 Dependency Review
 CodeQL Security Scanning
-```
-
-Production deployment, validation, rollback, secrets, and operational guidance are documented in:
-
-```text
-docs/production-deployment.md
 ```
 
 ---
@@ -455,8 +449,7 @@ Imminiq/
 ├── apps/
 │   ├── api/       # Express API, workers, and backend modules
 │   └── web/       # React and Vite frontend
-├── docs/          # Deployment and operational documentation
-├── scripts/       # Repository automation and smoke tests
+├── package.json   # Monorepo commands and workspace configuration
 └── docker-compose.yml
 ```
 
@@ -513,7 +506,7 @@ The current platform establishes the technical and product foundation for a larg
 ## Project Status
 
 Imminiq is a private production release candidate. The repository includes the application,
-architecture safeguards, release documentation, and operational checks required for review.
+architecture safeguards, automated tests, and operational configuration required for review.
 
 ---
 

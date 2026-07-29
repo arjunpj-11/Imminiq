@@ -71,7 +71,7 @@ export const otpEmailTemplate = ({ fullName, otp, type }: OtpEmailTemplateParams
             <td style="padding:30px 28px 12px; text-align:center;">
               <div style="width:100%; text-align:center;">
                 <div style="display:block; width:100%; margin:0 auto; color:#1a1714; font-size:28px; font-weight:900; letter-spacing:-0.8px; line-height:1; text-align:center;">
-                  immin<span style="color:#b84c2b;">iq</span>
+                  Immin<span style="color:#b84c2b;">iq</span>
                 </div>
 
                 <div style="display:block; width:100%; margin:8px auto 0; color:#6b5f58; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.7px; text-align:center;">
@@ -146,7 +146,7 @@ export const otpEmailTemplate = ({ fullName, otp, type }: OtpEmailTemplateParams
           <tr>
             <td style="background:#1e1c19; padding:20px 24px; text-align:center;">
               <p style="margin:0; color:#f2f0eb; font-size:13px; font-weight:700; letter-spacing:-0.2px;">
-                immin<span style="color:#e8816a;">iq</span><span style="color:#e8816a;">.</span>
+                Immin<span style="color:#e8816a;">iq</span><span style="color:#e8816a;">.</span>
               </p>
 
               <p style="margin:7px 0 0; color:#9b9a92; font-size:11px; line-height:1.5;">
@@ -215,7 +215,7 @@ export const emailChangeVerificationTemplate = ({
             <td style="padding:30px 28px 12px; text-align:center;">
               <div style="width:100%; text-align:center;">
                 <div style="display:block; width:100%; margin:0 auto; color:#1a1714; font-size:28px; font-weight:900; letter-spacing:-0.8px; line-height:1; text-align:center;">
-                  immin<span style="color:#b84c2b;">iq</span>
+                  Immin<span style="color:#b84c2b;">iq</span>
                 </div>
 
                 <div style="display:block; width:100%; margin:8px auto 0; color:#6b5f58; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.7px; text-align:center;">
@@ -316,7 +316,7 @@ export const emailChangeVerificationTemplate = ({
           <tr>
             <td style="background:#1e1c19; padding:20px 24px; text-align:center;">
               <p style="margin:0; color:#f2f0eb; font-size:13px; font-weight:700; letter-spacing:-0.2px;">
-                immin<span style="color:#e8816a;">iq</span><span style="color:#e8816a;">.</span>
+                Immin<span style="color:#e8816a;">iq</span><span style="color:#e8816a;">.</span>
               </p>
 
               <p style="margin:7px 0 0; color:#9b9a92; font-size:11px; line-height:1.5;">
@@ -382,7 +382,7 @@ export const emailChangeAlertTemplate = ({
             <td style="padding:30px 28px 12px; text-align:center;">
               <div style="width:100%; text-align:center;">
                 <div style="display:block; width:100%; margin:0 auto; color:#1a1714; font-size:28px; font-weight:900; letter-spacing:-0.8px; line-height:1; text-align:center;">
-                  immin<span style="color:#b84c2b;">iq</span>
+                  Immin<span style="color:#b84c2b;">iq</span>
                 </div>
 
                 <div style="display:block; width:100%; margin:8px auto 0; color:#6b5f58; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.7px; text-align:center;">
@@ -457,7 +457,7 @@ export const emailChangeAlertTemplate = ({
           <tr>
             <td style="background:#1e1c19; padding:20px 24px; text-align:center;">
               <p style="margin:0; color:#f2f0eb; font-size:13px; font-weight:700; letter-spacing:-0.2px;">
-                immin<span style="color:#e8816a;">iq</span><span style="color:#e8816a;">.</span>
+                Immin<span style="color:#e8816a;">iq</span><span style="color:#e8816a;">.</span>
               </p>
 
               <p style="margin:7px 0 0; color:#9b9a92; font-size:11px; line-height:1.5;">

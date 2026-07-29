@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 
 import { cn } from '../../../../lib/cn';
+import { toast } from '../../../../lib/toast';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { useNavigate, useParams } from 'react-router';
 
@@ -30,6 +31,7 @@ import { useVerifyTrackerSubtopic, useVerifyTrackerTopic } from '../hooks/useTra
 
 import {
   countNestedSubtopics,
+  canAddAiVerifiedItem,
   extractRoadmapTopics,
   extractRoadmapTracker,
   flattenSubtopics,
@@ -106,8 +108,6 @@ export default function TrackerManagePage() {
 
   // ── UI state ──
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [trackerTitleDraft, setTrackerTitleDraft] = useState<string | null>(null);
   const [submittedTopicIds, setSubmittedTopicIds] = useState<Set<string>>(() => new Set());
   const [editingTopic, setEditingTopic] = useState<{
@@ -145,6 +145,7 @@ export default function TrackerManagePage() {
     status: 'idle',
     message: null,
   });
+  const [addRejectedTopicAnyway, setAddRejectedTopicAnyway] = useState(false);
 
   const [subtopicVerification, setSubtopicVerification] = useState<AiVerificationState>({
     status: 'idle',
@@ -212,8 +213,12 @@ export default function TrackerManagePage() {
   const topicTitleReady = Boolean(newTopicTitle.trim());
   const subtopicTitleReady = Boolean(newSubtopicTitle.trim());
 
-  const canAddTopic =
-    topicTitleReady && topicVerification.status === 'approved' && !importOutlineMutation.isPending;
+  const canAddTopic = canAddAiVerifiedItem({
+    hasTitle: topicTitleReady,
+    verificationStatus: topicVerification.status,
+    allowRejected: addRejectedTopicAnyway,
+    pending: importOutlineMutation.isPending,
+  });
 
   const canAddSubtopic =
     Boolean(activeTopic?._id) &&
@@ -221,16 +226,11 @@ export default function TrackerManagePage() {
     subtopicVerification.status === 'approved' &&
     !importOutlineMutation.isPending;
 
-  // ── Helpers ──
-  const clearMessages = () => {
-    setStatusMessage(null);
-    setErrorMessage(null);
-  };
-
   const resetTopicVerification = () => {
     setTopicVerification({ status: 'idle', message: null });
     setTopicSuggestions([]);
     setSelectedTopicSuggestionPaths(new Set());
+    setAddRejectedTopicAnyway(false);
   };
 
   const resetSubtopicVerification = () => {
@@ -273,10 +273,8 @@ export default function TrackerManagePage() {
   const handleSaveTracker = async () => {
     if (!trackerId || trackerSaving.current) return;
 
-    clearMessages();
-
     if (!trackerTitle.trim()) {
-      setErrorMessage('Tracker name is required.');
+      toast.error('Tracker name is required.');
       return;
     }
 
@@ -289,9 +287,9 @@ export default function TrackerManagePage() {
       } as Parameters<typeof updateTrackerMutation.mutateAsync>[0]);
 
       setTrackerTitleDraft(null);
-      setStatusMessage('Tracker name updated.');
+      toast.success('Tracker name updated.');
     } catch (error) {
-      setErrorMessage(getUserFacingError(error, 'Unable to update tracker.'));
+      toast.error(getUserFacingError(error, 'Unable to update tracker.'));
     } finally {
       trackerSaving.current = false;
     }
@@ -299,8 +297,6 @@ export default function TrackerManagePage() {
 
   const handleVerifyTopic = async () => {
     if (!trackerId) return;
-
-    clearMessages();
 
     if (!newTopicTitle.trim()) {
       setTopicVerification({
@@ -349,8 +345,6 @@ export default function TrackerManagePage() {
 
   const handleVerifySubtopic = async () => {
     if (!trackerId || !activeTopic?._id) return;
-
-    clearMessages();
 
     if (!newSubtopicTitle.trim()) {
       setSubtopicVerification({
@@ -414,15 +408,14 @@ export default function TrackerManagePage() {
   const handleCreateTopic = async () => {
     if (!trackerId || topicCreating.current) return;
 
-    clearMessages();
-
     if (!newTopicTitle.trim()) {
-      setErrorMessage('Topic title is required.');
+      toast.error('Topic title is required.');
       return;
     }
 
-    if (topicVerification.status !== 'approved') {
-      setErrorMessage('Please verify this topic with AI before adding it.');
+    const addingRejectedTopic = topicVerification.status === 'rejected' && addRejectedTopicAnyway;
+    if (topicVerification.status !== 'approved' && !addingRejectedTopic) {
+      toast.error('Verify this topic with AI or confirm that you want to add it anyway.');
       return;
     }
 
@@ -436,7 +429,9 @@ export default function TrackerManagePage() {
           {
             title: newTopicTitle.trim(),
             description: newTopicDescription.trim(),
-            subtopics: selectedOutline(topicSuggestions, selectedTopicSuggestionPaths),
+            subtopics: addingRejectedTopic
+              ? []
+              : selectedOutline(topicSuggestions, selectedTopicSuggestionPaths),
           },
         ],
       });
@@ -444,9 +439,13 @@ export default function TrackerManagePage() {
       setNewTopicTitle('');
       setNewTopicDescription('');
       resetTopicVerification();
-      setStatusMessage('Topic and your selected AI suggestions were added.');
+      toast.success(
+        addingRejectedTopic
+          ? 'Topic added with AI verification overridden.'
+          : 'Topic and your selected AI suggestions were added.'
+      );
     } catch (error) {
-      setErrorMessage(getUserFacingError(error, 'Unable to add topic.'));
+      toast.error(getUserFacingError(error, 'Unable to add topic.'));
     } finally {
       topicCreating.current = false;
     }
@@ -455,15 +454,13 @@ export default function TrackerManagePage() {
   const handleCreateSubtopic = async () => {
     if (!trackerId || !activeTopic?._id || subtopicCreating.current) return;
 
-    clearMessages();
-
     if (!newSubtopicTitle.trim()) {
-      setErrorMessage('Subtopic title is required.');
+      toast.error('Subtopic title is required.');
       return;
     }
 
     if (subtopicVerification.status !== 'approved') {
-      setErrorMessage('Please verify this subtopic with AI before adding it.');
+      toast.error('Please verify this subtopic with AI before adding it.');
       return;
     }
 
@@ -489,9 +486,9 @@ export default function TrackerManagePage() {
       setNewSubtopicDifficulty('beginner');
       setNewSubtopicParentId(null);
       resetSubtopicVerification();
-      setStatusMessage('Subtopic and your selected child suggestions were added.');
+      toast.success('Subtopic and your selected child suggestions were added.');
     } catch (error) {
-      setErrorMessage(getUserFacingError(error, 'Unable to add subtopic.'));
+      toast.error(getUserFacingError(error, 'Unable to add subtopic.'));
     } finally {
       subtopicCreating.current = false;
     }
@@ -499,9 +496,19 @@ export default function TrackerManagePage() {
 
   const handleImportJson = async () => {
     if (!trackerId || importOutlineMutation.isPending) return;
-    clearMessages();
+    let importedTopics: ReturnType<typeof parseTrackerOutlineJson>;
     try {
-      const importedTopics = parseTrackerOutlineJson(importJson);
+      importedTopics = parseTrackerOutlineJson(importJson);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Unable to read this JSON outline. Check its structure and try again.'
+      );
+      return;
+    }
+
+    try {
       const result = await importOutlineMutation.mutateAsync({
         trackerId,
         kind: 'topics',
@@ -509,31 +516,29 @@ export default function TrackerManagePage() {
       });
       setImportJson('');
       setShowJsonImport(false);
-      setStatusMessage(
+      toast.success(
         `Imported ${result.topicsAdded} topic${result.topicsAdded === 1 ? '' : 's'} and ${result.subtopicsAdded} nested subtopic${result.subtopicsAdded === 1 ? '' : 's'}.`
       );
     } catch (error) {
-      setErrorMessage(getUserFacingError(error, 'Unable to import this JSON outline.'));
+      toast.error(getUserFacingError(error, 'Unable to import this JSON outline.'));
     }
   };
 
   const handleCreateContribution = async (topicId: string, topicTitle: string) => {
     if (!trackerId || !topicId || createContributionMutation.isPending) return;
-    clearMessages();
     try {
       await createContributionMutation.mutateAsync({ trackerId, topicId });
       setSubmittedTopicIds((current) => new Set(current).add(topicId));
-      setStatusMessage(
+      toast.success(
         `“${topicTitle}” was sent to ${tracker?.clonedFrom?.name ?? 'the original author'} for review.`
       );
     } catch (error) {
-      setErrorMessage(getUserFacingError(error, 'Unable to send this topic for review.'));
+      toast.error(getUserFacingError(error, 'Unable to send this topic for review.'));
     }
   };
 
   const handleUpdateTopic = async () => {
     if (!trackerId || !editingTopic?.title.trim()) return;
-    clearMessages();
     try {
       await updateTopicMutation.mutateAsync({
         trackerId,
@@ -542,9 +547,9 @@ export default function TrackerManagePage() {
         description: editingTopic.description.trim(),
       });
       setEditingTopic(null);
-      setStatusMessage('Topic information updated.');
+      toast.success('Topic information updated.');
     } catch (error) {
-      setErrorMessage(getUserFacingError(error, 'Unable to update this topic.'));
+      toast.error(getUserFacingError(error, 'Unable to update this topic.'));
     }
   };
 
@@ -561,14 +566,14 @@ export default function TrackerManagePage() {
         });
       }
       setContentPendingDelete(null);
-      setStatusMessage(
+      toast.success(
         contentPendingDelete.type === 'topic'
           ? 'Topic and all its subtopics were deleted.'
           : 'Subtopic branch deleted.'
       );
     } catch (error) {
       setContentPendingDelete(null);
-      setErrorMessage(getUserFacingError(error, 'Unable to delete this roadmap item.'));
+      toast.error(getUserFacingError(error, 'Unable to delete this roadmap item.'));
     }
   };
 
@@ -702,20 +707,6 @@ export default function TrackerManagePage() {
               Open guild &amp; merge requests
             </button>
           </section>
-        )}
-
-        {(statusMessage || errorMessage) && (
-          <div
-            className={cn(
-              'rounded-md border px-4 py-3 text-[13px] font-semibold',
-              statusMessage &&
-                'border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] text-(--success) dark:border-[rgba(92,201,138,0.25)] dark:bg-[rgba(92,201,138,0.10)] dark:text-(--success)',
-              errorMessage &&
-                'border-red-300 bg-red-50 text-red-600 dark:border-red-400/30 dark:bg-red-400/10 dark:text-red-300'
-            )}
-          >
-            {statusMessage || errorMessage}
-          </div>
         )}
 
         {isClonedTracker && (
@@ -1091,7 +1082,8 @@ export default function TrackerManagePage() {
               <h3 className="font-serif text-[18px] font-bold tracking-[-0.3px]">Add Topic</h3>
 
               <p className="mt-1 text-[12.5px] leading-relaxed text-(--text-secondary) dark:text-(--text-secondary)">
-                Verify the topic with AI first. You can add it only if it belongs to this tracker.
+                Verify the topic with AI first. If the check is wrong, you can explicitly add the
+                topic anyway.
               </p>
 
               <div className="mt-4 grid gap-3">
@@ -1119,6 +1111,26 @@ export default function TrackerManagePage() {
                   <div className={getVerificationMessageClass(topicVerification.status)}>
                     {topicVerification.message}
                   </div>
+                )}
+
+                {topicVerification.status === 'rejected' && topicTitleReady && (
+                  <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-amber-300/70 bg-amber-50 px-3.5 py-3 text-left dark:border-amber-300/25 dark:bg-amber-300/10">
+                    <input
+                      type="checkbox"
+                      checked={addRejectedTopicAnyway}
+                      onChange={(event) => setAddRejectedTopicAnyway(event.target.checked)}
+                      className="mt-0.5 h-4 w-4 shrink-0 accent-(--brand-500)"
+                    />
+                    <span>
+                      <span className="block text-[12.5px] font-bold text-amber-900 dark:text-amber-200">
+                        Add this topic anyway
+                      </span>
+                      <span className="mt-0.5 block text-[10.5px] leading-relaxed text-amber-800/80 dark:text-amber-100/70">
+                        AI can be wrong. Tick this only after confirming the topic belongs in this
+                        tracker.
+                      </span>
+                    </span>
+                  </label>
                 )}
 
                 {topicVerification.status === 'approved' && topicSuggestions.length > 0 && (
@@ -1157,7 +1169,9 @@ export default function TrackerManagePage() {
                     title={
                       topicVerification.status === 'approved'
                         ? 'Add verified topic'
-                        : 'Verify this topic with AI before adding'
+                        : addRejectedTopicAnyway
+                          ? 'Add topic despite the AI result'
+                          : 'Verify this topic or confirm the override before adding'
                     }
                   >
                     {creatingTopic ? 'Adding topic...' : 'Add Topic'}

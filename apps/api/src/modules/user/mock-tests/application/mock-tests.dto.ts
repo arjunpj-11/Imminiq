@@ -269,6 +269,7 @@ export interface MockTestDetailsDTO {
 export interface MockTestAttemptSessionDTO {
   attempt: MockTestAttemptDTO;
   questions: PublicMockTestQuestionDTO[];
+  timeLimitMinutes: number;
 }
 
 export interface FinishMockTestAttemptDTO {

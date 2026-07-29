@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router';
 import { paginationConfig } from '../../../../config/pagination';
 import { useBodyScrollLock } from '../../../../hooks/useBodyScrollLock';
 import { boundedInteger } from '../../../../lib/bounded-number';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { toast } from '../../../../lib/toast';
 
 import {
   DIFFICULTY_OPTIONS,
@@ -206,20 +208,27 @@ export function GenerateMockTestModal({
         ? buildStructuredTopicString(selectedNodes, flatNodes, selectedTracker?.title || '')
         : generateDraft.topic.trim();
 
-    const response = await generateMutation.mutateAsync({
-      ...generateDraft,
-      topic: topicValue,
-      runInBackground,
-    });
+    try {
+      const response = await generateMutation.mutateAsync({
+        ...generateDraft,
+        topic: topicValue,
+        runInBackground,
+      });
 
-    resetGenerateDraft();
-    clearSelectedNodes();
-    onClose();
+      resetGenerateDraft();
+      clearSelectedNodes();
+      onClose();
 
-    const testId = '_id' in response.data ? response.data._id : undefined;
+      const testId = '_id' in response.data ? response.data._id : undefined;
 
-    if (testId) {
-      navigate(`/mock-tests/${testId}`);
+      if (testId) {
+        navigate(`/mock-tests/${testId}`);
+      }
+    } catch (error) {
+      toast.error(
+        'Mock test not generated',
+        getUserFacingError(error, 'Unable to generate this mock test.')
+      );
     }
   };
 
@@ -541,12 +550,6 @@ export function GenerateMockTestModal({
               'Generate test →'
             )}
           </button>
-
-          {generateMutation.error && (
-            <p className="mt-3 text-center text-[11.5px] text-(--brand-500) dark:text-(--brand-500)">
-              {(generateMutation.error as Error).message}
-            </p>
-          )}
         </div>
       </div>
 

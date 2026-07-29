@@ -142,7 +142,7 @@ export function VoiceInputStatus({
         <>
           <div className="absolute inset-x-3 top-1/2 h-px -translate-y-1/2 bg-(--brand-500)/25" />
           <div
-            className="relative grid h-full min-w-0 flex-1 items-center gap-[2px] overflow-hidden"
+            className="relative grid h-full min-w-0 flex-1 items-center gap-0.5 overflow-hidden"
             style={{ gridTemplateColumns: 'repeat(56, minmax(1px, 1fr))' }}
             aria-hidden="true"
           >
@@ -153,7 +153,7 @@ export function VoiceInputStatus({
               return (
                 <span
                   key={index}
-                  className="voice-flow-bar z-2 w-full min-w-px max-w-[3px] justify-self-center rounded-full bg-(--brand-500) transition-[height] duration-75"
+                  className="voice-flow-bar z-2 w-full min-w-px max-w-0.75 justify-self-center rounded-full bg-(--brand-500) transition-[height] duration-75"
                   style={{
                     height,
                     animationDelay: `${(index % 14) * -47}ms`,

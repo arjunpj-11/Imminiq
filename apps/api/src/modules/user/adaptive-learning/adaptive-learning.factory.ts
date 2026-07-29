@@ -8,7 +8,7 @@ import type { IAdaptiveLearningRepository } from './domain/repositories/adaptive
 import { AdaptiveTestGeneratorGateway } from './infrastructure/gateways/adaptive-test-generator.gateway';
 import { AdaptiveAssessmentCompletionObserver } from './infrastructure/gateways/adaptive-assessment-completion.observer';
 import { mongoAdaptiveLearningRepository } from './infrastructure/repositories/internal/mongo-adaptive-learning.repository';
-import { LangChainAdaptiveLearningAgent } from './infrastructure/services/langchain-adaptive-learning-agent.service';
+import { AdaptiveLearningAgent } from './infrastructure/services/adaptive-learning-agent.service';
 
 export type AdaptiveLearningServiceHelpers = {
   adaptiveLearningRepository: IAdaptiveLearningRepository;
@@ -21,7 +21,7 @@ export type AdaptiveLearningComposition = {
 
 export const createAdaptiveLearningComposition = (): AdaptiveLearningComposition => {
   const repository = mongoAdaptiveLearningRepository;
-  const agent = new LangChainAdaptiveLearningAgent();
+  const agent = new AdaptiveLearningAgent();
   const testGenerator = new AdaptiveTestGeneratorGateway();
   const mapper = new AdaptiveLearningMapper();
 

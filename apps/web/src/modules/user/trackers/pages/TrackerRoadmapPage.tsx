@@ -372,11 +372,7 @@ export default function TrackerRoadmapPage() {
                       onClick={() => handleNodeClick(node)}
                     />
                     {index < currentNodes.length - 1 && (
-                      <FlowConnector
-                        // ── FIX: even node is left → sweep right toward next (odd/right) node
-                        //        odd node is right → sweep left toward next (even/left) node
-                        direction={index % 2 === 0 ? 'right' : 'left'}
-                      />
+                      <FlowConnector direction={index % 2 === 0 ? 'right' : 'left'} />
                     )}
                   </div>
                 ))}

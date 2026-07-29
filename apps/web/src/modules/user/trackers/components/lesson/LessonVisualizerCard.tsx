@@ -1,17 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { getUserFacingError } from '../../../../../lib/user-facing-error';
+import { toast } from '../../../../../lib/toast';
 import { useGenerateLessonVisualization } from '../../hooks/useTrackers';
 import { cn } from '../../utils/tracker-ui';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface IProps {
   trackerId: string;
   subtopicId: string;
   lessonTitle: string;
+  visualizationKind?: string;
 }
-
-// ─── Sparkle icon ─────────────────────────────────────────────────────────────
 
 function SparkleIcon({ className }: { className?: string }) {
   return (
@@ -31,8 +29,6 @@ function SparkleIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-
-// ─── Animated loading dots ────────────────────────────────────────────────────
 
 function GeneratingPulse() {
   return (
@@ -74,90 +70,35 @@ function GeneratingPulse() {
   );
 }
 
-// ─── Scaled iframe that fits Gemini's output without clipping ─────────────────
-//
-// Gemini tends to generate HTML at a fixed ~1100–1400px wide canvas.
-// We render it at GEMINI_CANVAS_W × GEMINI_CANVAS_H inside the iframe, then
-// use CSS transform: scale() to shrink it so it fills the available modal area
-// without scrollbars and without cutting anything off.
-
-const GEMINI_CANVAS_W = 1280;
-const GEMINI_CANVAS_H = 900;
-
-function ScaledIframe({ html, title }: { html: string; title: string }) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
-
-  useEffect(() => {
-    const el = wrapperRef.current;
-    if (!el) return;
-
-    const recalc = () => {
-      const scaleX = el.clientWidth / GEMINI_CANVAS_W;
-      const scaleY = el.clientHeight / GEMINI_CANVAS_H;
-      // Use the smaller axis so nothing is clipped; cap at 1 (never upscale)
-      setScale(Math.min(scaleX, scaleY, 1));
-    };
-
-    recalc();
-
-    const ro = new ResizeObserver(recalc);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
+function VisualizationFrame({ html, title }: { html: string; title: string }) {
   return (
-    // Outer wrapper — fills modal body, hides any stray overflow
-    <div ref={wrapperRef} className="relative h-full w-full overflow-hidden bg-[#0a0a0a]">
-      {/*
-        Inner container positioned at top-left, sized to the Gemini canvas,
-        then scaled down. transform-origin top-left keeps it anchored to the
-        top-left corner so nothing disappears behind the header.
-      */}
-      <div
-        style={{
-          width: GEMINI_CANVAS_W,
-          height: GEMINI_CANVAS_H,
-          transform: `scale(${scale})`,
-          transformOrigin: 'top left',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-        }}
-      >
-        <iframe
-          srcDoc={html}
-          sandbox="allow-scripts"
-          title={title}
-          style={{
-            width: '100%',
-            height: '100%',
-            border: 'none',
-            colorScheme: 'dark',
-            display: 'block',
-          }}
-        />
-      </div>
-    </div>
+    <iframe
+      srcDoc={html}
+      sandbox="allow-scripts"
+      title={title}
+      className="block h-full w-full border-0 bg-[#0a0a0a]"
+      style={{ colorScheme: 'dark' }}
+    />
   );
 }
-
-// ─── Visualizer modal ────────────────────────────────────────────────────────
 
 function VisualizerModal({
   html,
   lessonTitle,
+  visualTitle,
+  visualDescription,
   onClose,
   onRegenerate,
   isRegenerating,
 }: {
   html: string;
   lessonTitle: string;
+  visualTitle: string;
+  visualDescription: string;
   onClose: () => void;
   onRegenerate: () => void;
   isRegenerating: boolean;
 }) {
-  // Close on Escape
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -170,21 +111,23 @@ function VisualizerModal({
     <div
       className="fixed inset-0 z-130 flex items-center justify-center bg-black/80 p-3 backdrop-blur-sm"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={visualTitle || `${lessonTitle} visualization`}
     >
       <div
-        className="relative flex h-[min(820px,94vh)] w-[min(1100px,96vw)] flex-col overflow-hidden rounded-xl border border-white/10 bg-[#0a0a0a] shadow-[0_24px_80px_rgba(0,0,0,0.85)]"
+        className="relative flex h-[min(860px,94vh)] w-[min(1240px,97vw)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0a] shadow-[0_24px_80px_rgba(0,0,0,0.85)]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-white/8 bg-[#111] px-5 py-3.5">
           <div className="flex items-center gap-2.5">
             <SparkleIcon className="h-4 w-4 text-(--brand-500)" />
             <div>
               <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-(--brand-500)">
-                AI Visualizer
+                Interactive lesson
               </span>
               <p className="mt-0.5 line-clamp-1 text-[13px] font-semibold text-[#f2f0eb]">
-                {lessonTitle}
+                {visualTitle || lessonTitle}
               </p>
             </div>
           </div>
@@ -210,21 +153,19 @@ function VisualizerModal({
           </div>
         </div>
 
-        {/* Canvas — flex-1 so it fills all space between header and footer */}
         <div className="relative min-h-0 flex-1">
           {isRegenerating ? (
             <div className="flex h-full items-center justify-center bg-[#0a0a0a]">
               <GeneratingPulse />
             </div>
           ) : (
-            <ScaledIframe html={html} title={`${lessonTitle} Visualization`} />
+            <VisualizationFrame html={html} title={`${lessonTitle} visualization`} />
           )}
         </div>
 
-        {/* Footer hint */}
-        <div className="shrink-0 border-t border-white/8 bg-[#0e0e0e] px-5 py-2">
-          <p className="text-center font-mono text-[9px] uppercase tracking-[0.12em] text-[#333]">
-            Interactive — use the controls inside the visualization to explore
+        <div className="shrink-0 border-t border-white/8 bg-[#0e0e0e] px-5 py-2.5">
+          <p className="text-center text-[10px] text-[#777]">
+            {visualDescription || 'Use the controls inside the visualization to explore each step.'}
           </p>
         </div>
       </div>
@@ -232,45 +173,52 @@ function VisualizerModal({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
-export default function LessonVisualizerCard({ trackerId, subtopicId, lessonTitle }: IProps) {
+export default function LessonVisualizerCard({
+  trackerId,
+  subtopicId,
+  lessonTitle,
+  visualizationKind,
+}: IProps) {
   const visualizeMutation = useGenerateLessonVisualization();
 
-  const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
+  const [visualization, setVisualization] = useState<{
+    html: string;
+    visualTitle: string;
+    visualDescription: string;
+  } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  // Cache key — reset HTML when lesson changes
   const prevSubtopicIdRef = useRef(subtopicId);
   useEffect(() => {
     if (prevSubtopicIdRef.current !== subtopicId) {
       prevSubtopicIdRef.current = subtopicId;
-      setGeneratedHtml(null);
-      setError(null);
+      setVisualization(null);
+      setModalOpen(false);
     }
   }, [subtopicId]);
 
   const isGenerating = visualizeMutation.isPending;
 
   const generate = () => {
-    setError(null);
     visualizeMutation.mutate(
       { trackerId, subtopicId },
       {
         onSuccess: (data) => {
-          setGeneratedHtml(data.data.html);
+          setVisualization(data.data);
           setModalOpen(true);
         },
         onError: (err) => {
-          setError(getUserFacingError(err, 'Failed to generate visualization.'));
+          toast.error(
+            'Visualization not generated',
+            getUserFacingError(err, 'Failed to generate visualization.')
+          );
         },
       }
     );
   };
 
   const handleOpenOrGenerate = () => {
-    if (generatedHtml) {
+    if (visualization) {
       setModalOpen(true);
     } else {
       generate();
@@ -278,109 +226,73 @@ export default function LessonVisualizerCard({ trackerId, subtopicId, lessonTitl
   };
 
   const handleRegenerate = () => {
-    setGeneratedHtml(null);
-    setError(null);
     visualizeMutation.mutate(
       { trackerId, subtopicId, regenerate: true },
       {
         onSuccess: (data) => {
-          setGeneratedHtml(data.data.html);
+          setVisualization(data.data);
           setModalOpen(true);
         },
         onError: (err) => {
-          setError(getUserFacingError(err, 'Failed to generate visualization.'));
+          toast.error(
+            'Visualization not regenerated',
+            getUserFacingError(err, 'Failed to generate visualization.')
+          );
         },
       }
     );
   };
 
-  const isReady = Boolean(generatedHtml) && !isGenerating;
+  const isReady = Boolean(visualization) && !isGenerating;
+  const kindLabel = visualizationKind
+    ? `${visualizationKind.replaceAll('_', ' ')} visualization`
+    : 'Interactive visualization';
 
   return (
     <>
-      <section className="rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
-        {/* Header */}
-        <div className="mb-4 flex items-center justify-between border-b border-(--border-subtle) pb-3.5 dark:border-(--border-subtle)">
-          <div className="flex items-center gap-2">
-            <SparkleIcon className="h-4 w-4 text-(--brand-500) dark:text-(--brand-500)" />
-            <h3 className="text-[14px] font-bold text-(--text-primary) dark:text-(--text-primary)">
-              AI Visualizer
-            </h3>
-          </div>
-
-          <span className="rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-2.5 py-1 font-mono text-[8.5px] font-bold uppercase tracking-wider text-(--success) dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-(--success)">
-            Gemini Flash
+      <div>
+        <button
+          type="button"
+          onClick={handleOpenOrGenerate}
+          disabled={isGenerating}
+          className={cn(
+            'group flex w-full items-center gap-3 rounded-xl border-[1.5px] px-4 py-3.5 text-left shadow-(--shadow-1) transition',
+            'disabled:cursor-wait disabled:opacity-70',
+            isReady
+              ? 'border-[rgba(45,106,71,0.25)] bg-[rgba(45,106,71,0.07)] hover:border-(--success)'
+              : 'border-[rgba(184,76,43,0.26)] bg-[linear-gradient(135deg,rgba(184,76,43,0.10),rgba(184,76,43,0.03))] hover:-translate-y-px hover:border-(--brand-500)'
+          )}
+        >
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-(--brand-500) text-white shadow-[0_5px_16px_rgba(184,76,43,0.25)]">
+            <SparkleIcon className={cn('h-4 w-4', isGenerating && 'animate-pulse')} />
           </span>
-        </div>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-bold text-(--text-primary)">
+              {isGenerating
+                ? 'Building visualization…'
+                : isReady
+                  ? 'Open visualization'
+                  : 'Visualize this lesson'}
+            </span>
+            <span className="mt-0.5 block truncate text-[10.5px] capitalize text-(--text-secondary)">
+              {kindLabel}
+            </span>
+          </span>
+          <span
+            aria-hidden="true"
+            className="text-(--brand-500) transition group-hover:translate-x-0.5"
+          >
+            ↗
+          </span>
+        </button>
+      </div>
 
-        {/* Body */}
-        {isGenerating ? (
-          <GeneratingPulse />
-        ) : (
-          <div className="flex flex-col gap-3.5">
-            {/* Description */}
-            <p className="text-[12.5px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
-              {isReady
-                ? 'Your visualization is ready. Open it to explore the concept interactively.'
-                : `Generate an interactive canvas visualization powered by Gemini that demonstrates "${lessonTitle}" visually.`}
-            </p>
-
-            {/* Error */}
-            {error && (
-              <div className="rounded-xl border border-[rgba(200,50,50,0.22)] bg-[rgba(200,50,50,0.06)] px-3.5 py-2.5 text-[11.5px] leading-[1.55] text-red-600 dark:border-[rgba(255,100,100,0.20)] dark:bg-[rgba(255,100,100,0.07)] dark:text-red-400">
-                {error}
-              </div>
-            )}
-
-            {/* Ready state: preview badge */}
-            {isReady && (
-              <div className="flex items-center gap-2 rounded-xl border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.07)] px-3.5 py-2.5 dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.08)]">
-                <span className="text-[14px]">✦</span>
-                <p className="text-[11.5px] font-medium text-(--success) dark:text-(--success)">
-                  Visualization generated
-                </p>
-              </div>
-            )}
-
-            {/* CTA button */}
-            <button
-              type="button"
-              onClick={handleOpenOrGenerate}
-              disabled={isGenerating}
-              className={cn(
-                'relative w-full overflow-hidden rounded-md px-4 py-3 text-[12.5px] font-bold tracking-[0.01em] transition-all duration-200',
-                'disabled:cursor-not-allowed disabled:opacity-60',
-                isReady
-                  ? 'border-[1.5px] border-[rgba(184,76,43,0.30)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) hover:bg-[rgba(184,76,43,0.14)] hover:border-[rgba(184,76,43,0.50)] dark:border-[rgba(232,129,106,0.28)] dark:bg-[rgba(232,129,106,0.09)] dark:text-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.15)]'
-                  : 'bg-(--brand-500) text-white shadow-[0_4px_18px_rgba(184,76,43,0.32)] hover:bg-[#a03d22] hover:shadow-[0_6px_24px_rgba(184,76,43,0.42)] dark:bg-[#c85d3a] dark:hover:bg-(--brand-500)'
-              )}
-            >
-              <span className="flex items-center justify-center gap-2">
-                <SparkleIcon className="h-3.5 w-3.5" />
-                {isReady ? 'Open Visualization' : 'Generate Visualization'}
-              </span>
-            </button>
-
-            {/* Regenerate link */}
-            {isReady && (
-              <button
-                type="button"
-                onClick={handleRegenerate}
-                disabled={isGenerating}
-                className="text-center font-mono text-[9px] uppercase tracking-widest text-(--text-secondary)/60 underline-offset-2 transition hover:text-(--brand-500) hover:underline disabled:cursor-not-allowed dark:text-(--text-secondary)/50 dark:hover:text-(--brand-500)"
-              >
-                Regenerate
-              </button>
-            )}
-          </div>
-        )}
-      </section>
-
-      {/* Modal */}
-      {modalOpen && generatedHtml && (
+      {modalOpen && visualization && (
         <VisualizerModal
-          html={generatedHtml}
+          html={visualization.html}
           lessonTitle={lessonTitle}
+          visualTitle={visualization.visualTitle}
+          visualDescription={visualization.visualDescription}
           onClose={() => setModalOpen(false)}
           onRegenerate={handleRegenerate}
           isRegenerating={isGenerating}

@@ -7,6 +7,7 @@ export type TrackerApplicationErrorCode =
   | 'INVALID_TOPIC_INDEX'
   | 'LESSON_NODE_NOT_FOUND'
   | 'LESSON_NOT_GENERATED'
+  | 'LESSON_NOT_VISUALIZABLE'
   | 'MISSING_TOPIC_ALREADY_ADDED'
   | 'MISSING_TOPIC_NOT_FOUND'
   | 'MISSING_TOPICS_NOT_FOUND'
@@ -23,6 +24,7 @@ export type TrackerApplicationErrorCode =
   | 'TOPIC_CONTRIBUTION_ALREADY_REVIEWED'
   | 'TOPIC_CONTRIBUTION_NOT_FOUND'
   | 'TOPIC_CONTRIBUTION_NOT_A_CHANGE'
+  | 'TOPIC_CONTRIBUTION_MERGE_CONFLICT'
   | 'TOPIC_CONTRIBUTION_REQUIRES_CLONE'
   | 'TOPIC_CONTRIBUTION_SOURCE_UNAVAILABLE'
   | 'FORBIDDEN'
@@ -85,6 +87,14 @@ export class TrackerApplicationError extends TrackerDomainError {
     );
   }
 
+  static contributionMergeConflict(): TrackerApplicationError {
+    return new TrackerApplicationError(
+      'conflict',
+      'TOPIC_CONTRIBUTION_MERGE_CONFLICT',
+      'An equivalent topic now exists in the original tracker. Reject this stale request or review the existing topic.'
+    );
+  }
+
   static contributionNotFound(): TrackerApplicationError {
     return new TrackerApplicationError(
       'missing-resource',
@@ -105,6 +115,14 @@ export class TrackerApplicationError extends TrackerDomainError {
     message = 'Generate the lesson before continuing'
   ): TrackerApplicationError {
     return new TrackerApplicationError('missing-resource', 'LESSON_NOT_GENERATED', message);
+  }
+
+  static lessonNotVisualizable(): TrackerApplicationError {
+    return new TrackerApplicationError(
+      'invalid-input',
+      'LESSON_NOT_VISUALIZABLE',
+      'This lesson is clearer without an interactive visualization'
+    );
   }
 
   static solutionNotGenerated(

@@ -111,6 +111,24 @@ export const trackerOutlineExample = JSON.stringify(
   2
 );
 
+export const trackerOutlineTitleRules = [
+  {
+    level: 'First layer',
+    path: 'topics[].title',
+    purpose: 'Top-level topic title',
+  },
+  {
+    level: 'Second layer',
+    path: 'topics[].subtopics[].title',
+    purpose: 'Subtopic title',
+  },
+  {
+    level: 'Third layer',
+    path: 'topics[].subtopics[].subtopics[].title',
+    purpose: 'Nested subtopic title',
+  },
+] as const;
+
 export const selectedOutline = (
   nodes: TrackerOutlineNode[],
   selectedPaths: Set<string>,

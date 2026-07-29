@@ -10,6 +10,7 @@ import Modal from '../../../../components/overlays/Modal';
 import { cn } from '../../../../lib/cn';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { socket } from '../../../../lib/socket';
+import { toast } from '../../../../lib/toast';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import { useAuthStore } from '../../../../store/useAuthStore';
 import {
@@ -26,6 +27,10 @@ import {
   getBattleHistoryQuestions,
 } from '../utils/downloadBattleHistoryPdf';
 import { syncTrackerClanChallengeCache } from '../hooks/syncTrackerClanChallengeCache';
+import {
+  getTrackerClanChallengeTerminalMessage,
+  isTrackerClanChallengeTerminal,
+} from '../utils/tracker-clan-challenge-status';
 
 type ChallengeEvent = { id: string; trackerId: string };
 
@@ -68,7 +73,6 @@ export default function TrackerClanBattlePage() {
   const [quitDialogOpen, setQuitDialogOpen] = useState(false);
   const [unavailableChallengeId, setUnavailableChallengeId] = useState<string | null>(null);
   const [pdfDownloading, setPdfDownloading] = useState(false);
-  const [pdfError, setPdfError] = useState<string | null>(null);
   const extensionRequestRef = useRef('');
 
   const isChallenger = challenge?.challenger.userId === currentUserId;
@@ -84,7 +88,7 @@ export default function TrackerClanBattlePage() {
     quitChallenge.isPending;
   const error = chooseCheckpoint.error || answerNode.error || usePower.error || quitChallenge.error;
   const timerClock =
-    challenge?.status === 'completed' && challenge.completedAt
+    challenge && isTrackerClanChallengeTerminal(challenge.status) && challenge.completedAt
       ? new Date(challenge.completedAt).getTime()
       : clock;
   const secondsLeft = Math.max(
@@ -205,7 +209,8 @@ export default function TrackerClanBattlePage() {
     );
   }
 
-  const finished = challenge.status === 'completed';
+  const finished = isTrackerClanChallengeTerminal(challenge.status);
+  const terminalMessage = getTrackerClanChallengeTerminalMessage(challenge.status);
   const won = challenge.winnerId === currentUserId;
 
   return (
@@ -374,26 +379,30 @@ export default function TrackerClanBattlePage() {
           <section className="rounded-2xl border border-[#d6ad47]/40 bg-[#f4c95d]/10 p-8 text-center">
             <div className="text-5xl">{challenge.winnerId ? '🏆' : '🤝'}</div>
             <h2 className="mt-3 font-serif text-3xl font-extrabold">
-              {challenge.quitById === currentUserId
-                ? 'You left the battle'
-                : challenge.quitById
-                  ? `${rival!.name} left — you win!`
-                  : challenge.winnerId
-                    ? won
-                      ? 'You won the node race!'
-                      : `${rival!.name} won the race`
-                    : 'The battle ended in a draw'}
+              {terminalMessage?.title ??
+                (challenge.quitById === currentUserId
+                  ? 'You left the battle'
+                  : challenge.quitById
+                    ? `${rival!.name} left — you win!`
+                    : challenge.winnerId
+                      ? won
+                        ? 'You won the node race!'
+                        : `${rival!.name} won the race`
+                      : 'The battle ended in a draw')}
             </h2>
             <p className="mt-2 text-sm text-(--text-secondary)">
-              {challenge.viewerScore} – {challenge.opponentLiveScore} correct answers
+              {terminalMessage?.description ??
+                `${challenge.viewerScore} – ${challenge.opponentLiveScore} correct answers`}
             </p>
-            <button
-              type="button"
-              onClick={() => setHistoryOpen(true)}
-              className="mt-5 rounded-xl bg-[#171512] px-6 py-3 text-xs font-extrabold text-white dark:bg-[#f2f0eb] dark:text-[#171512]"
-            >
-              View question history
-            </button>
+            {challenge.status === 'completed' && (
+              <button
+                type="button"
+                onClick={() => setHistoryOpen(true)}
+                className="mt-5 rounded-xl bg-[#171512] px-6 py-3 text-xs font-extrabold text-white dark:bg-[#f2f0eb] dark:text-[#171512]"
+              >
+                View question history
+              </button>
+            )}
           </section>
         ) : challenge.checkpointDecisionRequired ? (
           <section className="mx-auto w-full max-w-190 rounded-2xl border border-[#d6ad47]/45 bg-(--surface-card) p-7 text-center shadow-xl">
@@ -540,10 +549,15 @@ export default function TrackerClanBattlePage() {
               disabled={!historyQuery.data || pdfDownloading}
               onClick={() => {
                 if (!historyQuery.data) return;
-                setPdfError(null);
                 setPdfDownloading(true);
                 void downloadBattleHistoryPdf(historyQuery.data)
-                  .catch(() => setPdfError('The PDF could not be created. Please try again.'))
+                  .then(() => toast.success('Battle history PDF downloaded'))
+                  .catch(() =>
+                    toast.error(
+                      'PDF not created',
+                      'The battle history PDF could not be created. Please try again.'
+                    )
+                  )
                   .finally(() => setPdfDownloading(false));
               }}
               className="rounded-lg bg-(--brand-500) px-4 py-2.5 text-xs font-extrabold text-white disabled:opacity-50"
@@ -568,11 +582,6 @@ export default function TrackerClanBattlePage() {
           {historyQuery.error && (
             <div className="rounded-xl bg-red-500/10 p-4 text-sm font-semibold text-red-600">
               {getUserFacingError(historyQuery.error, 'Unable to load battle history.')}
-            </div>
-          )}
-          {pdfError && (
-            <div className="mb-4 rounded-xl bg-red-500/10 p-4 text-sm font-semibold text-red-600">
-              {pdfError}
             </div>
           )}
           {historyQuery.data &&

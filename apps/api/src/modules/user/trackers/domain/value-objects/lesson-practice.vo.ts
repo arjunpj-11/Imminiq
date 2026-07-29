@@ -23,6 +23,20 @@ export type GeneratedLessonData = {
   practiceTask: GeneratedLessonPracticeTask;
   tags: string[];
   difficulty: 'beginner' | 'intermediate' | 'advanced';
+  visualization?: {
+    recommended: boolean;
+    kind:
+      | 'process'
+      | 'algorithm'
+      | 'structure'
+      | 'system'
+      | 'chart'
+      | 'timeline'
+      | 'spatial'
+      | 'simulation'
+      | 'none';
+    reason: string;
+  };
 };
 
 export type CodeSubmitInput = {

@@ -2,7 +2,7 @@
 
 > **Status:** Authoritative frontend guide  
 > **Audited source:** Latest refactored Imminiq `src` tree  
-> **Last reviewed:** 2026-07-22
+> **Last reviewed:** 2026-07-29
 > **Audience:** Imminiq developers, reviewers, and AI coding assistants
 
 This document explains the complete Imminiq frontend architecture and defines the rules for creating or modifying modules without breaking consistency.
@@ -1536,6 +1536,10 @@ Owns:
 - Roadmap generation status
 - Evaluation status/result
 - Session-persisted creation draft state
+
+Page and support-file names describe the current tracker-creation workflow. The term
+`onboarding` is reserved for legacy route redirects, persisted-key migration, and backend
+contract fields that must remain compatible with existing sessions.
 
 ## `trackers`
 

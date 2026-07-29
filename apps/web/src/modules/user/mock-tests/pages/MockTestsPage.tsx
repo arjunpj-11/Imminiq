@@ -6,6 +6,7 @@ import PageHero from '../../../../components/layout/PageHero';
 import EmptyState from '../../../../components/feedback/EmptyState';
 import ErrorState from '../../../../components/feedback/ErrorState';
 import Pagination from '../../../../components/navigation/Pagination';
+import { toast } from '../../../../lib/toast';
 
 import GenerateMockTestModal from '../components/GenerateMockTestModal';
 import MockTestRow from '../components/MockTestRow';
@@ -52,9 +53,7 @@ export default function MockTestsPage() {
   const currentPage = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
   const [shareToken, setShareToken] = useState('');
-  const [shareMessage, setShareMessage] = useState('');
   const [importToken, setImportToken] = useState('');
-  const [importMessage, setImportMessage] = useState('');
 
   const testsQuery = useMockTests(currentPage, TESTS_PER_PAGE);
   const activeGenerationQuery = useActiveMockTestGeneration();
@@ -92,15 +91,14 @@ export default function MockTestsPage() {
 
   const shareTest = async (testId: string) => {
     try {
-      setShareMessage('');
       setShareToken('');
 
       const response = await shareMutation.mutateAsync(testId);
 
       setShareToken(response.data.shareToken);
-      setShareMessage('Share token generated');
+      toast.success('Share token generated');
     } catch {
-      setShareMessage('Failed to generate share token');
+      toast.error('Could not generate share token');
     }
   };
 
@@ -109,9 +107,9 @@ export default function MockTestsPage() {
 
     try {
       await navigator.clipboard.writeText(shareToken);
-      setShareMessage('Token copied');
+      toast.success('Share token copied');
     } catch {
-      setShareMessage('Copy failed. Select and copy the token manually.');
+      toast.error('Copy failed', 'Select and copy the token manually.');
     }
   };
 
@@ -119,28 +117,24 @@ export default function MockTestsPage() {
     const token = importToken.trim();
 
     if (!token) {
-      setImportMessage('Enter a share token first');
+      toast.error('Enter a share token first');
       return;
     }
 
     try {
-      setImportMessage('Importing test...');
-
       const response = await importMutation.mutateAsync(token);
       const importedTest = response.data.test;
 
       setImportToken('');
-      setImportMessage(
-        response.data.alreadyImported
-          ? 'Already imported. Opening test...'
-          : 'Test imported successfully'
+      toast.success(
+        response.data.alreadyImported ? 'Test already imported' : 'Test imported successfully'
       );
 
       window.setTimeout(() => {
         navigate(`/mock-tests/${importedTest._id}`);
       }, 500);
     } catch {
-      setImportMessage('Invalid token or failed to import test');
+      toast.error('Test not imported', 'The share token is invalid or could not be imported.');
     }
   };
 
@@ -256,13 +250,6 @@ export default function MockTestsPage() {
                 Copy
               </button>
             </div>
-
-            <p
-              className="mt-2 text-[12px] font-bold text-(--brand-500) dark:text-(--brand-500)"
-              style={{ visibility: shareMessage ? 'visible' : 'hidden' }}
-            >
-              {shareMessage || '\u00A0'}
-            </p>
           </div>
 
           {/* ── Import shared test card ── */}
@@ -292,12 +279,6 @@ export default function MockTestsPage() {
                 {importMutation.isPending ? 'Importing...' : 'Import'}
               </button>
             </div>
-
-            {importMessage ? (
-              <p className="mt-2 text-[12px] font-bold text-(--brand-500) dark:text-(--brand-500)">
-                {importMessage}
-              </p>
-            ) : null}
           </div>
         </div>
 

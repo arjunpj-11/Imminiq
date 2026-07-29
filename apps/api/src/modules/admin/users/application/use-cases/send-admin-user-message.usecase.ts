@@ -50,7 +50,7 @@ export class SendAdminUserMessageUseCase implements ISendAdminUserMessageUseCase
         });
         emailQueued = true;
       } catch {
-        // The in-app message and audit record remain authoritative.
+        emailQueued = false;
       }
     }
     return { userId, emailQueued };

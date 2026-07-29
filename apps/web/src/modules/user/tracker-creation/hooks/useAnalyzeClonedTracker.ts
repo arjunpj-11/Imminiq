@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
-import { ONBOARDING_API_PATHS } from '../constants/onboarding.constants';
+import { TRACKER_CREATION_API_PATHS } from '../constants/tracker-creation.constants';
 
 type AnalysisResponse = {
   success: boolean;
@@ -12,7 +12,7 @@ export const useAnalyzeClonedTracker = () =>
   useMutation<AnalysisResponse, Error, string>({
     mutationFn: async (trackerId) => {
       const response = await api.post<AnalysisResponse>(
-        ONBOARDING_API_PATHS.analyzeClonedTracker(trackerId)
+        TRACKER_CREATION_API_PATHS.analyzeClonedTracker(trackerId)
       );
       return response.data;
     },

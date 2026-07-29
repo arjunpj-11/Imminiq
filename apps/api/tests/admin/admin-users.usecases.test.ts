@@ -7,6 +7,7 @@ import type { IAdminUsersMapper } from '../../src/modules/admin/users/applicatio
 import type { AdminUserEntity } from '../../src/modules/admin/users/domain/entities/admin-user.entity';
 import type { IAdminUsersRepository } from '../../src/modules/admin/users/domain/repositories/admin-users.repository.interface';
 import type { IAdminUserEmailProvider } from '../../src/modules/admin/users/domain/services/admin-user-email-provider.interface';
+import type { IAdminUserRealtimeAccessProvider } from '../../src/modules/admin/users/domain/services/admin-user-realtime-access-provider.interface';
 import { SendAdminUserMessageUseCase } from '../../src/modules/admin/users/application/use-cases/send-admin-user-message.usecase';
 import {
   adminUserMessageSchema,
@@ -51,6 +52,10 @@ const makeEmailProvider = (): IAdminUserEmailProvider => ({
   queueDirectMessage: vi.fn().mockResolvedValue(undefined),
 });
 
+const makeRealtimeAccessProvider = (): IAdminUserRealtimeAccessProvider => ({
+  disconnectUser: vi.fn().mockResolvedValue(undefined),
+});
+
 const meta = {
   ipAddress: '127.0.0.1',
   userAgent: 'test',
@@ -63,7 +68,12 @@ describe('SetAdminUserStatusUseCase', () => {
   it('blocks a user, revokes sessions, and records the actor', async () => {
     const repository = makeRepository();
     const emailProvider = makeEmailProvider();
-    const useCase = new SetAdminUserStatusUseCase(repository, emailProvider);
+    const realtimeAccessProvider = makeRealtimeAccessProvider();
+    const useCase = new SetAdminUserStatusUseCase(
+      repository,
+      emailProvider,
+      realtimeAccessProvider
+    );
     await expect(
       useCase.execute(userId, 'blocked', { userId: actorId, role: 'admin' }, meta)
     ).resolves.toEqual({ userId, status: 'blocked', emailQueued: true });
@@ -73,6 +83,7 @@ describe('SetAdminUserStatusUseCase', () => {
       reasonCode: meta.reasonCode,
     });
     expect(repository.revokeSessions).toHaveBeenCalledWith(userId);
+    expect(realtimeAccessProvider.disconnectUser).toHaveBeenCalledWith(userId);
     expect(repository.recordStatusChange).toHaveBeenCalledWith(
       expect.objectContaining({ actorId, userId, previousStatus: 'active', status: 'blocked' })
     );
@@ -81,66 +92,69 @@ describe('SetAdminUserStatusUseCase', () => {
 
   it('revokes sessions when suspending and not when restoring', async () => {
     const suspendedRepository = makeRepository();
-    await new SetAdminUserStatusUseCase(suspendedRepository, makeEmailProvider()).execute(
-      userId,
-      'paused',
-      { userId: actorId, role: 'admin' },
-      meta
-    );
+    const suspendedRealtimeAccess = makeRealtimeAccessProvider();
+    await new SetAdminUserStatusUseCase(
+      suspendedRepository,
+      makeEmailProvider(),
+      suspendedRealtimeAccess
+    ).execute(userId, 'paused', { userId: actorId, role: 'admin' }, meta);
     expect(suspendedRepository.revokeSessions).toHaveBeenCalledWith(userId);
+    expect(suspendedRealtimeAccess.disconnectUser).toHaveBeenCalledWith(userId);
 
     const repository = makeRepository(makeUser({ status: 'blocked' }));
-    await new SetAdminUserStatusUseCase(repository, makeEmailProvider()).execute(
+    const realtimeAccessProvider = makeRealtimeAccessProvider();
+    await new SetAdminUserStatusUseCase(
+      repository,
+      makeEmailProvider(),
+      realtimeAccessProvider
+    ).execute(
       userId,
       'active',
       { userId: actorId, role: 'admin' },
       { ...meta, reason: 'The appeal was reviewed and account access can now be restored.' }
     );
     expect(repository.revokeSessions).not.toHaveBeenCalled();
+    expect(realtimeAccessProvider.disconnectUser).not.toHaveBeenCalled();
   });
 
   it('rejects self status changes', async () => {
     const repository = makeRepository();
     await expect(
-      new SetAdminUserStatusUseCase(repository, makeEmailProvider()).execute(
-        userId,
-        'blocked',
-        { userId, role: 'admin' },
-        meta
-      )
+      new SetAdminUserStatusUseCase(
+        repository,
+        makeEmailProvider(),
+        makeRealtimeAccessProvider()
+      ).execute(userId, 'blocked', { userId, role: 'admin' }, meta)
     ).rejects.toMatchObject({ code: 'SELF_STATUS_CHANGE', kind: 'invalid-input' });
   });
 
   it('protects superadmins and protects admins from non-superadmins', async () => {
     const superRepository = makeRepository(makeUser({ role: 'superadmin' }));
     await expect(
-      new SetAdminUserStatusUseCase(superRepository, makeEmailProvider()).execute(
-        userId,
-        'blocked',
-        { userId: actorId, role: 'superadmin' },
-        meta
-      )
+      new SetAdminUserStatusUseCase(
+        superRepository,
+        makeEmailProvider(),
+        makeRealtimeAccessProvider()
+      ).execute(userId, 'blocked', { userId: actorId, role: 'superadmin' }, meta)
     ).rejects.toBeInstanceOf(AdminUsersApplicationError);
     const adminRepository = makeRepository(makeUser({ role: 'admin' }));
     await expect(
-      new SetAdminUserStatusUseCase(adminRepository, makeEmailProvider()).execute(
-        userId,
-        'blocked',
-        { userId: actorId, role: 'admin' },
-        meta
-      )
+      new SetAdminUserStatusUseCase(
+        adminRepository,
+        makeEmailProvider(),
+        makeRealtimeAccessProvider()
+      ).execute(userId, 'blocked', { userId: actorId, role: 'admin' }, meta)
     ).rejects.toMatchObject({ code: 'PROTECTED_ADMIN', kind: 'forbidden' });
   });
 
   it('returns not found without attempting a write', async () => {
     const repository = makeRepository(null);
     await expect(
-      new SetAdminUserStatusUseCase(repository, makeEmailProvider()).execute(
-        userId,
-        'blocked',
-        { userId: actorId, role: 'admin' },
-        meta
-      )
+      new SetAdminUserStatusUseCase(
+        repository,
+        makeEmailProvider(),
+        makeRealtimeAccessProvider()
+      ).execute(userId, 'blocked', { userId: actorId, role: 'admin' }, meta)
     ).rejects.toMatchObject({ code: 'USER_NOT_FOUND', kind: 'missing-resource' });
     expect(repository.updateStatus).not.toHaveBeenCalled();
   });

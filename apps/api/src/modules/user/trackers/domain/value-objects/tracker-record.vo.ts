@@ -1,4 +1,5 @@
 import type { LessonType } from './lesson-type.vo';
+import type { GeneratedLessonData } from './lesson-practice.vo';
 import type { SubtopicStatus } from './subtopic-status.vo';
 import type { TopicStatus } from './topic-status.vo';
 import type { TrackerDomain } from './tracker-domain.vo';
@@ -385,6 +386,7 @@ export type GeneratedTrackerLessonRecord = {
   };
   tags: string[];
   difficulty: 'beginner' | 'intermediate' | 'advanced';
+  visualization?: GeneratedLessonData['visualization'];
 };
 
 export type RunLessonCodeInput = {

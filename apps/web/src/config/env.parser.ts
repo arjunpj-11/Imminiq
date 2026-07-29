@@ -2,7 +2,10 @@ export type WebEnvironment = {
   apiUrl: string;
   socketUrl?: string;
   webrtcStunUrl: string;
+  longRequestTimeoutMs: number;
 };
+
+const DEFAULT_LONG_REQUEST_TIMEOUT_MS = 120_000;
 
 const parseAbsoluteHttpUrl = (value: string, key: string) => {
   const parsed = new URL(value);
@@ -42,9 +45,16 @@ export const parseWebEnvironment = (source: Record<string, unknown>): WebEnviron
       ? rawStunUrl.trim()
       : 'stun:stun.l.google.com:19302';
 
+  const parsedLongRequestTimeout = Number(source.VITE_LONG_REQUEST_TIMEOUT_MS);
+  const longRequestTimeoutMs =
+    Number.isInteger(parsedLongRequestTimeout) && parsedLongRequestTimeout >= 45_000
+      ? parsedLongRequestTimeout
+      : DEFAULT_LONG_REQUEST_TIMEOUT_MS;
+
   return {
     apiUrl,
     ...(socketUrl ? { socketUrl } : {}),
     webrtcStunUrl,
+    longRequestTimeoutMs,
   };
 };

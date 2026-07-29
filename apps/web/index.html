@@ -9,6 +9,24 @@
     <meta name="theme-color" content="#f5ede4" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#141412" media="(prefers-color-scheme: dark)" />
 
+    <!-- Resolve the saved or system theme before the first CSS paint. -->
+    <script>
+      (() => {
+        let savedMode = null;
+
+        try {
+          savedMode = window.localStorage.getItem('theme_mode');
+        } catch {
+          savedMode = null;
+        }
+
+        const useDarkTheme =
+          savedMode === 'dark' ||
+          (savedMode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', useDarkTheme);
+      })();
+    </script>
+
     <title>Imminiq — Adaptive learning, built for mastery</title>
 
     <meta

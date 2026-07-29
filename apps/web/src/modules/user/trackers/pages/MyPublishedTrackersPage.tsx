@@ -7,6 +7,7 @@ import { ROUTES } from '../../../../routes/config/route-paths';
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import PageHero from '../../../../components/layout/PageHero';
 import Modal from '../../../../components/overlays/Modal';
+import { normalizePercentage } from '../../../../lib/bounded-number';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { toast } from '../../../../lib/toast';
 import { paginationConfig } from '../../../../config/pagination';
@@ -105,18 +106,6 @@ const EditIcon = () => (
       d="M8.2 2.2 11.8 5.8M2 12l.8-3.6L9.7 1.5a1.4 1.4 0 0 1 2 0l.8.8a1.4 1.4 0 0 1 0 2L5.6 11.2 2 12Z"
       stroke="currentColor"
       strokeWidth="1.25"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const CheckIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-    <path
-      d="M2.5 7L5.5 10L11.5 4"
-      stroke="currentColor"
-      strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
@@ -315,7 +304,6 @@ type PublishedTrackerEditForm = {
 type PublishedTrackerEditModalProps = {
   tracker: ITracker | null;
   isSaving: boolean;
-  error: string | null;
   onClose: () => void;
   onSave: (form: PublishedTrackerEditForm) => Promise<void>;
 };
@@ -326,7 +314,6 @@ const editFieldClass =
 function PublishedTrackerEditModal({
   tracker,
   isSaving,
-  error,
   onClose,
   onSave,
 }: PublishedTrackerEditModalProps) {
@@ -433,12 +420,6 @@ function PublishedTrackerEditModal({
         </label>
       </div>
 
-      {error && (
-        <p className="mt-4 rounded-lg border border-red-500/20 bg-red-500/6 px-3 py-2 text-[12px] text-red-600 dark:text-red-400">
-          {error}
-        </p>
-      )}
-
       <div className="mt-6 flex justify-end gap-2 border-t border-(--border-subtle) pt-5">
         <button
           type="button"
@@ -494,10 +475,8 @@ function PublishedTrackerCard({
   isUnpublishing,
   canUnpublish,
 }: PublishedTrackerCardProps) {
-  const [copied, setCopied] = useState(false);
-
   const levelCfg = levelColors[tracker.level ?? 'beginner'] ?? levelColors.beginner;
-  const progress = Math.min(100, Math.max(0, Number(tracker.progressPercent ?? 0)));
+  const progress = normalizePercentage(tracker.progressPercent);
   const totalTopics = Number(tracker.topicsCount ?? tracker.totalTopics ?? 0);
   const completedTopics = Number(tracker.completedTopics ?? 0);
   const remainingTopics = Math.max(0, totalTopics - completedTopics);
@@ -505,10 +484,10 @@ function PublishedTrackerCard({
   const handleCopyLink = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     const url = `${window.location.origin}/community/trackers/${tracker._id}`;
-    void navigator.clipboard.writeText(url).then(() => {
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    });
+    void navigator.clipboard.writeText(url).then(
+      () => toast.success('Public tracker link copied'),
+      () => toast.error('Link not copied', 'Copy the address from your browser instead.')
+    );
   };
 
   return (
@@ -621,8 +600,8 @@ function PublishedTrackerCard({
             onClick={handleCopyLink}
             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border-[1.5px] border-(--border-subtle) px-4 text-[13px] font-bold text-(--text-secondary) transition hover:-translate-y-px hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.06)] hover:text-(--brand-500)"
           >
-            {copied ? <CheckIcon /> : <CopyIcon />}
-            {copied ? 'Copied' : 'Copy link'}
+            <CopyIcon />
+            Copy link
           </button>
         </div>
 
@@ -711,7 +690,6 @@ export default function MyPublishedTrackersPage() {
   const [unpublishingId, setUnpublishingId] = useState<string | null>(null);
   const [confirmTracker, setConfirmTracker] = useState<ITracker | null>(null);
   const [editTracker, setEditTracker] = useState<ITracker | null>(null);
-  const [editError, setEditError] = useState<string | null>(null);
 
   const trackersQuery = useTrackers({
     status: 'all',
@@ -740,9 +718,15 @@ export default function MyPublishedTrackersPage() {
     setUnpublishingId(confirmTracker._id);
     try {
       await unpublishMutation.mutateAsync(confirmTracker._id);
+      setConfirmTracker(null);
+      toast.success('Tracker unpublished');
+    } catch (error) {
+      toast.error(
+        'Tracker not unpublished',
+        getUserFacingError(error, 'Unable to unpublish this tracker.')
+      );
     } finally {
       setUnpublishingId(null);
-      setConfirmTracker(null);
     }
   };
 
@@ -751,14 +735,11 @@ export default function MyPublishedTrackersPage() {
   };
 
   const handleEdit = (tracker: ITracker) => {
-    setEditError(null);
     setEditTracker(tracker);
   };
 
   const handleSaveEdit = async (form: PublishedTrackerEditForm) => {
     if (!editTracker) return;
-    setEditError(null);
-
     try {
       await updateTrackerMutation.mutateAsync({
         trackerId: editTracker._id,
@@ -774,7 +755,10 @@ export default function MyPublishedTrackersPage() {
       setEditTracker(null);
       toast.success('Published tracker updated');
     } catch (error) {
-      setEditError(getUserFacingError(error, 'Unable to update this tracker.'));
+      toast.error(
+        'Published tracker not updated',
+        getUserFacingError(error, 'Unable to update this tracker.')
+      );
     }
   };
 
@@ -795,7 +779,6 @@ export default function MyPublishedTrackersPage() {
         key={editTracker?._id ?? 'closed'}
         tracker={editTracker}
         isSaving={updateTrackerMutation.isPending}
-        error={editError}
         onClose={() => {
           if (!updateTrackerMutation.isPending) setEditTracker(null);
         }}

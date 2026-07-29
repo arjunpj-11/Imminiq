@@ -83,6 +83,7 @@ export interface ITrackerAIGateway {
     lessonType: string;
     tags: string[];
     difficulty: string;
+    visualizationKind?: string;
     codeExample?: LessonVisualizationCodeExample;
   }): Promise<{
     html: string;

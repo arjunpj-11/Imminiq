@@ -300,6 +300,89 @@ describe('tracker topic contributions', () => {
       topicsCount: 2,
       subtopicsCount: 2,
     });
+
+    await expect(
+      repository.listForOwner({
+        sourceTrackerId: source._id.toString(),
+        ownerId: owner._id.toString(),
+      })
+    ).resolves.toMatchObject({
+      ok: true,
+      contributions: [
+        expect.objectContaining({
+          id: created.contribution.id,
+          status: 'approved',
+          mergedTopicId: mergedTopic?._id.toString(),
+        }),
+      ],
+    });
+    await expect(
+      repository.listForOwner({
+        sourceTrackerId: clone._id.toString(),
+        ownerId: contributor._id.toString(),
+      })
+    ).resolves.toMatchObject({
+      ok: true,
+      contributions: [
+        expect.objectContaining({
+          id: created.contribution.id,
+          status: 'approved',
+          mergedTopicId: mergedTopic?._id.toString(),
+        }),
+      ],
+    });
+    await expect(
+      repository.review({
+        sourceTrackerId: source._id.toString(),
+        contributionId: created.contribution.id,
+        ownerId: owner._id.toString(),
+        action: 'approve',
+      })
+    ).resolves.toEqual({ ok: false, reason: 'already-reviewed' });
+
+    const staleContribution = await TrackerTopicContribution.create({
+      sourceTrackerId: source._id,
+      cloneTrackerId: clone._id,
+      cloneTopicId: new mongoose.Types.ObjectId(),
+      requesterId: contributor._id,
+      ownerId: owner._id,
+      title: 'Combinatorics',
+      description: 'Counting principles and arrangements',
+      subtopics: [],
+    });
+    await expect(
+      repository.review({
+        sourceTrackerId: source._id.toString(),
+        contributionId: staleContribution._id.toString(),
+        ownerId: owner._id.toString(),
+        action: 'approve',
+      })
+    ).resolves.toEqual({ ok: false, reason: 'merge-conflict' });
+    await expect(
+      TrackerTopicContribution.findById(staleContribution._id).lean()
+    ).resolves.toMatchObject({ status: 'pending' });
+    await expect(
+      repository.review({
+        sourceTrackerId: source._id.toString(),
+        contributionId: staleContribution._id.toString(),
+        ownerId: owner._id.toString(),
+        action: 'reject',
+        reviewNote: 'Equivalent topic already merged.',
+      })
+    ).resolves.toMatchObject({
+      ok: true,
+      contribution: {
+        status: 'rejected',
+        reviewNote: 'Equivalent topic already merged.',
+      },
+    });
+    await expect(
+      TrackerTopic.countDocuments({
+        trackerId: source._id,
+        title: 'Combinatorics',
+        deletedAt: null,
+      })
+    ).resolves.toBe(1);
   });
 
   it('requires a dashboard clone before joining, then supports guild management and chat', async () => {
@@ -388,6 +471,22 @@ describe('tracker topic contributions', () => {
       order: 1,
       status: 'active',
     });
+    const submittedTopic = await TrackerTopic.create({
+      trackerId: memberClone._id,
+      title: 'Distributed caching',
+      description: 'New upstream topic',
+      order: 2,
+      status: 'locked',
+    });
+    const submittedSubtopic = await TrackerSubtopic.create({
+      trackerId: memberClone._id,
+      topicId: submittedTopic._id,
+      title: 'Cache invalidation',
+      description: 'Consistency strategies',
+      order: 1,
+      depth: 1,
+      isLocked: false,
+    });
     const upstreamTopic = await TrackerTopic.create({
       trackerId: tracker._id,
       title: 'Distributed caching',
@@ -419,11 +518,22 @@ describe('tracker topic contributions', () => {
     await TrackerTopicContribution.create({
       sourceTrackerId: tracker._id,
       cloneTrackerId: memberClone._id,
-      cloneTopicId: personalTopic._id,
+      cloneTopicId: submittedTopic._id,
       requesterId: member._id,
       ownerId: owner._id,
       title: upstreamTopic.title,
       description: upstreamTopic.description,
+      subtopics: [
+        {
+          sourceId: submittedSubtopic._id.toString(),
+          parentSourceId: null,
+          title: submittedSubtopic.title,
+          description: submittedSubtopic.description,
+          order: submittedSubtopic.order,
+          depth: submittedSubtopic.depth,
+          isLocked: submittedSubtopic.isLocked,
+        },
+      ],
       status: 'approved',
       reviewedAt: new Date(),
       mergedTopicId: upstreamTopic._id,
@@ -439,7 +549,7 @@ describe('tracker topic contributions', () => {
         trackerId: tracker._id.toString(),
         userId: member._id.toString(),
       })
-    ).resolves.toMatchObject({ addedTopics: 1, addedSubtopics: 1 });
+    ).resolves.toMatchObject({ addedTopics: 0, addedSubtopics: 0 });
     await expect(
       clans.getOverview({
         trackerId: tracker._id.toString(),
@@ -467,7 +577,13 @@ describe('tracker topic contributions', () => {
       sourceTopicId: upstreamTopic._id,
       deletedAt: null,
     });
-    expect(syncedUpstreamTopic).not.toBeNull();
+    expect(syncedUpstreamTopic?._id.toString()).toBe(submittedTopic._id.toString());
+    const syncedUpstreamSubtopic = await TrackerSubtopic.findOne({
+      trackerId: memberClone._id,
+      sourceSubtopicId: upstreamSubtopic._id,
+      deletedAt: null,
+    });
+    expect(syncedUpstreamSubtopic?._id.toString()).toBe(submittedSubtopic._id.toString());
     await expect(
       clans.updateTopic({
         trackerId: memberClone._id.toString(),

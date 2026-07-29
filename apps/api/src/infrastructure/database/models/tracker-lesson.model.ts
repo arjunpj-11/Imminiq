@@ -1,5 +1,28 @@
 import mongoose, { Schema } from 'mongoose';
 
+const lessonVisualizationRecommendationSchema = new Schema(
+  {
+    recommended: { type: Boolean, required: true },
+    kind: {
+      type: String,
+      enum: [
+        'process',
+        'algorithm',
+        'structure',
+        'system',
+        'chart',
+        'timeline',
+        'spatial',
+        'simulation',
+        'none',
+      ],
+      required: true,
+    },
+    reason: { type: String, default: '', trim: true },
+  },
+  { _id: false }
+);
+
 const trackerLessonSchema = new Schema(
   {
     trackerId: {
@@ -100,6 +123,11 @@ const trackerLessonSchema = new Schema(
       type: String,
       enum: ['beginner', 'intermediate', 'advanced'],
       default: 'beginner',
+    },
+
+    visualization: {
+      type: lessonVisualizationRecommendationSchema,
+      default: undefined,
     },
 
     deletedAt: {

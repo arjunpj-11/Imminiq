@@ -23,6 +23,11 @@ const lessonVisualizationSchema = new Schema(
       index: true,
     },
 
+    contentKey: {
+      type: String,
+      trim: true,
+    },
+
     lessonId: {
       type: Schema.Types.ObjectId,
       ref: 'TrackerLesson',
@@ -57,8 +62,7 @@ const lessonVisualizationSchema = new Schema(
   }
 );
 
-// One visualization per user per subtopic
-lessonVisualizationSchema.index({ trackerId: 1, subtopicId: 1, userId: 1 }, { unique: true });
+lessonVisualizationSchema.index({ contentKey: 1 }, { unique: true, sparse: true });
 
 export const LessonVisualization =
   mongoose.models.LessonVisualization ||

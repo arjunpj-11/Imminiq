@@ -54,7 +54,12 @@ Return ONLY valid JSON using this exact structure:
     "expectedAnswer": ""
   },
   "tags": ["tag1", "tag2"],
-  "difficulty": "beginner"
+  "difficulty": "beginner",
+  "visualization": {
+    "recommended": false,
+    "kind": "none",
+    "reason": "short reason"
+  }
 }
 
 ============================================================
@@ -116,6 +121,33 @@ PRACTICE TASK RULE
   - practiceTask.description must be a written question or problem the learner answers by typing.
   - practiceTask.expectedAnswer must contain a reference answer for verification.
   - practiceTask.starterCode and practiceTask.expectedOutput must be empty strings.
+
+============================================================
+VISUALIZATION RULE
+============================================================
+
+Recommend a visualization only when an interactive diagram or animation would
+materially improve understanding. Good candidates have a clear process,
+algorithm, structure, system interaction, chart, timeline, spatial relationship,
+or simulation.
+
+Set "recommended" to false for introductions, definitions, general overviews,
+best practices, soft skills, syntax-only lessons, interview advice, and lessons
+that are clearer as text or code.
+
+Allowed "kind" values:
+- "process"
+- "algorithm"
+- "structure"
+- "system"
+- "chart"
+- "timeline"
+- "spatial"
+- "simulation"
+- "none"
+
+When "recommended" is false, "kind" must be "none".
+Keep "reason" to one short sentence in simple language.
 
 ============================================================
 QUALITY RULES

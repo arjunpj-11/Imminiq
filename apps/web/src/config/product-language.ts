@@ -1,4 +1,5 @@
 export const PRODUCT_LANGUAGE = {
+  brand: 'Imminiq',
   assistant: 'Ask Immi',
   guild: 'Guild',
   guildPlural: 'Guilds',

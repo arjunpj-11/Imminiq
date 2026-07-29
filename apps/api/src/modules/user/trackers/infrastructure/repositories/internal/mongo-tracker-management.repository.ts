@@ -275,7 +275,13 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           Boolean(sourceTrackerId)
         );
 
-      const [sourceTrackers, sourceClans, analysisUsedSourceIds] = await Promise.all([
+      const [
+        sourceTrackers,
+        sourceClans,
+        analysisUsedSourceIds,
+        pendingContributionCounts,
+        progressList,
+      ] = await Promise.all([
         Tracker.find({ _id: { $in: sourceTrackerIds }, deletedAt: null })
           .select('_id ownerId')
           .lean<Array<{ _id: unknown; ownerId: unknown }>>(),
@@ -299,6 +305,26 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           sourceTrackerId: { $in: sourceTrackerIds },
           cloneFreshnessAnalysisStatus: { $in: ['pending', 'completed'] },
         }).then((sourceIds) => sourceIds as Array<{ toString(): string }>),
+        TrackerTopicContribution.aggregate<{ _id: unknown; count: number }>([
+          {
+            $match: {
+              sourceTrackerId: { $in: trackerIds },
+              status: 'pending',
+            },
+          },
+          { $group: { _id: '$sourceTrackerId', count: { $sum: 1 } } },
+        ]),
+        TrackerProgress.find(
+          this.mapper.asMongoFilter({
+            userId: userObjId,
+            trackerId: {
+              $in: trackerIds,
+            },
+            deletedAt: null,
+          })
+        )
+          .select('trackerId completedTopics totalTopics completionPercentage lastStudiedAt')
+          .lean(),
       ]);
       const analysisUsedSourceIdSet = new Set(analysisUsedSourceIds.map(String));
       const sourceOwnerMap = new Map(
@@ -323,33 +349,9 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
         )
       );
 
-      const pendingContributionCounts = await TrackerTopicContribution.aggregate<{
-        _id: unknown;
-        count: number;
-      }>([
-        {
-          $match: {
-            sourceTrackerId: { $in: trackerIds },
-            status: 'pending',
-          },
-        },
-        { $group: { _id: '$sourceTrackerId', count: { $sum: 1 } } },
-      ]);
       const pendingContributionMap = new Map(
         pendingContributionCounts.map((row) => [String(row._id), row.count])
       );
-
-      const progressList = await TrackerProgress.find(
-        this.mapper.asMongoFilter({
-          userId: userObjId,
-          trackerId: {
-            $in: trackerIds,
-          },
-          deletedAt: null,
-        })
-      )
-        .select('trackerId completedTopics totalTopics completionPercentage lastStudiedAt')
-        .lean();
 
       const progressMap = new Map(
         progressList.map((progress) => [progress.trackerId.toString(), progress])

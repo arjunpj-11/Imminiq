@@ -32,7 +32,7 @@ export default function App() {
   const features = featureQuery.data;
 
   useLayoutEffect(() => {
-    initTheme();
+    return initTheme();
   }, [initTheme]);
 
   useLayoutEffect(() => {

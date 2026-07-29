@@ -41,7 +41,6 @@ export type PublishFormData = {
 type PublishModalProps = {
   tracker: ITracker;
   isPublishing: boolean;
-  publishError: string | null;
   onClose: () => void;
   onConfirm: (trackerId: string, data: PublishFormData) => Promise<void> | void;
 };
@@ -264,7 +263,6 @@ export function DomainCombobox({
 export default function PublishTrackerModal({
   tracker,
   isPublishing,
-  publishError,
   onClose,
   onConfirm,
 }: PublishModalProps) {
@@ -432,12 +430,6 @@ export default function PublishTrackerModal({
             />
           </div>
         </div>
-
-        {publishError && (
-          <div className="mb-4 rounded-md border border-[rgba(200,50,50,0.22)] bg-[rgba(200,50,50,0.08)] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#b83232] dark:border-[rgba(255,120,120,0.20)] dark:bg-[rgba(255,120,120,0.08)] dark:text-[#ff8c8c]">
-            {publishError}
-          </div>
-        )}
 
         <div className="flex items-center justify-between gap-3 border-t max-[460px]:flex-col-reverse max-[460px]:items-stretch border-(--border-subtle) pt-5 dark:border-(--border-subtle)">
           <p className="text-[11px] text-(--text-secondary) opacity-70 dark:text-(--text-secondary)">

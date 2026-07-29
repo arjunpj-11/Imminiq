@@ -29,10 +29,16 @@ export const generateLessonVisualization = async (
       const doctypeIndex = parsedHtml.search(/<!doctype html>/i);
       if (doctypeIndex > 0) parsedHtml = parsedHtml.slice(doctypeIndex);
 
-      if (!parsedHtml.toLowerCase().includes('<canvas')) {
+      if (
+        !/^<!doctype html>/i.test(parsedHtml) ||
+        !/<canvas[\s>]/i.test(parsedHtml) ||
+        !/<script[\s>]/i.test(parsedHtml) ||
+        !/<\/html>\s*$/i.test(parsedHtml) ||
+        parsedHtml.length < 1500
+      ) {
         throw dependencyFailure(
-          'AI did not return a canvas visualization',
-          'VISUALIZATION_NO_CANVAS'
+          'AI returned an incomplete lesson visualization',
+          'VISUALIZATION_INVALID_HTML'
         );
       }
       return parsedHtml;

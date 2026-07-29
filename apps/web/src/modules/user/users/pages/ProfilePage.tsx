@@ -23,7 +23,6 @@ import type { IPublishedTracker } from '../types/profile.types';
 import AvatarCropModal from '../components/AvatarCropModal';
 import BannerModal from '../components/BannerModal';
 import EditProfilePanel from '../components/EditProfilePanel';
-import ProfileToast from '../components/ProfileToast';
 import { trackerThumbClasses } from '../constants/profile-style.constants';
 import { useProfileToast } from '../hooks/ui/useProfileToast';
 import { useSubmitRateLimit } from '../hooks/ui/useSubmitRateLimit';
@@ -77,13 +76,7 @@ export default function ProfilePage() {
   const selectedHeatmapYear = useProfileStore((state) => state.selectedHeatmapYear);
   const setSelectedHeatmapYear = useProfileStore((state) => state.setSelectedHeatmapYear);
 
-  const {
-    message: toastMsg,
-    visible: toastVisible,
-    tone: toastTone,
-    show: showToast,
-    showLoading: showLoadingToast,
-  } = useProfileToast();
+  const { show: showToast, showLoading: showLoadingToast } = useProfileToast();
 
   const submitRateLimit = useSubmitRateLimit(1800);
 
@@ -407,8 +400,6 @@ export default function ProfilePage() {
       }}
     >
       <ProfileDocumentStyles />
-
-      <ProfileToast message={toastMsg} visible={toastVisible} tone={toastTone} />
 
       <div className="profile-page flex min-w-0 flex-1 flex-col overflow-x-clip">
         <div className="mx-auto mt-5.5 w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">

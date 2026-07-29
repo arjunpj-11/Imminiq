@@ -354,6 +354,33 @@ const envSchema = z
       .min(1)
       .max(1_000)
       .default(RUNTIME_DEFAULTS.AI_WORKER_REQUESTS_PER_MINUTE),
+    AI_TRACKER_INTAKE_TEMPERATURE: z.coerce
+      .number()
+      .min(0)
+      .max(2)
+      .default(RUNTIME_DEFAULTS.AI_TRACKER_INTAKE_TEMPERATURE),
+    AI_ADAPTIVE_ASSESSMENT_TEMPERATURE: z.coerce
+      .number()
+      .min(0)
+      .max(2)
+      .default(RUNTIME_DEFAULTS.AI_ADAPTIVE_ASSESSMENT_TEMPERATURE),
+    AI_ADAPTIVE_ADVISOR_TEMPERATURE: z.coerce
+      .number()
+      .min(0)
+      .max(2)
+      .default(RUNTIME_DEFAULTS.AI_ADAPTIVE_ADVISOR_TEMPERATURE),
+    TRACKER_INTAKE_CONTEXT_TRACKER_LIMIT: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(50)
+      .default(RUNTIME_DEFAULTS.TRACKER_INTAKE_CONTEXT_TRACKER_LIMIT),
+    TRACKER_INTAKE_CONTEXT_TEST_REPORT_LIMIT: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(50)
+      .default(RUNTIME_DEFAULTS.TRACKER_INTAKE_CONTEXT_TEST_REPORT_LIMIT),
     QUEUE_REMOVE_ON_COMPLETE: z.coerce
       .number()
       .int()

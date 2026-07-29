@@ -168,7 +168,7 @@ export default function LessonChatCard({
     <div
       className={cn(
         'flex flex-col gap-4 overflow-y-auto pr-1',
-        large ? 'max-h-[58vh]' : 'max-h-90'
+        large ? 'h-full min-h-0 scroll-pb-4 pb-4' : 'max-h-90'
       )}
     >
       {chatHistoryQuery.isLoading && localMessages.length === 0 && (
@@ -377,7 +377,7 @@ export default function LessonChatCard({
               {renderMessages(true)}
             </div>
 
-            <div className="border-t border-(--border-subtle) px-6 py-4 dark:border-(--border-subtle) max-[640px]:px-4">
+            <div className="shrink-0 border-t border-(--border-subtle) bg-(--surface-card) px-6 py-4 dark:border-(--border-subtle) dark:bg-(--surface-card) max-[640px]:px-4">
               <div className="mb-3">{renderQuickActions()}</div>
               {renderChatInput()}
             </div>

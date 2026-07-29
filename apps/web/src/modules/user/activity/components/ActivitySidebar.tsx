@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import { normalizePercentage } from '../../../../lib/bounded-number';
 import type { IActivityPageResponse } from '../types/activity.types';
 import { formatNumber, formatSignedPercent } from '../utils/activity-formatters';
 import { cn } from '../utils/activity-ui';
@@ -160,7 +161,7 @@ const WeeklyXpCard = ({ weekly }: IWeeklyXpCardProps) => {
         <div
           className="h-full rounded-full bg-(--brand-500) transition-[width] duration-500 dark:bg-(--brand-500)"
           style={{
-            width: `${Math.min(100, Math.max(0, weekly.progressPercent))}%`,
+            width: `${normalizePercentage(weekly.progressPercent)}%`,
           }}
         />
       </div>

@@ -20,6 +20,7 @@ import { getApiErrorMessage } from '../utils/community-formatters';
 import { communityPageClass, cn } from '../utils/community-ui';
 import { validateSearch } from '../utils/community-validation';
 import type { ICommunityTracker } from '../types/community.types';
+import { toast } from '../../../../lib/toast';
 
 export default function CommunityBrowsePage() {
   const navigate = useNavigate();
@@ -123,10 +124,18 @@ export default function CommunityBrowsePage() {
         onSuccess: () => {
           setActiveCloneId(null);
           setCloneCandidate(null);
+          toast.success('Tracker cloned to your dashboard');
         },
-        onError: () => {
+        onError: (error) => {
           setActiveCloneId(null);
           setCloneCandidate(null);
+          toast.error(
+            'Tracker not cloned',
+            getApiErrorMessage(
+              'Unable to clone tracker. Please try again.',
+              error?.response?.data?.message
+            )
+          );
         },
       }
     );
@@ -248,15 +257,6 @@ export default function CommunityBrowsePage() {
                 </aside>
               </div>
             </section>
-
-            {cloneTracker.isError && (
-              <div className="rounded-xl border border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.07)] px-4 py-3 text-[12px] leading-normal text-(--brand-500) dark:border-[rgba(232,129,106,0.25)] dark:text-(--brand-500)">
-                {getApiErrorMessage(
-                  'Unable to clone tracker. Please try again.',
-                  cloneTracker.error?.response?.data?.message
-                )}
-              </div>
-            )}
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {browse.data.stats.map((card, index) => (

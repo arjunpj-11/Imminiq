@@ -1,4 +1,5 @@
 import { cn } from '../../../../lib/cn';
+import { normalizePercentage } from '../../../../lib/bounded-number';
 export { cn };
 
 import type { ITracker, TrackerDomain, TrackerStatus } from '../types/tracker.types';
@@ -52,5 +53,4 @@ export const getTrackerInitials = (tracker: Pick<ITracker, 'title'>) => {
   );
 };
 
-export const getProgressLabel = (progress?: number) =>
-  `${Math.max(0, Math.min(100, Math.round(progress || 0)))}%`;
+export const getProgressLabel = (progress?: number) => `${normalizePercentage(progress)}%`;

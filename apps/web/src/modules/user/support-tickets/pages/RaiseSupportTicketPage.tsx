@@ -1,12 +1,17 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { CheckCircle2, LifeBuoy, Send } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router';
+import FormField from '../../../../components/forms/FormField';
+import Input from '../../../../components/forms/Input';
+import Select from '../../../../components/forms/Select';
+import Textarea from '../../../../components/forms/Textarea';
 import { useCreateSupportTicket } from '../hooks/useCreateSupportTicket';
 import type { CreateSupportTicketInput } from '../types/support-tickets.types';
 import { ROUTES } from '../../../../routes/config/route-paths';
 import PageHero from '../../../../components/layout/PageHero';
 import { safeSessionStorage } from '../../../../lib/storage/safe-storage';
 import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys';
+import { toast } from '../../../../lib/toast';
 
 const initial: CreateSupportTicketInput = {
   subject: '',
@@ -16,7 +21,6 @@ const initial: CreateSupportTicketInput = {
 };
 export default function RaiseSupportTicketPage() {
   const [searchParams] = useSearchParams();
-  const errorRef = useRef<HTMLParagraphElement>(null);
   const [form, setForm] = useState<CreateSupportTicketInput>(() => {
     let saved = initial;
     try {
@@ -59,12 +63,15 @@ export default function RaiseSupportTicketPage() {
     safeSessionStorage.set(STORAGE_KEYS.supportTicketDraft, JSON.stringify(form));
   }, [create.isSuccess, form, isDirty]);
 
-  useEffect(() => {
-    if (create.isError) errorRef.current?.focus();
-  }, [create.isError]);
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    create.mutate(form, { onSuccess: () => setForm(initial) });
+    create.mutate(form, {
+      onSuccess: () => {
+        setForm(initial);
+        toast.success('Support ticket submitted');
+      },
+      onError: () => toast.error('Ticket not submitted', 'Please check the details and try again.'),
+    });
   };
   return (
     <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8">
@@ -108,8 +115,8 @@ export default function RaiseSupportTicketPage() {
           </div>
         ) : (
           <form onSubmit={submit} className="space-y-5">
-            <Field label="Subject">
-              <input
+            <FormField label="Subject" required labelClassName="uppercase tracking-wider">
+              <Input
                 required
                 minLength={5}
                 maxLength={160}
@@ -117,10 +124,10 @@ export default function RaiseSupportTicketPage() {
                 onChange={(e) => setForm((value) => ({ ...value, subject: e.target.value }))}
                 placeholder="Briefly describe the problem"
               />
-            </Field>
+            </FormField>
             <div className="grid gap-5 sm:grid-cols-2">
-              <Field label="Category">
-                <select
+              <FormField label="Category" labelClassName="uppercase tracking-wider">
+                <Select
                   value={form.category}
                   onChange={(e) =>
                     setForm((value) => ({
@@ -134,10 +141,10 @@ export default function RaiseSupportTicketPage() {
                   <option value="technical">Technical</option>
                   <option value="billing">Billing</option>
                   <option value="other">Other</option>
-                </select>
-              </Field>
-              <Field label="Priority">
-                <select
+                </Select>
+              </FormField>
+              <FormField label="Priority" labelClassName="uppercase tracking-wider">
+                <Select
                   value={form.priority}
                   onChange={(e) =>
                     setForm((value) => ({
@@ -150,8 +157,8 @@ export default function RaiseSupportTicketPage() {
                   <option value="medium">Medium</option>
                   <option value="high">High</option>
                   <option value="urgent">Urgent</option>
-                </select>
-              </Field>
+                </Select>
+              </FormField>
             </div>
             <div className="rounded-xl border border-(--border-subtle) bg-(--surface-muted) px-4 py-3 text-[12px] leading-5 text-(--text-secondary)">
               <strong className="text-(--text-primary)">
@@ -171,8 +178,8 @@ export default function RaiseSupportTicketPage() {
                     ? 'include the tracker and lesson name, plus what seemed incorrect or unclear.'
                     : 'describe what you expected and what happened instead.'}
             </div>
-            <Field label="What happened?">
-              <textarea
+            <FormField label="What happened?" required labelClassName="uppercase tracking-wider">
+              <Textarea
                 required
                 minLength={20}
                 maxLength={3000}
@@ -181,12 +188,7 @@ export default function RaiseSupportTicketPage() {
                 onChange={(e) => setForm((value) => ({ ...value, description: e.target.value }))}
                 placeholder="Include what you expected, what happened, and any steps that reproduce the issue."
               />
-            </Field>
-            {create.isError && (
-              <p ref={errorRef} tabIndex={-1} className="text-sm text-(--danger)">
-                The ticket could not be submitted. Please check the details and try again.
-              </p>
-            )}
+            </FormField>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <Link to={ROUTES.dashboard} className="text-sm text-(--text-secondary)">
@@ -208,13 +210,5 @@ export default function RaiseSupportTicketPage() {
         )}
       </div>
     </main>
-  );
-}
-function Field({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <label className="grid gap-2 text-xs font-semibold uppercase tracking-wider text-(--text-secondary) [&_input]:rounded-lg [&_input]:border [&_input]:border-(--border-subtle) [&_input]:bg-(--surface-elevated) [&_input]:p-3 [&_input]:text-sm [&_input]:font-normal [&_input]:normal-case [&_input]:text-(--text-primary) [&_select]:rounded-lg [&_select]:border [&_select]:border-(--border-subtle) [&_select]:bg-(--surface-elevated) [&_select]:p-3 [&_select]:text-sm [&_select]:font-normal [&_select]:normal-case [&_select]:text-(--text-primary) [&_textarea]:rounded-lg [&_textarea]:border [&_textarea]:border-(--border-subtle) [&_textarea]:bg-(--surface-elevated) [&_textarea]:p-3 [&_textarea]:text-sm [&_textarea]:font-normal [&_textarea]:normal-case [&_textarea]:text-(--text-primary)">
-      {label}
-      {children}
-    </label>
   );
 }

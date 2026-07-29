@@ -20,6 +20,7 @@ import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import { cn } from '../../../../lib/cn';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { socket } from '../../../../lib/socket';
+import { toast } from '../../../../lib/toast';
 import { safeLocalStorage, safeSessionStorage } from '../../../../lib/storage/safe-storage';
 import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys';
 import { useAuthStore } from '../../../../store/useAuthStore';
@@ -102,9 +103,6 @@ export default function TrackerClanPage() {
   const [connected, setConnected] = useState(false);
   const [memberMenuId, setMemberMenuId] = useState<string | null>(null);
   const [memberAction, setMemberAction] = useState<MemberAction | null>(null);
-  const [memberActionError, setMemberActionError] = useState<string | null>(null);
-  const [memberActionNotice, setMemberActionNotice] = useState<string | null>(null);
-  const [syncNotice, setSyncNotice] = useState<string | null>(null);
   const [acceptedChangesConsumed, setAcceptedChangesConsumed] = useState(false);
   const [roleInvitationAction, setRoleInvitationAction] = useState<'accept' | 'decline' | null>(
     null
@@ -279,6 +277,31 @@ export default function TrackerClanPage() {
     () => (contributionsQuery.data ?? []).filter((item) => item.status === 'pending'),
     [contributionsQuery.data]
   );
+  const handleReviewContribution = async (contributionId: string, action: 'approve' | 'reject') => {
+    try {
+      await reviewContribution.mutateAsync({
+        trackerId,
+        contributionId,
+        action,
+        reviewNote:
+          action === 'approve' ? 'Merged by guild manager.' : 'Declined by guild manager.',
+      });
+      toast.success(
+        action === 'approve'
+          ? 'Topic merged into the original tracker.'
+          : 'Topic contribution rejected.'
+      );
+    } catch (error) {
+      toast.error(
+        getUserFacingError(
+          error,
+          action === 'approve'
+            ? 'Unable to merge this topic.'
+            : 'Unable to reject this contribution.'
+        )
+      );
+    }
+  };
   const challenges = useMemo(() => challengesQuery.data ?? [], [challengesQuery.data]);
   const timeline = useMemo(() => {
     const chatWindowStart = chatClock - CHAT_RETENTION_MS;
@@ -374,10 +397,9 @@ export default function TrackerClanPage() {
     const text = (retryText ?? draft).trim();
     if ((!text && !file) || !connected) return;
     if (file && file.size > 10 * 1024 * 1024) {
-      setChatError('Choose a file up to 10 MB.');
+      toast.error('Attachment is too large', 'Choose a file up to 10 MB.');
       return;
     }
-    setChatError(null);
     const clientId = `guild-pending-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const kind = file
       ? input && typeof input === 'object' && input.kind === 'voice'
@@ -463,7 +485,7 @@ export default function TrackerClanPage() {
               item.clientId === clientId ? { ...item, deliveryState: 'failed' } : item
             )
           );
-          setChatError(result?.message ?? 'Unable to send message.');
+          toast.error('Message not sent', result?.message ?? 'Unable to send this message.');
         }
       }
     );
@@ -475,8 +497,6 @@ export default function TrackerClanPage() {
   const confirmMemberAction = async () => {
     if (!memberAction) return;
     const { member, type } = memberAction;
-    setMemberActionError(null);
-    setMemberActionNotice(null);
     try {
       if (type === 'promote' || type === 'demote') {
         await updateMember.mutateAsync({
@@ -489,16 +509,22 @@ export default function TrackerClanPage() {
       } else {
         await removeMember.mutateAsync({ trackerId, memberId: member.userId });
       }
-      if (type === 'promote' || type === 'transfer') {
-        setMemberActionNotice(
-          type === 'transfer'
-            ? `Ownership invitation sent to ${member.name}. The tracker will transfer only after they accept.`
-            : `Co-owner invitation sent to ${member.name}. Their role will change only after they accept.`
-        );
-      }
+      const successMessages: Record<MemberAction['type'], [string, string?]> = {
+        transfer: [
+          'Ownership invitation sent',
+          `${member.name} must accept before the tracker transfers.`,
+        ],
+        promote: ['Co-owner invitation sent', `${member.name}'s role changes after they accept.`],
+        demote: ['Guild member demoted'],
+        remove: ['Member removed from guild'],
+      };
+      toast.success(...successMessages[type]);
       setMemberAction(null);
     } catch (error) {
-      setMemberActionError(getUserFacingError(error, 'Unable to update this guild member.'));
+      toast.error(
+        'Guild member update failed',
+        getUserFacingError(error, 'Unable to update this guild member.')
+      );
     }
   };
 
@@ -509,20 +535,37 @@ export default function TrackerClanPage() {
         opponentId: challengeOpponent?.userId,
         ...input,
       },
-      { onSuccess: () => setChallengeOpponent(undefined) }
+      {
+        onSuccess: () => {
+          setChallengeOpponent(undefined);
+          toast.success('Guild challenge created');
+        },
+        onError: (error) => {
+          toast.error(
+            'Challenge not created',
+            getUserFacingError(error, 'Unable to create this challenge.')
+          );
+        },
+      }
     );
   };
 
   const fetchLatestGuildChanges = () => {
-    setSyncNotice(null);
     fetchGuildChanges.mutate(
       { trackerId },
       {
         onSuccess: (response) => {
           const result = response.data;
           setAcceptedChangesConsumed(true);
-          setSyncNotice(
+          toast.success(
+            'Guild changes applied',
             `Fetched ${result.addedTopics} new topic${result.addedTopics === 1 ? '' : 's'} and ${result.addedSubtopics} new subtopic${result.addedSubtopics === 1 ? '' : 's'}. Your personal additions were kept.`
+          );
+        },
+        onError: (error) => {
+          toast.error(
+            'Guild changes not applied',
+            getUserFacingError(error, 'Unable to fetch guild changes.')
           );
         },
       }
@@ -575,7 +618,19 @@ export default function TrackerClanPage() {
               <button
                 type="button"
                 disabled={joinClan.isPending}
-                onClick={() => joinClan.mutate({ trackerId })}
+                onClick={() =>
+                  joinClan.mutate(
+                    { trackerId },
+                    {
+                      onSuccess: () => toast.success('Joined tracker guild'),
+                      onError: (error) =>
+                        toast.error(
+                          'Could not join guild',
+                          getUserFacingError(error, 'Unable to join this guild.')
+                        ),
+                    }
+                  )
+                }
                 className="mt-8 rounded-lg bg-[#f4c95d] px-8 py-3.5 text-sm font-extrabold text-[#171512] transition hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(244,201,93,.25)] disabled:opacity-60"
               >
                 {joinClan.isPending ? 'Joining guild...' : 'Join guild instantly'}
@@ -674,21 +729,6 @@ export default function TrackerClanPage() {
             </div>
           </div>
         </section>
-
-        {(memberActionNotice || syncNotice || fetchGuildChanges.error) && (
-          <div
-            className={cn(
-              'rounded-xl border px-4 py-3 text-[12px] font-semibold',
-              fetchGuildChanges.error
-                ? 'border-red-500/25 bg-red-500/8 text-red-600 dark:text-red-300'
-                : 'border-emerald-500/25 bg-emerald-500/8 text-emerald-700 dark:text-emerald-300'
-            )}
-          >
-            {fetchGuildChanges.error
-              ? getUserFacingError(fetchGuildChanges.error, 'Unable to fetch guild changes.')
-              : (memberActionNotice ?? syncNotice)}
-          </div>
-        )}
 
         {incomingRoleInvitation && (
           <section className="rounded-2xl border border-[#d6ad47]/40 bg-[linear-gradient(135deg,rgba(244,201,93,.16),rgba(184,76,43,.07))] p-5 shadow-(--shadow-1) dark:border-[#d6ad47]/25 sm:p-6">
@@ -849,16 +889,43 @@ export default function TrackerClanPage() {
                         acceptChallenge.mutate(
                           { trackerId, challengeId: challenge.id },
                           {
-                            onSuccess: (response) =>
-                              navigate(ROUTES.trackerClanBattle(trackerId, response.data.id)),
+                            onSuccess: (response) => {
+                              toast.success('Challenge accepted');
+                              navigate(ROUTES.trackerClanBattle(trackerId, response.data.id));
+                            },
+                            onError: (error) =>
+                              toast.error(
+                                'Could not accept challenge',
+                                getUserFacingError(error, 'Unable to accept this challenge.')
+                              ),
                           }
                         )
                       }
                       onDecline={() =>
-                        declineChallenge.mutate({ trackerId, challengeId: challenge.id })
+                        declineChallenge.mutate(
+                          { trackerId, challengeId: challenge.id },
+                          {
+                            onSuccess: () => toast.success('Challenge declined'),
+                            onError: (error) =>
+                              toast.error(
+                                'Could not decline challenge',
+                                getUserFacingError(error, 'Unable to decline this challenge.')
+                              ),
+                          }
+                        )
                       }
                       onCancel={() =>
-                        cancelChallenge.mutate({ trackerId, challengeId: challenge.id })
+                        cancelChallenge.mutate(
+                          { trackerId, challengeId: challenge.id },
+                          {
+                            onSuccess: () => toast.success('Challenge cancelled'),
+                            onError: (error) =>
+                              toast.error(
+                                'Could not cancel challenge',
+                                getUserFacingError(error, 'Unable to cancel this challenge.')
+                              ),
+                          }
+                        )
                       }
                       onEnter={() => navigate(ROUTES.trackerClanBattle(trackerId, challenge.id))}
                     />
@@ -990,8 +1057,9 @@ export default function TrackerClanPage() {
                                     { trackerId, messageId: message.id, emoji },
                                     (result: { ok?: boolean; message?: string }) => {
                                       if (!result?.ok) {
-                                        setChatError(
-                                          result?.message ?? 'Unable to update reaction.'
+                                        toast.error(
+                                          'Reaction not updated',
+                                          result?.message ?? 'Unable to update this reaction.'
                                         );
                                       }
                                     }
@@ -1019,7 +1087,10 @@ export default function TrackerClanPage() {
                                   },
                                   (result: { ok?: boolean; message?: string }) => {
                                     if (!result?.ok) {
-                                      setChatError(result?.message ?? 'Unable to update reaction.');
+                                      toast.error(
+                                        'Reaction not updated',
+                                        result?.message ?? 'Unable to update this reaction.'
+                                      );
                                     }
                                   }
                                 );
@@ -1220,11 +1291,10 @@ export default function TrackerClanPage() {
                   onChange={(event) => {
                     const file = event.target.files?.[0] ?? null;
                     if (file && file.size > 10 * 1024 * 1024) {
-                      setChatError('Choose a file up to 10 MB.');
+                      toast.error('Attachment is too large', 'Choose a file up to 10 MB.');
                       event.target.value = '';
                       return;
                     }
-                    setChatError(null);
                     setSelectedFile(file);
                   }}
                 />
@@ -1480,14 +1550,7 @@ export default function TrackerClanPage() {
                   <button
                     type="button"
                     disabled={reviewContribution.isPending}
-                    onClick={() =>
-                      reviewContribution.mutate({
-                        trackerId,
-                        contributionId: request.id,
-                        action: 'approve',
-                        reviewNote: 'Merged by guild manager.',
-                      })
-                    }
+                    onClick={() => void handleReviewContribution(request.id, 'approve')}
                     className="rounded-lg bg-[#171512] px-4 py-2.5 text-xs font-extrabold text-white dark:bg-[#f2f0eb] dark:text-[#171512]"
                   >
                     Approve & merge
@@ -1495,14 +1558,7 @@ export default function TrackerClanPage() {
                   <button
                     type="button"
                     disabled={reviewContribution.isPending}
-                    onClick={() =>
-                      reviewContribution.mutate({
-                        trackerId,
-                        contributionId: request.id,
-                        action: 'reject',
-                        reviewNote: 'Declined by guild manager.',
-                      })
-                    }
+                    onClick={() => void handleReviewContribution(request.id, 'reject')}
                     className={buttonClass}
                   >
                     Reject
@@ -1521,19 +1577,9 @@ export default function TrackerClanPage() {
             : 'Decline role invitation?'
         }
         description={
-          <>
-            {roleInvitationAction === 'accept'
-              ? 'Your authority changes only after this confirmation. Your personal clone and its private topics stay stored; make any merge requests you want before continuing.'
-              : 'Your current member role and personal clone will remain unchanged.'}
-            {respondToRoleInvitation.error && (
-              <span className="mt-2 block font-semibold text-red-500">
-                {getUserFacingError(
-                  respondToRoleInvitation.error,
-                  'Unable to respond to this invitation.'
-                )}
-              </span>
-            )}
-          </>
+          roleInvitationAction === 'accept'
+            ? 'Your authority changes only after this confirmation. Your personal clone and its private topics stay stored; make any merge requests you want before continuing.'
+            : 'Your current member role and personal clone will remain unchanged.'
         }
         confirmText={roleInvitationAction === 'accept' ? 'Accept invitation' : 'Decline invitation'}
         variant={roleInvitationAction === 'decline' ? 'danger' : 'default'}
@@ -1548,7 +1594,21 @@ export default function TrackerClanPage() {
           if (!incomingRoleInvitation || !roleInvitationAction) return;
           respondToRoleInvitation.mutate(
             { trackerId, invitationId: incomingRoleInvitation.id, action: roleInvitationAction },
-            { onSuccess: () => setRoleInvitationAction(null) }
+            {
+              onSuccess: () => {
+                toast.success(
+                  roleInvitationAction === 'accept'
+                    ? 'Role invitation accepted'
+                    : 'Role invitation declined'
+                );
+                setRoleInvitationAction(null);
+              },
+              onError: (error) =>
+                toast.error(
+                  'Could not respond to invitation',
+                  getUserFacingError(error, 'Unable to respond to this invitation.')
+                ),
+            }
           );
         }}
       />
@@ -1572,8 +1632,12 @@ export default function TrackerClanPage() {
               setGuildDeletePending(false);
               if (result?.ok) {
                 setDeletingGuildMessage(null);
+                toast.success('Guild message deleted');
               } else {
-                setChatError(result?.message ?? 'Unable to delete message.');
+                toast.error(
+                  'Message not deleted',
+                  result?.message ?? 'Unable to delete this message.'
+                );
               }
             }
           );
@@ -1583,20 +1647,9 @@ export default function TrackerClanPage() {
         open={leaveDialogOpen}
         title={clan.role === 'owner' ? 'Transfer ownership before leaving' : 'Leave this guild?'}
         description={
-          clan.role === 'owner' ? (
-            'The guild must always have an owner. Transfer ownership to another member first, then you can leave as a co-owner.'
-          ) : (
-            <>
-              {
-                'You will lose access to guild chat, challenges, and merge requests. Your cloned tracker and learning progress will remain available.'
-              }
-              {leaveClan.error && (
-                <span className="mt-2 block font-semibold text-red-500">
-                  {getUserFacingError(leaveClan.error, 'Unable to leave this guild.')}
-                </span>
-              )}
-            </>
-          )
+          clan.role === 'owner'
+            ? 'The guild must always have an owner. Transfer ownership to another member first, then you can leave as a co-owner.'
+            : 'You will lose access to guild chat, challenges, and merge requests. Your cloned tracker and learning progress will remain available.'
         }
         confirmText={clan.role === 'owner' ? 'Choose a new owner' : 'Leave guild'}
         variant={clan.role === 'owner' ? 'default' : 'danger'}
@@ -1619,8 +1672,14 @@ export default function TrackerClanPage() {
               onSuccess: () => {
                 socket.emit('tracker-clan:leave', { trackerId });
                 setLeaveDialogOpen(false);
+                toast.success('Left tracker guild');
                 navigate(ROUTES.trackers);
               },
+              onError: (error) =>
+                toast.error(
+                  'Could not leave guild',
+                  getUserFacingError(error, 'Unable to leave this guild.')
+                ),
             }
           );
         }}
@@ -1633,20 +1692,15 @@ export default function TrackerClanPage() {
             : 'Confirm member change'
         }
         description={
-          memberAction ? (
-            <>
-              {memberAction.type === 'transfer'
-                ? 'This sends an ownership invitation. Nothing changes until the member reviews their clone and accepts it; after acceptance, you become a co-owner.'
-                : memberAction.type === 'promote'
-                  ? 'This sends a co-owner invitation. Their current clone and private topics remain available while they decide and prepare merge requests.'
-                  : memberAction.type === 'demote'
-                    ? 'This co-owner will lose guild management permissions. Their retained personal clone becomes visible again.'
-                    : 'This member will lose access to guild chat and guild features.'}
-              {memberActionError && (
-                <span className="mt-2 block font-semibold text-red-500">{memberActionError}</span>
-              )}
-            </>
-          ) : undefined
+          memberAction
+            ? memberAction.type === 'transfer'
+              ? 'This sends an ownership invitation. Nothing changes until the member reviews their clone and accepts it; after acceptance, you become a co-owner.'
+              : memberAction.type === 'promote'
+                ? 'This sends a co-owner invitation. Their current clone and private topics remain available while they decide and prepare merge requests.'
+                : memberAction.type === 'demote'
+                  ? 'This co-owner will lose guild management permissions. Their retained personal clone becomes visible again.'
+                  : 'This member will lose access to guild chat and guild features.'
+            : undefined
         }
         confirmText={
           memberAction?.type === 'transfer'
@@ -1666,7 +1720,6 @@ export default function TrackerClanPage() {
         onClose={() => {
           if (!busy) {
             setMemberAction(null);
-            setMemberActionError(null);
           }
         }}
         onConfirm={() => void confirmMemberAction()}
@@ -1675,11 +1728,6 @@ export default function TrackerClanPage() {
         open={challengeOpponent !== undefined}
         opponent={challengeOpponent ?? null}
         isLoading={createChallenge.isPending}
-        error={
-          createChallenge.error
-            ? getUserFacingError(createChallenge.error, 'Unable to create this challenge.')
-            : null
-        }
         onClose={() => {
           if (!createChallenge.isPending) {
             createChallenge.reset();

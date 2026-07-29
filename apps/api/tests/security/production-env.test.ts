@@ -85,4 +85,22 @@ describe('production environment policy', () => {
       )
     ).toThrow('Pagination limits must satisfy');
   });
+
+  it('rejects unsafe AI-agent runtime tuning', () => {
+    expect(() =>
+      parseApiEnvironment(
+        productionEnvironment({
+          AI_TRACKER_INTAKE_TEMPERATURE: '2.1',
+        })
+      )
+    ).toThrow();
+
+    expect(() =>
+      parseApiEnvironment(
+        productionEnvironment({
+          TRACKER_INTAKE_CONTEXT_TRACKER_LIMIT: '0',
+        })
+      )
+    ).toThrow();
+  });
 });

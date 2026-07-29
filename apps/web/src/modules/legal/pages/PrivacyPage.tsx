@@ -1,4 +1,6 @@
 import { Link } from 'react-router';
+
+import ImminiqWordmark from '../../../components/ui/ImminiqWordmark';
 import { ROUTES } from '../../../routes/config/route-paths';
 
 import {
@@ -65,11 +67,10 @@ export default function PrivacyPage() {
             >
               <LogoIcon className="h-8.5 w-8.5" />
 
-              <span className="text-xl font-bold leading-none tracking-[-0.5px] text-(--text-primary) dark:text-(--text-primary)">
-                immin
-                <span className="text-(--brand-500) dark:text-(--brand-500)">iq</span>
-                <span className="text-(--brand-500) dark:text-(--brand-500)">.</span>
-              </span>
+              <ImminiqWordmark
+                trailingDot
+                className="text-xl font-bold leading-none tracking-[-0.5px]"
+              />
             </Link>
 
             <div
