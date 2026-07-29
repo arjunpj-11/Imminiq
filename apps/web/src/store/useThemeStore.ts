@@ -25,11 +25,6 @@ interface IThemeStore {
   previewMode: ThemeMode | null;
 
   /**
-   * True after initTheme runs once.
-   */
-  initialized: boolean;
-
-  /**
    * Permanently apply and save the theme locally.
    * Use this only after "Save Changes" succeeds.
    */
@@ -54,29 +49,25 @@ interface IThemeStore {
   clearThemePreview: () => void;
 
   toggleTheme: () => void;
-  initTheme: () => void;
+  initTheme: () => () => void;
 }
+
+const SYSTEM_DARK_QUERY = '(prefers-color-scheme: dark)';
 
 const isThemeMode = (value: string | null): value is ThemeMode => {
   return value === 'light' || value === 'dark' || value === 'system';
 };
 
-const getSystemTheme = (): Theme => {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-};
+const themeFromSystemPreference = (prefersDark: boolean): Theme => (prefersDark ? 'dark' : 'light');
 
 const resolveTheme = (mode: ThemeMode): Theme => {
-  return mode === 'system' ? getSystemTheme() : mode;
+  return mode === 'system'
+    ? themeFromSystemPreference(window.matchMedia(SYSTEM_DARK_QUERY).matches)
+    : mode;
 };
 
 const applyTheme = (theme: Theme) => {
-  const root = document.documentElement;
-
-  if (theme === 'dark') {
-    root.classList.add('dark');
-  } else {
-    root.classList.remove('dark');
-  }
+  document.documentElement.classList.toggle('dark', theme === 'dark');
 };
 
 export const hasSavedLocalThemeMode = () => {
@@ -97,7 +88,6 @@ export const useThemeStore = create<IThemeStore>((set, get) => ({
   mode: 'system',
   theme: 'light',
   previewMode: null,
-  initialized: false,
 
   setMode: (mode) => {
     const theme = resolveTheme(mode);
@@ -109,7 +99,6 @@ export const useThemeStore = create<IThemeStore>((set, get) => ({
       mode,
       theme,
       previewMode: null,
-      initialized: true,
     });
   },
 
@@ -127,7 +116,6 @@ export const useThemeStore = create<IThemeStore>((set, get) => ({
       mode,
       theme,
       previewMode: null,
-      initialized: true,
     });
   },
 
@@ -172,17 +160,10 @@ export const useThemeStore = create<IThemeStore>((set, get) => ({
       mode: nextMode,
       theme: nextTheme,
       previewMode: null,
-      initialized: true,
     });
   },
 
   initTheme: () => {
-    const alreadyInitialized = get().initialized;
-
-    if (alreadyInitialized) {
-      return;
-    }
-
     const mode = getSavedThemeMode();
     const theme = resolveTheme(mode);
 
@@ -192,39 +173,26 @@ export const useThemeStore = create<IThemeStore>((set, get) => ({
       mode,
       theme,
       previewMode: null,
-      initialized: true,
     });
 
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const mediaQuery = window.matchMedia(SYSTEM_DARK_QUERY);
 
-    const handleSystemThemeChange = () => {
-      const { mode: currentSavedMode, previewMode } = get();
+    const syncActiveTheme = () => {
+      const { mode: savedMode, previewMode } = get();
+      const activeMode = previewMode ?? savedMode;
+      const activeTheme =
+        activeMode === 'system' ? themeFromSystemPreference(mediaQuery.matches) : activeMode;
 
-      if (previewMode === 'system') {
-        const previewTheme = resolveTheme('system');
-
-        applyTheme(previewTheme);
-
-        set({
-          theme: previewTheme,
-        });
-
-        return;
-      }
-
-      if (currentSavedMode !== 'system' || previewMode) {
-        return;
-      }
-
-      const newSystemTheme = resolveTheme('system');
-
-      applyTheme(newSystemTheme);
-
-      set({
-        theme: newSystemTheme,
-      });
+      applyTheme(activeTheme);
+      set({ theme: activeTheme });
     };
 
-    mediaQuery.addEventListener('change', handleSystemThemeChange);
+    mediaQuery.addEventListener('change', syncActiveTheme);
+    window.addEventListener('pageshow', syncActiveTheme);
+
+    return () => {
+      mediaQuery.removeEventListener('change', syncActiveTheme);
+      window.removeEventListener('pageshow', syncActiveTheme);
+    };
   },
 }));
