@@ -53,4 +53,12 @@ jobs:
         run: npm run test
 
       - name: Run build
+        env:
+          VITE_API_URL: /api
         run: npm run build
+
+      - name: Install Chromium for browser smoke tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Run production browser smoke tests
+        run: npm run test:e2e --workspace=@imminiq/web
