@@ -23,12 +23,12 @@ describe('production environment policy', () => {
     expect(() => parseApiEnvironment(productionEnvironment())).not.toThrow();
   });
 
-  it('accepts host-only cookies while the API is hosted on an external provider', () => {
+  it('accepts host-only cookies when AWS serves the frontend and API on one hostname', () => {
     expect(() =>
       parseApiEnvironment(
         productionEnvironment({
-          CLIENT_URL: 'https://imminiq-web.vercel.app',
-          SERVER_URL: 'https://imminiq-api.onrender.com',
+          CLIENT_URL: 'https://imminiq.arjunpj.online',
+          SERVER_URL: 'https://imminiq.arjunpj.online',
           AUTH_COOKIE_DOMAIN: undefined,
         })
       )
