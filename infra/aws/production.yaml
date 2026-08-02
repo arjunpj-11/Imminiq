@@ -1,0 +1,551 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Imminiq production hosting - S3/CloudFront frontend and Docker on EC2.
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: imminiq
+  EnvironmentName:
+    Type: String
+    Default: production
+  DeliveryMode:
+    Type: String
+    Default: cloudfront
+    AllowedValues: [cloudfront, temporary]
+    Description: Use temporary EC2 HTTPS delivery until CloudFront account verification completes.
+  TemporaryDomainName:
+    Type: String
+    Default: ''
+    Description: Optional custom hostname used by Caddy in temporary delivery mode.
+  InstanceType:
+    Type: String
+    Default: c7i-flex.large
+    AllowedValues: [c7i-flex.large, m7i-flex.large, t3.small, t3.micro]
+    Description: Small x86 instance type; eligibility depends on the account and larger choices give Piston more headroom.
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+  PublicSubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+  CloudFrontOriginPrefixListId:
+    Type: String
+    Default: pl-9aa247f3
+    Description: AWS-managed com.amazonaws.global.cloudfront.origin-facing prefix list ID.
+  DopplerProject:
+    Type: String
+    Default: imminiq
+  DopplerConfig:
+    Type: String
+    Default: prd
+  GitHubOwner:
+    Type: String
+    Default: arjunpj-11
+  GitHubRepository:
+    Type: String
+    Default: Imminiq
+  CreateGitHubOidcProvider:
+    Type: String
+    Default: 'true'
+    AllowedValues: ['true', 'false']
+  ExistingGitHubOidcProviderArn:
+    Type: String
+    Default: ''
+
+Conditions:
+  ShouldCreateGitHubOidcProvider: !Equals [!Ref CreateGitHubOidcProvider, 'true']
+  UseCloudFront: !Equals [!Ref DeliveryMode, cloudfront]
+  UseTemporaryDelivery: !Equals [!Ref DeliveryMode, temporary]
+  HasTemporaryDomainName: !Not [!Equals [!Ref TemporaryDomainName, '']]
+
+Resources:
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: RemoveStaleVersions
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 7
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 1
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+
+  ApiRepository:
+    Type: AWS::ECR::Repository
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      RepositoryName: !Sub '${ProjectName}-api'
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      ImageTagMutability: MUTABLE
+      LifecyclePolicy:
+        LifecyclePolicyText: >-
+          {"rules":[{"rulePriority":1,"description":"Keep the latest ten images","selection":{"tagStatus":"any","countType":"imageCountMoreThan","countNumber":10},"action":{"type":"expire"}}]}
+
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-${EnvironmentName}-ec2'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      Policies:
+        - PolicyName: RuntimeAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:BatchGetImage
+                  - ecr:GetDownloadUrlForLayer
+                Resource: !GetAtt ApiRepository.Arn
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource: !Sub 'arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ProjectName}/${EnvironmentName}/doppler-token'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource:
+                  - !GetAtt FrontendBucket.Arn
+                  - !Sub '${FrontendBucket.Arn}/*'
+
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles: [!Ref InstanceRole]
+
+  ApiSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: API traffic from CloudFront origin servers only
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - !If
+          - UseCloudFront
+          - IpProtocol: tcp
+            FromPort: 5000
+            ToPort: 5000
+            SourcePrefixListId: !Ref CloudFrontOriginPrefixListId
+          - IpProtocol: tcp
+            FromPort: 80
+            ToPort: 80
+            CidrIp: 0.0.0.0/0
+        - !If
+          - UseTemporaryDelivery
+          - IpProtocol: tcp
+            FromPort: 443
+            ToPort: 443
+            CidrIp: 0.0.0.0/0
+          - !Ref AWS::NoValue
+
+  ApiInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: '{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64}}'
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref InstanceProfile
+      NetworkInterfaces:
+        - DeviceIndex: '0'
+          AssociatePublicIpAddress: true
+          DeleteOnTermination: true
+          GroupSet: [!Ref ApiSecurityGroup]
+          SubnetId: !Select [0, !Ref PublicSubnetIds]
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeType: gp3
+            VolumeSize: 30
+            Encrypted: true
+            DeleteOnTermination: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-${EnvironmentName}-api'
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -euxo pipefail
+          dnf update -y
+          dnf install -y docker jq openssl
+          systemctl enable --now docker
+
+          install -d -m 750 /opt/imminiq/redis-tls
+          if [ ! -f /opt/imminiq/redis-tls/ca.crt ]; then
+            openssl genrsa -out /opt/imminiq/redis-tls/ca.key 4096
+            openssl req -x509 -new -sha256 -days 3650 \
+              -key /opt/imminiq/redis-tls/ca.key \
+              -out /opt/imminiq/redis-tls/ca.crt \
+              -subj '/CN=Imminiq Redis CA'
+            openssl genrsa -out /opt/imminiq/redis-tls/redis.key 2048
+            openssl req -new -sha256 \
+              -key /opt/imminiq/redis-tls/redis.key \
+              -out /opt/imminiq/redis-tls/redis.csr \
+              -subj '/CN=imminiq-redis'
+            printf 'subjectAltName=DNS:imminiq-redis\nextendedKeyUsage=serverAuth\n' > /opt/imminiq/redis-tls/redis.ext
+            openssl x509 -req -sha256 -days 825 \
+              -in /opt/imminiq/redis-tls/redis.csr \
+              -CA /opt/imminiq/redis-tls/ca.crt \
+              -CAkey /opt/imminiq/redis-tls/ca.key \
+              -CAcreateserial \
+              -out /opt/imminiq/redis-tls/redis.crt \
+              -extfile /opt/imminiq/redis-tls/redis.ext
+            chown -R 999:999 /opt/imminiq/redis-tls
+            chmod 600 /opt/imminiq/redis-tls/ca.key /opt/imminiq/redis-tls/redis.key
+            chmod 644 /opt/imminiq/redis-tls/ca.crt /opt/imminiq/redis-tls/redis.crt
+          fi
+
+          rpm --import 'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key'
+          curl -sLf --retry 3 --tlsv1.2 --proto '=https' 'https://packages.doppler.com/public/cli/config.rpm.txt' > /etc/yum.repos.d/doppler-cli.repo
+          dnf install -y doppler
+
+          cat > /usr/local/bin/imminiq-deploy <<'SCRIPT'
+          #!/bin/bash
+          set -euo pipefail
+          REGION='${AWS::Region}'
+          ACCOUNT_ID='${AWS::AccountId}'
+          REPOSITORY='${ApiRepository}'
+          DELIVERY_MODE='${DeliveryMode}'
+          TEMPORARY_DOMAIN_NAME='${TemporaryDomainName}'
+          FRONTEND_BUCKET='${FrontendBucket}'
+          PARAMETER='/${ProjectName}/${EnvironmentName}/doppler-token'
+          export DOPPLER_TOKEN
+          DOPPLER_TOKEN="$(aws ssm get-parameter --region "$REGION" --name "$PARAMETER" --with-decryption --query Parameter.Value --output text)"
+          install -m 600 /dev/null /run/imminiq.env
+          doppler secrets download --no-file --project '${DopplerProject}' --config '${DopplerConfig}' --format docker > /run/imminiq.env
+          aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com"
+          docker pull "$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY:latest"
+          PISTON_IMAGE='ghcr.io/arjunpj-11/imminiq-piston:latest'
+          if ! docker pull "$PISTON_IMAGE"; then
+            if ! docker image inspect "$PISTON_IMAGE" >/dev/null 2>&1; then
+              aws s3 cp "s3://$FRONTEND_BUCKET/runtime/imminiq-piston-amd64-complete.tar" /opt/imminiq/imminiq-piston-amd64.tar
+              docker load -i /opt/imminiq/imminiq-piston-amd64.tar
+              rm -f /opt/imminiq/imminiq-piston-amd64.tar
+            fi
+          fi
+          docker network inspect imminiq >/dev/null 2>&1 || docker network create imminiq
+          docker rm -f imminiq-caddy imminiq-api imminiq-redis imminiq-piston 2>/dev/null || true
+          docker run -d --name imminiq-redis --restart unless-stopped --network imminiq \
+            -v /opt/imminiq/redis-tls:/tls:ro \
+            redis:7-alpine redis-server \
+            --port 0 --tls-port 6379 --tls-cert-file /tls/redis.crt \
+            --tls-key-file /tls/redis.key --tls-ca-cert-file /tls/ca.crt \
+            --tls-auth-clients no --appendonly yes
+          docker run -d --name imminiq-piston --restart unless-stopped --privileged --network imminiq "$PISTON_IMAGE"
+          API_PUBLISH=''
+          if [ "$DELIVERY_MODE" = 'cloudfront' ]; then
+            API_PUBLISH='-p 5000:5000'
+          fi
+          docker run -d --name imminiq-api --restart unless-stopped --network imminiq $API_PUBLISH \
+            --env-file /run/imminiq.env \
+            -v /opt/imminiq/redis-tls/ca.crt:/etc/imminiq/redis-ca.crt:ro \
+            -e NODE_ENV=production -e PORT=5000 \
+            -e REDIS_URL=rediss://imminiq-redis:6379 \
+            -e NODE_EXTRA_CA_CERTS=/etc/imminiq/redis-ca.crt \
+            -e PISTON_API_URL=http://imminiq-piston:2000 \
+            "$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY:latest"
+          if [ "$DELIVERY_MODE" = 'temporary' ]; then
+            install -d -m 755 /opt/imminiq/web
+            aws s3 sync "s3://$FRONTEND_BUCKET" /opt/imminiq/web --delete --exclude 'runtime/*'
+            aws s3 cp "s3://$FRONTEND_BUCKET/index.html" /opt/imminiq/web/index.html
+            aws s3 cp "s3://$FRONTEND_BUCKET/sw.js" /opt/imminiq/web/sw.js
+            aws s3 cp "s3://$FRONTEND_BUCKET/manifest.webmanifest" /opt/imminiq/web/manifest.webmanifest
+            IMDS_TOKEN="$(curl -sS -X PUT -H 'X-aws-ec2-metadata-token-ttl-seconds: 21600' http://169.254.169.254/latest/api/token)"
+            PUBLIC_IP="$(curl -sS -H "X-aws-ec2-metadata-token: $IMDS_TOKEN" http://169.254.169.254/latest/meta-data/public-ipv4)"
+            PUBLIC_HOST="$PUBLIC_IP.sslip.io"
+            if [ -n "$TEMPORARY_DOMAIN_NAME" ]; then
+              PUBLIC_HOST="$TEMPORARY_DOMAIN_NAME, $PUBLIC_IP.sslip.io"
+            fi
+            cat > /opt/imminiq/Caddyfile <<CADDY
+          $PUBLIC_HOST {
+            encode zstd gzip
+            header {
+              Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://*.razorpay.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: wss:; frame-src 'self' data: blob: https://*.razorpay.com https://www.youtube-nocookie.com; media-src 'self' blob: https:; worker-src 'self' blob:; manifest-src 'self'; upgrade-insecure-requests"
+              Referrer-Policy strict-origin-when-cross-origin
+              Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+              X-Content-Type-Options nosniff
+              X-Frame-Options DENY
+            }
+            handle /api/* {
+              reverse_proxy imminiq-api:5000
+            }
+            handle /socket.io/* {
+              reverse_proxy imminiq-api:5000
+            }
+            handle /assets/* {
+              root * /srv
+              header Cache-Control "public, max-age=31536000, immutable"
+              file_server
+            }
+            handle {
+              root * /srv
+              header Cache-Control "no-cache, no-store, must-revalidate"
+              try_files {path} /index.html
+              file_server
+            }
+          }
+          CADDY
+            docker run -d --name imminiq-caddy --restart unless-stopped --network imminiq \
+              -p 80:80 -p 443:443 \
+              -v /opt/imminiq/Caddyfile:/etc/caddy/Caddyfile:ro \
+              -v /opt/imminiq/web:/srv:ro \
+              -v imminiq-caddy-data:/data \
+              -v imminiq-caddy-config:/config \
+              caddy:2-alpine
+          fi
+          shred -u /run/imminiq.env
+          SCRIPT
+          chmod 750 /usr/local/bin/imminiq-deploy
+
+  BackendNoCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Condition: UseCloudFront
+    Properties:
+      CachePolicyConfig:
+        Name: !Sub '${ProjectName}-${EnvironmentName}-api-no-cache'
+        DefaultTTL: 0
+        MaxTTL: 0
+        MinTTL: 0
+        ParametersInCacheKeyAndForwardedToOrigin:
+          EnableAcceptEncodingBrotli: false
+          EnableAcceptEncodingGzip: false
+          CookiesConfig:
+            CookieBehavior: none
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: none
+
+  BackendOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Condition: UseCloudFront
+    Properties:
+      OriginRequestPolicyConfig:
+        Name: !Sub '${ProjectName}-${EnvironmentName}-api-all-viewer'
+        CookiesConfig:
+          CookieBehavior: all
+        HeadersConfig:
+          HeaderBehavior: allExcept
+          Headers: [Host]
+        QueryStringsConfig:
+          QueryStringBehavior: all
+
+  FrontendOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Condition: UseCloudFront
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub '${ProjectName}-${EnvironmentName}-frontend-oac'
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  FrontendResponseHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Condition: UseCloudFront
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: !Sub '${ProjectName}-${EnvironmentName}-frontend-security'
+        SecurityHeadersConfig:
+          ContentSecurityPolicy:
+            ContentSecurityPolicy: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://*.razorpay.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: wss:; frame-src 'self' data: blob: https://*.razorpay.com https://www.youtube-nocookie.com; media-src 'self' blob: https:; worker-src 'self' blob:; manifest-src 'self'; upgrade-insecure-requests"
+            Override: true
+          ContentTypeOptions:
+            Override: true
+          FrameOptions:
+            FrameOption: DENY
+            Override: true
+          ReferrerPolicy:
+            ReferrerPolicy: strict-origin-when-cross-origin
+            Override: true
+          StrictTransportSecurity:
+            AccessControlMaxAgeSec: 63072000
+            IncludeSubdomains: true
+            Preload: true
+            Override: true
+
+  FrontendDistribution:
+    Type: AWS::CloudFront::Distribution
+    Condition: UseCloudFront
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        HttpVersion: http2and3
+        PriceClass: PriceClass_200
+        DefaultRootObject: index.html
+        Origins:
+          - Id: frontend-s3
+            DomainName: !GetAtt FrontendBucket.RegionalDomainName
+            OriginAccessControlId: !Ref FrontendOriginAccessControl
+            S3OriginConfig: {}
+          - Id: api-ec2
+            DomainName: !GetAtt ApiInstance.PublicDnsName
+            CustomOriginConfig:
+              OriginProtocolPolicy: http-only
+              HTTPPort: 5000
+        DefaultCacheBehavior:
+          TargetOriginId: frontend-s3
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          CachedMethods: [GET, HEAD, OPTIONS]
+          Compress: true
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+          ResponseHeadersPolicyId: !Ref FrontendResponseHeadersPolicy
+        CacheBehaviors:
+          - PathPattern: /api/*
+            TargetOriginId: api-ec2
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT]
+            CachedMethods: [GET, HEAD, OPTIONS]
+            CachePolicyId: !Ref BackendNoCachePolicy
+            OriginRequestPolicyId: !Ref BackendOriginRequestPolicy
+            Compress: true
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 0
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 0
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Condition: UseCloudFront
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFrontRead
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub '${FrontendBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${FrontendDistribution}'
+
+  GitHubOidcProvider:
+    Type: AWS::IAM::OIDCProvider
+    Condition: ShouldCreateGitHubOidcProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList: [sts.amazonaws.com]
+      ThumbprintList: [6938fd4d98bab03faadb97b34396831e3780aea1]
+
+  GitHubDeploymentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-${EnvironmentName}-github-deploy'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !If
+                - ShouldCreateGitHubOidcProvider
+                - !Ref GitHubOidcProvider
+                - !Ref ExistingGitHubOidcProviderArn
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+                token.actions.githubusercontent.com:sub: !Sub 'repo:${GitHubOwner}/${GitHubRepository}:environment:production'
+      Policies:
+        - PolicyName: DeploymentAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:CompleteLayerUpload
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:InitiateLayerUpload
+                  - ecr:PutImage
+                  - ecr:UploadLayerPart
+                Resource: !GetAtt ApiRepository.Arn
+              - Effect: Allow
+                Action: ecr:GetAuthorizationToken
+                Resource: '*'
+              - Effect: Allow
+                Action: [s3:GetObject, s3:ListBucket, s3:PutObject]
+                Resource: [!GetAtt FrontendBucket.Arn, !Sub '${FrontendBucket.Arn}/*']
+              - !If
+                - UseCloudFront
+                - Effect: Allow
+                  Action: cloudfront:CreateInvalidation
+                  Resource: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${FrontendDistribution}'
+                - !Ref AWS::NoValue
+              - Effect: Allow
+                Action: ssm:SendCommand
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:ssm:${AWS::Region}::document/AWS-RunShellScript'
+                  - !Sub 'arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/${ApiInstance}'
+              - Effect: Allow
+                Action: ssm:GetCommandInvocation
+                Resource: '*'
+              - Effect: Allow
+                Action: cloudformation:DescribeStacks
+                Resource: !Ref AWS::StackId
+
+Outputs:
+  FrontendBucketName:
+    Value: !Ref FrontendBucket
+  FrontendDistributionId:
+    Condition: UseCloudFront
+    Value: !Ref FrontendDistribution
+  FrontendUrl:
+    Value: !If
+      - UseCloudFront
+      - !Sub 'https://${FrontendDistribution.DomainName}'
+      - !If
+        - HasTemporaryDomainName
+        - !Sub 'https://${TemporaryDomainName}'
+        - !Sub 'https://${ApiInstance.PublicIp}.sslip.io'
+  BackendUrl:
+    Value: !If
+      - UseCloudFront
+      - !Sub 'https://${FrontendDistribution.DomainName}'
+      - !If
+        - HasTemporaryDomainName
+        - !Sub 'https://${TemporaryDomainName}'
+        - !Sub 'https://${ApiInstance.PublicIp}.sslip.io'
+  ApiRepositoryUri:
+    Value: !GetAtt ApiRepository.RepositoryUri
+  ApiInstanceId:
+    Value: !Ref ApiInstance
+  GitHubDeploymentRoleArn:
+    Value: !GetAtt GitHubDeploymentRole.Arn
