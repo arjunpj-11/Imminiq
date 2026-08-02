@@ -1,0 +1,96 @@
+name: Deploy to AWS
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [CI Checks]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: imminiq-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      AWS_REGION: ap-south-1
+      STACK_NAME: imminiq-production
+      PUBLIC_URL: https://imminiq.arjunpj.online
+      DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.DEPLOY_SHA }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::724772075272:role/imminiq-production-github-deploy
+          aws-region: ${{ env.AWS_REGION }}
+
+      - id: stack
+        name: Read production infrastructure
+        run: |
+          echo "bucket=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey=='FrontendBucketName'].OutputValue" --output text)" >> "$GITHUB_OUTPUT"
+          distribution=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey=='FrontendDistributionId'].OutputValue" --output text)
+          if [ "$distribution" = 'None' ]; then distribution=''; fi
+          echo "distribution=$distribution" >> "$GITHUB_OUTPUT"
+          echo "repository=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey=='ApiRepositoryUri'].OutputValue" --output text)" >> "$GITHUB_OUTPUT"
+          echo "instance=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey=='ApiInstanceId'].OutputValue" --output text)" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push backend image
+        run: |
+          registry="${{ steps.stack.outputs.repository }}"
+          registry="${registry%/*}"
+          aws ecr get-login-password | docker login --username AWS --password-stdin "$registry"
+          docker build --platform linux/amd64 -f apps/api/Dockerfile -t "${{ steps.stack.outputs.repository }}:${DEPLOY_SHA}" -t "${{ steps.stack.outputs.repository }}:latest" .
+          docker push "${{ steps.stack.outputs.repository }}:${DEPLOY_SHA}"
+          docker push "${{ steps.stack.outputs.repository }}:latest"
+
+      - name: Build PWA frontend
+        env:
+          VITE_API_URL: ${{ env.PUBLIC_URL }}/api
+          VITE_SOCKET_URL: ${{ env.PUBLIC_URL }}
+        run: |
+          npm ci
+          npm run build --workspace=@imminiq/web
+
+      - name: Publish frontend to S3 and CloudFront
+        run: |
+          # Keep prior content-hashed assets so browsers with an older cached HTML shell
+          # can finish loading while the new service worker activates.
+          aws s3 sync apps/web/dist "s3://${{ steps.stack.outputs.bucket }}" --exclude 'runtime/*' --cache-control 'public, max-age=31536000, immutable'
+          aws s3 cp apps/web/dist/index.html "s3://${{ steps.stack.outputs.bucket }}/index.html" --cache-control 'no-cache, no-store, must-revalidate'
+          aws s3 cp apps/web/dist/sw.js "s3://${{ steps.stack.outputs.bucket }}/sw.js" --cache-control 'no-cache, no-store, must-revalidate'
+          aws s3 cp apps/web/dist/manifest.webmanifest "s3://${{ steps.stack.outputs.bucket }}/manifest.webmanifest" --cache-control 'no-cache, no-store, must-revalidate'
+          if [ -n "${{ steps.stack.outputs.distribution }}" ]; then
+            aws cloudfront create-invalidation --distribution-id "${{ steps.stack.outputs.distribution }}" --paths '/*'
+          fi
+
+      - name: Restart production services through Systems Manager
+        run: |
+          command_id=$(aws ssm send-command --instance-ids "${{ steps.stack.outputs.instance }}" --document-name AWS-RunShellScript --parameters 'commands=["sudo -iu root /usr/local/bin/imminiq-deploy"]' --query Command.CommandId --output text)
+          aws ssm wait command-executed --command-id "$command_id" --instance-id "${{ steps.stack.outputs.instance }}"
+          status=$(aws ssm get-command-invocation --command-id "$command_id" --instance-id "${{ steps.stack.outputs.instance }}" --query Status --output text)
+          test "$status" = Success
+
+      - name: Verify production health
+        run: |
+          curl --fail --silent --show-error --retry 12 --retry-all-errors --retry-delay 5 "$PUBLIC_URL/api/health/ready"
+          curl --fail --silent --show-error --retry 12 --retry-all-errors --retry-delay 5 --output /dev/null "$PUBLIC_URL/"
+          curl --fail --silent --show-error --retry 12 --retry-all-errors --retry-delay 5 --output /dev/null "$PUBLIC_URL/manifest.webmanifest"
+          curl --fail --silent --show-error --retry 12 --retry-all-errors --retry-delay 5 --output /dev/null "$PUBLIC_URL/sw.js"

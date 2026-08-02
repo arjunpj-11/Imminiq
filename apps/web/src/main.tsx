@@ -10,6 +10,14 @@ import { installGlobalErrorReporting } from './lib/telemetry/client-error-report
 
 installGlobalErrorReporting();
 
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    void navigator.serviceWorker.register('/sw.js').catch((error: unknown) => {
+      console.warn('Imminiq offline support could not start.', error);
+    });
+  });
+}
+
 const ReactQueryDevtools = import.meta.env.DEV
   ? lazy(() =>
       import('@tanstack/react-query-devtools').then((module) => ({
