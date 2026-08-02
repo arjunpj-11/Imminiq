@@ -32,11 +32,11 @@ describe('parseWebEnvironment', () => {
     expect(
       parseWebEnvironment({
         VITE_API_URL: '/api',
-        VITE_SOCKET_URL: 'https://imminiq-api.onrender.com/',
+        VITE_SOCKET_URL: 'https://imminiq.arjunpj.online/',
       })
     ).toEqual({
       apiUrl: '/api',
-      socketUrl: 'https://imminiq-api.onrender.com',
+      socketUrl: 'https://imminiq.arjunpj.online',
       webrtcStunUrl: 'stun:stun.l.google.com:19302',
       longRequestTimeoutMs: 120_000,
     });
