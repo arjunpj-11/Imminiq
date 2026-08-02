@@ -36,9 +36,13 @@
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",
-    "passport-strategy": "^1.0.0"
+    "passport-strategy": "^1.0.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "overrides": {
-    "postcss": "^8.5.23"
+    "postcss": "^8.5.23",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   }
 }

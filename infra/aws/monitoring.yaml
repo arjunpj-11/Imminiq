@@ -1,0 +1,256 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Imminiq production logs, host metrics, alarms, and operations dashboard.
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: imminiq
+  EnvironmentName:
+    Type: String
+    Default: production
+  ApiInstanceId:
+    Type: AWS::EC2::Instance::Id
+  InstanceRoleName:
+    Type: String
+  AlarmNotificationTopicArn:
+    Type: String
+    Default: ''
+    Description: Optional SNS topic ARN for production alarm notifications.
+
+Conditions:
+  HasAlarmNotificationTopic: !Not [!Equals [!Ref AlarmNotificationTopicArn, '']]
+
+Resources:
+  ContainerLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub '/${ProjectName}/${EnvironmentName}/containers'
+      RetentionInDays: 30
+
+  CloudWatchAgentPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub '${ProjectName}-${EnvironmentName}-cloudwatch-agent'
+      Roles: [!Ref InstanceRoleName]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:DescribeLogStreams
+              - logs:PutLogEvents
+            Resource: !Sub '${ContainerLogGroup.Arn}:*'
+          - Effect: Allow
+            Action: logs:DescribeLogGroups
+            Resource: '*'
+          - Effect: Allow
+            Action: cloudwatch:PutMetricData
+            Resource: '*'
+            Condition:
+              StringEquals:
+                cloudwatch:namespace: Imminiq/Host
+
+  CloudWatchAgentAssociation:
+    Type: AWS::SSM::Association
+    DependsOn: CloudWatchAgentPolicy
+    Properties:
+      AssociationName: !Sub '${ProjectName}-${EnvironmentName}-cloudwatch-agent'
+      Name: AWS-RunShellScript
+      Targets:
+        - Key: InstanceIds
+          Values: [!Ref ApiInstanceId]
+      WaitForSuccessTimeoutSeconds: 900
+      Parameters:
+        commands:
+          - !Sub |
+            set -euo pipefail
+            dnf install -y amazon-cloudwatch-agent
+            install -d -m 755 /opt/aws/amazon-cloudwatch-agent/etc
+            cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<'CWAGENT'
+            {
+              "agent": {"metrics_collection_interval": 60},
+              "logs": {
+                "logs_collected": {
+                  "files": {
+                    "collect_list": [
+                      {
+                        "file_path": "/var/lib/docker/containers/*/*.log",
+                        "log_group_name": "${ContainerLogGroup}",
+                        "log_stream_name": "{instance_id}"
+                      }
+                    ]
+                  }
+                }
+              },
+              "metrics": {
+                "namespace": "Imminiq/Host",
+                "append_dimensions": {"InstanceId": "${!aws:InstanceId}"},
+                "metrics_collected": {
+                  "mem": {"measurement": ["mem_used_percent"]}
+                }
+              }
+            }
+            CWAGENT
+            /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+              -a fetch-config -m ec2 -s \
+              -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+
+  ApplicationErrorMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref ContainerLogGroup
+      FilterPattern: '?ERROR ?Error ?error ?Exception ?exception ?fatal ?failed'
+      MetricTransformations:
+        - MetricNamespace: Imminiq/Application
+          MetricName: ErrorCount
+          MetricValue: '1'
+
+  ApplicationErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectName}-${EnvironmentName}-application-errors'
+      AlarmDescription: A container emitted an error, exception, fatal, or failure log entry.
+      Namespace: Imminiq/Application
+      MetricName: ErrorCount
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: !If
+        - HasAlarmNotificationTopic
+        - [!Ref AlarmNotificationTopicArn]
+        - !Ref AWS::NoValue
+
+  ApiInstanceStatusAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectName}-${EnvironmentName}-instance-status'
+      AlarmDescription: EC2 system or instance status checks are failing.
+      Namespace: AWS/EC2
+      MetricName: StatusCheckFailed
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref ApiInstanceId
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 2
+      DatapointsToAlarm: 2
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: breaching
+      AlarmActions: !If
+        - HasAlarmNotificationTopic
+        - [!Ref AlarmNotificationTopicArn]
+        - !Ref AWS::NoValue
+
+  ApiInstanceCpuAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectName}-${EnvironmentName}-high-cpu'
+      AlarmDescription: API host CPU has remained above 85 percent for 15 minutes.
+      Namespace: AWS/EC2
+      MetricName: CPUUtilization
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref ApiInstanceId
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 3
+      DatapointsToAlarm: 3
+      Threshold: 85
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: !If
+        - HasAlarmNotificationTopic
+        - [!Ref AlarmNotificationTopicArn]
+        - !Ref AWS::NoValue
+
+  ApiInstanceMemoryAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectName}-${EnvironmentName}-high-memory'
+      AlarmDescription: API host memory has remained above 90 percent for 15 minutes.
+      Namespace: Imminiq/Host
+      MetricName: mem_used_percent
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref ApiInstanceId
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 3
+      DatapointsToAlarm: 3
+      Threshold: 90
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: breaching
+      AlarmActions: !If
+        - HasAlarmNotificationTopic
+        - [!Ref AlarmNotificationTopicArn]
+        - !Ref AWS::NoValue
+
+  OperationsDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: !Sub '${ProjectName}-${EnvironmentName}'
+      DashboardBody: !Sub |
+        {
+          "widgets": [
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 0,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "title": "API host CPU and status",
+                "region": "${AWS::Region}",
+                "metrics": [
+                  ["AWS/EC2", "CPUUtilization", "InstanceId", "${ApiInstanceId}"],
+                  [".", "StatusCheckFailed", ".", ".", {"yAxis": "right"}]
+                ],
+                "period": 300,
+                "stat": "Average"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 0,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "title": "API host memory",
+                "region": "${AWS::Region}",
+                "metrics": [
+                  ["Imminiq/Host", "mem_used_percent", "InstanceId", "${ApiInstanceId}"]
+                ],
+                "period": 300,
+                "stat": "Average"
+              }
+            },
+            {
+              "type": "log",
+              "x": 0,
+              "y": 6,
+              "width": 24,
+              "height": 8,
+              "properties": {
+                "title": "Recent application errors",
+                "region": "${AWS::Region}",
+                "query": "SOURCE '${ContainerLogGroup}' | fields @timestamp, @message | filter @message like /error|exception|fatal|failed/ | sort @timestamp desc | limit 100",
+                "view": "table"
+              }
+            }
+          ]
+        }
+
+Outputs:
+  ContainerLogGroupName:
+    Value: !Ref ContainerLogGroup
+  OperationsDashboardName:
+    Value: !Ref OperationsDashboard

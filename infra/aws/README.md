@@ -39,3 +39,26 @@ HTTPS certificate.
 
 CloudFront-generated URLs are usable immediately. Add Route 53 aliases and ACM
 certificates later if a custom domain is required.
+
+## Monitoring and operations
+
+Deploy `monitoring.yaml` as a separate stack after the application stack exists. Keeping
+monitoring separate avoids changing or replacing the production host just to add logs and
+alarms:
+
+```bash
+aws cloudformation deploy \
+  --region ap-south-1 \
+  --stack-name imminiq-production-monitoring \
+  --template-file infra/aws/monitoring.yaml \
+  --capabilities CAPABILITY_NAMED_IAM \
+  --parameter-overrides \
+    ProjectName=imminiq \
+    EnvironmentName=production \
+    ApiInstanceId=INSTANCE_ID \
+    InstanceRoleName=INSTANCE_ROLE_NAME
+```
+
+Pass `AlarmNotificationTopicArn` to connect the alarms to a confirmed SNS subscription.
+See `docs/aws-production-operations.md` for the incident checklist, log queries, rollback,
+IAM review, deployment flow, and safe CloudFormation editing process.
