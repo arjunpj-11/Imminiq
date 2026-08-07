@@ -57,7 +57,7 @@ process.env.CLOUDFLARE_AI_API_TOKEN ??= 'test-cloudflare-token';
 
 process.env.FAST2SMS_API_KEY ??= 'test-fast2sms-key';
 
-process.env.RAZORPAY_KEY_ID ??= 'test-razorpay-key';
+process.env.RAZORPAY_KEY_ID ??= 'rzp_test_testKey';
 process.env.RAZORPAY_KEY_SECRET ??= 'test-razorpay-secret';
 
 process.env.AWS_ACCESS_KEY_ID ??= 'test-aws-key';

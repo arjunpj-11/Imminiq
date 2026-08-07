@@ -84,7 +84,13 @@ const envSchema = z
       .max(30_000)
       .default(RUNTIME_DEFAULTS.METERED_TURN_REQUEST_TIMEOUT_MS),
 
-    RAZORPAY_KEY_ID: z.string().min(1),
+    RAZORPAY_KEY_ID: z
+      .string()
+      .trim()
+      .regex(
+        /^rzp_(?:test|live)_[A-Za-z0-9]+$/,
+        'RAZORPAY_KEY_ID must be a Razorpay key ID beginning with rzp_test_ or rzp_live_'
+      ),
     RAZORPAY_KEY_SECRET: z.string().min(1),
 
     EMAIL_FROM: z.string().min(1),

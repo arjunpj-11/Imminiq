@@ -47,6 +47,16 @@ describe('production environment policy', () => {
     ).toThrow();
   });
 
+  it('rejects malformed Razorpay key IDs before payment requests are made', () => {
+    expect(() =>
+      parseApiEnvironment(
+        productionEnvironment({
+          RAZORPAY_KEY_ID: 'zp_test_missing-required-prefix',
+        })
+      )
+    ).toThrow('RAZORPAY_KEY_ID must be a Razorpay key ID');
+  });
+
   it('rejects a cookie domain that is not shared by the frontend and API', () => {
     expect(() =>
       parseApiEnvironment(productionEnvironment({ AUTH_COOKIE_DOMAIN: '.unrelated.example' }))
