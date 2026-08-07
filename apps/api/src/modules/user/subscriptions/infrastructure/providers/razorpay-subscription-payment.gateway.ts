@@ -1,12 +1,22 @@
 import crypto from 'node:crypto';
 import { env } from '../../../../../config/env';
 import { razorpay } from '../../../../../infrastructure/payment/razorpay.client';
+import { ServiceError } from '../../../../../shared/errors/service.error';
 import type { ISubscriptionPaymentGateway } from '../../domain/services/subscription-payment-gateway.interface';
 
 export class RazorpaySubscriptionPaymentGateway implements ISubscriptionPaymentGateway {
   async createOrder(amount: number, receipt: string) {
-    const order = await razorpay.orders.create({ amount, currency: 'INR', receipt });
-    return { id: order.id, amount: Number(order.amount), currency: order.currency };
+    try {
+      const order = await razorpay.orders.create({ amount, currency: 'INR', receipt });
+      return { id: order.id, amount: Number(order.amount), currency: order.currency };
+    } catch (error) {
+      throw ServiceError.dependencyFailure(
+        'RAZORPAY_ORDER_CREATION_FAILED',
+        'Razorpay order creation failed',
+        error,
+        'Payments are temporarily unavailable. Please try again shortly.'
+      );
+    }
   }
 
   verifySignature(orderId: string, paymentId: string, signature: string) {
