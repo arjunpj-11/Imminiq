@@ -13,6 +13,7 @@ import {
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { cn } from '../../../../lib/cn';
+import { isAppReachable } from '../../../../lib/connectivity';
 import { safeLocalStorage } from '../../../../lib/storage/safe-storage';
 import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys';
 import { CHAT_MAX_FILE_SIZE } from '../constants/chat.constants';
@@ -57,6 +58,7 @@ export default function SocialComposer({
   const [codeLanguage, setCodeLanguage] = useState('javascript');
   const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [isCheckingConnection, setIsCheckingConnection] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sendMessage = useSendChatMessage(conversationId);
@@ -67,7 +69,7 @@ export default function SocialComposer({
 
   useEffect(() => {
     const flushQueue = async () => {
-      if (!navigator.onLine) return;
+      if (!(await isAppReachable())) return;
       let queue: Array<{
         text: string;
         kind: 'text' | 'code';
@@ -142,10 +144,16 @@ export default function SocialComposer({
     setFile(selected);
   };
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if ((!text.trim() && !file) || sendMessage.isPending || disabled) return;
-    if (!navigator.onLine && !file) {
+    if ((!text.trim() && !file) || sendMessage.isPending || isCheckingConnection || disabled)
+      return;
+
+    setIsCheckingConnection(true);
+    const reachable = await isAppReachable();
+    setIsCheckingConnection(false);
+
+    if (!reachable && !file) {
       let queue: unknown[];
       try {
         queue = JSON.parse(safeLocalStorage.get(queueKey) ?? '[]') as unknown[];
@@ -207,7 +215,7 @@ export default function SocialComposer({
 
   return (
     <form
-      onSubmit={submit}
+      onSubmit={(event) => void submit(event)}
       className="border-t border-(--border-subtle) bg-(--surface-card)/92 px-3 py-3 shadow-[0_-10px_32px_rgba(26,23,20,0.05)] backdrop-blur sm:px-5 sm:py-4 max-[640px]:pb-[max(0.75rem,env(safe-area-inset-bottom))]"
     >
       {voice.error && (
@@ -385,11 +393,11 @@ export default function SocialComposer({
             {text.trim() || file ? (
               <button
                 type="submit"
-                disabled={sendMessage.isPending}
+                disabled={sendMessage.isPending || isCheckingConnection}
                 className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--brand-500) text-(--brand-contrast) shadow-[0_8px_20px_rgba(184,76,43,0.18)] transition hover:-translate-y-0.5 hover:bg-(--brand-600) disabled:opacity-45"
                 aria-label="Send message"
               >
-                {sendMessage.isPending ? (
+                {sendMessage.isPending || isCheckingConnection ? (
                   <LoaderCircle size={17} className="animate-spin" />
                 ) : (
                   <Send size={16} />

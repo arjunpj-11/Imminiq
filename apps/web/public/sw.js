@@ -1,7 +1,15 @@
 /* global self, caches, URL, fetch */
 
-const CACHE_VERSION = 'imminiq-shell-v2';
-const APP_SHELL = ['/index.html', '/manifest.webmanifest', '/imminiq-logo.svg', '/pwa-192.png'];
+const CACHE_VERSION = 'imminiq-shell-v3';
+const APP_SHELL = [
+  '/index.html',
+  '/manifest.webmanifest',
+  '/imminiq-logo.svg',
+  '/apple-touch-icon.png',
+  '/pwa-192.png',
+  '/pwa-512.png',
+  '/pwa-maskable-512.png',
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_SHELL)));
