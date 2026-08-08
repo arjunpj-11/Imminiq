@@ -2,12 +2,14 @@
 
 # Imminiq
 
-**A community-evolving learning platform where AI creates the starting path and learners continuously make it better.**
+**An AI-powered, community-driven learning platform that turns a learning goal into a structured path—and improves that path through real learner contributions.**
 
-![Status](https://img.shields.io/badge/status-production%20baseline-brightgreen?style=flat-square)
-![Started](https://img.shields.io/badge/started-May%206%2C%202026-blue?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-476%20passing-success?style=flat-square)
-![License](https://img.shields.io/badge/license-private-lightgrey?style=flat-square)
+[![Project Status](https://img.shields.io/badge/project-completed-brightgreen?style=flat-square)](#project-status)
+[![Tests](https://img.shields.io/badge/automated_tests-497-success?style=flat-square)](#quality-engineering)
+[![Architecture](https://img.shields.io/badge/architecture-strict_clean_architecture-blue?style=flat-square)](#architecture)
+[![License](https://img.shields.io/badge/license-private-lightgrey?style=flat-square)](#project-status)
+
+[Live Application](https://imminiq.arjunpj.online) · [Architecture](#architecture) · [Features](#product-capabilities) · [Run Locally](#getting-started)
 
 </div>
 
@@ -15,384 +17,268 @@
 
 ## Overview
 
-Imminiq is a full-stack, AI-assisted learning platform designed to make self-learning more structured, collaborative, and reliable.
+Imminiq is a completed, production-oriented full-stack learning platform built to solve a common problem in self-directed education: learners often spend more time deciding **what to learn and in what order** than actually learning.
 
-When people begin learning a new subject, they often spend significant time searching through documentation, videos, courses, websites, and scattered resources just to understand what they need to study. Even after that research, important topics may still be missed.
+The platform converts a learner's goal, experience level, preferences, and language into a structured tracker of topics, subtopics, and lessons. AI creates the initial roadmap, while community contributions, verification workflows, moderation, and shared learning spaces help keep published trackers useful over time.
 
-AI can generate a roadmap quickly, but an AI-generated roadmap alone may be incomplete, inaccurate, or outdated.
+Imminiq goes beyond roadmap generation. It combines adaptive learning, AI-assisted lessons, mock tests, progress analytics, community verification, rewards, real-time messaging, voice and video calls, subscriptions, support workflows, and a role-aware administration console in one cohesive product.
 
-Imminiq uses AI as the **starting point**, not the final authority.
+> **AI creates the starting path. Learners make it better together.**
 
-The platform generates a structured learning tracker containing the topics, subtopics, and lessons required to achieve a particular learning goal. Learners following the same tracker can study together, discuss concepts, share resources, challenge one another, and suggest improvements.
+## The Problem and the Solution
 
-The long-term community model allows proposed changes to be reviewed and verified before becoming part of the shared tracker. As more learners complete and improve a tracker, it becomes increasingly complete and reliable for the people who follow it next.
+Self-learners typically piece together documentation, videos, courses, and search results before they can form a reliable study plan. That process is slow, inconsistent, and can leave important knowledge gaps. A roadmap produced only by AI is faster, but it can still be incomplete or outdated.
 
-> **AI starts the learning path. The community continuously improves it.**
-
-Alongside structured trackers, Imminiq provides interactive lessons, contextual AI assistance, progress tracking, real-time communication, collaborative tracker sharing, and an in-browser code execution environment.
-
----
-
-## The Story Behind Imminiq
-
-Imminiq began with a personal full-stack study tracker created to prepare for a development exam.
-
-The original tracker organized the concepts required to learn modern full-stack development, including JavaScript, React, TypeScript, data structures, algorithms, and related web-development topics.
-
-After other learners requested similar trackers for subjects such as Python, Django, and additional technology stacks, a larger opportunity became clear:
-
-Instead of manually creating a separate tracker for every subject, a platform could generate an initial learning structure automatically and allow the people studying through it to improve it together.
-
-That idea became Imminiq.
-
-What started as a personal study tool has evolved into a larger AI-first learning ecosystem with modular architecture, real-time collaboration, secure authentication, social communication, background processing, and interactive practice.
-
----
-
-## Core Product Model
-
-Imminiq is built around a continuously evolving learning cycle:
+Imminiq combines the strengths of both approaches:
 
 ```text
-Learning goal
-    ↓
-AI-generated tracker
-    ↓
-Structured topics, subtopics, and lessons
-    ↓
-Learners study and collaborate
-    ↓
-Missing or outdated content is identified
-    ↓
-Improvements are reviewed and verified
-    ↓
-The tracker becomes better for future learners
+Learning goal and preferences
+            ↓
+AI-generated structured tracker
+            ↓
+Lessons, practice, and progress tracking
+            ↓
+Community contributions and verification
+            ↓
+Moderated, continuously improved learning paths
 ```
 
-The tracker and its learning community evolve together.
+AI provides speed and structure. The community contributes practical experience, corrections, missing concepts, and verification.
 
-AI provides speed and structure, while the community contributes practical experience, corrections, missing concepts, and updated knowledge.
+## Product Capabilities
 
----
+| Area                          | What Imminiq delivers                                                                                                                                               |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **AI learning paths**         | Guided tracker creation, level assessment, roadmap generation, structural evaluation, missing-topic detection, and provider fallback                                |
+| **Learning workspace**        | Topic and lesson management, progress tracking, contextual AI help, saved content, revision flows, voice input, and code execution                                  |
+| **Adaptive learning**         | Learner profiles, mastery tracking, personalized assessments, targeted recommendations, and an adaptive learning agent                                              |
+| **Mock tests**                | AI-assisted test generation, timed attempts, result analysis, question review, issue reporting, and administrative question-bank moderation                         |
+| **Community learning**        | Public trackers, personal clones, topic contributions, verification queues, reviewer rewards, rankings, reports, and moderation appeals                             |
+| **Tracker clans**             | Shared tracker communities, guild chat, learner challenges, battle flows, collaboration, and contribution coordination                                              |
+| **Social experience**         | Friend discovery, requests, direct messages, presence, read receipts, voice messages, file and code sharing, and profile sharing                                    |
+| **Real-time calls**           | WebRTC audio and video calls, call context, minimized call UI, history, duration tracking, and expiring TURN credentials                                            |
+| **Accounts and security**     | Email and phone verification, OAuth, two-factor authentication, recovery codes, session management, security logs, and recoverable deletion                         |
+| **Subscriptions and support** | Plan-based feature limits, subscription management, Razorpay integration, support tickets, and notification workflows                                               |
+| **Administration**            | User and content moderation, tracker and mock-test review, analytics, broadcasts, audit logs, system health, subscription controls, AI spend, and platform settings |
 
-## Current Implementation and Product Direction
+<details>
+<summary><strong>AI, trackers, and lessons</strong></summary>
 
-The current production baseline includes:
+- Guided tracker creation using learning goal, experience level, preferences, and language
+- AI-generated learning-level assessment and structured roadmap generation
+- BullMQ background jobs with generation-status polling
+- Multi-provider AI routing across Groq, Gemini, and Cerebras
+- Provider fallback for quota, availability, and invalid structured responses
+- Manual tracker creation and outline import
+- Topic, subtopic, and lesson management
+- Tracker publishing, cloning, archiving, restoring, and public sharing
+- Roadmap evaluation and missing-topic insertion
+- Lesson-context chat and doubt resolution
+- AI-generated explanations and reusable lesson visualizations
+- Relevant learning-video discovery
+- Quick revision flows and voice input
+- Piston-backed in-browser code execution with explicit submission persistence
 
-- AI-assisted tracker and roadmap generation
-- Structured topic, subtopic, and lesson management
-- Contextual AI support for lessons and questions
-- Progress tracking and activity insights
-- Direct messaging and real-time communication
-- Public tracker sharing
-- Audio and video calls
-- In-browser code execution
-- Hardened authentication and account security
-- Modular Clean Architecture
-- Automated architecture, security, unit, and integration tests
+</details>
 
-The production baseline also includes community tracker contributions, verification voting,
-reviewer rewards, moderation, and learning guild collaboration.
+<details>
+<summary><strong>Community, assessment, and engagement</strong></summary>
 
----
+- Community discovery with personalized tracker results
+- Personal learning clones of published trackers
+- Topic contribution and owner-review workflows
+- Community verification queues and reward calculation
+- Leaderboards, reviewer earnings, and contribution recognition
+- Tracker reports, content moderation, and appeal workflows
+- Tracker clans with membership, chat, challenges, and battle activity
+- AI-generated mock tests with background generation
+- Timed attempts, scoring, result breakdowns, and performance analysis
+- Adaptive learner profiles, mastery signals, and personalized assessments
+- Activity tracking, learning heatmaps, dashboard insights, and notifications
 
-## Tech Stack
+</details>
 
-| Layer                   | Technology                        |
-| ----------------------- | --------------------------------- |
-| Frontend                | React, Vite, TypeScript           |
-| Backend                 | Express, TypeScript               |
-| Architecture            | Modular Strict Clean Architecture |
-| Database                | MongoDB Atlas                     |
-| Cache and Sessions      | Redis                             |
-| Real-Time Communication | Socket.IO, WebRTC                 |
-| Background Jobs         | BullMQ                            |
-| Code Execution          | Piston                            |
-| AI Providers            | Groq, Gemini, Cerebras            |
-| Media                   | Cloudinary, Cloudflare Images     |
-| Monorepo                | Turborepo, npm workspaces         |
+<details>
+<summary><strong>Communication and collaboration</strong></summary>
 
----
+- Friend search, invitations, acceptance, removal, and blocking
+- Real-time direct messaging with typing indicators and read receipts
+- Online presence and privacy-aware last-active visibility
+- Voice messages with accurate duration and in-chat playback
+- Image, file, code-snippet, tracker, and profile sharing
+- Message forwarding, starring, and user-specific chat clearing
+- WebRTC audio and video calls
+- Required call reason and incoming-call context
+- Minimized call experience, outcome tracking, and call history
+- Public STUN and server-issued expiring TURN credentials
+- Server-side voice transcription
+
+</details>
+
+<details>
+<summary><strong>Security, operations, and administration</strong></summary>
+
+- Email and phone registration with Redis-backed OTP verification
+- Google and GitHub OAuth with one-time state protection
+- Short-lived access tokens and rotating refresh tokens
+- Refresh-token reuse detection and token-hash storage
+- Two-factor authentication, backup codes, and staff MFA enforcement
+- Active-session visibility, individual revocation, and global logout
+- Step-up verification for sensitive account and administrative actions
+- CSRF, origin, upload-signature, rate-limit, and input-validation protections
+- Password-reset replay prevention and failed-attempt controls
+- Account-state enforcement for blocked, banned, paused, and deletion-pending users
+- Recoverable account deletion with a 30-day recovery period
+- Role- and permission-aware administration routes
+- User, tracker, mock-test, subscription, and support-ticket management
+- Platform analytics, broadcast notifications, audit logs, and system health
+- Runtime feature availability controls and AI-token-spend reporting
+
+</details>
 
 ## Architecture
 
-Imminiq is organized as a modular monorepo with independently structured frontend and backend applications.
+Imminiq is a TypeScript monorepo with separate React and Express applications. The backend uses **Strict Clean Architecture**, and both applications enforce feature boundaries through automated architecture tests.
 
-Each backend feature follows **Strict Clean Architecture**:
+```text
+React PWA
+  ├── Feature modules and route groups
+  ├── TanStack Query server state
+  ├── Zustand client state
+  └── Socket.IO and WebRTC clients
+                  │
+                  ▼
+Express API and Socket.IO gateway
+  ├── Presentation     HTTP routes, validation, and middleware
+  ├── Application      Use cases, DTOs, ports, and orchestration
+  ├── Domain           Entities, value objects, and business rules
+  └── Infrastructure   MongoDB, Redis, queues, AI, storage, and payments
+                  │
+       ┌──────────┼───────────┬───────────┐
+       ▼          ▼           ▼           ▼
+   MongoDB      Redis       BullMQ     External services
+```
+
+Each backend feature follows the same inward-facing dependency structure:
 
 ```text
 src/modules/<feature>/
 ├── application/      # Use cases, DTOs, and service interfaces
-├── domain/           # Entities, value objects, and domain rules
-├── infrastructure/   # Database, cache, queues, and external services
-└── presentation/     # HTTP controllers, routes, and middleware
+├── domain/           # Entities, value objects, and business rules
+├── infrastructure/   # Persistence and external-service adapters
+└── presentation/     # Controllers, routes, schemas, and middleware
 ```
 
-### Architecture Rules
+### Architectural Principles
 
-- Feature modules cannot directly access another module’s internal implementation
-- Dependencies point inward toward the domain
-- Domain and application layers have no knowledge of Express, Mongoose, Redis, or BullMQ
-- External services are accessed through interfaces defined by inner layers
-- Shared infrastructure remains outside individual feature modules
-- Frontend features expose stable public entry points
-- Frontend modules cannot import another feature’s private internals
-- Architecture boundaries are enforced through automated tests
+- Business rules remain independent of Express, Mongoose, Redis, and third-party SDKs.
+- Feature modules communicate through explicit public contracts rather than private imports.
+- Dependencies point inward toward application and domain code.
+- Long-running AI work is handled asynchronously through BullMQ workers.
+- Server state, global client state, and URL state have clearly separated owners.
+- Routes are lazy-loaded and grouped by public, authenticated, focused-workspace, and administration contexts.
+- Architecture tests prevent accidental cross-module coupling on both frontend and backend.
 
-This structure keeps business logic independent from frameworks and makes individual modules easier to test, maintain, replace, and scale.
+## Engineering Highlights
 
----
+### Reliable AI orchestration
 
-## What’s Built
+AI workloads use operation-specific model chains instead of depending on a single provider. The orchestration layer can move between Groq, Gemini, and Cerebras when it encounters quota limits, unavailable models, or invalid structured output. Expensive generation tasks run in background workers, while clients receive progress and completion states.
 
-<details>
-<summary><strong>Infrastructure and Monorepo</strong></summary>
+### Community data without shared-progress conflicts
 
-- Turborepo monorepo with npm workspaces
-- Root-level development, build, lint, and test scripts
-- MongoDB persistence and data models
-- Redis caching and session infrastructure
-- BullMQ queues and background workers
-- Socket.IO real-time infrastructure
-- Cloudinary and Cloudflare image pipelines
-- Piston-based code execution service
-- Environment-specific configuration
-- Local Docker services for Redis and Piston
+Published trackers act as discoverable source material, while learners work through personal clones. This preserves individual progress and customization without mutating another learner's tracker. Contributions and reusable lesson content are coordinated through explicit review and synchronization flows.
 
-</details>
+### Security designed into the application boundary
 
-<details>
-<summary><strong>Authentication and Security</strong></summary>
+Imminiq combines rotating refresh tokens, reuse detection, CSRF protection, request-origin checks, OAuth state validation, rate limiting, two-factor authentication, step-up verification, account-state enforcement, safe DTO mapping, and audit logging. Privileged administration routes require staff MFA and granular permissions.
 
-- Email and phone registration with Redis-backed OTP verification
-- Login, logout, and authenticated session restoration
-- Refresh-token rotation
-- Refresh-token reuse detection
-- Google OAuth
-- GitHub OAuth
-- Cookie-based OAuth callback flow
-- Two-factor authentication setup, verification, and removal
-- Two-factor login challenges
-- Backup recovery codes
-- Active-session listing
-- Remote session revocation
-- Logout from all sessions
-- Secure email changes with step-up verification
-- Password reset with one-time token protection
-- Password-reset replay prevention
-- Account restrictions for blocked, banned, paused, deactivated, and deletion-pending users
-- Sensitive-route rate limiting
-- Failed-attempt controls
-- CSRF protection
-- Request-origin protection
-- Security audit logging
-- Encrypted authentication cookies
-- Recoverable account deletion with a 30-day recovery period
-- Automatic cancellation of deletion when the user signs in during the recovery window
+### Real-time learning and communication
 
-</details>
+Socket.IO coordinates messaging, typing, presence, tracker-clan chat, notifications, and call signaling. WebRTC handles audio and video media, with server-issued expiring TURN credentials for production connectivity.
 
-<details>
-<summary><strong>AI and Learning</strong></summary>
+### Production delivery
 
-- AI-guided tracker creation
-- Goal, experience-level, learning-preference, and language selection
-- AI-generated learning-level assessment
-- AI roadmap generation through BullMQ background jobs
-- Roadmap-generation progress polling
-- Roadmap evaluation
-- Missing-topic detection
-- Missing-topic insertion
-- Lesson-context AI chat
-- Question and doubt-resolution AI chat
-- AI-generated explanations
-- AI-generated lesson visualizations
-- Saved visualization reuse
-- Provider fallback handling
-- Background-worker reliability improvements
+The repository includes infrastructure and deployment automation for AWS. GitHub Actions builds and verifies the monorepo, publishes the frontend PWA, pushes the backend container to ECR, restarts production services through AWS Systems Manager, and performs HTTP and real-browser health checks after deployment.
 
-</details>
+## Technology Stack
 
-<details>
-<summary><strong>Trackers and Roadmaps</strong></summary>
+| Layer                   | Technology                                                    |
+| ----------------------- | ------------------------------------------------------------- |
+| Frontend                | React 19, TypeScript, Vite, React Router                      |
+| UI and styling          | Tailwind CSS 4, Lucide React                                  |
+| Server state            | TanStack Query                                                |
+| Client state            | Zustand                                                       |
+| Backend                 | Node.js, Express 5, TypeScript                                |
+| Architecture            | Modular Strict Clean Architecture                             |
+| Validation              | Zod                                                           |
+| Database                | MongoDB with Mongoose                                         |
+| Cache and sessions      | Redis with ioredis                                            |
+| Background processing   | BullMQ                                                        |
+| Real-time communication | Socket.IO, WebRTC                                             |
+| AI providers            | Groq, Gemini, Cerebras                                        |
+| Code execution          | Piston                                                        |
+| Media                   | Cloudinary, Cloudflare Images                                 |
+| Payments                | Razorpay                                                      |
+| Monorepo                | Turborepo, npm workspaces                                     |
+| Testing                 | Vitest, Supertest, Playwright, MongoDB Memory Server          |
+| Infrastructure          | AWS CloudFormation, EC2, ECR, S3, CloudFront, Systems Manager |
+| Delivery and security   | GitHub Actions, CodeQL, dependency review, Docker             |
 
-- Create, view, update, and delete trackers
-- List user trackers
-- Archive and restore trackers
-- Publish and unpublish trackers
-- Topic, subtopic, and lesson management
-- Topic-level progress tracking
-- Subtopic-level progress tracking
-- User-specific data isolation
-- Last-active tracker handling
-- AI-assisted roadmap evaluation
-- Missing-topic insertion from roadmap evaluations
-- Tracker-management interface
-- Topic-management interface
-- Roadmap-management interface
-- Public tracker sharing
+## Quality Engineering
 
-</details>
+The repository contains **497 automated test cases** across frontend and backend suites.
 
-<details>
-<summary><strong>Lessons and Practice</strong></summary>
+| Suite                                                 | Test cases |
+| ----------------------------------------------------- | ---------: |
+| Backend architecture, security, unit, and integration |        336 |
+| Frontend architecture, configuration, and utility     |        161 |
+| **Total**                                             |    **497** |
 
-- Structured lesson pages
-- Inline lesson viewer
-- AI visualization modal
-- Lesson-context chat
-- Question and doubt chat
-- Piston-backed code compiler
-- In-browser code execution
-- Submit-only code persistence
-- Code is not saved automatically on every run
-- Voice typing for answers and chatbot input
-- Animated voice-listening indicator
-- Quick revision flow
+Coverage includes:
 
-</details>
+- Authentication, OAuth, token rotation, token reuse, and account recovery
+- CSRF, request-origin, rate-limit, upload-signature, and DTO protections
+- AI fallback, structured-response validation, quotas, and background jobs
+- Trackers, contributions, community verification, clans, and shared lessons
+- Adaptive learning, mock tests, moderation, rewards, and subscriptions
+- Chat, calls, privacy-aware presence, and social workflows
+- Administration permissions, step-up authentication, exports, and moderation
+- Frontend and backend module-boundary enforcement
+- Production configuration, PWA behavior, and browser smoke tests
 
-<details>
-<summary><strong>Dashboard and Progress</strong></summary>
-
-- Learning summary widgets
-- AI-generated insights
-- Current-roadmap section
-- Activity-intensity heatmap
-- Recent battle activity
-- Friends hub
-- Recommended learning actions
-- Progress indicators
-- Skeleton loading for primary dashboard content
-- Persistent sidebar and topbar during loading
-
-</details>
-
-<details>
-<summary><strong>Social Learning and Communication</strong></summary>
-
-- Responsive social workspace for chats, friends, requests, and call history
-- Separate backend chat and call modules
-- Strict Clean Architecture boundaries for communication modules
-- Real-time direct messaging
-- Typing indicators
-- Read receipts
-- Online presence
-- Last-activity visibility
-- Privacy controls for presence and activity
-- Voice messages
-- Accurate voice-message duration
-- In-chat voice-message playback
-- Code-snippet sharing
-- Copy actions for shared code
-- Image previews
-- File sharing
-- Message forwarding
-- Media controls
-- Tracker sharing inside conversations
-- Tracker sharing from personal trackers and community surfaces
-- WebRTC audio calls
-- WebRTC video calls
-- Required call reason and incoming-call context
-- Minimized call interface
-- Call-outcome tracking
-- Stored call duration
-- Server-issued expiring TURN credentials
-- Public STUN configuration
-- User blocking
-- Blocking protection for messaging, profile access, avatars, and presence
-- Server-side Groq transcription for consistent voice input
-
-</details>
-
-<details>
-<summary><strong>Profile and Settings</strong></summary>
-
-- Cloudinary-backed avatar uploads
-- Banner uploads
-- Appearance preferences
-- Notification preferences
-- Privacy settings
-- Learning preferences
-- Gesture preferences
-- AI-behavior settings
-- Code-editor preferences
-- Compiler preferences
-- Email management
-- Password management
-- Active-session controls
-- Two-factor authentication controls
-- Account-deletion controls
-- Skeleton loaders for settings interfaces
-
-</details>
-
----
-
-## Testing and Continuous Integration
-
-| Test Suite                                                  | Status       |
-| ----------------------------------------------------------- | ------------ |
-| Backend architecture, security, unit, and integration tests | ✅ 335 / 335 |
-| Frontend architecture, configuration, and utility tests     | ✅ 141 / 141 |
-| Total                                                       | ✅ 476 / 476 |
-
-### Coverage Includes
-
-- Authentication flows
-- CSRF protection
-- Refresh-token rotation
-- Refresh-token reuse detection
-- OAuth state protection
-- Request-origin checks
-- Password-reset replay prevention
-- Upload-signature validation
-- Account-deletion recovery
-- Backend module-boundary enforcement
-- Frontend feature-boundary enforcement
-- Chat flows
-- Call flows
-- Voice-message duration
-- Tracker sharing
-- Social workspace utilities
-- Production configuration
-
-### CI Pipelines
+Every pull request and protected-branch update runs:
 
 ```text
-Format
-Lint
-Build
-Test
-Dependency Review
-CodeQL Security Scanning
+Formatting → Linting → Unit and integration tests → Production build
+           → Dependency review → CodeQL analysis → Browser smoke tests
 ```
 
----
+## Production Infrastructure
 
-## Git Workflow
+The production design uses:
 
-```text
-feature branches  →  sub-main  →  main
-```
+- A React PWA delivered from S3 through CloudFront
+- A Dockerized Express API hosted on EC2
+- ECR for backend container images
+- Redis and Piston services alongside the API host
+- MongoDB Atlas for application persistence
+- AWS Systems Manager for deployment access without SSH
+- GitHub OpenID Connect for short-lived AWS deployment credentials
+- Doppler-backed production secret management
+- Health endpoints and Playwright checks after each deployment
 
-Development takes place on dedicated feature branches or `sub-main`.
-
-Changes are merged into `main` after review, testing, and validation.
-
----
+Infrastructure templates and operational documentation live under [`infra/aws`](./infra/aws).
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js
+- Node.js 22
 - npm `10.9.0`
-- Docker
-- Docker Compose
+- Docker and Docker Compose
 - A local or hosted MongoDB instance
-
-Docker is used for the local Redis and Piston services.
+- Credentials for the external services used by the features you want to run
 
 ### Installation
 
@@ -400,113 +286,60 @@ Docker is used for the local Redis and Piston services.
 # Clone the repository
 git clone <repository-url>
 
-# Enter the project directory
+# Enter the monorepo
 cd Imminiq
 
-# Install dependencies for all workspaces
+# Install all workspace dependencies
 npm install
 
 # Create local environment files
 cp apps/api/.env.example apps/api/.env
 cp apps/web/.env.example apps/web/.env.development
 
-# Start the API, web application, Piston, and Redis
+# Start the web app, API, Redis, and Piston
 npm run dev
 ```
 
-Add the required environment variables to the copied files before starting the application.
-
-The API and frontend environment templates document the configuration expected by each workspace.
-
----
+Complete the copied environment files before starting the application. The templates describe the required and optional configuration for each workspace.
 
 ## Useful Commands
 
-| Command                 | Purpose                                          |
-| ----------------------- | ------------------------------------------------ |
-| `npm run dev`           | Start all workspaces with local Piston and Redis |
-| `npm run dev:web`       | Start only the frontend                          |
-| `npm run dev:api`       | Start the API and Piston                         |
-| `npm run build`         | Build all workspaces                             |
-| `npm run format`        | Format supported repository files                |
-| `npm run format:check`  | Verify formatting without changing files         |
-| `npm run lint`          | Lint all workspaces                              |
-| `npm run test`          | Run all test suites                              |
-| `npm run check`         | Run formatting, linting, tests, and builds       |
-| `npm run piston:up`     | Start the local Piston service                   |
-| `npm run piston:down`   | Stop the local Piston service                    |
-| `npm run services:up`   | Start the local Piston and Redis services        |
-| `npm run services:down` | Stop the local Docker services                   |
+| Command                                     | Purpose                                      |
+| ------------------------------------------- | -------------------------------------------- |
+| `npm run dev`                               | Start the full local development environment |
+| `npm run dev:web`                           | Start the frontend workspace                 |
+| `npm run dev:api`                           | Start the API with its local services        |
+| `npm run build`                             | Build both workspaces                        |
+| `npm run format`                            | Format supported repository files            |
+| `npm run format:check`                      | Check formatting without changing files      |
+| `npm run lint`                              | Lint both workspaces                         |
+| `npm run test`                              | Run all Vitest suites                        |
+| `npm run check`                             | Run formatting, linting, tests, and builds   |
+| `npm run test:e2e --workspace=@imminiq/web` | Run Playwright browser tests                 |
+| `npm run services:up`                       | Start Redis and Piston                       |
+| `npm run services:down`                     | Stop the local Docker services               |
 
-> `npm run dev` and `npm run dev:api` use the local Docker Redis instance even when `apps/api/.env` contains a hosted `REDIS_URL`. Production environments continue to use their configured managed Redis service.
-
----
-
-## Workspace Layout
+## Repository Structure
 
 ```text
 Imminiq/
 ├── apps/
-│   ├── api/       # Express API, workers, and backend modules
-│   └── web/       # React and Vite frontend
-├── package.json   # Monorepo commands and workspace configuration
-└── docker-compose.yml
+│   ├── api/                 # Express API, Socket.IO, workers, and backend modules
+│   └── web/                 # React PWA and frontend feature modules
+├── docs/                    # Architecture, security, and operations documentation
+├── infra/aws/               # CloudFormation and AWS deployment resources
+├── .github/workflows/       # CI, security scanning, and production deployment
+├── docker-compose.yml       # Local Redis and Piston services
+└── package.json             # Monorepo scripts and workspace configuration
 ```
-
----
-
-## Roadmap
-
-### Community-Evolving Trackers
-
-- Tracker-based learning communities
-- Structured suggestions for missing or outdated topics
-- Community review and verification workflows
-- Contribution histories
-- Contributor recognition
-- Tracker versioning
-- Change discussions
-- Trust and reputation mechanisms
-- Protection against low-quality or malicious contributions
-- Community-maintained learning resources
-
-### Learning Experience
-
-- Deeper collaborative lesson discussions
-- Shared study sessions
-- Better AI-generated visual learning materials
-- Expanded assessment and revision systems
-- Improved learner recommendations
-- Stronger personalization based on progress and activity
-
-### Platform and Operations
-
-- Production TURN capacity
-- Regional call-quality monitoring
-- Improved call-recovery resilience
-- Deeper social-notification reliability
-- Expanded automated test coverage
-- API documentation
-- Database-design documentation
-- Frontend-flow documentation
-- Performance and observability improvements
-
----
-
-## Project Timeline
-
-Development began on **May 6, 2026**.
-
-Imminiq is currently a production release candidate prepared for final review.
-
-The current platform establishes the technical and product foundation for a larger community-driven learning ecosystem where structured trackers improve through the combined strengths of AI and human experience.
-
----
 
 ## Project Status
 
-Imminiq is a private production release candidate. The repository includes the application,
-architecture safeguards, automated tests, and operational configuration required for review.
+**Imminiq is complete.**
+
+The repository contains the finished application, frontend and backend architecture, automated tests, security controls, administration tooling, production infrastructure, and continuous-delivery workflows. Development began on **May 6, 2026**, and the completed project represents an end-to-end implementation of the original AI-assisted, community-evolving learning-platform vision.
+
+This is a private repository. All rights are reserved.
 
 ---
 
