@@ -1,6 +1,10 @@
 import { useState } from 'react';
+import { Navigate } from 'react-router';
+import AuthLoadingScreen from '../../../components/feedback/AuthLoadingScreen';
 import { STORAGE_KEYS } from '../../../lib/storage/storage-keys';
 import { safeSessionStorage } from '../../../lib/storage/safe-storage';
+import { ROUTES } from '../../../routes/config/route-paths';
+import { useAuthStore } from '../../../store/useAuthStore';
 import ArenaPreview from '../components/ArenaPreview';
 import FinalCta from '../components/FinalCta';
 import FloatingStudioNav from '../components/FloatingStudioNav';
@@ -26,6 +30,8 @@ function shouldPlayLandingIntro() {
 }
 
 export default function LandingPage() {
+  const authReady = useAuthStore((state) => state.authReady);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [playIntro] = useState(shouldPlayLandingIntro);
   const [introComplete, setIntroComplete] = useState(() => !playIntro);
   const [showLoader, setShowLoader] = useState(playIntro);
@@ -34,6 +40,9 @@ export default function LandingPage() {
     safeSessionStorage.set(STORAGE_KEYS.landingIntroPlayed, 'true');
     setIntroComplete(true);
   };
+
+  if (!authReady) return <AuthLoadingScreen />;
+  if (isAuthenticated) return <Navigate to={ROUTES.dashboard} replace />;
 
   return (
     <>
