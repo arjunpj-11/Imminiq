@@ -13,6 +13,9 @@ function AuthSessionSync() {
 export default function AuthSessionBridge() {
   const location = useLocation();
   const isPublicProfile = location.pathname.startsWith(`${ROUTES.profile}/`);
+  const isLandingPage = location.pathname === ROUTES.home;
 
-  return isPublicRoute(location.pathname) && !isPublicProfile ? null : <AuthSessionSync />;
+  return isPublicRoute(location.pathname) && !isPublicProfile && !isLandingPage ? null : (
+    <AuthSessionSync />
+  );
 }
