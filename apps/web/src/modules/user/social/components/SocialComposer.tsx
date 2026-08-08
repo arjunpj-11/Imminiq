@@ -146,7 +146,8 @@ export default function SocialComposer({
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if ((!text.trim() && !file) || sendMessage.isPending || isCheckingConnection || disabled) return;
+    if ((!text.trim() && !file) || sendMessage.isPending || isCheckingConnection || disabled)
+      return;
 
     setIsCheckingConnection(true);
     const reachable = await isAppReachable();
