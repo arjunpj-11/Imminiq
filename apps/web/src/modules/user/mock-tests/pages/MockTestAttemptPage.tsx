@@ -6,6 +6,7 @@ import { useLocation, useNavigate, useParams } from 'react-router';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import Modal from '../../../../components/overlays/Modal';
+import { isAppReachable } from '../../../../lib/connectivity';
 import { toast } from '../../../../lib/toast';
 import { safeSessionStorage } from '../../../../lib/storage/safe-storage';
 import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys';
@@ -92,7 +93,7 @@ export default function MockTestAttemptPage() {
   );
   const [reportOpen, setReportOpen] = useState(false);
   const [finishReviewOpen, setFinishReviewOpen] = useState(false);
-  const [online, setOnline] = useState(() => navigator.onLine);
+  const [online, setOnline] = useState(true);
   const [reportReason, setReportReason] = useState<MockTestQuestionIssueReason>('incorrect_answer');
   const [reportDetails, setReportDetails] = useState('');
 
@@ -126,12 +127,30 @@ export default function MockTestAttemptPage() {
   const unansweredCount = Math.max(0, totalQuestions - answeredCount);
 
   useEffect(() => {
-    const setOnlineState = () => setOnline(navigator.onLine);
-    window.addEventListener('online', setOnlineState);
-    window.addEventListener('offline', setOnlineState);
+    let disposed = false;
+    let recheckTimer: number | undefined;
+
+    const verifyConnection = async () => {
+      window.clearTimeout(recheckTimer);
+      const reachable = await isAppReachable();
+      if (disposed) return;
+
+      setOnline(reachable);
+      if (!reachable) {
+        recheckTimer = window.setTimeout(() => void verifyConnection(), 15_000);
+      }
+    };
+
+    const handleConnectionChange = () => void verifyConnection();
+    window.addEventListener('online', handleConnectionChange);
+    window.addEventListener('offline', handleConnectionChange);
+    void verifyConnection();
+
     return () => {
-      window.removeEventListener('online', setOnlineState);
-      window.removeEventListener('offline', setOnlineState);
+      disposed = true;
+      window.clearTimeout(recheckTimer);
+      window.removeEventListener('online', handleConnectionChange);
+      window.removeEventListener('offline', handleConnectionChange);
     };
   }, []);
 

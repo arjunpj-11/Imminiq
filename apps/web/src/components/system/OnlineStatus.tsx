@@ -1,28 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { canReachAppOrigin } from '../../lib/connectivity';
 import { toast } from '../../lib/toast';
 
-const CONNECTIVITY_CHECK_TIMEOUT_MS = 4_000;
 const OFFLINE_RECHECK_INTERVAL_MS = 15_000;
-
-async function canReachAppOrigin(): Promise<boolean> {
-  const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), CONNECTIVITY_CHECK_TIMEOUT_MS);
-
-  try {
-    const response = await fetch(`/robots.txt?connectivity-check=${Date.now()}`, {
-      cache: 'no-store',
-      credentials: 'same-origin',
-      signal: controller.signal,
-    });
-
-    return response.ok;
-  } catch {
-    return false;
-  } finally {
-    window.clearTimeout(timeout);
-  }
-}
 
 export default function OnlineStatus() {
   // Start optimistically. `navigator.onLine` is only a browser/network-adapter

@@ -8,6 +8,7 @@ import ImminiqWordmark from '../components/ui/ImminiqWordmark';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../routes/config/route-paths';
+import { isAppReachable } from '../lib/connectivity';
 
 const RefreshIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -195,14 +196,16 @@ export default function NoConnectionPage() {
     });
 
     window.setTimeout(() => {
-      if (navigator.onLine) {
-        handleReconnectSuccess();
-        return;
-      }
+      void isAppReachable().then((reachable) => {
+        if (reachable) {
+          handleReconnectSuccess();
+          return;
+        }
 
-      setSignalLevel(0);
-      setIsRetrying(false);
-      showToast('Still offline. Check your connection and try again.');
+        setSignalLevel(0);
+        setIsRetrying(false);
+        showToast('Still offline. Check your connection and try again.');
+      });
     }, 2200);
   };
 
@@ -213,13 +216,11 @@ export default function NoConnectionPage() {
 
     window.addEventListener('online', handleOnline);
 
-    let reconnectTimeout: number | undefined;
-
-    if (navigator.onLine) {
-      reconnectTimeout = window.setTimeout(() => {
-        handleReconnectSuccess();
-      }, 0);
-    }
+    const reconnectTimeout = window.setTimeout(() => {
+      void isAppReachable().then((reachable) => {
+        if (reachable) handleReconnectSuccess();
+      });
+    }, 0);
 
     return () => {
       window.removeEventListener('online', handleOnline);
