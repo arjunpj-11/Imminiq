@@ -24,15 +24,15 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/cookie-parser": "^1.4.10",
-    "eslint": "^10.8.0",
+    "eslint": "^10.8.1",
     "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-react-refresh": "^0.5.3",
-    "globals": "^17.9.0",
+    "eslint-plugin-react-refresh": "^0.5.4",
+    "globals": "^17.11.0",
     "postcss": "^8.5.23",
     "prettier": "3.9.6",
-    "tsc-alias": "^1.9.1",
+    "tsc-alias": "^1.9.2",
     "turbo": "latest",
-    "typescript-eslint": "^8.66.0"
+    "typescript-eslint": "^8.67.0"
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",
