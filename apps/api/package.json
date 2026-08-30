@@ -21,7 +21,7 @@
     "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^3.0.3",
     "bullmq": "^6.0.0",
-    "cloudinary": "^2.10.0",
+    "cloudinary": "^2.11.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
@@ -33,8 +33,8 @@
     "mongoose": "9.9.1",
     "morgan": "^1.11.0",
     "multer": "^2.2.0",
-    "nodemailer": "^9.0.4",
-    "otplib": "^13.4.1",
+    "nodemailer": "^9.0.5",
+    "otplib": "^13.5.0",
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
@@ -49,7 +49,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/multer": "^2.2.0",
-    "@types/node": "^26.1.2",
+    "@types/node": "^26.4.0",
     "@types/nodemailer": "^8.0.1",
     "@types/passport": "^1.0.17",
     "@types/passport-github2": "^1.2.9",
@@ -58,8 +58,8 @@
     "@types/supertest": "^7.2.1",
     "mongodb-memory-server": "^11.2.0",
     "supertest": "^7.2.2",
-    "tsx": "^4.23.9",
+    "tsx": "^4.23.12",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   }
 }
