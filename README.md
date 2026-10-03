@@ -1,6 +1,6 @@
 <div align="center">
 
-# Imminiq
+# Imminiq.
 
 **An AI-powered, community-driven learning platform that turns a learning goal into a structured path—and improves that path through real learner contributions.**
 
